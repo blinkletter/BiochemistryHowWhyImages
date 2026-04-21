@@ -10,7 +10,7 @@ The following pages contain the information on how the images and figures in the
 
 Pages in this section describe this website and provide instructions for making the images used in the pages of this web book.
 
-### [Chapter Images](chapters/01-intro/01-trypsin-geis/trypsin-geis.md)
+### [Chapter Images](chapters/01-intro/intro.md)
 
 These pages provide instructions for making the images, figures, plots and other visualizations presented in the textbook chapters. 
 
