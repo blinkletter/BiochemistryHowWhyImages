@@ -1,0 +1,48 @@
+close
+open 2ptn.cif
+camera ortho
+set bgColor white
+
+
+# hide atoms
+hide 
+# hide cartoon (ribbons) visualization  
+cartoon
+hide ribbons   
+
+# show alpha carbons
+show @CA
+
+# hide calcium ion
+hide :ca        
+
+# color ribbons by secondary structure
+color lightgrey target a              
+color strand rgb(255,255,153) target a
+color helix rgb(255,163,135) target a
+
+# show atoms in residues 189 (pocket) and 57, 102, 195 (the catalytic triad) 
+show :189
+hide :189@C,N,O            
+show :57, 102, 195 
+hide :57,102,195@C,N,O  
+
+# atoms shown in ball-and-stick style
+style ball 
+size ballScale -0  
+
+# atoms colored using CPK colors
+color byelement      
+
+# style commands
+graphics silhouettes true color black width 3 depthJump 0.02
+
+lighting gentle
+lighting depthCue true depthCueColor white depthCueStart 0.4 depthCueEnd 0.6
+
+turn x 90
+turn z 175
+
+zoom 0.7
+
+# save 2ptn_trace.png supersample 4 transparentBackground true

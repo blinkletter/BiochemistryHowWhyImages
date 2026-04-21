@@ -1,0 +1,37 @@
+open 2ptn.cif
+camera ortho
+set bgColor white
+
+
+# hide atoms
+hide 
+# show cartoon (ribbons) visualization         
+cartoon       
+
+# color ribbons by secondary structure
+color /a lightgrey target r              
+color /a & strand rgb(255,255,153) target r
+color /a & helix rgb(255,163,135) target r
+
+# show atoms in residues 189 (pocket) and 57, 102, 195 (the catalytic triad) 
+show :189            
+show :57, 102, 195   
+# atoms shown in ball-and-stick style
+style ball   
+size ballScale +0.07        
+# atoms colored using CPK colors
+color byelement      
+
+# style commands
+graphics silhouettes true color black width 3 depthJump 0.02
+
+lighting gentle
+lighting depthCue true depthCueColor white depthCueStart 0.4 depthCueEnd 1
+
+
+turn x 90
+turn z 175
+
+zoom 0.7
+
+# save 2ptn.png supersample 4 transparentBackground true

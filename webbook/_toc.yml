@@ -1,0 +1,24 @@
+# Table of contents
+# Learn more at https://jupyterbook.org/customize/toc.html
+
+format: jb-book
+root: start.md
+parts:
+    - caption: This Website
+      chapters:
+        - file: website/siteinstructions.md
+        - file: website/webbook.md
+          sections:
+          - file: website/waterbox/waterbox.md
+    - caption: Chapters
+      chapters:
+        - file: chapters/01-intro/intro.md        
+          sections:
+          - file: chapters/01-intro/01-trypsin-geis/trypsin-geis.md
+          - file: chapters/01-intro/02-trypsin-chimera/trypsin-chimera.ipynb     
+          - file: chapters/01-intro/03-Trypsin-ramachandran/Ramachandran.ipynb     
+    - caption: Other
+      chapters:
+        - file: other/other.md
+#          sections:
+#          - file: website/waterbox/waterbox.md
