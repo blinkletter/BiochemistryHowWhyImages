@@ -1,0 +1,11 @@
+open data/Water_Box.pdb
+style ball
+size ballScale +0.07
+lighting gentle
+graphics silhouettes true  color  black width  3 depthJump 0.01
+lighting depthCue true
+lighting depthCueColor white
+lighting depthCueEnd  1
+lighting depthCueStart  0.3
+
+#save image3.png supersample 4 transparentBackground  true
