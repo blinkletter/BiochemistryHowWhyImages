@@ -6,7 +6,7 @@ Welcome to the course information for **Chemistry 4410**, Physical Organic Chemi
 
 The following pages contain the information on how the images and figures in the book were made.
 
-### [This Web Book](website/webbook.md)
+### [This Web Book](website/siteinstructions.md)
 
 Pages in this section describe this website and provide instructions for making the images used in the pages of this web book.
 
