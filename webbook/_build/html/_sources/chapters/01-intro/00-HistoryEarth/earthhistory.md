@@ -12,7 +12,7 @@ Walton, C. R.; et. al., “Evolution of the
 Crustal Phosphorus Reservoir.” *Sci. Adv.*,
 **2023**, *9*, eade6923. [https://doi.org/10.1126/sciadv.ade6923](https://doi.org/10.1126/sciadv.ade6923). Open access.
 
-I perormed the classic "screen shot" and editted the image.
+I performed the classic "screen shot" and editted the image.
 
 I editted and combined the images using *Affinity Publisher* (now available as *[Affinity Studio](https://www.affinity.studio)*). The working file is available as [images/00_Intro_EarthRocks.afpub](images/00_Intro_EarthRocks.afpub) in the GitHub repository with this noteboook
 

@@ -5,7 +5,7 @@ This page provides the instructions and code to produce the corresponding figure
 
 The water banner for the website was made using [UCSF ChimeraX](https://www.cgl.ucsf.edu/chimerax/).
 
-A data file featuring a "water box", a collection of water molecules simulating liquid water produced by a molecular dynamics simulation. I obtained the data at [https://github.com/rmcgibbo/openmm-cmd](https://github.com/rmcgibbo/openmm-cmd). In the examples, I found the file named "[waterbox.pdb](https://github.com/rmcgibbo/openmm-cmd/blob/master/examples/05-iAMOEBA-NPT/waterbox.pdb)".
+A data file featuring a "water box", a collection of water molecules simulating liquid water produced by a molecular dynamics simulation. I obtained the data at [https://github.com/rmcgibbo/openmm-cmd](https://github.com/rmcgibbo/openmm-cmd). In the examples, I found the file named [waterbox.pdb](data/Water_Box.pdb).
 
 Open ChimeraX and enter the folloing commands in the command line.
 
