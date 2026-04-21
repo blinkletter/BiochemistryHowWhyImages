@@ -14,6 +14,7 @@ parts:
       chapters:
         - file: chapters/01-intro/intro.md        
           sections:
+          - file: chapters/01-intro/00-HistoryEarth/earthhistory.md
           - file: chapters/01-intro/01-trypsin-geis/trypsin-geis.md
           - file: chapters/01-intro/02-trypsin-chimera/trypsin-chimera.ipynb     
           - file: chapters/01-intro/03-Trypsin-ramachandran/Ramachandran.ipynb     

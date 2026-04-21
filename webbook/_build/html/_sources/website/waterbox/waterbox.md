@@ -29,7 +29,7 @@ All of thes commands are collected in a command file for ChimeraX. If you use th
 Below is the image that was generated. I editted and cropped it for various uses around this website.
 
 ```{image} images/waterbox2.png
-:alt: trypsin by Geis (altered)
+:alt: waterbox
 :width: 500px
 :align: center
 ```

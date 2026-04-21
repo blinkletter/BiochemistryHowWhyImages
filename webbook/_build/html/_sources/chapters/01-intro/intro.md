@@ -6,6 +6,14 @@ Note that I will not be referring to figures by number. The positions of figures
 
 ## Recipes for Figures
 
+- [History of Earth](00-HistoryEarth/earthhistory.md)
+```{image} 00-HistoryEarth/images/00_Intro_EarthRocks.png
+:alt: trypsin by Geis (altered)
+:width: 150px
+:align: center
+```
+
+
 - [Trypsin by Irving Geis](01-trypsin-geis/trypsin-geis.md)
 ```{image} 01-trypsin-geis/images/geis.png
 :alt: trypsin by Geis (altered)
