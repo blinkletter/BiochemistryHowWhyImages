@@ -1,0 +1,37 @@
+# Data Set from https://bionumbers.hms.harvard.edu/search.aspx?task=searchbytrmorg&log=y&trm=Biosphere
+# These numbers alegedly from John Harte, Consider a Spherical Cow: A Course in Environmental Problem Solving, Berkeley. 1988. University Science Books p.243 VIII. The Elements table 1 978-0935702583
+# Borrow it from https://archive.org/details/considerspherica00hart
+# In UPEI Library at QH541.15.M34 H37 1985
+#
+#
+symbol, crust,     seawater,     biomass
+O,      456000,    857000,       630000
+Si,     273000,    3,            15000
+Al,     83600,     0.01,         500
+Fe,     62200,     0.01,         1000
+Ca,     46600,     400,          40000
+Mg,     27640,     1350,         4000
+Na,     22700,     10500,        2000
+K,      18400,     380,          20000
+Ti,     6320,      0.001,        100
+H,      1520,      108000,       80000
+P,      1120,      0.07,         5000
+Mn,     1060,      0.0002,       100
+F,      554,       1.3,          50
+Ba,     390,       0.03,         300
+Sr,     384,       8.1,          200
+S,      340,       885,          5000
+C,      180,       28,           200000
+V,      136,       0.002,     
+Cl,     131,       19000,        2,000
+Cr,     122,       0.00005,     
+Ni,     99,        0.005,     
+Zn,     76,        0.01,     
+Cu,     68,        0.003,     
+N,      19,        0.50,         20000
+Pb,     13,        0.000005,     0.2
+B,      9,         4.6,          100
+Br,     2.5,       65,     
+U,      2.3,       0.003,     
+As,     1.8,       0.003,     
+Hg,     0.09,      0.00003
