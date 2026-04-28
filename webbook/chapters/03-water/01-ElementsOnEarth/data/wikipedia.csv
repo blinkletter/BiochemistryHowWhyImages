@@ -1,98 +1,98 @@
-﻿# "Abundance of chemical elements in Earth's,          continental) crust, by mass "
-# https://en.wikipedia.org/wiki/Abundance_of_elements_in_Earth%27s_crust
+﻿# "Abundance of chemical elements in earth's,          continental) crust, by mass "
+# https://en.wikipedia.org/wiki/Abundance_of_elements_in_earth%27s_crust
 #
-number,      name,        sym­bol,     "Goldschmidt class", "Abundance (ppm)",  percent,           "Extraction (tonnes/yr)",          
-8,           oxygen,          O,          Lithophile,           461,000,        46.1,          10,335,000,     
-14,          silicon,         Si,         Lithophile,           282,000,        28.2,           7,200,000,      
-13,          aluminium,       Al,         Lithophile,           82,300,          8.23,           57,600,000,     
-26,          iron,            Fe,         Siderophile,          56,300,          5.63,           1,150,000,000,  
-20,          calcium,         Ca,         Lithophile,           41,500,          4.15,           18,000,         
-11,          sodium,          Na,         Lithophile,           23,600,          2.36,           255,000,000,    
-12,          magnesium,       Mg,         Lithophile,           23,300,          2.33,           27,700,000,     
-19,          potassium,       K,          Lithophile,           20,900,          2.09,           53,200,000,     
-22,          titanium,        Ti,         Lithophile,           5,650,           0.565,           6,600,000,      
-1,           hydrogen,        H,          Atmophile,            1,400,           0.14,           75,000,000,      
-15,          phosphorus,      P,          Lithophile,           1,050,           0.105,           226,000,000,    
-25,          manganese,       Mn,         Lithophile,           950,             0.095,           16,000,000,       
-9,           fluorine,        F,          Lithophile,           585,             0.0585,           17,000,         
-56,          barium,          Ba,         Lithophile,           425,             0.0425,           6,000,000,       
-38,          strontium,       Sr,         Lithophile,           370,             0.037,           350,000,         
-16,          sulfur,          S,          Chalcophile,          350,             0.035,           69,300,000,       
-6,           carbon,          C,          Atmophile,            200,             0.02,           9,700,000,000,     
-40,          zirconium,       Zr,         Lithophile,           165,             0.0165,           1,460,000,       
-17,          chlorine,        Cl,         Lithophile,           145,             0.0145,           71,250,000,      
-23,          vanadium,        V,          Lithophile,           120,             0.012,           76,000,          
-24,          chromium,        Cr,         Lithophile,           102,             0.0102,           26,000,000,      
-37,          rubidium,        Rb,         Lithophile,           90,              0.009,          2,          
-28,          nickel,          Ni,         Siderophile,          84,              0.0084,           2,250,000,        
-30,          zinc,            Zn,         Chalcophile,          70,              0.007,           11,900,000,        
-58,          cerium,          Ce,         Lithophile,           66.5,            0.00665,           24,000,        
-29,          copper,          Cu,         Chalcophile,          60,              0.006,           19,400,000,        
-60,          neodymium,       Nd,         Lithophile,           41.5,            0.00415,           7,000,         
-57,          lanthanum,       La,         Lithophile,           39,              0.0039,           12,50,          
-39,          yttrium,         Y,          Lithophile,           33,              0.0033,           6,000,          
-27,          cobalt,          Co,         Siderophile,          25,              0.0025,           123,000,          
-21,          scandium,        Sc,         Lithophile,           22,              0.0022,          14, 
-3,           lithium,         Li,         Lithophile,           20,              0.002,           35,000,          
-41,          niobium,         Nb,         Lithophile,           20,              0.002,           64,000,          
-7,           nitrogen,        N,          Atmophile,            19,              0.0019,           140,000,000,          
-31,          gallium,         Ga,         Chalcophile,          19,              0.0019,          315,          
-82,          lead,            Pb,         Chalcophile,          14,              0.0014,           4,820,000,          
-5,           boron,           B,          Lithophile,           10,              0.001,           9,400,000,          
-90,          thorium,         Th,         Lithophile,           9.6,             0.00096,           5,000,  
-59,          praseodymium,    Pr,         Lithophile,           9.2,             0.00092,           2,50,  
-62,          samarium,        Sm,         Lithophile,           7.05,            0.000705,          700, 
-64,          gadolinium,      Gd,         Lithophile,           6.2,             0.00062,          400,   
-66,          dysprosium,      Dy,         Lithophile,           5.2,             0.00052,          0.2,   
-68,          erbium,          Er,         Lithophile,           3.5,             0.00035,          500,   
-18,          argon,           Ar,         Atmophile,            3.5,             0.00035,          ,          
-70,          ytterbium,       Yb,         Lithophile,           3.2,             0.00032,          ,          
-72,          hafnium,         Hf,         Lithophile,           3.0,             0.0003,          35,
-55,          caesium,         Cs,         Lithophile,           3.0,             0.0003,          ,          
-4,           beryllium,       Be,         Lithophile,           2.8,             0.00028,          220,          
-92,          uranium,         U,          Lithophile,           2.7,             0.00027,           74,119",          
-35,          bromine,         Br,         Lithophile,           2.4,             0.00024,           391,000,          
-50,          tin,             Sn,         Chalcophile,          2.3,             0.00023,           280,000,          
-73,          tantalum,        Ta,         Lithophile,           2.0,             0.0002,           1,10,          
-63,          europium,        Eu,         Lithophile,           2.0,             0.0002,          35.8,
-33,          arsenic,         As,         Chalcophile,          1.8,             0.00018,           36,50,          
-32,          germanium,       Ge,         Chalcophile,          1.5,             0.00015,          155,          
-67,          holmium,         Ho,         Lithophile,           1.3,             0.00013,          ,          
-74,          tungsten,        W,          Siderophile,          1.25,            0.000125,           86,40,          
-42,          molybdenum,      Mo,         Siderophile,          1.2,             0.00012,           227,000,          
-65,          terbium,         Tb,         Lithophile,           1.2,             0.00012,          ,          
-81,          thallium,        Tl,         Chalcophile,          0.85,            8.5E−5,          10,          
-71,          lutetium,        Lu,         Lithophile,           0.8,             8E−5,          ,          
-69,          thulium,         Tm,         Lithophile,           0.52,            5.2E−5,          ,          
-53,          iodine,          I,          Lithophile,           0.45,            4.5E−5,           31,60,          
-49,          indium,          In,         Chalcophile,          0.25,            2.5E−5,          655,          
-51,          antimony,        Sb,         Chalcophile,          0.2,             2E−5,           130,000,          
-48,          cadmium,         Cd,         Chalcophile,          0.15,            1.5E−5,           23,000,          
-80,          mercury,         Hg,         Chalcophile,          0.085,           8.5E−6,           4,50,          
-47,          silver,          Ag,         Chalcophile,          0.075,           7.5E−6,           27,000,          
-34,          selenium,        Se,         Chalcophile,          0.05,            5E−6,           2,20,          
-46,          palladium,       Pd,         Siderophile,          0.015,           1.5E−6,          208,          
-83,          bismuth,         Bi,         Chalcophile,          0.0085,          8.5E−7,           10,20,          
-2,           helium,          He,         Atmophile,            0.008,           8E−7,          ,          
-10,          neon,            Ne,         Atmophile,            0.005,           5E−7,          ,          
-78,          platinum,        Pt,         Siderophile,          0.005,           5E−7,          172,          
-79,          gold,            Au,         Siderophile,          0.004,           4E−7,           3,10,          
-76,          osmium,          Os,         Siderophile,          0.0015,          1.5E−7,          ,          
-52,          tellurium,       Te,         Chalcophile,          0.001,           1E−7,           2,20,          
-44,          ruthenium,       Ru,         Siderophile,          0.001,           1E−7,          30,          
-77,          iridium,         Ir,         Siderophile,          0.001,           1E−7,          7.3,          
-45,          rhodium,         Rh,         Siderophile,          0.001,           1E−7,          30,          
-75,          rhenium,         Re,         Siderophile,          0.0007,          7E−8,          47.2,          
-36,          krypton,         Kr,         Atmophile,            0.0001,          1E−8,          ,          
-54,          xenon,           Xe,         Atmophile,            3E−5,            3E−9,          ,          
-91,          protactinium,    Pa,         trace,                1.4E−6,          1.4E−10,          ,          
-88,          radium,          Ra,         trace,                9E−7,            9E−11,          ,          
-89,          actinium,        Ac,         trace,                5.5E−10,         6E−14,          ,          
-84,          polonium,        Po,         trace,                2E−10,           2E−14,          ,          
-86,          radon,           Rn,         trace,                4E−13,           4E−17,          ,          
-43,          technetium,      Tc,         trace,                3E−15,           3E−19,          ,          
-61,          promethium,      Pm,         trace,                2E−23,           2E−25,          ,          
-87,          francium,        Fr,         trace,                1E−24,           1E−26,          ,          
-85,          astatine,        At,         trace,                3E−27,           3E−29,          ,          
-94,          plutonium,       Pu,         trace,              ,          ,          
-93,          neptunium,       Np,         trace,              ,          ,          
+number,      name,        "symbol",     "Goldschmidt", "Abundance (ppm)",        percent,    "extraction (tonnes/yr)"
+8,           oxygen,          O,          Lithophile,           461000,          46.1,          10335000
+14,          silicon,         Si,         Lithophile,           282000,          28.2,           7200000
+13,          aluminium,       Al,         Lithophile,           82300,           8.23,          57600000
+26,          iron,            Fe,         Siderophile,          56300,           5.63,        1150000000
+20,          calcium,         Ca,         Lithophile,           41500,           4.15,             18000
+11,          sodium,          Na,         Lithophile,           23600,           2.36,         255000000
+12,          magnesium,       Mg,         Lithophile,           23300,           2.33,          27700000
+19,          potassium,       K,          Lithophile,           20900,           2.09,          53200000
+22,          titanium,        Ti,         Lithophile,           5650,            0.565,          6600000
+1,           hydrogen,        H,          Atmophile,            1400,            0.14,          75000000
+15,          phosphorus,      P,          Lithophile,           1050,            0.105,        226000000
+25,          manganese,       Mn,         Lithophile,           950,             0.095,         16000000
+9,           fluorine,        F,          Lithophile,           585,             0.0585,           17000
+56,          barium,          Ba,         Lithophile,           425,             0.0425,         6000000
+38,          strontium,       Sr,         Lithophile,           370,             0.037,           350000
+16,          sulfur,          S,          Chalcophile,          350,             0.035,         69300000
+6,           carbon,          C,          Atmophile,            200,             0.02,        9700000000
+40,          zirconium,       Zr,         Lithophile,           165,             0.0165,         1460000
+17,          chlorine,        Cl,         Lithophile,           145,             0.0145,        71250000
+23,          vanadium,        V,          Lithophile,           120,             0.012,            76000
+24,          chromium,        Cr,         Lithophile,           102,             0.0102,        26000000
+37,          rubidium,        Rb,         Lithophile,           90,              0.009,                2
+28,          nickel,          Ni,         Siderophile,          84,              0.0084,         2250000
+30,          zinc,            Zn,         Chalcophile,          70,              0.007,         11900000
+58,          cerium,          Ce,         Lithophile,           66.5,            0.00665,          24000
+29,          copper,          Cu,         Chalcophile,          60,              0.006,         19400000
+60,          neodymium,       Nd,         Lithophile,           41.5,            0.00415,           7000
+57,          lanthanum,       La,         Lithophile,           39,              0.0039,           12500
+39,          yttrium,         Y,          Lithophile,           33,              0.0033,            6000
+27,          cobalt,          Co,         Siderophile,          25,              0.0025,          123000
+21,          scandium,        Sc,         Lithophile,           22,              0.0022,              14
+3,           lithium,         Li,         Lithophile,           20,              0.002,            35000
+41,          niobium,         Nb,         Lithophile,           20,              0.002,            64000
+7,           nitrogen,        N,          Atmophile,            19,              0.0019,       140000000
+31,          gallium,         Ga,         Chalcophile,          19,              0.0019,             315
+82,          lead,            Pb,         Chalcophile,          14,              0.0014,         4820000
+5,           boron,           B,          Lithophile,           10,              0.001,          9400000
+90,          thorium,         Th,         Lithophile,           9.6,             0.00096,           5000
+59,          praseodymium,    Pr,         Lithophile,           9.2,             0.00092,           2500
+62,          samarium,        Sm,         Lithophile,           7.05,            0.000705,           700
+64,          gadolinium,      Gd,         Lithophile,           6.2,             0.00062,            400
+66,          dysprosium,      Dy,         Lithophile,           5.2,             0.00052,            0.2
+68,          erbium,          Er,         Lithophile,           3.5,             0.00035,            500
+18,          argon,           Ar,         Atmophile,            3.5,             0.00035,               
+70,          ytterbium,       Yb,         Lithophile,           3.2,             0.00032,               
+72,          hafnium,         Hf,         Lithophile,           3.0,             0.0003,              3
+55,          caesium,         Cs,         Lithophile,           3.0,             0.0003,                
+4,           beryllium,       Be,         Lithophile,           2.8,             0.00028,            220
+92,          uranium,         U,          Lithophile,           2.7,             0.00027,          74119
+35,          bromine,         Br,         Lithophile,           2.4,             0.00024,         391000
+50,          tin,             Sn,         Chalcophile,          2.3,             0.00023,         280000
+73,          tantalum,        Ta,         Lithophile,           2.0,             0.0002,            1100
+63,          europium,        Eu,         Lithophile,           2.0,             0.0002,            35.
+33,          arsenic,         As,         Chalcophile,          1.8,             0.00018,          36500
+32,          germanium,       Ge,         Chalcophile,          1.5,             0.00015,            155
+67,          holmium,         Ho,         Lithophile,           1.3,             0.00013,               
+74,          tungsten,        W,          Siderophile,          1.25,            0.000125,         86400
+42,          molybdenum,      Mo,         Siderophile,          1.2,             0.00012,         227000
+65,          terbium,         Tb,         Lithophile,           1.2,             0.00012,               
+81,          thallium,        Tl,         Chalcophile,          0.85,            8.5e-5,              10
+71,          lutetium,        Lu,         Lithophile,           0.8,             8e-5,                  
+69,          thulium,         Tm,         Lithophile,           0.52,            5.2e-5,                
+53,          iodine,          I,          Lithophile,           0.45,            4.5e-5,           31600
+49,          indium,          In,         Chalcophile,          0.25,            2.5e-5,             655
+51,          antimony,        Sb,         Chalcophile,          0.2,             2e-5,            130000
+48,          cadmium,         Cd,         Chalcophile,          0.15,            1.5e-5,           23000
+80,          mercury,         Hg,         Chalcophile,          0.085,           8.5e-6,            4500
+47,          silver,          Ag,         Chalcophile,          0.075,           7.5e-6,           27000
+34,          selenium,        Se,         Chalcophile,          0.05,            5e-6,              2200
+46,          palladium,       Pd,         Siderophile,          0.015,           1.5e-6,             208
+83,          bismuth,         Bi,         Chalcophile,          0.0085,          8.5e-7,           10200
+2,           helium,          He,         Atmophile,            0.008,           8e-7,                  
+10,          neon,            Ne,         Atmophile,            0.005,           5e-7,                  
+78,          platinum,        Pt,         Siderophile,          0.005,           5e-7,               172
+79,          gold,            Au,         Siderophile,          0.004,           4e-7,              3100
+76,          osmium,          Os,         Siderophile,          0.0015,          1.5e-7,                
+52,          tellurium,       Te,         Chalcophile,          0.001,           1e-7,              2200
+44,          ruthenium,       Ru,         Siderophile,          0.001,           1e-7,                30
+77,          iridium,         Ir,         Siderophile,          0.001,           1e-7,               7.3
+45,          rhodium,         Rh,         Siderophile,          0.001,           1e-7,                30
+75,          rhenium,         Re,         Siderophile,          0.0007,          7e-8,              47.2
+36,          krypton,         Kr,         Atmophile,            0.0001,          1e-8,                  
+54,          xenon,           Xe,         Atmophile,            3e-5,            3e-9,                  
+91,          protactinium,    Pa,         trace,                1.4e-6,          1.4e-10,               
+88,          radium,          Ra,         trace,                9e-7,            9e-11,                 
+89,          actinium,        Ac,         trace,                5.5e-10,         6e-14,                 
+84,          polonium,        Po,         trace,                2e-10,           2e-14,                 
+86,          radon,           Rn,         trace,                4e-13,           4e-17,                 
+43,          technetium,      Tc,         trace,                3e-15,           3e-19,                 
+61,          promethium,      Pm,         trace,                2e-23,           2e-25,                 
+87,          francium,        Fr,         trace,                1e-24,           1e-26,                 
+85,          astatine,        At,         trace,                3e-27,           3e-29,                 
+94,          plutonium,       Pu,         trace,                ,                ,                     
+93,          neptunium,       Np,         trace,                ,                ,                      
