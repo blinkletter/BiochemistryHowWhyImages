@@ -1,6 +1,9 @@
-﻿# Data set for elements in the earth from wikipedia data table at
+﻿# SEAWATER ELEMENTAL ABUNDANCE - WIKIPEDIA
+#
+# Data set for elements in the earth from wikipedia data table at
 # https://en.wikipedia.org/wiki/Abundances_of_the_elements_(data_page)
 # 
+# for seawater
 # W1 — CRC Handbook
 # W2 — Kaye & Laby "less than" mean the number is below that limit of detection.
 # Units are kg/L of element in water
@@ -50,12 +53,12 @@ number, symbol, name,          W1,           W2
 41,     Nb,     niobium,       1e-11,      1.5e-11,
 42,     Mo,     molybdenum,    1e-8,       1.0e-8,
 43,     Tc,     technetium,     ,            ,
-44,     Ru,     ruthenium,     7e-13,      ,
+44,     Ru,     ruthenium,     7e-13,        ,
 45,     Rh,     rhodium,       ,             ,
 46,     Pd,     palladium,     ,             ,
 47,     Ag,     silver,        4e-11,      2.8e-10,
 48,     Cd,     cadmium,       1.1e-10,    1.1e-10,
-49,     In,     indium,        2e-8,       ,
+49,     In,     indium,        2e-8,         ,
 50,     Sn,     tin,           4e-12,      8.1e-10,
 51,     Sb,     antimony,      2.4e-10,    3.3e-10,
 52,     Te,     tellurium,     ,             ,
@@ -81,115 +84,23 @@ number, symbol, name,          W1,           W2
 72,     Hf,     hafnium,       7e-12,      8e-12, "less than"
 73,     Ta,     tantalum,      2e-12,      2.5e-12, "less than"
 74,     W,      tungsten,      1e-10,      1e-12, "less than"
-75,     Re,     rhenium,       4e-12,      ,
+75,     Re,     rhenium,       4e-12,        ,
 76,     Os,     osmium,        ,             ,
 77,     Ir,     iridium,       ,             , 
 78,     Pt,     platinum,      ,             ,
 79,     Au,     gold,          4e-12,      1.1e-11,
 80,     Hg,     mercury,       3e-11,      1.5e-10,
-81,     Tl,     thallium,      1.9e-11,    ,
+81,     Tl,     thallium,      1.9e-11,      ,
 82,     Pb,     lead,          3e-11,      3e-11,
 83,     Bi,     bismuth,       2e-11,      2e-11,
-84,     Po,     polonium,      1.5e-20,    ,
+84,     Po,     polonium,      1.5e-20,      ,
 85,     At,     astatine,      ,             ,
-86,     Rn,     radon,         6e-22,      ,
+86,     Rn,     radon,         6e-22,        ,
 87,     Fr,     francium,      ,             ,
-88,     Ra,     radium,        8.9e-17,    ,
+88,     Ra,     radium,        8.9e-17,      ,
 89,     Ac,     actinium,      ,             ,
 90,     Th,     thorium,       1e-12,      1.5e-12,
-91,     Pa,     protactinium,  5e-17,      ,
+91,     Pa,     protactinium,  5e-17,        ,
 92,     U,      uranium,       3.2e-9,     3.3e-9,
 93,     Np,     neptunium,     ,             ,
 94,     Pu,     plutonium,     ,             ,
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

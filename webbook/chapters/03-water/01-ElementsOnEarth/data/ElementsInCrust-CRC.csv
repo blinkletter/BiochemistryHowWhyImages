@@ -1,5 +1,8 @@
-﻿# "Abundance of chemical elements in earth's,          continental) crust, by mass "
+﻿# CRUST ELEMENTAL ABUNDANCE - WIKIPEDIA
+#
+# "Abundance of chemical elements in earth's, continental crust, by mass "
 # https://en.wikipedia.org/wiki/Abundance_of_elements_in_earth%27s_crust
+# values for "Abundance (ppm)" from CRC Handbook
 #
 number,      name,        "symbol",     "Goldschmidt", "Abundance (ppm)",        percent,    "extraction (tonnes/yr)"
 8,           oxygen,          O,          Lithophile,           461000,          46.1,          10335000
