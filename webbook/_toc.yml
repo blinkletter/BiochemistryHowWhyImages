@@ -21,6 +21,7 @@ parts:
         - file: chapters/03-water/water.md        
           sections:
           - file: chapters/03-water/01-ElementsOnEarth/ElementsEarth.ipynb
+          - file: chapters/03-water/01-ElementsOnEarth/ElementsBiosphere.ipynb
     - caption: Other
       chapters:
         - file: other/other.md

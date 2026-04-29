@@ -3,7 +3,7 @@
 # Borrow it from https://archive.org/details/considerspherica00hart
 # In UPEI Library at QH541.15.M34 H37 1985
 #
-#
+# Units are ppm (mg/kg)
 symbol, crust,     seawater,     biomass
 O,      456000,    857000,       630000
 Si,     273000,    3,            15000
@@ -23,7 +23,7 @@ Sr,     384,       8.1,          200
 S,      340,       885,          5000
 C,      180,       28,           200000
 V,      136,       0.002,     
-Cl,     131,       19000,        2,000
+Cl,     131,       19000,        2000
 Cr,     122,       0.00005,     
 Ni,     99,        0.005,     
 Zn,     76,        0.01,     
@@ -34,4 +34,4 @@ B,      9,         4.6,          100
 Br,     2.5,       65,     
 U,      2.3,       0.003,     
 As,     1.8,       0.003,     
-Hg,     0.09,      0.00003
+Hg,     0.09,      0.00003,

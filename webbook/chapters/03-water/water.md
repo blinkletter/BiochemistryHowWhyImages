@@ -6,7 +6,7 @@ Note that I will not be referring to figures by number. The positions of figures
 
 ## Recipes for Figures
 
-- [Elements on Earth](01-ElementsOnEarth/ElementsEarth.ipynb)
+- [Elements on Earth](01-ElementsOnEarth/ElementsEarth.ipynb) An investigation into the data used to make a famous plot of elemental abundance and to reproduce the plot.
 ```{image} 01-ElementsOnEarth/images/Elemental_abundances.svg.png
 :alt: Elements on Earth
 :width: 150px

@@ -26,7 +26,7 @@ save image3.png supersample 4 transparentBackground true
 
 All of thes commands are collected in a command file for ChimeraX. If you use the command `open path.cxc` (where "path" is the path to your file) then all the commands will be executed automatically. The command file is [waterbox.cxc](images/waterbox.cxc).
 
-Below is the image that was generated. I editted and cropped it for various uses around this website.
+Below is the image that was generated. I edited and cropped it for various uses around this website.
 
 ```{image} images/waterbox2.png
 :alt: waterbox
