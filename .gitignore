@@ -553,3 +553,10 @@ TSWLatexianTemp*
 _build
 webbook/_build/.DS_Store
 webbook/_build/.DS_Store
+_build/*
+_build/.*.DS_Store
+_build/.DS_Store
+_build/
+webbook/_build/
+webbook/_build/*
+webbook/_build
