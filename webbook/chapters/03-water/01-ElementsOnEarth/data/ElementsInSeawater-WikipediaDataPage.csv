@@ -8,17 +8,16 @@
 # W2 — Kaye & Laby "less than" mean the number is below that limit of detection.
 # Units are kg/L of element in water
 #
-#
-number, symbol, name,          W1,           W2
-1,      H,      hydrogen,      1.08e-1,    1.1e-1,
-2,      He,     helium,        7e-12,      7.2e-12,
-3,      Li,     lithium,       1.8e-7,     1.7e-7,
-4,      Be,     beryllium,     5.6e-12,    6e-13,
-5,      B,      boron,         4.44e-6,    4.4e-6,
-6,      C,      carbon,        2.8e-5,     2.8e-5,
-7,      N,      nitrogen,      5e-7,       1.6e-5,
-8,      O,      oxygen,        8.57e-1,    8.8e-1,
-9,      F,      fluorine,      1.3e-6,     1.3e-6,
+number, symbol, name,          W1,           W2, "less than"
+01,      H,      hydrogen,      1.08e-1,    1.1e-1,
+02,      He,     helium,        7e-12,      7.2e-12,
+03,      Li,     lithium,       1.8e-7,     1.7e-7,
+04,      Be,     beryllium,     5.6e-12,    6e-13,
+05,      B,      boron,         4.44e-6,    4.4e-6,
+06,      C,      carbon,        2.8e-5,     2.8e-5,
+07,      N,      nitrogen,      5e-7,       1.6e-5,
+08,      O,      oxygen,        8.57e-1,    8.8e-1,
+09,      F,      fluorine,      1.3e-6,     1.3e-6,
 10,     Ne,     neon,          1.2e-10,    1.2e-10,
 11,     Na,     sodium,        1.08e-2,    1.1e-2,
 12,     Mg,     magnesium,     1.29e-3,    1.3e-3,
