@@ -6,9 +6,16 @@ Note that I will not be referring to figures by number. The positions of figures
 
 ## Recipes for Figures
 
-- [Elements on Earth](01-ElementsOnEarth/ElementsEarth.ipynb) An investigation into the data used to make a famous plot of elemental abundance and to reproduce the plot.
-```{image} 01-ElementsOnEarth/images/Elemental_abundances.svg.png
+- [Elements on Earth](01-ElementsOnEarth/ElementsEarth2.ipynb) An investigation into the data used to make a famous plot of elemental abundance and to reproduce the plot.
+```{image} 01-ElementsOnEarth/images/ElementsEarthFigure.png
 :alt: Elements on Earth
+:width: 150px
+:align: center
+```
+
+- [Elements in the Biosphere](01-ElementsOnEarth/ElementsBiosphere.ipynb) An activity plotting various sources of elemental abundance data and making comparisons.
+```{image} 01-ElementsOnEarth/images/ElementsHumanSeawaterFigure.png
+:alt: Elements in Biosphere
 :width: 150px
 :align: center
 ```
