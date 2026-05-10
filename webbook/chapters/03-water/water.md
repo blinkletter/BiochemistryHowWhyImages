@@ -19,3 +19,10 @@ Note that I will not be referring to figures by number. The positions of figures
 :width: 150px
 :align: center
 ```
+
+- [Electronegativity of the Elements](02-Electronegativity/Electronegativity.ipynb) A plot of pauling electronegativity values across the rows of the periodic table.
+```{image} 02-Electronegativity/images/PaulingPlot.png
+:alt: Electronegativity
+:width: 150px
+:align: center
+```
