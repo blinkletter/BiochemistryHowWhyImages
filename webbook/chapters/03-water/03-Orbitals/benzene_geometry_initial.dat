@@ -1,0 +1,137 @@
+
+    -----------------------------------------------------------------------
+          Psi4: An Open-Source Ab Initio Electronic Structure Package
+                               Psi4 1.10 release
+
+                         Git: Rev {} zzzzzzz 
+
+
+    D. G. A. Smith, L. A. Burns, A. C. Simmonett, R. M. Parrish,
+    M. C. Schieber, R. Galvelis, P. Kraus, H. Kruse, R. Di Remigio,
+    A. Alenaizan, A. M. James, S. Lehtola, J. P. Misiewicz, M. Scheurer,
+    R. A. Shaw, J. B. Schriber, Y. Xie, Z. L. Glick, D. A. Sirianni,
+    J. S. O'Brien, J. M. Waldrop, A. Kumar, E. G. Hohenstein,
+    B. P. Pritchard, B. R. Brooks, H. F. Schaefer III, A. Yu. Sokolov,
+    K. Patkowski, A. E. DePrince III, U. Bozkaya, R. A. King,
+    F. A. Evangelista, J. M. Turney, T. D. Crawford, C. D. Sherrill,
+    J. Chem. Phys. 152(18) 184108 (2020). https://doi.org/10.1063/5.0006002
+
+                            Additional Code Authors
+    E. T. Seidl, C. L. Janssen, E. F. Valeev, M. L. Leininger,
+    J. F. Gonthier, R. M. Richard, H. R. McAlexander, M. Saitow, X. Wang,
+    P. Verma, M. H. Lechner, A. Jiang, S. Behnle, A. G. Heide,
+    M. F. Herbst, D. L. Poole, T. Győri, E. C. Mitchell, J. P. Pederson,
+    and A. M. Wallace
+
+             Previous Authors, Complete List of Code Contributors,
+                       and Citations for Specific Modules
+    https://github.com/psi4/psi4/blob/master/codemeta.json
+    https://github.com/psi4/psi4/graphs/contributors
+    https://psicode.org/psi4manual/master/introduction.html#citing-psifour
+
+    -----------------------------------------------------------------------
+
+
+    Psi4 started on: Tuesday, 12 May 2026 10:10AM
+
+    Process ID: 37066
+    Host:       PC001.IRVING.UPEI.CA
+    PSIDATADIR: /opt/anaconda3/envs/ipymol/share/psi4
+    Memory:     1.9 GiB
+    Threads:    2
+    Addons:     a̶d̶c̶c̶, a̶m̶b̶i̶t̶, b̶s̶e̶, c̶c̶t̶3̶, c̶f̶o̶u̶r̶, c̶h̶e̶m̶p̶s̶2̶, c̶p̶p̶e̶, d̶d̶x̶,
+                d̶f̶t̶d̶3̶, d̶f̶t̶d̶4̶, dkh, ecpint, einsums, f̶o̶r̶t̶e̶, g̶a̶u̶x̶c̶, g̶c̶p̶,
+                g̶d̶m̶a̶, g̶e̶o̶m̶e̶t̶r̶i̶c̶, g̶p̶u̶_̶d̶f̶c̶c̶, i̶n̶t̶e̶g̶r̶a̶t̶o̶r̶x̶x̶,
+                i̶p̶i̶, l̶i̶b̶e̶f̶p̶, m̶d̶i̶, m̶p̶2̶d̶, m̶r̶c̶c̶, ooo,
+                o̶p̶e̶n̶f̶e̶r̶m̶i̶o̶n̶p̶s̶i̶4̶, pcmsolver, p̶s̶i̶4̶f̶o̶c̶k̶c̶i̶, p̶s̶i̶x̶a̶s̶,
+                r̶e̶s̶p̶, s̶i̶m̶i̶n̶t̶, s̶n̶s̶m̶p̶2̶, v̶2̶r̶d̶m̶_̶c̶a̶s̶s̶c̶f̶
+    Molecular point group: c1
+    Full point group: C1
+
+    Geometry (in Angstrom), charge = 0, multiplicity = 1:
+
+       Center              X                  Y                   Z       
+    ------------   -----------------  -----------------  -----------------
+         C           -0.660649131733     1.025869637122     0.419030064342
+         C            0.687000868267     0.967829637122     0.527410064342
+         C            1.200730868267     0.010029637122     0.125800064342
+         C            0.631500868267    -0.956260362878    -0.389019935658
+         C           -0.606529131733    -0.960460362878    -0.515809935658
+         C           -1.259699131733    -0.077330362878    -0.163599935658
+         H           -1.205109131733     1.838219637122     0.748690064342
+         H            1.230260868267     1.738449637122     0.946980064342
+         H            2.228420868267    -0.039450362878     0.205980064342
+         H            1.184300868267    -1.764150362878    -0.715729935658
+         H           -1.062489131733    -1.778630362878    -0.949079935658
+         H           -2.284359131733    -0.109670362878    -0.282209935658
+
+        Interatomic Distances (Angstroms)
+
+        Distance 1 to 2 1.353   
+        Distance 1 to 3 2.141   
+        Distance 1 to 4 2.500   
+        Distance 1 to 5 2.196   
+        Distance 1 to 6 1.384   
+        Distance 1 to 7 1.032   
+        Distance 1 to 8 2.089   
+        Distance 1 to 9 3.087   
+        Distance 1 to 10 3.532   
+        Distance 1 to 11 3.146   
+        Distance 1 to 12 2.102   
+        Distance 2 to 3 1.159   
+        Distance 2 to 4 2.132   
+        Distance 2 to 5 2.546   
+        Distance 2 to 6 2.315   
+        Distance 2 to 7 2.094   
+        Distance 2 to 8 1.032   
+        Distance 2 to 9 1.869   
+        Distance 2 to 10 3.042   
+        Distance 2 to 11 3.575   
+        Distance 2 to 12 3.263   
+        Distance 3 to 4 1.234   
+        Distance 3 to 5 2.149   
+        Distance 3 to 6 2.479   
+        Distance 3 to 7 3.085   
+        Distance 3 to 8 1.914   
+        Distance 3 to 9 1.032   
+        Distance 3 to 10 1.964   
+        Distance 3 to 11 3.078   
+        Distance 3 to 12 3.511   
+        Distance 4 to 5 1.245   
+        Distance 4 to 6 2.098   
+        Distance 4 to 7 3.532   
+        Distance 4 to 8 3.067   
+        Distance 4 to 9 1.935   
+        Distance 4 to 10 1.032   
+        Distance 4 to 11 1.965   
+        Distance 4 to 12 3.038   
+        Distance 5 to 6 1.154   
+        Distance 5 to 7 3.129   
+        Distance 5 to 8 3.577   
+        Distance 5 to 9 3.067   
+        Distance 5 to 10 1.973   
+        Distance 5 to 11 1.032   
+        Distance 5 to 12 1.896   
+        Distance 6 to 7 2.122   
+        Distance 6 to 8 3.276   
+        Distance 6 to 9 3.508   
+        Distance 6 to 10 3.020   
+        Distance 6 to 11 1.884   
+        Distance 6 to 12 1.032   
+        Distance 7 to 8 2.445   
+        Distance 7 to 9 3.951   
+        Distance 7 to 10 4.564   
+        Distance 7 to 11 3.998   
+        Distance 7 to 12 2.454   
+        Distance 8 to 9 2.169   
+        Distance 8 to 10 3.877   
+        Distance 8 to 11 4.607   
+        Distance 8 to 12 4.157   
+        Distance 9 to 10 2.217   
+        Distance 9 to 11 3.897   
+        Distance 9 to 12 4.540   
+        Distance 10 to 11 2.259   
+        Distance 10 to 12 3.867   
+        Distance 11 to 12 2.173   
+
+
