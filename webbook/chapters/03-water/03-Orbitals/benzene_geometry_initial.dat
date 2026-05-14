@@ -32,11 +32,11 @@
     -----------------------------------------------------------------------
 
 
-    Psi4 started on: Wednesday, 13 May 2026 09:30AM
+    Psi4 started on: Thursday, 14 May 2026 10:08AM
 
-    Process ID: 2316
-    Host:       Barrys-MacBook-Pro.local
-    PSIDATADIR: /opt/anaconda3/envs/psi4env/share/psi4
+    Process ID: 7742
+    Host:       PC001.IRVING.UPEI.CA
+    PSIDATADIR: /opt/anaconda3/envs/ipymol/share/psi4
     Memory:     1.9 GiB
     Threads:    2
     Addons:     a̶d̶c̶c̶, a̶m̶b̶i̶t̶, b̶s̶e̶, c̶c̶t̶3̶, c̶f̶o̶u̶r̶, c̶h̶e̶m̶p̶s̶2̶, c̶p̶p̶e̶, d̶d̶x̶,

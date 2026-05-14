@@ -1,0 +1,1030 @@
+
+    -----------------------------------------------------------------------
+          Psi4: An Open-Source Ab Initio Electronic Structure Package
+                               Psi4 1.10 release
+
+                         Git: Rev {} zzzzzzz 
+
+
+    D. G. A. Smith, L. A. Burns, A. C. Simmonett, R. M. Parrish,
+    M. C. Schieber, R. Galvelis, P. Kraus, H. Kruse, R. Di Remigio,
+    A. Alenaizan, A. M. James, S. Lehtola, J. P. Misiewicz, M. Scheurer,
+    R. A. Shaw, J. B. Schriber, Y. Xie, Z. L. Glick, D. A. Sirianni,
+    J. S. O'Brien, J. M. Waldrop, A. Kumar, E. G. Hohenstein,
+    B. P. Pritchard, B. R. Brooks, H. F. Schaefer III, A. Yu. Sokolov,
+    K. Patkowski, A. E. DePrince III, U. Bozkaya, R. A. King,
+    F. A. Evangelista, J. M. Turney, T. D. Crawford, C. D. Sherrill,
+    J. Chem. Phys. 152(18) 184108 (2020). https://doi.org/10.1063/5.0006002
+
+                            Additional Code Authors
+    E. T. Seidl, C. L. Janssen, E. F. Valeev, M. L. Leininger,
+    J. F. Gonthier, R. M. Richard, H. R. McAlexander, M. Saitow, X. Wang,
+    P. Verma, M. H. Lechner, A. Jiang, S. Behnle, A. G. Heide,
+    M. F. Herbst, D. L. Poole, T. Győri, E. C. Mitchell, J. P. Pederson,
+    and A. M. Wallace
+
+             Previous Authors, Complete List of Code Contributors,
+                       and Citations for Specific Modules
+    https://github.com/psi4/psi4/blob/master/codemeta.json
+    https://github.com/psi4/psi4/graphs/contributors
+    https://psicode.org/psi4manual/master/introduction.html#citing-psifour
+
+    -----------------------------------------------------------------------
+
+
+    Psi4 started on: Thursday, 14 May 2026 10:08AM
+
+    Process ID: 7742
+    Host:       PC001.IRVING.UPEI.CA
+    PSIDATADIR: /opt/anaconda3/envs/ipymol/share/psi4
+    Memory:     476.8 MiB
+    Threads:    2
+    Addons:     a̶d̶c̶c̶, a̶m̶b̶i̶t̶, b̶s̶e̶, c̶c̶t̶3̶, c̶f̶o̶u̶r̶, c̶h̶e̶m̶p̶s̶2̶, c̶p̶p̶e̶, d̶d̶x̶,
+                d̶f̶t̶d̶3̶, d̶f̶t̶d̶4̶, dkh, ecpint, einsums, f̶o̶r̶t̶e̶, g̶a̶u̶x̶c̶, g̶c̶p̶,
+                g̶d̶m̶a̶, g̶e̶o̶m̶e̶t̶r̶i̶c̶, g̶p̶u̶_̶d̶f̶c̶c̶, i̶n̶t̶e̶g̶r̶a̶t̶o̶r̶x̶x̶,
+                i̶p̶i̶, l̶i̶b̶e̶f̶p̶, m̶d̶i̶, m̶p̶2̶d̶, m̶r̶c̶c̶, ooo,
+                o̶p̶e̶n̶f̶e̶r̶m̶i̶o̶n̶p̶s̶i̶4̶, pcmsolver, p̶s̶i̶4̶f̶o̶c̶k̶c̶i̶, p̶s̶i̶x̶a̶s̶,
+                r̶e̶s̶p̶, s̶i̶m̶i̶n̶t̶, s̶n̶s̶m̶p̶2̶, v̶2̶r̶d̶m̶_̶c̶a̶s̶s̶c̶f̶
+
+Scratch directory: /tmp/
+
+  //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
+  //   ManyBody Setup: N-Body Levels 2 //
+  //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<//
+
+    Model chemistry "(auto)" (§A):          3
+        Number of 1-body computations:      2 (nocp: 0, cp: 2, vmfc_compute: 0)
+        Number of 2-body computations:      1 (nocp: 0, cp: 1, vmfc_compute: 0)
+
+    -----------------------------------------------------------------------
+          Psi4: An Open-Source Ab Initio Electronic Structure Package
+                               Psi4 1.10 release
+
+                         Git: Rev {} zzzzzzz 
+
+
+    D. G. A. Smith, L. A. Burns, A. C. Simmonett, R. M. Parrish,
+    M. C. Schieber, R. Galvelis, P. Kraus, H. Kruse, R. Di Remigio,
+    A. Alenaizan, A. M. James, S. Lehtola, J. P. Misiewicz, M. Scheurer,
+    R. A. Shaw, J. B. Schriber, Y. Xie, Z. L. Glick, D. A. Sirianni,
+    J. S. O'Brien, J. M. Waldrop, A. Kumar, E. G. Hohenstein,
+    B. P. Pritchard, B. R. Brooks, H. F. Schaefer III, A. Yu. Sokolov,
+    K. Patkowski, A. E. DePrince III, U. Bozkaya, R. A. King,
+    F. A. Evangelista, J. M. Turney, T. D. Crawford, C. D. Sherrill,
+    J. Chem. Phys. 152(18) 184108 (2020). https://doi.org/10.1063/5.0006002
+
+                            Additional Code Authors
+    E. T. Seidl, C. L. Janssen, E. F. Valeev, M. L. Leininger,
+    J. F. Gonthier, R. M. Richard, H. R. McAlexander, M. Saitow, X. Wang,
+    P. Verma, M. H. Lechner, A. Jiang, S. Behnle, A. G. Heide,
+    M. F. Herbst, D. L. Poole, T. Győri, E. C. Mitchell, J. P. Pederson,
+    and A. M. Wallace
+
+             Previous Authors, Complete List of Code Contributors,
+                       and Citations for Specific Modules
+    https://github.com/psi4/psi4/blob/master/codemeta.json
+    https://github.com/psi4/psi4/graphs/contributors
+    https://psicode.org/psi4manual/master/introduction.html#citing-psifour
+
+    -----------------------------------------------------------------------
+
+
+    Psi4 started on: Thursday, 14 May 2026 10:08AM
+
+    Process ID: 7742
+    Host:       PC001.IRVING.UPEI.CA
+    PSIDATADIR: /opt/anaconda3/envs/ipymol/share/psi4
+    Memory:     476.8 MiB
+    Threads:    2
+    Addons:     a̶d̶c̶c̶, a̶m̶b̶i̶t̶, b̶s̶e̶, c̶c̶t̶3̶, c̶f̶o̶u̶r̶, c̶h̶e̶m̶p̶s̶2̶, c̶p̶p̶e̶, d̶d̶x̶,
+                d̶f̶t̶d̶3̶, d̶f̶t̶d̶4̶, dkh, ecpint, einsums, f̶o̶r̶t̶e̶, g̶a̶u̶x̶c̶, g̶c̶p̶,
+                g̶d̶m̶a̶, g̶e̶o̶m̶e̶t̶r̶i̶c̶, g̶p̶u̶_̶d̶f̶c̶c̶, i̶n̶t̶e̶g̶r̶a̶t̶o̶r̶x̶x̶,
+                i̶p̶i̶, l̶i̶b̶e̶f̶p̶, m̶d̶i̶, m̶p̶2̶d̶, m̶r̶c̶c̶, ooo,
+                o̶p̶e̶n̶f̶e̶r̶m̶i̶o̶n̶p̶s̶i̶4̶, pcmsolver, p̶s̶i̶4̶f̶o̶c̶k̶c̶i̶, p̶s̶i̶x̶a̶s̶,
+                r̶e̶s̶p̶, s̶i̶m̶i̶n̶t̶, s̶n̶s̶m̶p̶2̶, v̶2̶r̶d̶m̶_̶c̶a̶s̶s̶c̶f̶
+
+  ==> Input QCSchema <==
+
+--------------------------------------------------------------------------
+{'driver': 'energy',
+ 'extras': {'psiapi': True, 'wfn_qcvars_only': True},
+ 'id': None,
+ 'keywords': {'SCF__INTS_TOLERANCE': 1e-12, 'function_kwargs': {}},
+ 'model': {'basis': 'aug-cc-pvdz', 'method': 'scf'},
+ 'molecule': {'atom_labels': ['', '', '', '', '', ''],
+              'atomic_numbers': [8, 1, 1, 8, 1, 1],
+              'extras': {},
+              'fix_com': True,
+              'fix_orientation': True,
+              'fragment_charges': [0.0, 0.0],
+              'fragment_multiplicities': [1, 1],
+              'fragments': [[0, 1, 2], [3, 4, 5]],
+              'geometry': [0.0, -0.0511833892558, -2.7381048180398, 0.0, -0.0511833892558, -0.8483786925819, 0.0,
+                           1.7781852282292, -3.2118930519577, 0.0, -0.0511833892558, 2.5531283332421, 0.8182754154208,
+                           1.3661112048376, 3.4979913959711, -0.8182754154208, -1.4684779833491, 3.4979913959711],
+              'mass_numbers': [16, 1, 1, 16, 1, 1],
+              'masses': [15.99491461957, 1.00782503223, 1.00782503223, 15.99491461957, 1.00782503223, 1.00782503223],
+              'molecular_charge': 0.0,
+              'molecular_multiplicity': 1,
+              'name': 'H4O2 ([1],[0])',
+              'provenance': {'creator': 'QCElemental',
+                             'routine': 'qcelemental.molparse.from_schema',
+                             'version': '0.30.1'},
+              'real': [False, False, False, True, True, True],
+              'schema_name': 'qcschema_molecule',
+              'schema_version': 2,
+              'symbols': ['O', 'H', 'H', 'O', 'H', 'H'],
+              'validated': True},
+ 'protocols': {'stdout': True},
+ 'provenance': {'creator': 'QCElemental', 'routine': 'qcelemental.models.results', 'version': '0.30.1'},
+ 'schema_name': 'qcschema_input',
+ 'schema_version': 1}
+--------------------------------------------------------------------------
+
+Scratch directory: /tmp/
+   => Libint2 <=
+
+    Primary   basis highest AM E, G, H:  7, 6, 3
+    Auxiliary basis highest AM E, G, H:  7, 7, 4
+    Onebody   basis highest AM E, G, H:  -, -, -
+    Solid Harmonics ordering:            Gaussian
+
+*** tstart() called on PC001.IRVING.UPEI.CA
+*** at Thu May 14 10:18:46 2026
+
+   => Loading Basis Set <=
+
+    Name: AUG-CC-PVDZ
+    Role: ORBITAL
+    Keyword: BASIS
+    atoms 1, 4     entry O          line   254 file /opt/anaconda3/envs/ipymol/share/psi4/basis/aug-cc-pvdz.gbs 
+    atoms 2-3, 5-6 entry H          line    40 file /opt/anaconda3/envs/ipymol/share/psi4/basis/aug-cc-pvdz.gbs 
+
+
+         ---------------------------------------------------------
+                                   SCF
+               by Justin Turney, Rob Parrish, Andy Simmonett
+                          and Daniel G. A. Smith
+                              RHF Reference
+                        2 Threads,    476 MiB Core
+         ---------------------------------------------------------
+
+  ==> Geometry <==
+
+    Molecular point group: c1
+    Full point group: C1
+
+    Geometry (in Bohr), charge = 0, multiplicity = 1:
+
+       Center              X                  Y                   Z               Mass       
+    ------------   -----------------  -----------------  -----------------  -----------------
+      Gh(O)           0.000000000000    -0.051183389256    -2.738104818040    15.994914619570
+      Gh(H)           0.000000000000    -0.051183389256    -0.848378692582     1.007825032230
+      Gh(H)           0.000000000000     1.778185228229    -3.211893051958     1.007825032230
+         O            0.000000000000    -0.051183389256     2.553128333242    15.994914619570
+         H            0.818275415421     1.366111204838     3.497991395971     1.007825032230
+         H           -0.818275415421    -1.468477983349     3.497991395971     1.007825032230
+
+  Running in c1 symmetry.
+
+  Rotational constants: A =      7.05064  B =      0.23097  C =      0.22453 [cm^-1]
+  Rotational constants: A = 211372.90765  B =   6924.43845  C =   6731.27471 [MHz]
+  Nuclear repulsion =    8.772355975749239
+
+  Charge       = 0
+  Multiplicity = 1
+  Electrons    = 10
+  Nalpha       = 5
+  Nbeta        = 5
+
+  ==> Algorithm <==
+
+  SCF Algorithm Type is DF.
+  DIIS enabled.
+  MOM disabled.
+  Fractional occupation disabled.
+  Guess Type is SAD.
+  Energy threshold   = 1.00e-06
+  Density threshold  = 1.00e-06
+  Integral threshold = 1.00e-12
+
+  ==> Primary Basis <==
+
+  Basis Set: AUG-CC-PVDZ
+    Blend: AUG-CC-PVDZ
+    Number of shells: 38
+    Number of basis functions: 82
+    Number of Cartesian functions: 86
+    Spherical Harmonics?: true
+    Max angular momentum: 2
+
+   => Loading Basis Set <=
+
+    Name: (AUG-CC-PVDZ AUX)
+    Role: JKFIT
+    Keyword: DF_BASIS_SCF
+    atoms 1, 4     entry O          line   270 file /opt/anaconda3/envs/ipymol/share/psi4/basis/aug-cc-pvdz-jkfit.gbs 
+    atoms 2-3, 5-6 entry H          line    70 file /opt/anaconda3/envs/ipymol/share/psi4/basis/aug-cc-pvdz-jkfit.gbs 
+
+  ==> Integral Setup <==
+
+  DFHelper Memory: AOs need 0.017 GiB; user supplied 0.349 GiB. 
+  SCF_SUBTYPE=INCORE selected. In-core MEM_DF algorithm will be used.
+  Using in-core AOs.
+
+  ==> MemDFJK: Density-Fitted J/K Matrices <==
+
+    J tasked:                   Yes
+    K tasked:                   Yes
+    wK tasked:                   No
+    OpenMP threads:               2
+    Memory [MiB]:               357
+    Algorithm:                 Core
+    Schwarz Cutoff:           1E-12
+    Mask sparsity (%):       0.0000
+    Fitting Condition:        1E-10
+
+   => Auxiliary Basis Set <=
+
+  Basis Set: (AUG-CC-PVDZ AUX)
+    Blend: AUG-CC-PVDZ-JKFIT
+    Number of shells: 104
+    Number of basis functions: 300
+    Number of Cartesian functions: 342
+    Spherical Harmonics?: true
+    Max angular momentum: 3
+
+  Minimum eigenvalue in the overlap matrix is 1.8142049680E-03.
+  Reciprocal condition number of the overlap matrix is 2.3834992024E-04.
+    Using symmetric orthogonalization.
+
+  ==> Pre-Iterations <==
+
+  SCF Guess: Superposition of Atomic Densities via on-the-fly atomic UHF (no occupation information).
+
+   -------------------------
+    Irrep   Nso     Nmo    
+   -------------------------
+     A         82      82 
+   -------------------------
+    Total      82      82
+   -------------------------
+
+  ==> Iterations <==
+
+                           Total Energy        Delta E     RMS |[F,P]|
+
+   @DF-RHF iter SAD:   -76.35612459725361   -7.63561e+01   0.00000e+00 
+   @DF-RHF iter   1:   -75.93115104416334    4.24974e-01   4.72655e-03 DIIS/ADIIS
+   @DF-RHF iter   2:   -76.01146359684138   -8.03126e-02   2.78189e-03 DIIS/ADIIS
+   @DF-RHF iter   3:   -76.02895655711085   -1.74930e-02   4.73771e-04 DIIS/ADIIS
+   @DF-RHF iter   4:   -76.02998037653603   -1.02382e-03   9.19654e-05 DIIS
+   @DF-RHF iter   5:   -76.03004006013900   -5.96836e-05   2.79753e-05 DIIS
+   @DF-RHF iter   6:   -76.03004672404859   -6.66391e-06   4.80407e-06 DIIS
+   @DF-RHF iter   7:   -76.03004696804454   -2.43996e-07   8.57600e-07 DIIS
+  Energy and wave function converged.
+
+
+  ==> Post-Iterations <==
+
+    Orbital Energies [Eh]
+    ---------------------
+
+    Doubly Occupied:                                                      
+
+       1A    -20.575896     2A     -1.325800     3A     -0.721126  
+       4A     -0.548190     5A     -0.500584  
+
+    Virtual:                                                              
+
+       6A      0.032447     7A      0.053777     8A      0.056880  
+       9A      0.084766    10A      0.161199    11A      0.175653  
+      12A      0.182526    13A      0.198701    14A      0.217050  
+      15A      0.222223    16A      0.243904    17A      0.252167  
+      18A      0.319400    19A      0.327115    20A      0.368827  
+      21A      0.408703    22A      0.452241    23A      0.456112  
+      24A      0.473582    25A      0.502558    26A      0.528172  
+      27A      0.536529    28A      0.548303    29A      0.576967  
+      30A      0.642079    31A      0.652540    32A      0.669148  
+      33A      0.731847    34A      0.881152    35A      0.897571  
+      36A      0.945662    37A      0.973906    38A      1.140902  
+      39A      1.149394    40A      1.179798    41A      1.192280  
+      42A      1.230392    43A      1.293043    44A      1.341017  
+      45A      1.407662    46A      1.417406    47A      1.460222  
+      48A      1.522661    49A      1.580876    50A      1.594078  
+      51A      1.765040    52A      2.010885    53A      2.049411  
+      54A      2.062045    55A      2.185115    56A      2.381152  
+      57A      2.397856    58A      2.426253    59A      2.474492  
+      60A      2.512607    61A      2.557200    62A      2.675200  
+      63A      2.838344    64A      2.938811    65A      2.974292  
+      66A      3.458340    67A      3.701271    68A      3.734632  
+      69A      3.848374    70A      3.917933    71A      4.110329  
+      72A      4.148834    73A      4.209024    74A      4.916452  
+      75A      4.964712    76A      5.002484    77A      5.210482  
+      78A      5.502788    79A      5.686601    80A      6.507970  
+      81A      6.968244    82A     33.579852  
+
+    Final Occupation by Irrep:
+              A 
+    DOCC [     5 ]
+    NA   [     5 ]
+    NB   [     5 ]
+
+  @DF-RHF Final Energy:   -76.03004696804454
+
+   => Energetics <=
+
+    Nuclear Repulsion Energy =              8.7723559757492389
+    One-Electron Energy =                -122.2615451751620697
+    Two-Electron Energy =                  37.4591422313682827
+    Total Energy =                        -76.0300469680445588
+
+Computation Completed
+
+
+Properties will be evaluated at   0.000000,   0.000000,   0.000000 [a0]
+
+Properties computed using the SCF density matrix
+
+
+ Multipole Moments:
+
+ ------------------------------------------------------------------------------------
+     Multipole            Electronic (a.u.)      Nuclear  (a.u.)        Total (a.u.)
+ ------------------------------------------------------------------------------------
+
+ L = 1.  Multiply by 2.5417464519 to convert [e a0] to [Debye]
+ Dipole X            :          0.0001345            0.0000000            0.0001345
+ Dipole Y            :          0.5115515           -0.5118339           -0.0002824
+ Dipole Z            :        -26.7370817           27.4210095            0.6839278
+ Magnitude           :                                                    0.6839279
+
+ ------------------------------------------------------------------------------------
+
+*** tstop() called on PC001.IRVING.UPEI.CA at Thu May 14 10:18:46 2026
+Module time:
+	user time   =       0.77 seconds =       0.01 minutes
+	system time =       0.04 seconds =       0.00 minutes
+	total time  =          0 seconds =       0.00 minutes
+Total time:
+	user time   =     298.79 seconds =       4.98 minutes
+	system time =      15.21 seconds =       0.25 minutes
+	total time  =        575 seconds =       9.58 minutes
+
+    Psi4 stopped on: Thursday, 14 May 2026 10:18AM
+    Psi4 wall time for execution: 0:00:00.47
+
+
+    -----------------------------------------------------------------------
+          Psi4: An Open-Source Ab Initio Electronic Structure Package
+                               Psi4 1.10 release
+
+                         Git: Rev {} zzzzzzz 
+
+
+    D. G. A. Smith, L. A. Burns, A. C. Simmonett, R. M. Parrish,
+    M. C. Schieber, R. Galvelis, P. Kraus, H. Kruse, R. Di Remigio,
+    A. Alenaizan, A. M. James, S. Lehtola, J. P. Misiewicz, M. Scheurer,
+    R. A. Shaw, J. B. Schriber, Y. Xie, Z. L. Glick, D. A. Sirianni,
+    J. S. O'Brien, J. M. Waldrop, A. Kumar, E. G. Hohenstein,
+    B. P. Pritchard, B. R. Brooks, H. F. Schaefer III, A. Yu. Sokolov,
+    K. Patkowski, A. E. DePrince III, U. Bozkaya, R. A. King,
+    F. A. Evangelista, J. M. Turney, T. D. Crawford, C. D. Sherrill,
+    J. Chem. Phys. 152(18) 184108 (2020). https://doi.org/10.1063/5.0006002
+
+                            Additional Code Authors
+    E. T. Seidl, C. L. Janssen, E. F. Valeev, M. L. Leininger,
+    J. F. Gonthier, R. M. Richard, H. R. McAlexander, M. Saitow, X. Wang,
+    P. Verma, M. H. Lechner, A. Jiang, S. Behnle, A. G. Heide,
+    M. F. Herbst, D. L. Poole, T. Győri, E. C. Mitchell, J. P. Pederson,
+    and A. M. Wallace
+
+             Previous Authors, Complete List of Code Contributors,
+                       and Citations for Specific Modules
+    https://github.com/psi4/psi4/blob/master/codemeta.json
+    https://github.com/psi4/psi4/graphs/contributors
+    https://psicode.org/psi4manual/master/introduction.html#citing-psifour
+
+    -----------------------------------------------------------------------
+
+
+    Psi4 started on: Thursday, 14 May 2026 10:08AM
+
+    Process ID: 7742
+    Host:       PC001.IRVING.UPEI.CA
+    PSIDATADIR: /opt/anaconda3/envs/ipymol/share/psi4
+    Memory:     476.8 MiB
+    Threads:    2
+    Addons:     a̶d̶c̶c̶, a̶m̶b̶i̶t̶, b̶s̶e̶, c̶c̶t̶3̶, c̶f̶o̶u̶r̶, c̶h̶e̶m̶p̶s̶2̶, c̶p̶p̶e̶, d̶d̶x̶,
+                d̶f̶t̶d̶3̶, d̶f̶t̶d̶4̶, dkh, ecpint, einsums, f̶o̶r̶t̶e̶, g̶a̶u̶x̶c̶, g̶c̶p̶,
+                g̶d̶m̶a̶, g̶e̶o̶m̶e̶t̶r̶i̶c̶, g̶p̶u̶_̶d̶f̶c̶c̶, i̶n̶t̶e̶g̶r̶a̶t̶o̶r̶x̶x̶,
+                i̶p̶i̶, l̶i̶b̶e̶f̶p̶, m̶d̶i̶, m̶p̶2̶d̶, m̶r̶c̶c̶, ooo,
+                o̶p̶e̶n̶f̶e̶r̶m̶i̶o̶n̶p̶s̶i̶4̶, pcmsolver, p̶s̶i̶4̶f̶o̶c̶k̶c̶i̶, p̶s̶i̶x̶a̶s̶,
+                r̶e̶s̶p̶, s̶i̶m̶i̶n̶t̶, s̶n̶s̶m̶p̶2̶, v̶2̶r̶d̶m̶_̶c̶a̶s̶s̶c̶f̶
+
+  ==> Input QCSchema <==
+
+--------------------------------------------------------------------------
+{'driver': 'energy',
+ 'extras': {'psiapi': True, 'wfn_qcvars_only': True},
+ 'id': None,
+ 'keywords': {'SCF__INTS_TOLERANCE': 1e-12, 'function_kwargs': {}},
+ 'model': {'basis': 'aug-cc-pvdz', 'method': 'scf'},
+ 'molecule': {'atom_labels': ['', '', '', '', '', ''],
+              'atomic_numbers': [8, 1, 1, 8, 1, 1],
+              'extras': {},
+              'fix_com': True,
+              'fix_orientation': True,
+              'fragment_charges': [0.0, 0.0],
+              'fragment_multiplicities': [1, 1],
+              'fragments': [[0, 1, 2], [3, 4, 5]],
+              'geometry': [0.0, -0.0511833892558, -2.7381048180398, 0.0, -0.0511833892558, -0.8483786925819, 0.0,
+                           1.7781852282292, -3.2118930519577, 0.0, -0.0511833892558, 2.5531283332421, 0.8182754154208,
+                           1.3661112048376, 3.4979913959711, -0.8182754154208, -1.4684779833491, 3.4979913959711],
+              'mass_numbers': [16, 1, 1, 16, 1, 1],
+              'masses': [15.99491461957, 1.00782503223, 1.00782503223, 15.99491461957, 1.00782503223, 1.00782503223],
+              'molecular_charge': 0.0,
+              'molecular_multiplicity': 1,
+              'name': 'H4O2 ([0],[1])',
+              'provenance': {'creator': 'QCElemental',
+                             'routine': 'qcelemental.molparse.from_schema',
+                             'version': '0.30.1'},
+              'real': [True, True, True, False, False, False],
+              'schema_name': 'qcschema_molecule',
+              'schema_version': 2,
+              'symbols': ['O', 'H', 'H', 'O', 'H', 'H'],
+              'validated': True},
+ 'protocols': {'stdout': True},
+ 'provenance': {'creator': 'QCElemental', 'routine': 'qcelemental.models.results', 'version': '0.30.1'},
+ 'schema_name': 'qcschema_input',
+ 'schema_version': 1}
+--------------------------------------------------------------------------
+
+Scratch directory: /tmp/
+   => Libint2 <=
+
+    Primary   basis highest AM E, G, H:  7, 6, 3
+    Auxiliary basis highest AM E, G, H:  7, 7, 4
+    Onebody   basis highest AM E, G, H:  -, -, -
+    Solid Harmonics ordering:            Gaussian
+
+*** tstart() called on PC001.IRVING.UPEI.CA
+*** at Thu May 14 10:18:46 2026
+
+   => Loading Basis Set <=
+
+    Name: AUG-CC-PVDZ
+    Role: ORBITAL
+    Keyword: BASIS
+    atoms 1, 4     entry O          line   254 file /opt/anaconda3/envs/ipymol/share/psi4/basis/aug-cc-pvdz.gbs 
+    atoms 2-3, 5-6 entry H          line    40 file /opt/anaconda3/envs/ipymol/share/psi4/basis/aug-cc-pvdz.gbs 
+
+
+         ---------------------------------------------------------
+                                   SCF
+               by Justin Turney, Rob Parrish, Andy Simmonett
+                          and Daniel G. A. Smith
+                              RHF Reference
+                        2 Threads,    476 MiB Core
+         ---------------------------------------------------------
+
+  ==> Geometry <==
+
+    Molecular point group: c1
+    Full point group: C1
+
+    Geometry (in Bohr), charge = 0, multiplicity = 1:
+
+       Center              X                  Y                   Z               Mass       
+    ------------   -----------------  -----------------  -----------------  -----------------
+         O            0.000000000000    -0.051183389256    -2.738104818040    15.994914619570
+         H            0.000000000000    -0.051183389256    -0.848378692582     1.007825032230
+         H            0.000000000000     1.778185228229    -3.211893051958     1.007825032230
+      Gh(O)           0.000000000000    -0.051183389256     2.553128333242    15.994914619570
+      Gh(H)           0.818275415421     1.366111204838     3.497991395971     1.007825032230
+      Gh(H)          -0.818275415421    -1.468477983349     3.497991395971     1.007825032230
+
+  Running in c1 symmetry.
+
+  Rotational constants: A =      7.05064  B =      0.23097  C =      0.22453 [cm^-1]
+  Rotational constants: A = 211372.90765  B =   6924.43845  C =   6731.27471 [MHz]
+  Nuclear repulsion =    8.801420354574882
+
+  Charge       = 0
+  Multiplicity = 1
+  Electrons    = 10
+  Nalpha       = 5
+  Nbeta        = 5
+
+  ==> Algorithm <==
+
+  SCF Algorithm Type is DF.
+  DIIS enabled.
+  MOM disabled.
+  Fractional occupation disabled.
+  Guess Type is SAD.
+  Energy threshold   = 1.00e-06
+  Density threshold  = 1.00e-06
+  Integral threshold = 1.00e-12
+
+  ==> Primary Basis <==
+
+  Basis Set: AUG-CC-PVDZ
+    Blend: AUG-CC-PVDZ
+    Number of shells: 38
+    Number of basis functions: 82
+    Number of Cartesian functions: 86
+    Spherical Harmonics?: true
+    Max angular momentum: 2
+
+   => Loading Basis Set <=
+
+    Name: (AUG-CC-PVDZ AUX)
+    Role: JKFIT
+    Keyword: DF_BASIS_SCF
+    atoms 1, 4     entry O          line   270 file /opt/anaconda3/envs/ipymol/share/psi4/basis/aug-cc-pvdz-jkfit.gbs 
+    atoms 2-3, 5-6 entry H          line    70 file /opt/anaconda3/envs/ipymol/share/psi4/basis/aug-cc-pvdz-jkfit.gbs 
+
+  ==> Integral Setup <==
+
+  DFHelper Memory: AOs need 0.017 GiB; user supplied 0.349 GiB. 
+  SCF_SUBTYPE=INCORE selected. In-core MEM_DF algorithm will be used.
+  Using in-core AOs.
+
+  ==> MemDFJK: Density-Fitted J/K Matrices <==
+
+    J tasked:                   Yes
+    K tasked:                   Yes
+    wK tasked:                   No
+    OpenMP threads:               2
+    Memory [MiB]:               357
+    Algorithm:                 Core
+    Schwarz Cutoff:           1E-12
+    Mask sparsity (%):       0.0000
+    Fitting Condition:        1E-10
+
+   => Auxiliary Basis Set <=
+
+  Basis Set: (AUG-CC-PVDZ AUX)
+    Blend: AUG-CC-PVDZ-JKFIT
+    Number of shells: 104
+    Number of basis functions: 300
+    Number of Cartesian functions: 342
+    Spherical Harmonics?: true
+    Max angular momentum: 3
+
+  Minimum eigenvalue in the overlap matrix is 1.8142049680E-03.
+  Reciprocal condition number of the overlap matrix is 2.3834992024E-04.
+    Using symmetric orthogonalization.
+
+  ==> Pre-Iterations <==
+
+  SCF Guess: Superposition of Atomic Densities via on-the-fly atomic UHF (no occupation information).
+
+   -------------------------
+    Irrep   Nso     Nmo    
+   -------------------------
+     A         82      82 
+   -------------------------
+    Total      82      82
+   -------------------------
+
+  ==> Iterations <==
+
+                           Total Energy        Delta E     RMS |[F,P]|
+
+   @DF-RHF iter SAD:   -76.38058861311116   -7.63806e+01   0.00000e+00 
+   @DF-RHF iter   1:   -75.93174034196252    4.48848e-01   4.85397e-03 DIIS/ADIIS
+   @DF-RHF iter   2:   -76.01818769040020   -8.64473e-02   2.69710e-03 DIIS/ADIIS
+   @DF-RHF iter   3:   -76.03455103633952   -1.63633e-02   5.31273e-04 DIIS/ADIIS
+   @DF-RHF iter   4:   -76.03567910696361   -1.12807e-03   1.06520e-04 DIIS/ADIIS
+   @DF-RHF iter   5:   -76.03575176145497   -7.26545e-05   2.94155e-05 DIIS
+   @DF-RHF iter   6:   -76.03575905856354   -7.29711e-06   5.12886e-06 DIIS
+   @DF-RHF iter   7:   -76.03575930131223   -2.42749e-07   6.58380e-07 DIIS
+  Energy and wave function converged.
+
+
+  ==> Post-Iterations <==
+
+    Orbital Energies [Eh]
+    ---------------------
+
+    Doubly Occupied:                                                      
+
+       1A    -20.584226     2A     -1.335640     3A     -0.696496  
+       4A     -0.577358     5A     -0.506055  
+
+    Virtual:                                                              
+
+       6A      0.024896     7A      0.050014     8A      0.059307  
+       9A      0.083251    10A      0.136211    11A      0.145094  
+      12A      0.182654    13A      0.197433    14A      0.222375  
+      15A      0.227042    16A      0.231141    17A      0.273333  
+      18A      0.332048    19A      0.359523    20A      0.366172  
+      21A      0.396997    22A      0.407558    23A      0.415815  
+      24A      0.441195    25A      0.478128    26A      0.479713  
+      27A      0.486905    28A      0.509256    29A      0.571742  
+      30A      0.589250    31A      0.644411    32A      0.651333  
+      33A      0.768451    34A      0.865003    35A      0.926525  
+      36A      0.971783    37A      1.035990    38A      1.111999  
+      39A      1.156240    40A      1.178685    41A      1.185330  
+      42A      1.205750    43A      1.287299    44A      1.294326  
+      45A      1.307330    46A      1.331315    47A      1.413378  
+      48A      1.458085    49A      1.518814    50A      1.579804  
+      51A      1.770828    52A      1.987237    53A      2.008222  
+      54A      2.060201    55A      2.113715    56A      2.321393  
+      57A      2.366022    58A      2.382654    59A      2.390400  
+      60A      2.460912    61A      2.577968    62A      2.665383  
+      63A      2.727353    64A      2.979054    65A      2.995996  
+      66A      3.484827    67A      3.676190    68A      3.708735  
+      69A      3.730182    70A      3.977268    71A      4.005707  
+      72A      4.083212    73A      4.337196    74A      4.918295  
+      75A      4.932266    76A      5.047595    77A      5.326884  
+      78A      5.394182    79A      5.603949    80A      6.462840  
+      81A      6.803880    82A     33.531738  
+
+    Final Occupation by Irrep:
+              A 
+    DOCC [     5 ]
+    NA   [     5 ]
+    NB   [     5 ]
+
+  @DF-RHF Final Energy:   -76.03575930131223
+
+   => Energetics <=
+
+    Nuclear Repulsion Energy =              8.8014203545748817
+    One-Electron Energy =                -122.2747524563999946
+    Two-Electron Energy =                  37.4375728005128821
+    Total Energy =                        -76.0357593013122255
+
+Computation Completed
+
+
+Properties will be evaluated at   0.000000,   0.000000,   0.000000 [a0]
+
+Properties computed using the SCF density matrix
+
+
+ Multipole Moments:
+
+ ------------------------------------------------------------------------------------
+     Multipole            Electronic (a.u.)      Nuclear  (a.u.)        Total (a.u.)
+ ------------------------------------------------------------------------------------
+
+ L = 1.  Multiply by 2.5417464519 to convert [e a0] to [Debye]
+ Dipole X            :          0.0001448            0.0000000            0.0001448
+ Dipole Y            :         -0.6855314            1.3175347            0.6320033
+ Dipole Z            :         26.4540811          -25.9651103            0.4889708
+ Magnitude           :                                                    0.7990749
+
+ ------------------------------------------------------------------------------------
+
+*** tstop() called on PC001.IRVING.UPEI.CA at Thu May 14 10:18:47 2026
+Module time:
+	user time   =       0.78 seconds =       0.01 minutes
+	system time =       0.04 seconds =       0.00 minutes
+	total time  =          1 seconds =       0.02 minutes
+Total time:
+	user time   =     299.69 seconds =       4.99 minutes
+	system time =      15.25 seconds =       0.25 minutes
+	total time  =        576 seconds =       9.60 minutes
+
+    Psi4 stopped on: Thursday, 14 May 2026 10:18AM
+    Psi4 wall time for execution: 0:00:00.47
+
+
+    -----------------------------------------------------------------------
+          Psi4: An Open-Source Ab Initio Electronic Structure Package
+                               Psi4 1.10 release
+
+                         Git: Rev {} zzzzzzz 
+
+
+    D. G. A. Smith, L. A. Burns, A. C. Simmonett, R. M. Parrish,
+    M. C. Schieber, R. Galvelis, P. Kraus, H. Kruse, R. Di Remigio,
+    A. Alenaizan, A. M. James, S. Lehtola, J. P. Misiewicz, M. Scheurer,
+    R. A. Shaw, J. B. Schriber, Y. Xie, Z. L. Glick, D. A. Sirianni,
+    J. S. O'Brien, J. M. Waldrop, A. Kumar, E. G. Hohenstein,
+    B. P. Pritchard, B. R. Brooks, H. F. Schaefer III, A. Yu. Sokolov,
+    K. Patkowski, A. E. DePrince III, U. Bozkaya, R. A. King,
+    F. A. Evangelista, J. M. Turney, T. D. Crawford, C. D. Sherrill,
+    J. Chem. Phys. 152(18) 184108 (2020). https://doi.org/10.1063/5.0006002
+
+                            Additional Code Authors
+    E. T. Seidl, C. L. Janssen, E. F. Valeev, M. L. Leininger,
+    J. F. Gonthier, R. M. Richard, H. R. McAlexander, M. Saitow, X. Wang,
+    P. Verma, M. H. Lechner, A. Jiang, S. Behnle, A. G. Heide,
+    M. F. Herbst, D. L. Poole, T. Győri, E. C. Mitchell, J. P. Pederson,
+    and A. M. Wallace
+
+             Previous Authors, Complete List of Code Contributors,
+                       and Citations for Specific Modules
+    https://github.com/psi4/psi4/blob/master/codemeta.json
+    https://github.com/psi4/psi4/graphs/contributors
+    https://psicode.org/psi4manual/master/introduction.html#citing-psifour
+
+    -----------------------------------------------------------------------
+
+
+    Psi4 started on: Thursday, 14 May 2026 10:08AM
+
+    Process ID: 7742
+    Host:       PC001.IRVING.UPEI.CA
+    PSIDATADIR: /opt/anaconda3/envs/ipymol/share/psi4
+    Memory:     476.8 MiB
+    Threads:    2
+    Addons:     a̶d̶c̶c̶, a̶m̶b̶i̶t̶, b̶s̶e̶, c̶c̶t̶3̶, c̶f̶o̶u̶r̶, c̶h̶e̶m̶p̶s̶2̶, c̶p̶p̶e̶, d̶d̶x̶,
+                d̶f̶t̶d̶3̶, d̶f̶t̶d̶4̶, dkh, ecpint, einsums, f̶o̶r̶t̶e̶, g̶a̶u̶x̶c̶, g̶c̶p̶,
+                g̶d̶m̶a̶, g̶e̶o̶m̶e̶t̶r̶i̶c̶, g̶p̶u̶_̶d̶f̶c̶c̶, i̶n̶t̶e̶g̶r̶a̶t̶o̶r̶x̶x̶,
+                i̶p̶i̶, l̶i̶b̶e̶f̶p̶, m̶d̶i̶, m̶p̶2̶d̶, m̶r̶c̶c̶, ooo,
+                o̶p̶e̶n̶f̶e̶r̶m̶i̶o̶n̶p̶s̶i̶4̶, pcmsolver, p̶s̶i̶4̶f̶o̶c̶k̶c̶i̶, p̶s̶i̶x̶a̶s̶,
+                r̶e̶s̶p̶, s̶i̶m̶i̶n̶t̶, s̶n̶s̶m̶p̶2̶, v̶2̶r̶d̶m̶_̶c̶a̶s̶s̶c̶f̶
+
+  ==> Input QCSchema <==
+
+--------------------------------------------------------------------------
+{'driver': 'energy',
+ 'extras': {'psiapi': True, 'wfn_qcvars_only': True},
+ 'id': None,
+ 'keywords': {'SCF__INTS_TOLERANCE': 1e-12, 'function_kwargs': {}},
+ 'model': {'basis': 'aug-cc-pvdz', 'method': 'scf'},
+ 'molecule': {'atom_labels': ['', '', '', '', '', ''],
+              'atomic_numbers': [8, 1, 1, 8, 1, 1],
+              'extras': {},
+              'fix_com': True,
+              'fix_orientation': True,
+              'fragment_charges': [0.0, 0.0],
+              'fragment_multiplicities': [1, 1],
+              'fragments': [[0, 1, 2], [3, 4, 5]],
+              'geometry': [0.0, -0.0511833892558, -2.7381048180398, 0.0, -0.0511833892558, -0.8483786925819, 0.0,
+                           1.7781852282292, -3.2118930519577, 0.0, -0.0511833892558, 2.5531283332421, 0.8182754154208,
+                           1.3661112048376, 3.4979913959711, -0.8182754154208, -1.4684779833491, 3.4979913959711],
+              'mass_numbers': [16, 1, 1, 16, 1, 1],
+              'masses': [15.99491461957, 1.00782503223, 1.00782503223, 15.99491461957, 1.00782503223, 1.00782503223],
+              'molecular_charge': 0.0,
+              'molecular_multiplicity': 1,
+              'name': 'H4O2 ([0, 1],[])',
+              'provenance': {'creator': 'QCElemental',
+                             'routine': 'qcelemental.molparse.from_schema',
+                             'version': '0.30.1'},
+              'real': [True, True, True, True, True, True],
+              'schema_name': 'qcschema_molecule',
+              'schema_version': 2,
+              'symbols': ['O', 'H', 'H', 'O', 'H', 'H'],
+              'validated': True},
+ 'protocols': {'stdout': True},
+ 'provenance': {'creator': 'QCElemental', 'routine': 'qcelemental.models.results', 'version': '0.30.1'},
+ 'schema_name': 'qcschema_input',
+ 'schema_version': 1}
+--------------------------------------------------------------------------
+
+Scratch directory: /tmp/
+   => Libint2 <=
+
+    Primary   basis highest AM E, G, H:  7, 6, 3
+    Auxiliary basis highest AM E, G, H:  7, 7, 4
+    Onebody   basis highest AM E, G, H:  -, -, -
+    Solid Harmonics ordering:            Gaussian
+
+*** tstart() called on PC001.IRVING.UPEI.CA
+*** at Thu May 14 10:18:47 2026
+
+   => Loading Basis Set <=
+
+    Name: AUG-CC-PVDZ
+    Role: ORBITAL
+    Keyword: BASIS
+    atoms 1, 4     entry O          line   254 file /opt/anaconda3/envs/ipymol/share/psi4/basis/aug-cc-pvdz.gbs 
+    atoms 2-3, 5-6 entry H          line    40 file /opt/anaconda3/envs/ipymol/share/psi4/basis/aug-cc-pvdz.gbs 
+
+
+         ---------------------------------------------------------
+                                   SCF
+               by Justin Turney, Rob Parrish, Andy Simmonett
+                          and Daniel G. A. Smith
+                              RHF Reference
+                        2 Threads,    476 MiB Core
+         ---------------------------------------------------------
+
+  ==> Geometry <==
+
+    Molecular point group: c1
+    Full point group: C1
+
+    Geometry (in Bohr), charge = 0, multiplicity = 1:
+
+       Center              X                  Y                   Z               Mass       
+    ------------   -----------------  -----------------  -----------------  -----------------
+         O            0.000000000000    -0.051183389256    -2.738104818040    15.994914619570
+         H            0.000000000000    -0.051183389256    -0.848378692582     1.007825032230
+         H            0.000000000000     1.778185228229    -3.211893051958     1.007825032230
+         O            0.000000000000    -0.051183389256     2.553128333242    15.994914619570
+         H            0.818275415421     1.366111204838     3.497991395971     1.007825032230
+         H           -0.818275415421    -1.468477983349     3.497991395971     1.007825032230
+
+  Running in c1 symmetry.
+
+  Rotational constants: A =      7.05064  B =      0.23097  C =      0.22453 [cm^-1]
+  Rotational constants: A = 211372.90765  B =   6924.43845  C =   6731.27471 [MHz]
+  Nuclear repulsion =   36.537166527374502
+
+  Charge       = 0
+  Multiplicity = 1
+  Electrons    = 20
+  Nalpha       = 10
+  Nbeta        = 10
+
+  ==> Algorithm <==
+
+  SCF Algorithm Type is DF.
+  DIIS enabled.
+  MOM disabled.
+  Fractional occupation disabled.
+  Guess Type is SAD.
+  Energy threshold   = 1.00e-06
+  Density threshold  = 1.00e-06
+  Integral threshold = 1.00e-12
+
+  ==> Primary Basis <==
+
+  Basis Set: AUG-CC-PVDZ
+    Blend: AUG-CC-PVDZ
+    Number of shells: 38
+    Number of basis functions: 82
+    Number of Cartesian functions: 86
+    Spherical Harmonics?: true
+    Max angular momentum: 2
+
+   => Loading Basis Set <=
+
+    Name: (AUG-CC-PVDZ AUX)
+    Role: JKFIT
+    Keyword: DF_BASIS_SCF
+    atoms 1, 4     entry O          line   270 file /opt/anaconda3/envs/ipymol/share/psi4/basis/aug-cc-pvdz-jkfit.gbs 
+    atoms 2-3, 5-6 entry H          line    70 file /opt/anaconda3/envs/ipymol/share/psi4/basis/aug-cc-pvdz-jkfit.gbs 
+
+  ==> Integral Setup <==
+
+  DFHelper Memory: AOs need 0.017 GiB; user supplied 0.349 GiB. 
+  SCF_SUBTYPE=INCORE selected. In-core MEM_DF algorithm will be used.
+  Using in-core AOs.
+
+  ==> MemDFJK: Density-Fitted J/K Matrices <==
+
+    J tasked:                   Yes
+    K tasked:                   Yes
+    wK tasked:                   No
+    OpenMP threads:               2
+    Memory [MiB]:               357
+    Algorithm:                 Core
+    Schwarz Cutoff:           1E-12
+    Mask sparsity (%):       0.0000
+    Fitting Condition:        1E-10
+
+   => Auxiliary Basis Set <=
+
+  Basis Set: (AUG-CC-PVDZ AUX)
+    Blend: AUG-CC-PVDZ-JKFIT
+    Number of shells: 104
+    Number of basis functions: 300
+    Number of Cartesian functions: 342
+    Spherical Harmonics?: true
+    Max angular momentum: 3
+
+  Minimum eigenvalue in the overlap matrix is 1.8142049680E-03.
+  Reciprocal condition number of the overlap matrix is 2.3834992024E-04.
+    Using symmetric orthogonalization.
+
+  ==> Pre-Iterations <==
+
+  SCF Guess: Superposition of Atomic Densities via on-the-fly atomic UHF (no occupation information).
+
+   -------------------------
+    Irrep   Nso     Nmo    
+   -------------------------
+     A         82      82 
+   -------------------------
+    Total      82      82
+   -------------------------
+
+  ==> Iterations <==
+
+                           Total Energy        Delta E     RMS |[F,P]|
+
+   @DF-RHF iter SAD:  -152.48079079982392   -1.52481e+02   0.00000e+00 
+   @DF-RHF iter   1:  -151.71641534046091    7.64375e-01   8.91656e-03 DIIS/ADIIS
+   @DF-RHF iter   2:  -151.98707018877403   -2.70655e-01   5.97388e-03 DIIS/ADIIS
+   @DF-RHF iter   3:  -152.06791321509880   -8.08430e-02   6.53467e-04 DIIS/ADIIS
+   @DF-RHF iter   4:  -152.07040016313755   -2.48695e-03   1.39333e-04 DIIS/ADIIS
+   @DF-RHF iter   5:  -152.07054560085135   -1.45438e-04   4.30042e-05 DIIS
+   @DF-RHF iter   6:  -152.07056029764846   -1.46968e-05   1.17084e-05 DIIS
+   @DF-RHF iter   7:  -152.07056107417304   -7.76525e-07   5.03127e-06 DIIS
+   @DF-RHF iter   8:  -152.07056117860577   -1.04433e-07   7.46367e-07 DIIS
+  Energy and wave function converged.
+
+
+  ==> Post-Iterations <==
+
+    Orbital Energies [Eh]
+    ---------------------
+
+    Doubly Occupied:                                                      
+
+       1A    -20.605823     2A    -20.540734     3A     -1.360827  
+       4A     -1.296827     5A     -0.752795     6A     -0.674777  
+       7A     -0.587593     8A     -0.534763     9A     -0.528285  
+      10A     -0.466933  
+
+    Virtual:                                                              
+
+      11A      0.024301    12A      0.048868    13A      0.060110  
+      14A      0.091270    15A      0.173108    16A      0.177511  
+      17A      0.199938    18A      0.212497    19A      0.235247  
+      20A      0.237367    21A      0.248961    22A      0.276051  
+      23A      0.305757    24A      0.312717    25A      0.350353  
+      26A      0.371226    27A      0.418491    28A      0.436883  
+      29A      0.467774    30A      0.486398    31A      0.517765  
+      32A      0.539175    33A      0.544660    34A      0.598289  
+      35A      0.630036    36A      0.650622    37A      0.676230  
+      38A      0.790021    39A      0.860976    40A      0.876540  
+      41A      0.953976    42A      0.977574    43A      1.113295  
+      44A      1.118020    45A      1.145598    46A      1.189499  
+      47A      1.212370    48A      1.226711    49A      1.350540  
+      50A      1.450701    51A      1.466666    52A      1.521980  
+      53A      1.545119    54A      1.635263    55A      1.645850  
+      56A      1.947267    57A      2.009108    58A      2.020513  
+      59A      2.032509    60A      2.053819    61A      2.060177  
+      62A      2.181730    63A      2.388860    64A      2.409840  
+      65A      2.480752    66A      2.501846    67A      2.546077  
+      68A      2.765115    69A      2.838219    70A      2.863656  
+      71A      3.025557    72A      3.055505    73A      3.668953  
+      74A      3.693105    75A      3.713441    76A      3.746836  
+      77A      3.772004    78A      3.836135    79A      4.097776  
+      80A      4.119405    81A      4.177937    82A      4.393991  
+
+    Final Occupation by Irrep:
+              A 
+    DOCC [    10 ]
+    NA   [    10 ]
+    NB   [    10 ]
+
+  @DF-RHF Final Energy:  -152.07056117860577
+
+   => Energetics <=
+
+    Nuclear Repulsion Energy =             36.5371665273745023
+    One-Electron Energy =                -282.5166675116540773
+    Two-Electron Energy =                  93.9089398056737821
+    Total Energy =                       -152.0705611786058000
+
+Computation Completed
+
+
+Properties will be evaluated at   0.000000,   0.000000,   0.000000 [a0]
+
+Properties computed using the SCF density matrix
+
+
+ Multipole Moments:
+
+ ------------------------------------------------------------------------------------
+     Multipole            Electronic (a.u.)      Nuclear  (a.u.)        Total (a.u.)
+ ------------------------------------------------------------------------------------
+
+ L = 1.  Multiply by 2.5417464519 to convert [e a0] to [Debye]
+ Dipole X            :         -0.0015438            0.0000000           -0.0015438
+ Dipole Y            :         -0.2084954            0.8057008            0.5972055
+ Dipole Z            :          0.0294115            1.4558992            1.4853107
+ Magnitude           :                                                    1.6008762
+
+ ------------------------------------------------------------------------------------
+
+*** tstop() called on PC001.IRVING.UPEI.CA at Thu May 14 10:18:47 2026
+Module time:
+	user time   =       0.80 seconds =       0.01 minutes
+	system time =       0.04 seconds =       0.00 minutes
+	total time  =          0 seconds =       0.00 minutes
+Total time:
+	user time   =     300.61 seconds =       5.01 minutes
+	system time =      15.30 seconds =       0.26 minutes
+	total time  =        576 seconds =       9.60 minutes
+
+    Psi4 stopped on: Thursday, 14 May 2026 10:18AM
+    Psi4 wall time for execution: 0:00:00.53
+
+
+  //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
+  //          ManyBody Results         //
+  //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<//
+
+
+   ==> N-Body: Counterpoise Corrected (CP) energies <==
+
+              MC n-Body  Total Energy            Interaction Energy                          N-body Contribution to Interaction Energy
+                         [Eh]                    [Eh]                  [kcal/mol]            [Eh]                  [kcal/mol]
+              §A  1        N/A                   0.000000000000        0.000000000000        0.000000000000        0.000000000000
+     FULL/RTN §A  2        N/A                  -0.004754909249       -2.983750600710       -0.004754909249       -2.983750600710
+
+   MC Legend: §A: "(auto)"
+
