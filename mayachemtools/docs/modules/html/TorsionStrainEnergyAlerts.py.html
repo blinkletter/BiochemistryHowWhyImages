@@ -1,0 +1,260 @@
+<html>
+<head>
+<title>MayaChemTools:Documentation:Python/TorsionAlerts/TorsionStrainEnergyAlerts.py</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../css/MayaChemTools.css">
+</head>
+<body leftmargin="20" rightmargin="20" topmargin="10" bottommargin="10">
+<br/>
+<center>
+<a href="http://www.mayachemtools.org" title="MayaChemTools Home"><img src="../../images/MayaChemToolsLogo.gif" border="0" alt="MayaChemTools"></a>
+</center>
+<br/>
+<div class="DocNav">
+<table width="100%" border=0 cellpadding=0 cellspacing=2>
+<tr align="left" valign="top"><td width="33%" align="left"><a href="./TorsionLibraryAlerts.py.html" title="TorsionLibraryAlerts.py.html">Previous</a>&nbsp;&nbsp;<a href="./index.html" title="Table of Contents">TOC</a>&nbsp;&nbsp;<a href="./SDFileUtil.html" title="SDFileUtil.html">Next</a></td><td width="34%" align="middle"><strong>Python/TorsionAlerts/TorsionStrainEnergyAlerts.py</strong></td><td width="33%" align="right"><a href="././code/TorsionStrainEnergyAlerts.py.html" title="View source code">Code</a>&nbsp;|&nbsp;<a href="./../pdf/TorsionStrainEnergyAlerts.py.pdf" title="PDF US Letter Size">PDF</a>&nbsp;|&nbsp;<a href="./../pdfa4/TorsionStrainEnergyAlerts.py.pdf" title="PDF A4 Size">PDFA4</a></td></tr>
+</table>
+</div>
+<h1 id="NAME">NAME</h2>
+<p>TorsionStrainEnergyAlerts</p>
+<h1 id="SYNOPSIS">SYNOPSIS</h2>
+<p>import TorsionStrainEnergyAlerts</p>
+<h1 id="DESCRIPTION">DESCRIPTION</h2>
+<p><b>TorsionStrainEnergyAlerts</b> module provides the following functions:</p>
+<p>
+ <a href="#TorsionStrainEnergyAlerts.GetTorsionLibraryFilePath">TorsionStrainEnergyAlerts.GetTorsionLibraryFilePath</a>, <a href="#TorsionStrainEnergyAlerts.IdentifyTorsionLibraryAlertsForRotatableBonds">TorsionStrainEnergyAlerts.IdentifyTorsionLibraryAlertsForRotatableBonds</a>, <a href="#TorsionStrainEnergyAlerts.ListTorsionLibraryInfo">TorsionStrainEnergyAlerts.ListTorsionLibraryInfo</a>, <a href="#TorsionStrainEnergyAlerts.TorsionStrainEnergyAlerts">TorsionStrainEnergyAlerts.TorsionStrainEnergyAlerts</a>
+</p><h1 id="FUNCTIONS">FUNCTIONS</h2>
+<dl>
+<dt id="TorsionStrainEnergyAlerts.GetTorsionLibraryFilePath"><b>TorsionStrainEnergyAlerts.GetTorsionLibraryFilePath</b></dt>
+<dd>
+    <div class="OptionsBox">GetTorsionLibraryFilePath(self)</div>
+<p>Get torsion strain library file path.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">None</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">FilePath (str): Torsion strain library path.</div>
+</dd>
+<dt id="TorsionStrainEnergyAlerts.IdentifyTorsionLibraryAlertsForRotatableBonds"><b>TorsionStrainEnergyAlerts.IdentifyTorsionLibraryAlertsForRotatableBonds</b></dt>
+<dd>
+    <div class="OptionsBox">IdentifyTorsionLibraryAlertsForRotatableBonds(self, Mol)</div>
+<p>Identify torsion strain library alerts for a molecule by matching rotatable bonds against SMARTS patterns specified for torsion rules in torsion energy library file.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">Mol (object): RDKit molecule object.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">bool: True - Molecule contains strained torsions; False - Molecule
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        contains no strained torsions or rotatable bonds.
+<br/>    dict or None: Torsion alerts information regarding matching of
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        rotatable bonds to torsion strain library.</div>
+<p><i>Example(s):</i></p>
+    <div class="OptionsBox">from TorsionAlerts.TorsionStrainEnergyAlerts import
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        TorsionStrainEnergyAlerts
+<br/>    
+<br/>    StrainEnergyAlerts = TorsionStrainEnergyAlerts()
+<br/>    AlertsStatus, AlertsInfo = StrainEnergyAlerts.
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        IdentifyTorsionLibraryAlertsForRotatableBonds(RDKitMol)
+<br/>    
+<br/>    RotBondsAlertsStatus = AlertsInfo[&quot;RotBondsAlertsStatus&quot;]
+<br/>    TotalEnergy = AlertsInfo[&quot;TotalEnergy&quot;]
+<br/>    TotalEnergyLowerBound = AlertsInfo[&quot;TotalEnergyLowerBound&quot;]
+<br/>    TotalEnergyUpperBound = AlertsInfo[&quot;TotalEnergyUpperBound&quot;]
+<br/>    AnglesNotObservedCount = AlertsInfo[&quot;AnglesNotObservedCount&quot;]
+<br/>    MaxSingleEnergy = AlertsInfo[&quot;MaxSingleEnergy&quot;])
+<br/>    MaxSingleEnergyAlertsCount = AlertsInfo[
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &quot;MaxSingleEnergyAlertsCount&quot;]
+<br/>    
+<br/>    # List of rotatable bond IDs...
+<br/>    RotatableBondIDs = AlertsInfo[&quot;IDs&quot;]
+<br/>    
+<br/>    # Dictionaries containing information for rotatable bonds by using
+<br/>    # bond ID as key...
+<br/>    for ID in AlertsInfo[&quot;IDs&quot;]:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        MatchStatus = AlertsInfo[&quot;MatchStatus&quot;][ID]
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        MaxSingleEnergyAlertStatus = AlertsInfo[
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            &quot;MaxSingleEnergyAlertStatus&quot;][ID]
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        AtomIndices = AlertsInfo[&quot;AtomIndices&quot;][ID]
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        TorsionAtomIndices = AlertsInfo[&quot;TorsionAtomIndices&quot;][ID]
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        TorsionAngle = AlertsInfo[&quot;TorsionAngle&quot;][ID]
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        HierarchyClassName = AlertsInfo[&quot;HierarchyClassName&quot;][ID]
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        HierarchySubClassName = AlertsInfo[&quot;HierarchySubClassName&quot;][ID]
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        TorsionRuleNodeID = AlertsInfo[&quot;TorsionRuleNodeID&quot;][ID]
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        TorsionRuleSMARTS = AlertsInfo[&quot;TorsionRuleSMARTS&quot;][ID]
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        EnergyMethod = AlertsInfo[&quot;EnergyMethod&quot;][ID]
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        AngleNotObserved = AlertsInfo[&quot;AngleNotObserved&quot;][ID]
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Energy = AlertsInfo[&quot;Energy&quot;][ID]
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        EnergyLowerBound = AlertsInfo[&quot;EnergyLowerBound&quot;][ID]
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        EnergyUpperBound = AlertsInfo[&quot;EnergyUpperBound&quot;][ID]</div>
+</dd>
+<dt id="TorsionStrainEnergyAlerts.ListTorsionLibraryInfo"><b>TorsionStrainEnergyAlerts.ListTorsionLibraryInfo</b></dt>
+<dd>
+    <div class="OptionsBox">ListTorsionLibraryInfo(self)</div>
+<p>List torsion strain library information.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">None</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">None</div>
+</dd>
+<dt id="TorsionStrainEnergyAlerts.TorsionStrainEnergyAlerts"><b>TorsionStrainEnergyAlerts.TorsionStrainEnergyAlerts</b></dt>
+<dd>
+    <div class="OptionsBox">TorsionStrainEnergyAlerts(self, AlertsMode=&quot;TotalEnergy&quot;, TotalEnergyCutoff=6.0, MaxSingleEnergyCutoff=1.8, RotBondsSMARTSMode=&quot;SemiStrict&quot;, RotBondsSMARTSPattern=None, TorsionLibraryFilePath=&quot;auto&quot;, AlertTorsionsNotObserved=False)</div>
+<p>Identify strained molecules based on torsion strain energy library [ Ref 153 ] alerts by matching rotatable bonds against SMARTS patterns specified for torsion rules in a torsion energy library file. The molecules must have 3D coordinates. The default torsion strain energy library file, TorsionStrainEnergyLibrary.xml, is ia available in the directory containing this file.</p>
+<p>The data in torsion strain energy library file is organized in a hierarchical manner. It consists of one generic class and six specific classes at the highest level. Each class contains multiple subclasses corresponding to named functional groups or substructure patterns. The subclasses consist of torsion rules sorted from specific to generic torsion patterns. The torsion rule, in turn, contains a list of peak values for torsion angles and two tolerance values. A pair of tolerance values define torsion bins around a torsion peak value.</p>
+<p>A strain energy calculation method, &#39;exact&#39; or &#39;approximate&#39; [ Ref 153 ], is associated with each torsion rule for calculating torsion strain energy. The &#39;exact&#39; stain energy calculation relies on the energy bins available under the energy histogram consisting of 36 bins covering angles from -180 to 180. The width of each bin is 10 degree. The energy bins are are defined at the right end points. The first and the last energy bins correspond to -170 and 180 respectively. The torsion angle is mapped to a energy bin. An angle offset is calculated for the torsion angle from the the right end point angle of the bin. The strain energy is estimated for the angle offset based on the energy difference between the current and previous bins. The torsion strain energy, in terms of torsion energy units (TEUs), corresponds to the sum of bin strain energy and the angle offset strain energy.</p>
+    <div class="OptionsBox">Energy = BinEnergyDiff/10.0 * BinAngleOffset + BinEnergy[BinNum]
+<br/>    
+<br/>    Where:
+<br/>    
+<br/>    BinEnergyDiff = BinEnergy[BinNum] - BinEnergy[PreviousBinNum]
+<br/>    BinAngleOffset = TorsionAngle - BinAngleRightSide</div>
+<p>The &#39;approximate&#39; strain energy calculation relies on the angle difference between a torsion angle and the torsion peaks observed for the torsion rules in the torsion energy library. The torsion angle is matched to a torsion peak based on the value of torsion angle difference. It must be less than or equal to the value for the second tolerance &#39;tolerance2&#39;. Otherwise, the torsion angle is not observed in the torsion energy library and a value of &#39;NA&#39; is assigned for torsion energy along with the lower and upper bounds on energy at 95% confidence interval. The &#39;approximate&#39; torsion energy (TEUs) for observed torsion angle is calculated using the following formula:</p>
+    <div class="OptionsBox">Energy = beta_1 * (AngleDiff ** 2) + beta_2 * (AngleDiff ** 4)</div>
+<p>The coefficients &#39;beta_1&#39; and &#39;beta_2&#39; are available for the observed angles in the torsion strain energy library. The &#39;AngleDiff&#39; is the difference between the torsion angle and the matched torsion peak.</p>
+<p>For example:</p>
+    <div class="OptionsBox">&lt;library&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &lt;hierarchyClass id1=&quot;G&quot; id2=&quot;G&quot; name=&quot;GG&quot;&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        ...
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &lt;/hierarchyClass&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &lt;hierarchyClass id1=&quot;C&quot; id2=&quot;O&quot; name=&quot;CO&quot;&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            &lt;hierarchySubClass name=&quot;Ester bond I&quot; smarts=&quot;O=[C:2][O:3]&quot;&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                &lt;torsionRule method=&quot;exact&quot; smarts=
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                    &quot;[O:1]=[C:2]!@[O:3]~[CH0:4]&quot;&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                    &lt;angleList&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                        &lt;angle score=&quot;56.52&quot; tolerance1=&quot;20.00&quot;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                        tolerance2=&quot;25.00&quot; value=&quot;0.0&quot;/&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                    &lt;/angleList&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                    &lt;histogram&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                        &lt;bin count=&quot;1&quot;/&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                        ...
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                    &lt;/histogram&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                    &lt;histogram_shifted&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                        &lt;bin count=&quot;0&quot;/&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                        ...
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                    &lt;/histogram_shifted&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                    &lt;histogram_converted&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                        &lt;bin energy=&quot;4.67... lower=&quot;2.14...&quot; upper=&quot;Inf&quot;/&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                        ...
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                        &lt;bin energy=&quot;1.86...&quot; lower=&quot;1.58...&quot; upper=&quot;2.40...&quot;/&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                        ...
+                       &lt;/histogram_converted&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                &lt;/torsionRule&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                &lt;torsionRule method=&quot;approximate&quot; smarts=
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                    &quot;[cH0:1][c:2]([cH0])!@[O:3][p:4]&quot;&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                    &lt;angleList&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                    &lt;angle beta_1=&quot;0.002...&quot; beta_2=&quot;-7.843...e-07&quot;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                        score=&quot;27.14&quot; theta_0=&quot;-90.0&quot; tolerance1=&quot;30.00&quot;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                        tolerance2=&quot;45.00&quot; value=&quot;-90.0&quot;/&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                    ...
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                    &lt;/angleList&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                    &lt;histogram&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                        &lt;bin count=&quot;0&quot;/&gt;
+                         ...
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                    &lt;/histogram&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                    &lt;histogram_shifted&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                        &lt;bin count=&quot;0&quot;/&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                        ...
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                    &lt;/histogram_shifted&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                &lt;/torsionRule&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            ...
+         ...
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &lt;/hierarchyClass&gt;
+         &lt;hierarchyClass id1=&quot;N&quot; id2=&quot;C&quot; name=&quot;NC&quot;&gt;
+         ...
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &lt;/hierarchyClass&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &lt;hierarchyClass id1=&quot;S&quot; id2=&quot;N&quot; name=&quot;SN&quot;&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        ...
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &lt;/hierarchyClass&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &lt;hierarchyClass id1=&quot;C&quot; id2=&quot;S&quot; name=&quot;CS&quot;&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        ...
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &lt;/hierarchyClass&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &lt;hierarchyClass id1=&quot;C&quot; id2=&quot;C&quot; name=&quot;CC&quot;&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        ...
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &lt;/hierarchyClass&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &lt;hierarchyClass id1=&quot;S&quot; id2=&quot;S&quot; name=&quot;SS&quot;&gt;
+         ...
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &lt;/hierarchyClass&gt;
+<br/>    &lt;/library&gt;</div>
+<p>The rotatable bonds in a 3D molecule are identified using a default SMARTS pattern. A custom SMARTS pattern may be optionally specified to detect rotatable bonds. Each rotatable bond is matched to a torsion rule in the torsion strain energy library. The strain energy is calculated for each rotatable bond using the calculation method, &#39;exact&#39; or &#39;approximate&#39;, associated with the matched torsion rule.</p>
+<p>The total strain energy (TEUs) of a molecule corresponds to the sum of &#39;exact&#39; and &#39;approximate&#39; strain energies calculated for all matched rotatable bonds in the molecule. The total strain energy is set to &#39;NA&#39; for molecules containing a &#39;approximate&#39; energy estimate for a torsion angle not observed in the torsion energy library. In addition, the lower and upper bounds on energy at 95% confidence interval are set to &#39;NA&#39;.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">AlertsMode (str): Torsion strain energy library alert types to use
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        for issuing alerts. Possible values: TotalEnergy,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        MaxSingleEnergy, or TotalOrMaxSingleEnergy.
+<br/>    TotalEnergyCutoff (float): Total strain strain energy (TEUs) cutoff.
+<br/>    MaxSingleEnergyCutoff (float): Maximum single strain energy (TEUs)
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        cutoff.
+<br/>    RotBondsSMARTSMode (str): SMARTS pattern to use for identifying
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        rotatable bonds in a molecule. Possible values: NonStrict,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        SemiStrict, Strict or Specify.
+<br/>    RotBondsSMARTSPattern (str):SMARTS pattern for identifying rotatable
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        bonds. This paramater is only valid for &#39;Specify&#39; value
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &#39;RotBondsSMARTSMode&#39;.
+<br/>    TorsionLibraryFilePath (str): A XML file name containing data for
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        torsion starin energy library.
+<br/>    AlertTorsionsNotObserved (bool): Issue alerts about molecules
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        containing torsion angles not observed in torsion strain energy
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        library.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">object: An instantiated class object.</div>
+<p><i>Example(s):</i></p>
+    <div class="OptionsBox">StrainEnergyAlertsHandle = TorsionStrainEnergyAlerts()
+<br/>    
+<br/>    StrainEnergyAlertsHandle = TorsionStrainEnergyAlerts(AlertsMode = &quot;TotalEnergy&quot;,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        TotalEnergyCutoff = 6.0, MaxSingleEnergyCutoff = 1.8, RotBondsSMARTSMode = &quot;SemiStrict&quot;,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        RotBondsSMARTSPattern = None, TorsionLibraryFilePath = &quot;auto&quot;, AlertTorsionsNotObserved = False)</div>
+<p>The following sections provide additional details for the parameters.</p>
+<p>AlertsMode: Torsion strain energy library alert types to use for issuing alerts about molecules containing rotatable bonds based on the calculated values for the total torsion strain energy of a molecule and the maximum single strain energy of a rotatable bond in a molecule.</p>
+<p>Possible values: TotalEnergy, MaxSingleEnergy, or TotalOrMaxSingleEnergy</p>
+<p>The strain energy cutoff values in terms of torsion energy units (TEUs) are used to filter molecules as shown below:</p>
+    <div class="OptionsBox">AlertsMode                AlertsEnergyCutoffs (TEUs)
+<br/>    
+<br/>    TotalEnergy               &gt;= TotalEnergyCutoff
+<br/>    
+<br/>    MaxSingleEnergy           &gt;= MaxSingleEnergyCutoff
+<br/>    
+<br/>    TotalOrMaxSingleEnergy    &gt;= TotalEnergyCutoff
+                              or &gt;= MaxSingleEnergyCutoff</div>
+<p>TotalEnergyCutoff: Total strain strain energy (TEUs) cutoff [ Ref 153 ] for issuing alerts based on total strain energy for all rotatable bonds in a molecule. This option is used during &#39;TotalEnergy&#39; or &#39;TotalOrMaxSingleEnergy&#39; values of &#39;AlertsMode&#39; parameter.</p>
+<p>The total strain energy must be greater than or equal to the specified cutoff value to identify a molecule containing strained torsions.</p>
+<p>MaxSingleEnergyCutoff: Maximum single strain energy (TEUs) cutoff [ Ref 153 ] for issuing alerts based on the maximum value of a single strain energy of a rotatable bond in a molecule. This option is used during &#39;MaxSingleEnergy&#39; or &#39;TotalOrMaxSingleEnergy&#39; values of &#39;AlertsMode&#39; parameter.</p>
+<p>The maximum single strain energy must be greater than or equal to the specified cutoff valueo to identify a molecule containing strained torsions.</p>
+<p>RotBondsSMARTSMode: SMARTS pattern to use for identifying rotatable bonds in a molecule for matching against torsion rules in the torsion library. Possible values: NonStrict, SemiStrict, Strict or Specify. The rotatable bond SMARTS matches are filtered to ensure that each atom in the rotatable bond is attached to at least two heavy atoms.</p>
+<p>The following SMARTS patterns are used to identify rotatable bonds for different modes:</p>
+    <div class="OptionsBox">NonStrict: [!$(*#*)&amp;!D1]-&amp;!@[!$(*#*)&amp;!D1]
+<br/>    
+<br/>    SemiStrict:
+<br/>    [!$(*#*)&amp;!D1&amp;!$(C(F)(F)F)&amp;!$(C(Cl)(Cl)Cl)&amp;!$(C(Br)(Br)Br)
+<br/>    &amp;!$(C([CH3])([CH3])[CH3])]-!@[!$(*#*)&amp;!D1&amp;!$(C(F)(F)F)
+<br/>    &amp;!$(C(Cl)(Cl)Cl)&amp;!$(C(Br)(Br)Br)&amp;!$(C([CH3])([CH3])[CH3])]
+<br/>    
+<br/>    Strict:
+<br/>    [!$(*#*)&amp;!D1&amp;!$(C(F)(F)F)&amp;!$(C(Cl)(Cl)Cl)&amp;!$(C(Br)(Br)Br)
+<br/>    &amp;!$(C([CH3])([CH3])[CH3])&amp;!$([CD3](=[N,O,S])-!@[#7,O,S!D1])
+<br/>    &amp;!$([#7,O,S!D1]-!@[CD3]=[N,O,S])&amp;!$([CD3](=[N+])-!@[#7!D1])
+<br/>    &amp;!$([#7!D1]-!@[CD3]=[N+])]-!@[!$(*#*)&amp;!D1&amp;!$(C(F)(F)F)
+<br/>    &amp;!$(C(Cl)(Cl)Cl)&amp;!$(C(Br)(Br)Br)&amp;!$(C([CH3])([CH3])[CH3])]</div>
+<p>The &#39;NonStrict&#39; and &#39;Strict&#39; SMARTS patterns are available in RDKit. The &#39;NonStrict&#39; SMARTS pattern corresponds to original Daylight SMARTS specification for rotatable bonds. The &#39;SemiStrict&#39; SMARTS pattern is derived from &#39;Strict&#39; SMARTS pattern.</p>
+<p>TorsionLibraryFilePath (str): Specify a XML file name containing data for torsion starin energy library hierarchy or use default file, TorsionEnergyLibrary.xml, available in the directory containing this file.</p>
+<p>AlertTorsionsNotObserved: Issue alerts abpout molecules con ntaining torsion angles not observed in torsion strain energy library. It&#39;s not possible to calculate torsion strain energies for these torsions during &#39;approximate&#39; match to a specified torsion in the library.</p>
+<p>The &#39;approximate&#39; strain energy calculation relies on the angle difference between a torsion angle and the torsion peaks observed for the torsion rules in the torsion energy library. The torsion angle is matched to a torsion peak based on the value of torsion angle difference. It must be less than or equal to the value for the second tolerance &#39;tolerance2&#39;. Otherwise, the torsion angle is not observed in the torsion energy library and a value of &#39;NA&#39; is assigned for torsion energy along with the lower and upper bounds on energy at 95% confidence interval.</p>
+</dd>
+</dl>
+<h1 id="AUTHOR">AUTHOR</h2>
+<p><a href="mailto:msud@san.rr.com">Manish Sud</a></p>
+<h1 id="Collaborator">Collaborator</h2>
+<p>Pat Walters</p>
+<h1 id="COPYRIGHT">COPYRIGHT</h2>
+<p>Copyright (C) 2026 Manish Sud. All rights reserved.</p>
+<p>This module uses the torsion strain energy library developed by Gu, S.; Smith, M. S.; Yang, Y.; Irwin, J. J.; Shoichet, B. K. [ Ref 153 ].</p>
+<p>The torsion strain enegy library is based on the Torsion Library jointly developed by the University of Hamburg, Center for Bioinformatics, Hamburg, Germany and F. Hoffmann-La-Roche Ltd., Basel, Switzerland.</p>
+<p>This file is part of MayaChemTools.</p>
+<p>MayaChemTools is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.</p>
+<p>&nbsp</p><p>&nbsp</p><div class="DocNav">
+<table width="100%" border=0 cellpadding=0 cellspacing=2>
+<tr align="left" valign="top"><td width="33%" align="left"><a href="./TorsionLibraryAlerts.py.html" title="TorsionLibraryAlerts.py.html">Previous</a>&nbsp;&nbsp;<a href="./index.html" title="Table of Contents">TOC</a>&nbsp;&nbsp;<a href="./SDFileUtil.html" title="SDFileUtil.html">Next</a></td><td width="34%" align="middle"><strong>February 8, 2026</strong></td><td width="33%" align="right"><strong>Python/TorsionAlerts/TorsionStrainEnergyAlerts.py</strong></td></tr>
+</table>
+</div>
+<br />
+<center>
+<img src="../../images/h2o2.png">
+</center>
+</body>
+</html>

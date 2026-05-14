@@ -1,0 +1,120 @@
+<html>
+<head>
+<title>MayaChemTools:Documentation:PyMOLExtractSelection.py</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../css/MayaChemTools.css">
+</head>
+<body leftmargin="20" rightmargin="20" topmargin="10" bottommargin="10">
+<br/>
+<center>
+<a href="http://www.mayachemtools.org" title="MayaChemTools Home"><img src="../../images/MayaChemToolsLogo.gif" border="0" alt="MayaChemTools"></a>
+</center>
+<br/>
+<div class="TopSubNav">
+  <ul style="padding-left: 50px;">
+    <li id="current"><a href="../../scripts/html/index.html" title="MayaChemTools Scripts Documentation">All</a></li>
+    <li><a href="../../scripts/html/Standalone/index.html" title="MayaChemTools Standalone Scripts Documentation">Standalone</a></li>
+    <li><a href="../../scripts/html/RDKit/index.html" title="MayaChemTools RDKit Scripts Documentation">RDKit</a></li>
+    <li><a href="../../scripts/html/PyMOL/index.html" title="MayaChemTools PyMOL Scripts Documentation">PyMOL</a></li>
+    <li><a href="../../scripts/html/OpenMM/index.html" title="MayaChemTools OpenMM Scripts Documentation">OpenMM</a></li>
+    <li><a href="../../scripts/html/OpenFE/index.html" title="MayaChemTools OpenFE Scripts Documentation">OpenFE</a></li>
+    <li><a href="../../scripts/html/Psi4/index.html" title="MayaChemTools Psi4 Scripts Documentation">Psi4</a></li>
+    <li><a href="../../scripts/html/Misc/index.html" title="MayaChemTools Misc Scripts Documentation">Misc</a></li>
+</ul>
+</div>
+<div class="DocNav">
+<table width="100%" border=0 cellpadding=0 cellspacing=2>
+<tr align="left" valign="top"><td width="33%" align="left"><a href="./PyMOLConvertPMLToPSE.html" title="PyMOLConvertPMLToPSE.html">Previous</a>&nbsp;&nbsp;<a href="./index.html" title="Table of Contents">TOC</a>&nbsp;&nbsp;<a href="./PyMOLGenerateRamachandranPlots.html" title="PyMOLGenerateRamachandranPlots.html">Next</a></td><td width="34%" align="middle"><strong>PyMOLExtractSelection.py</strong></td><td width="33%" align="right"><a href="././code/PyMOLExtractSelection.html" title="View source code">Code</a>&nbsp;|&nbsp;<a href="./../pdf/PyMOLExtractSelection.pdf" title="PDF US Letter Size">PDF</a>&nbsp;|&nbsp;<a href="./../pdfa4/PyMOLExtractSelection.pdf" title="PDF A4 Size">PDFA4</a></td></tr>
+</table>
+</div>
+<h1 id="NAME">NAME</h2>
+<p>PyMOLExtractSelection.py - Extract selection from a macromolecule</p>
+<h1 id="SYNOPSIS">SYNOPSIS</h2>
+<p>PyMOLExtractSelection.py [<b>--overwrite</b>] [<b>--selectionAppend</b> &lt;yes or no&gt;] [<b>-w</b> &lt;dir&gt;] <b>-i</b> &lt;infile&gt; <b>-o</b> &lt;outfile&gt; <b>-s</b> &lt;selection&gt;</p>
+<p>PyMOLExtractSelection.py <b>-h</b> | <b>--help</b> | <b>-e</b> | <b>--examples</b></p>
+<h1 id="DESCRIPTION">DESCRIPTION</h2>
+<p>Extract data corresponding to a PyMOL selection specification from a macromolecule in an input file and write it out to an output file.</p>
+<p>The selection specification must be a valid PyMOL specification. No validation is performed.</p>
+<p>The supported input file format are: PDB (.pdb) and CIF (.cif)</p>
+<p>The supported output file formats are: PDB (.pdb) and CIF (.cif)</p>
+<h1 id="OPTIONS">OPTIONS</h2>
+<dl>
+<dt id="e---examples"><b>-e, --examples</b></dt>
+<dd>
+<p>Print examples.</p>
+</dd>
+<dt id="h---help"><b>-h, --help</b></dt>
+<dd>
+<p>Print this help message.</p>
+</dd>
+<dt id="i---infile-infile"><b>-i, --infile</b> &lt;infile&gt;</dt>
+<dd>
+<p>Input file name.</p>
+</dd>
+<dt id="o---outfile-infile"><b>-o, --outfile</b> &lt;infile&gt;</dt>
+<dd>
+<p>Output file name.</p>
+</dd>
+<dt id="s---selection-PyMOL-SelectionSpec"><b>-s, --selection</b> &lt;PyMOL SelectionSpec&gt;</dt>
+<dd>
+<p>Selection specification for extracting data from a macromolecule in an input file. The selection specification must be a valid PyMOL specification. No Validation is performed.</p>
+<p>The specified selection specification is optionally appended to PyMOL object name for input file.</p>
+</dd>
+<dt id="selectionAppend-yes-or-no-default:-yes"><b>--selectionAppend</b> &lt;yes or no&gt; [default: yes]</dt>
+<dd>
+<p>Append specified selection specification to PyMOL object name for input file before creating PyMOL object for a specified selection specification. The PyMOL object name for input file is &lt;InfileRoot&gt;.</p>
+<p>You may choose to explicitly specify PyMOL object name in the selection specification instead of automatically appending it to the selection.</p>
+</dd>
+<dt id="overwrite"><b>--overwrite</b></dt>
+<dd>
+<p>Overwrite existing files.</p>
+</dd>
+<dt id="w---workingdir-dir"><b>-w, --workingdir</b> &lt;dir&gt;</dt>
+<dd>
+<p>Location of working directory which defaults to the current directory.</p>
+</dd>
+</dl>
+<h1 id="EXAMPLES">EXAMPLES</h2>
+<p>To extract all data corresponding to chain E in a macromolecule and write out to a PDB file, type:</p>
+<div class="ExampleBox">% PyMOLExtractSelection.py -i Sample3.cif -o Sample3Out.pdb -s &quot;chain E&quot; --ov</div>
+<p>To extract only polymer chain data for chains E and I in a macromolecule and write out to a PDB file, type:</p>
+<div class="ExampleBox">% PyMOLExtractSelection.py -i Sample3.cif -o Sample3Out.pdb
+  -s &quot;((chain E) or (chain I)) and polymer&quot; --ov</div>
+<p>To extract only polymer chain data for chain E in a macromolecule and write out to a PDB file, type:</p>
+<div class="ExampleBox">% PyMOLExtractSelection.py -i Sample3.pdb -o Sample3Out.pdb
+  -s &quot;(chain E) and polymer&quot; --ov</div>
+<p>To extract only polymer chain data for chain E in a macromolecule by explicitly ignoring non-polymer chain data and write out to a CIF file, type:</p>
+<div class="ExampleBox">% PyMOLExtractSelection.py -i Sample3.pdb -o Sample3Out.cif
+  -s &quot;(chain E) and (not organic) and (not solvent) and
+  (not inorganic)&quot; --ov</div>
+<p>To extract solvent data corresponding to chain E in a macromolecule and write out to a PDB file, type:</p>
+<div class="ExampleBox">% PyMOLExtractSelection.py -i Sample3.pdb -o Sample3Out.pdb
+  -s &quot;(chain E) and solvent&quot; --ov</div>
+<p>To extract ligand data corresponding to chain E in a macromolecule and write out to a PDB file, type:</p>
+<div class="ExampleBox">% PyMOLExtractSelection.py -i Sample3.pdb -o Sample3Out.pdb
+  -s &quot;(chain E) and organic&quot; --ov</div>
+<p>To extract binding pocket residues with 5.0 of ligand ID ADP in chain E and write out a PDB file, type:</p>
+<div class="ExampleBox">% PyMOLExtractSelection.py -i Sample3.pdb -o Sample3Out.pdb
+   --selectionAppend no -s &quot;(byresidue (Sample3 and chain E)
+  within 5.0 of (Sample3 and chain E and organic and resn ADP))
+  and polymer&quot; --ov</div>
+<h1 id="AUTHOR">AUTHOR</h2>
+<p><a href="mailto:msud@san.rr.com">Manish Sud</a></p>
+<h1 id="SEE-ALSO">SEE ALSO</h2>
+<p><a href="./PyMOLAlignChains.html">PyMOLAlignChains.py</a>, <a href="./PyMOLSplitChainsAndLigands.html">PyMOLSplitChainsAndLigands.py</a>, <a href="./PyMOLVisualizeMacromolecules.html">PyMOLVisualizeMacromolecules.py</a></p>
+<h1 id="COPYRIGHT">COPYRIGHT</h2>
+<p>Copyright (C) 2026 Manish Sud. All rights reserved.</p>
+<p>The functionality available in this script is implemented using PyMOL, a molecular visualization system on an open source foundation originally developed by Warren DeLano.</p>
+<p>This file is part of MayaChemTools.</p>
+<p>MayaChemTools is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.</p>
+<p>&nbsp</p><p>&nbsp</p><div class="DocNav">
+<table width="100%" border=0 cellpadding=0 cellspacing=2>
+<tr align="left" valign="top"><td width="33%" align="left"><a href="./PyMOLConvertPMLToPSE.html" title="PyMOLConvertPMLToPSE.html">Previous</a>&nbsp;&nbsp;<a href="./index.html" title="Table of Contents">TOC</a>&nbsp;&nbsp;<a href="./PyMOLGenerateRamachandranPlots.html" title="PyMOLGenerateRamachandranPlots.html">Next</a></td><td width="34%" align="middle"><strong>February 8, 2026</strong></td><td width="33%" align="right"><strong>PyMOLExtractSelection.py</strong></td></tr>
+</table>
+</div>
+<br />
+<center>
+<img src="../../images/h2o2.png">
+</center>
+</body>
+</html>

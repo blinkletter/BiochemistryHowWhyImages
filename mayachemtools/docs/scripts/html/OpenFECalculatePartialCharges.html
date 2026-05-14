@@ -1,0 +1,182 @@
+<html>
+<head>
+<title>MayaChemTools:Documentation:OpenFECalculatePartialCharges.py</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../css/MayaChemTools.css">
+</head>
+<body leftmargin="20" rightmargin="20" topmargin="10" bottommargin="10">
+<br/>
+<center>
+<a href="http://www.mayachemtools.org" title="MayaChemTools Home"><img src="../../images/MayaChemToolsLogo.gif" border="0" alt="MayaChemTools"></a>
+</center>
+<br/>
+<div class="TopSubNav">
+  <ul style="padding-left: 50px;">
+    <li id="current"><a href="../../scripts/html/index.html" title="MayaChemTools Scripts Documentation">All</a></li>
+    <li><a href="../../scripts/html/Standalone/index.html" title="MayaChemTools Standalone Scripts Documentation">Standalone</a></li>
+    <li><a href="../../scripts/html/RDKit/index.html" title="MayaChemTools RDKit Scripts Documentation">RDKit</a></li>
+    <li><a href="../../scripts/html/PyMOL/index.html" title="MayaChemTools PyMOL Scripts Documentation">PyMOL</a></li>
+    <li><a href="../../scripts/html/OpenMM/index.html" title="MayaChemTools OpenMM Scripts Documentation">OpenMM</a></li>
+    <li><a href="../../scripts/html/OpenFE/index.html" title="MayaChemTools OpenFE Scripts Documentation">OpenFE</a></li>
+    <li><a href="../../scripts/html/Psi4/index.html" title="MayaChemTools Psi4 Scripts Documentation">Psi4</a></li>
+    <li><a href="../../scripts/html/Misc/index.html" title="MayaChemTools Misc Scripts Documentation">Misc</a></li>
+</ul>
+</div>
+<div class="DocNav">
+<table width="100%" border=0 cellpadding=0 cellspacing=2>
+<tr align="left" valign="top"><td width="33%" align="left"><a href="./OpenFECalculateAbsoluteHydrationFreeEnergy.html" title="OpenFECalculateAbsoluteHydrationFreeEnergy.html">Previous</a>&nbsp;&nbsp;<a href="./index.html" title="Table of Contents">TOC</a>&nbsp;&nbsp;<a href="./OpenFECalculateRelativeBindingFreeEnergy.html" title="OpenFECalculateRelativeBindingFreeEnergy.html">Next</a></td><td width="34%" align="middle"><strong>OpenFECalculatePartialCharges.py</strong></td><td width="33%" align="right"><a href="././code/OpenFECalculatePartialCharges.html" title="View source code">Code</a>&nbsp;|&nbsp;<a href="./../pdf/OpenFECalculatePartialCharges.pdf" title="PDF US Letter Size">PDF</a>&nbsp;|&nbsp;<a href="./../pdfa4/OpenFECalculatePartialCharges.pdf" title="PDF A4 Size">PDFA4</a></td></tr>
+</table>
+</div>
+<h1 id="NAME">NAME</h2>
+<p>OpenFECalculatePartialCharges.py - Generate ligand network</p>
+<h1 id="SYNOPSIS">SYNOPSIS</h2>
+<p>OpenFECalculatePartialCharges.py [<b>--charge</b> &lt;text&gt;] [<b>--chargeParams</b> &lt;Name,Value,..&gt;] [<b>--infileParams</b> &lt;Name,Value,...&gt;] [<b>--loggingLevel</b> &lt;Info or Warning&gt;] [<b>--outfileParams</b> &lt;Name,Value,...&gt;] [<b>--overwrite</b>] [<b>-w</b> &lt;dir&gt;] <b>-i</b> &lt;infile&gt; <b>-o</b> &lt;outfile&gt;</p>
+<p>OpenFECalculatePartialCharges.py <b>-h</b> | <b>--help</b> | <b>-e</b> | <b>--examples</b></p>
+<h1 id="DESCRIPTION">DESCRIPTION</h2>
+<p>Calculate partial atomic charges for molecules in an input file and write them out to a SD file.</p>
+<p>The partial charges are written to SD file as values of the data field label &#39;atom.dprop.PartialCharge&#39;. These values are automatically processed by RDKit during the loading of a SD file and assigned to atoms. You may retrieve these value using RDKit method Atom.GetDoubleProp(&#39;PartialCharge&#39;)</p>
+<p>You must specify a valid input file containing 3D coordinates for all molecules. In addition, the hydrogens must be present for all molecules in the input file.</p>
+<p>The supported input file formats are: Mol (.mol), SD (.sdf, .sd)</p>
+<p>The supported output file formats is: SD (.sdf, .sd)</p>
+<h1 id="OPTIONS">OPTIONS</h2>
+<dl>
+<dt id="e---examples"><b>-e, --examples</b></dt>
+<dd>
+<p>Print examples.</p>
+</dd>
+<dt id="h---help"><b>-h, --help</b></dt>
+<dd>
+<p>Print this help message.</p>
+</dd>
+<dt id="i---infile-infile"><b>-i, --infile</b> &lt;infile&gt;</dt>
+<dd>
+<p>Input file name.</p>
+</dd>
+<dt id="c---charge-text-default:-AM1BCC"><b>-c, --charge</b> &lt;text&gt; [default: AM1BCC]</dt>
+<dd>
+<p>Type of partial atomic charges to calculate. Possible values: AM1BCC, AM1-Mulliken, Espaloma, Gasteiger, MMFF94, or NAGL.</p>
+</dd>
+<dt id="chargeParams-Name-Value-..-default:-auto"><b>--chargeParams</b> &lt;Name,Value,..&gt; [default: auto]</dt>
+<dd>
+<p>A comma delimited list of parameter name and value pairs for calculating partial aromic charges.</p>
+<p>The supported parameter names along with their default values are</p>
+    <div class="OptionsBox"> naglModel, auto [ Possible value: A valid NAGL model name. By
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        default, it corresponds to the latest AM1BCC production model ]
+<br/>    toolkit, auto [ Possible values: RDKit or AmberTools. Default value:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        RDKit for Gasteiger and MMFF94; AmberTools for AM1BCC and
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        AM1-Mulliken; Not used for Espaloma and NAGL. ]
+<br/>    
+<br/>    numProcessors, 1  [ Only used for AM1BCC, AM1-Mulliken, Espaloma,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        and NAGL ]
+<br/>    
+<br/>    precision, 4
+<br/>    lineSize, 90
+<br/>    
+<br/>    useConformer, auto  [ Use current conformer. Possible values: yes or
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        no. Default value: no for Gasteiger using AmberToolkit;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        otherwise, yes. ]
+<br/>    </div>
+<p>A brief description of parameters is provided below:</p>
+    <div class="OptionsBox"> naglModel: NAGL model name. The latest AM1BCC NAGL production
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        model is used by default. You must specify it explicitly in case no
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        production model is available.
+<br/>    toolkit: Toolkit name. RDKit for Gasteiger and MMFF94; AmberTools
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        for AM1BCC, AM1-Mulliken, and Gasteiger.
+<br/>    
+<br/>    numProcessors: Number of processors. This is only used during the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        calculation of AM1BCC, AM1-Mulliken, Espaloma, and NAGL
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        employing OpenFE method bulk_assign_partial_charges().
+<br/>    
+<br/>    precision: Floating point precision for writing the calculated
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        partial atomic charges.
+<br/>    lineSize: Line size for writing the calculated partial aromic
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        charges to SD file as a string value for data field label
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &#39;atom.dprop.PartialCharge&#39;.
+<br/>    
+<br/>    useConformer: Use current conformer. The current conformer is
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        always used to calculate AM1BCC, Espaloma abd NAGL charges
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        using OpenFE method bulk_assign_partial_charges() and this
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        option is ignored. In addition, the option value is passed to
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        OpenFF method assign_partial_charges() during the calculation
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        of AM1-Mulliken, Gasteiger and MMFF94 charges employing
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        AmberTools or RDKit. The RDKit functions, however, ignore the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        conformer during the calculation of Gasteiger and MMFF94
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        charges. The current conformer appears not used to calculate
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Gasteiger charges employing AmberTools.
+<br/>    </div>
+</dd>
+<dt id="infileParams-Name-Value-...-default:-auto"><b>--infileParams</b> &lt;Name,Value,...&gt; [default: auto]</dt>
+<dd>
+<p>A comma delimited list of parameter name and value pairs for reading molecules from files. The supported parameter names for different file formats, along with their default values, are shown below:</p>
+    <div class="OptionsBox"> SD,MOL: removeHydrogens,no,sanitize,yes,strictParsing,yes
+<br/>    </div>
+</dd>
+<dt id="loggingLevel-Info-or-Warning-default:-Warning"><b>--loggingLevel</b> &lt;Info or Warning&gt; [default: Warning]</dt>
+<dd>
+<p>Logging level to configure the &#39;root logger&#39; via logging.basicConfig() function. The default logging level is changed from &#39;logging.INFO&#39; to &#39;logging.WARNING&#39;. Otherwise, OpenFE and its associated modules may generate a lot of informational messages.</p>
+</dd>
+<dt id="o---outfile-outfile"><b>-o, --outfile</b> &lt;outfile&gt;</dt>
+<dd>
+<p>Output file name.</p>
+</dd>
+<dt id="outfileParams-Name-Value-...-default:-auto"><b>--outfileParams</b> &lt;Name,Value,...&gt; [default: auto]</dt>
+<dd>
+<p>A comma delimited list of parameter name and value pairs for writing molecules to files. The supported parameter names for different file formats, along with their default values, are shown below:</p>
+    <div class="OptionsBox"> SD: kekulize,yes,forceV3000,no
+<br/>    </div>
+</dd>
+<dt id="overwrite"><b>--overwrite</b></dt>
+<dd>
+<p>Overwrite existing files.</p>
+</dd>
+<dt id="w---workingdir-dir"><b>-w, --workingdir</b> &lt;dir&gt;</dt>
+<dd>
+<p>Location of working directory which defaults to the current directory.</p>
+</dd>
+</dl>
+<h1 id="EXAMPLES">EXAMPLES</h2>
+<p>To calculate AM1BCC partial atomic charges for molecules in a SD file and file and write them out to a file, type:</p>
+<div class="ExampleBox">% OpenFECalculatePartialCharges.py -i SampleTyk2Ligands.sdf
+  -o SampleTyk2LigandsAM1BCCOut.sdf</div>
+<p>To run the first example for calculating AM1-Mulliken charges using AmberTools, type:</p>
+<div class="ExampleBox">% OpenFECalculatePartialCharges.py -i SampleTyk2Ligands.sdf
+  -o SampleTyk2LigandsAM1MullikenOut.sdf -c AM1-Mulliken</div>
+<p>To run the first example for calculating Gasteiger charges using RDKit, type:</p>
+<div class="ExampleBox">% OpenFECalculatePartialCharges.py -i SampleTyk2Ligands.sdf
+  -o SampleTyk2LigandsGasteigerRDKit.sdf -c Gasteiger</div>
+<p>To run the first example for calculating Gasteiger charges using AmberTools, type:</p>
+<div class="ExampleBox">% OpenFECalculatePartialCharges.py -i SampleTyk2Ligands.sdf
+  -o SampleTyk2LigandsasteigerAmberTools.sdf -c Gasteiger
+  --chargeParams &quot;toolkit,AmberTools&quot;</div>
+<p>To run the first example for calculating NAGL charges using the default production AM1BCC model, type:</p>
+<div class="ExampleBox">%  OpenFECalculatePartialCharges.py -i SampleTyk2Ligands.sdf
+  -o SampleTyk2LigandsNAGL.sdf -c NAGL</div>
+<p>To run the first example for calculating NAGL charges using a specific model, type:</p>
+<div class="ExampleBox">%  OpenFECalculatePartialCharges.py -i SampleTyk2Ligands.sdf
+  -o SampleTyk2LigandsNAGL.sdf -c NAGL
+  --chargeParams &quot;naglmodel, openff-gnn-am1bcc-0.1.0-rc.3.pt&quot;</div>
+<p>To run the first example by specifying explicit values for various parameters, type:</p>
+<div class="ExampleBox">% OpenFECalculatePartialCharges.py -i SampleTyk2Ligands.sdf
+  -o SampleTyk2LigandsAM1BCCOut.sdf -c AM1BCC
+  --chargeParams &quot;numProcessors, 4, precision, 4, lineSize, 90&quot;
+  --loggingLevel Warning</div>
+<h1 id="AUTHOR">AUTHOR</h2>
+<p><a href="mailto:msud@san.rr.com">Manish Sud</a></p>
+<h1 id="SEE-ALSO">SEE ALSO</h2>
+<p><a href="./OpenFECalculateAbsoluteHydrationFreeEnergy.html">OpenFECalculateAbsoluteHydrationFreeEnergy.py</a>, <a href="./OpenFEGenerateLigandNetwork.html">OpenFEGenerateLigandNetwork.py</a>, <a href="./OpenFECalculateRelativeBindingFreeEnergy.html">OpenFECalculateRelativeBindingFreeEnergy.py</a>, <a href="./OpenFECalculateRelativeHydrationFreeEnergy.html">OpenFECalculateRelativeHydrationFreeEnergy.py</a></p>
+<h1 id="COPYRIGHT">COPYRIGHT</h2>
+<p>Copyright (C) 2026 Manish Sud. All rights reserved.</p>
+<p>The functionality available in this script is implemented using OpenFE, an open source molecuar for alchemical free energy calculations.</p>
+<p>This file is part of MayaChemTools.</p>
+<p>MayaChemTools is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.</p>
+<p>&nbsp</p><p>&nbsp</p><div class="DocNav">
+<table width="100%" border=0 cellpadding=0 cellspacing=2>
+<tr align="left" valign="top"><td width="33%" align="left"><a href="./OpenFECalculateAbsoluteHydrationFreeEnergy.html" title="OpenFECalculateAbsoluteHydrationFreeEnergy.html">Previous</a>&nbsp;&nbsp;<a href="./index.html" title="Table of Contents">TOC</a>&nbsp;&nbsp;<a href="./OpenFECalculateRelativeBindingFreeEnergy.html" title="OpenFECalculateRelativeBindingFreeEnergy.html">Next</a></td><td width="34%" align="middle"><strong>February 8, 2026</strong></td><td width="33%" align="right"><strong>OpenFECalculatePartialCharges.py</strong></td></tr>
+</table>
+</div>
+<br />
+<center>
+<img src="../../images/h2o2.png">
+</center>
+</body>
+</html>

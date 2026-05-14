@@ -1,0 +1,39 @@
+HEADER
+HEADER This is a pdb format file writen by the programm fpocket.                 
+HEADER It represents the atoms contacted by the voronoi vertices of the pocket.  
+HEADER                                                                           
+HEADER Information about the pocket     7:
+HEADER 0  - Pocket Score                      : 0.0472
+HEADER 1  - Drug Score                        : 0.0016
+HEADER 2  - Number of alpha spheres           :    20
+HEADER 3  - Mean alpha-sphere radius          : 3.5461
+HEADER 4  - Mean alpha-sphere Solvent Acc.    : 0.3953
+HEADER 5  - Mean B-factor of pocket residues  : 0.7150
+HEADER 6  - Hydrophobicity Score              : 14.5000
+HEADER 7  - Polarity Score                    :     5
+HEADER 8  - Amino Acid based volume Score     : 4.3750
+HEADER 9  - Pocket volume (Monte Carlo)       : 158.7168
+HEADER 10  -Pocket volume (convex hull)       : 8.3609
+HEADER 11 - Charge Score                      :     1
+HEADER 12 - Local hydrophobic density Score   : 4.0000
+HEADER 13 - Number of apolar alpha sphere     :     5
+HEADER 14 - Proportion of apolar alpha sphere : 0.2500
+ATOM     65    N ALA A  22     -24.319  26.988 -22.356  0.00  0.00           N 0
+ATOM     69   CB ALA A  22     -22.828  25.071 -22.602  0.00  0.00           C 0
+ATOM     66   CA ALA A  22     -23.300  26.178 -21.685  0.00  0.00           C 0
+ATOM     61   CG LYS A  21     -27.596  27.125 -21.241  0.00  0.00           C 0
+ATOM     40  CE1 PHE A  18     -26.248  21.381 -24.218  0.00  0.00           C 0
+ATOM     94  OD1 ASP A  25     -25.672  25.782 -18.106  0.70  6.43           O 0
+ATOM     35    O PHE A  18     -25.264  25.795 -24.877  0.34  1.07           O 0
+ATOM    699  OD1 ASN A  99     -23.979  21.035 -17.313  0.60  7.50           O 0
+ATOM     68    O ALA A  22     -21.620  26.916 -20.136  0.00  0.00           O 0
+ATOM   1188   OH TYR A 156     -19.349  22.567 -19.777  0.57  1.07           O 0
+ATOM    696    O ASN A  99     -21.444  20.217 -19.753  0.61  5.36           O 0
+ATOM     42   CZ PHE A  18     -24.904  21.048 -24.291  0.00  0.00           C 0
+ATOM    130   CD LYS A  29     -20.538  25.265 -12.269  0.00  0.00           C 0
+ATOM     92   CB ASP A  25     -23.654  26.757 -17.284  0.00  0.00           C 0
+ATOM    684    O ALA A  97     -18.693  24.295 -15.550  0.68  1.07           O 0
+ATOM    132   NZ LYS A  29     -22.151  23.391 -11.956  0.04  8.75           N 0
+ATOM    697   CB ASN A  99     -21.721  20.583 -16.744  0.00  0.00           C 0
+TER
+END

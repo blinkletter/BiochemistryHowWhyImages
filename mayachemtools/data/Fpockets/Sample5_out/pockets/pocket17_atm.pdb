@@ -1,0 +1,39 @@
+HEADER
+HEADER This is a pdb format file writen by the programm fpocket.                 
+HEADER It represents the atoms contacted by the voronoi vertices of the pocket.  
+HEADER                                                                           
+HEADER Information about the pocket    17:
+HEADER 0  - Pocket Score                      : -0.1070
+HEADER 1  - Drug Score                        : 0.0014
+HEADER 2  - Number of alpha spheres           :    15
+HEADER 3  - Mean alpha-sphere radius          : 4.2536
+HEADER 4  - Mean alpha-sphere Solvent Acc.    : 0.7037
+HEADER 5  - Mean B-factor of pocket residues  : 0.2085
+HEADER 6  - Hydrophobicity Score              : 34.5714
+HEADER 7  - Polarity Score                    :     4
+HEADER 8  - Amino Acid based volume Score     : 4.0000
+HEADER 9  - Pocket volume (Monte Carlo)       : 233.5907
+HEADER 10  -Pocket volume (convex hull)       : 3.9719
+HEADER 11 - Charge Score                      :     0
+HEADER 12 - Local hydrophobic density Score   : 10.0000
+HEADER 13 - Number of apolar alpha sphere     :    11
+HEADER 14 - Proportion of apolar alpha sphere : 0.7333
+ATOM   1168    O GLU A 155     -17.042  23.100 -28.247  0.69  4.29           O 0
+ATOM   1205   CA SER A 159     -16.432  26.762 -27.199  0.00  0.00           C 0
+ATOM   1204    N SER A 159     -15.508  25.615 -27.122  0.00  0.00           N 0
+ATOM   1198   CB HIS A 158     -12.933  24.211 -28.592  0.00  0.00           C 0
+ATOM   2261   CB VAL A 288     -16.339  20.913 -34.879  0.00  0.00           C 0
+ATOM   2219    O GLY A 282     -11.499  23.609 -35.924  0.29  8.57           O 0
+ATOM   2257    N VAL A 288     -15.598  22.470 -36.618  0.59  3.28           N 0
+ATOM   1170   CG GLU A 155     -18.803  21.572 -30.750  0.00  0.00           C 0
+ATOM     49  CD1 LEU A  19     -21.341  25.066 -29.700  0.00  0.00           C 0
+ATOM   1208   CB SER A 159     -17.877  26.299 -27.424  0.00  0.00           C 0
+ATOM   1718  CZ2 TRP A 221     -12.796  20.134 -32.535  0.00  0.00           C 0
+ATOM   1196    C HIS A 158     -14.193  25.832 -27.188  0.00  0.00           C 0
+ATOM   1197    O HIS A 158     -13.731  26.967 -27.282  0.00  0.00           O 0
+ATOM   1201  CD2 HIS A 158     -11.372  22.611 -29.880  0.00  0.00           C 0
+ATOM   1715  NE1 TRP A 221     -10.753  21.458 -33.194  0.53  2.19           N 0
+ATOM   1166   CA GLU A 155     -16.594  21.108 -29.571  0.00  0.00           C 0
+ATOM   2262  CG1 VAL A 288     -17.785  21.393 -34.843  0.00  0.00           C 0
+TER
+END

@@ -1,0 +1,323 @@
+<html>
+<head>
+<title>MayaChemTools:Code:PyMOLExtractSelection.py</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../../css/MayaChemToolsPythonCode.css">
+</head>
+<body leftmargin="20" rightmargin="20" topmargin="10" bottommargin="10">
+<br/>
+<center>
+<a href="http://www.mayachemtools.org" title="MayaChemTools Home"><img src="../../../images/MayaChemToolsLogo.gif" border="0" alt="MayaChemTools"></a>
+</center>
+<br/>
+<pre>
+   1 <span class="ch">#!/bin/env python</span>
+   2 <span class="c1">#</span>
+   3 <span class="c1"># File: PyMOLExtractSelection.py</span>
+   4 <span class="c1"># Author: Manish Sud &lt;msud@san.rr.com&gt;</span>
+   5 <span class="c1">#</span>
+   6 <span class="c1"># Copyright (C) 2026 Manish Sud. All rights reserved.</span>
+   7 <span class="c1">#</span>
+   8 <span class="c1"># The functionality available in this script is implemented using PyMOL, a</span>
+   9 <span class="c1"># molecular visualization system on an open source foundation originally</span>
+  10 <span class="c1"># developed by Warren DeLano.</span>
+  11 <span class="c1">#</span>
+  12 <span class="c1"># This file is part of MayaChemTools.</span>
+  13 <span class="c1">#</span>
+  14 <span class="c1"># MayaChemTools is free software; you can redistribute it and/or modify it under</span>
+  15 <span class="c1"># the terms of the GNU Lesser General Public License as published by the Free</span>
+  16 <span class="c1"># Software Foundation; either version 3 of the License, or (at your option) any</span>
+  17 <span class="c1"># later version.</span>
+  18 <span class="c1">#</span>
+  19 <span class="c1"># MayaChemTools is distributed in the hope that it will be useful, but without</span>
+  20 <span class="c1"># any warranty; without even the implied warranty of merchantability of fitness</span>
+  21 <span class="c1"># for a particular purpose.  See the GNU Lesser General Public License for more</span>
+  22 <span class="c1"># details.</span>
+  23 <span class="c1">#</span>
+  24 <span class="c1"># You should have received a copy of the GNU Lesser General Public License</span>
+  25 <span class="c1"># along with MayaChemTools; if not, see &lt;http://www.gnu.org/licenses/&gt; or</span>
+  26 <span class="c1"># write to the Free Software Foundation Inc., 59 Temple Place, Suite 330,</span>
+  27 <span class="c1"># Boston, MA, 02111-1307, USA.</span>
+  28 <span class="c1">#</span>
+  29 
+  30 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+  31 
+  32 <span class="kn">import</span> <span class="nn">os</span>
+  33 <span class="kn">import</span> <span class="nn">sys</span>
+  34 <span class="kn">import</span> <span class="nn">time</span>
+  35 <span class="kn">import</span> <span class="nn">re</span>
+  36 
+  37 <span class="c1"># PyMOL imports...</span>
+  38 <span class="k">try</span><span class="p">:</span>
+  39     <span class="kn">import</span> <span class="nn">pymol</span>
+  40 
+  41     <span class="c1"># Finish launching PyMOL in  a command line mode for batch processing (-c)</span>
+  42     <span class="c1"># along with the following options:  disable loading of pymolrc and plugins (-k);</span>
+  43     <span class="c1"># suppress start up messages (-q)</span>
+  44     <span class="n">pymol</span><span class="o">.</span><span class="n">finish_launching</span><span class="p">([</span><span class="s2">&quot;pymol&quot;</span><span class="p">,</span> <span class="s2">&quot;-ckq&quot;</span><span class="p">])</span>
+  45 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ErrMsg</span><span class="p">:</span>
+  46     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Failed to import PyMOL module/package: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ErrMsg</span><span class="p">)</span>
+  47     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Check/update your PyMOL environment and try again.</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+  48     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  49 
+  50 <span class="c1"># MayaChemTools imports...</span>
+  51 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;lib&quot;</span><span class="p">,</span> <span class="s2">&quot;Python&quot;</span><span class="p">))</span>
+  52 <span class="k">try</span><span class="p">:</span>
+  53     <span class="kn">from</span> <span class="nn">docopt</span> <span class="kn">import</span> <span class="n">docopt</span>
+  54     <span class="kn">import</span> <span class="nn">MiscUtil</span>
+  55 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ErrMsg</span><span class="p">:</span>
+  56     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Failed to import MayaChemTools module/package: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ErrMsg</span><span class="p">)</span>
+  57     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Check/update your MayaChemTools environment and try again.</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+  58     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  59 
+  60 <span class="n">ScriptName</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+  61 <span class="n">Options</span> <span class="o">=</span> <span class="p">{}</span>
+  62 <span class="n">OptionsInfo</span> <span class="o">=</span> <span class="p">{}</span>
+  63 
+  64 
+  65 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+  66     <span class="sd">&quot;&quot;&quot;Start execution of the script.&quot;&quot;&quot;</span>
+  67 
+  68     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span>
+  69         <span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2"> (PyMOL v</span><span class="si">%s</span><span class="s2">; MayaChemTools v</span><span class="si">%s</span><span class="s2">; </span><span class="si">%s</span><span class="s2">): Starting...</span><span class="se">\n</span><span class="s2">&quot;</span>
+  70         <span class="o">%</span> <span class="p">(</span><span class="n">ScriptName</span><span class="p">,</span> <span class="n">pymol</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">get_version</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetMayaChemToolsVersion</span><span class="p">(),</span> <span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">())</span>
+  71     <span class="p">)</span>
+  72 
+  73     <span class="p">(</span><span class="n">WallClockTime</span><span class="p">,</span> <span class="n">ProcessorTime</span><span class="p">)</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetWallClockAndProcessorTime</span><span class="p">()</span>
+  74 
+  75     <span class="c1"># Retrieve command line arguments and options...</span>
+  76     <span class="n">RetrieveOptions</span><span class="p">()</span>
+  77 
+  78     <span class="c1"># Process and validate command line arguments and options...</span>
+  79     <span class="n">ProcessOptions</span><span class="p">()</span>
+  80 
+  81     <span class="c1"># Perform actions required by the script...</span>
+  82     <span class="n">ExtractSelection</span><span class="p">()</span>
+  83 
+  84     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2">: Done...</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ScriptName</span><span class="p">)</span>
+  85     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Total time: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetFormattedElapsedTime</span><span class="p">(</span><span class="n">WallClockTime</span><span class="p">,</span> <span class="n">ProcessorTime</span><span class="p">))</span>
+  86 
+  87 
+  88 <span class="k">def</span> <span class="nf">ExtractSelection</span><span class="p">():</span>
+  89     <span class="sd">&quot;&quot;&quot;Extract selection from input file and write it out.&quot;&quot;&quot;</span>
+  90 
+  91     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Generating output files...&quot;</span><span class="p">)</span>
+  92 
+  93     <span class="c1"># Load macromolecule from input file...</span>
+  94     <span class="n">MolName</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfileRoot&quot;</span><span class="p">]</span>
+  95     <span class="n">pymol</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Infile&quot;</span><span class="p">],</span> <span class="n">MolName</span><span class="p">)</span>
+  96 
+  97     <span class="c1"># Extract and write selection...</span>
+  98     <span class="n">ExtractAndWriteSelection</span><span class="p">(</span><span class="n">MolName</span><span class="p">)</span>
+  99 
+ 100     <span class="c1"># Delete macromolecule...</span>
+ 101     <span class="n">pymol</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">MolName</span><span class="p">)</span>
+ 102 
+ 103 
+ 104 <span class="k">def</span> <span class="nf">ExtractAndWriteSelection</span><span class="p">(</span><span class="n">MolName</span><span class="p">):</span>
+ 105     <span class="sd">&quot;&quot;&quot;Extract selection from an input file  and write it out.&quot;&quot;&quot;</span>
+ 106 
+ 107     <span class="n">Outfile</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Outfile&quot;</span><span class="p">]</span>
+ 108     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Generating output file </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="n">Outfile</span><span class="p">)</span>
+ 109 
+ 110     <span class="c1"># Setup selection...</span>
+ 111     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;SelectionAppend&quot;</span><span class="p">]:</span>
+ 112         <span class="n">MolSelection</span> <span class="o">=</span> <span class="s2">&quot;(</span><span class="si">%s</span><span class="s2"> and (</span><span class="si">%s</span><span class="s2">))&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">MolName</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Selection&quot;</span><span class="p">])</span>
+ 113     <span class="k">else</span><span class="p">:</span>
+ 114         <span class="n">MolSelection</span> <span class="o">=</span> <span class="s2">&quot;(</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Selection&quot;</span><span class="p">])</span>
+ 115 
+ 116     <span class="n">MolSelectionName</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;SelectionName&quot;</span><span class="p">]</span>
+ 117 
+ 118     <span class="c1"># Create selection object and write it out...</span>
+ 119     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Extracting selection: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">MolSelection</span><span class="p">)</span>
+ 120 
+ 121     <span class="n">pymol</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">MolSelectionName</span><span class="p">,</span> <span class="n">MolSelection</span><span class="p">)</span>
+ 122     <span class="n">pymol</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">Outfile</span><span class="p">,</span> <span class="n">MolSelectionName</span><span class="p">)</span>
+ 123     <span class="n">pymol</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">MolSelectionName</span><span class="p">)</span>
+ 124 
+ 125     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">Outfile</span><span class="p">):</span>
+ 126         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintWarning</span><span class="p">(</span><span class="s2">&quot;Failed to generate output file, </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">Outfile</span><span class="p">))</span>
+ 127 
+ 128 
+ 129 <span class="k">def</span> <span class="nf">ProcessOptions</span><span class="p">():</span>
+ 130     <span class="sd">&quot;&quot;&quot;Process and validate command line arguments and options.&quot;&quot;&quot;</span>
+ 131 
+ 132     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Processing options...&quot;</span><span class="p">)</span>
+ 133 
+ 134     <span class="c1"># Validate options...</span>
+ 135     <span class="n">ValidateOptions</span><span class="p">()</span>
+ 136 
+ 137     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Infile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">]</span>
+ 138     <span class="n">FileDir</span><span class="p">,</span> <span class="n">FileName</span><span class="p">,</span> <span class="n">FileExt</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ParseFileName</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Infile&quot;</span><span class="p">])</span>
+ 139     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfileRoot&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">FileName</span>
+ 140 
+ 141     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Outfile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfile&quot;</span><span class="p">]</span>
+ 142 
+ 143     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Selection&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--selection&quot;</span><span class="p">]</span>
+ 144     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;SelectionName&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_Selection&quot;</span> <span class="o">%</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfileRoot&quot;</span><span class="p">]</span>
+ 145 
+ 146     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;SelectionAppend&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^Yes$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--selectionAppend&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+ 147 
+ 148     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Overwrite&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--overwrite&quot;</span><span class="p">]</span>
+ 149 
+ 150 
+ 151 <span class="k">def</span> <span class="nf">RetrieveOptions</span><span class="p">():</span>
+ 152     <span class="sd">&quot;&quot;&quot;Retrieve command line arguments and options.&quot;&quot;&quot;</span>
+ 153 
+ 154     <span class="c1"># Get options...</span>
+ 155     <span class="k">global</span> <span class="n">Options</span>
+ 156     <span class="n">Options</span> <span class="o">=</span> <span class="n">docopt</span><span class="p">(</span><span class="n">_docoptUsage_</span><span class="p">)</span>
+ 157 
+ 158     <span class="c1"># Set current working directory to the specified directory...</span>
+ 159     <span class="n">WorkingDir</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--workingdir&quot;</span><span class="p">]</span>
+ 160     <span class="k">if</span> <span class="n">WorkingDir</span><span class="p">:</span>
+ 161         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">WorkingDir</span><span class="p">)</span>
+ 162 
+ 163     <span class="c1"># Handle examples option...</span>
+ 164     <span class="k">if</span> <span class="s2">&quot;--examples&quot;</span> <span class="ow">in</span> <span class="n">Options</span> <span class="ow">and</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--examples&quot;</span><span class="p">]:</span>
+ 165         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetExamplesTextFromDocOptText</span><span class="p">(</span><span class="n">_docoptUsage_</span><span class="p">))</span>
+ 166         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+ 167 
+ 168 
+ 169 <span class="k">def</span> <span class="nf">ValidateOptions</span><span class="p">():</span>
+ 170     <span class="sd">&quot;&quot;&quot;Validate option values.&quot;&quot;&quot;</span>
+ 171 
+ 172     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFilePath</span><span class="p">(</span><span class="s2">&quot;-i, --infile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">])</span>
+ 173     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFileExt</span><span class="p">(</span><span class="s2">&quot;-i, --infile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">],</span> <span class="s2">&quot;pdb cif&quot;</span><span class="p">)</span>
+ 174 
+ 175     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFileExt</span><span class="p">(</span><span class="s2">&quot;-o, --outfile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfile&quot;</span><span class="p">],</span> <span class="s2">&quot;pdb cif&quot;</span><span class="p">)</span>
+ 176     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionsOutputFileOverwrite</span><span class="p">(</span>
+ 177         <span class="s2">&quot;-o, --outfile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfile&quot;</span><span class="p">],</span> <span class="s2">&quot;--overwrite&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--overwrite&quot;</span><span class="p">]</span>
+ 178     <span class="p">)</span>
+ 179     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionsDistinctFileNames</span><span class="p">(</span>
+ 180         <span class="s2">&quot;-i, --infile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">],</span> <span class="s2">&quot;-o, --outfile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfile&quot;</span><span class="p">]</span>
+ 181     <span class="p">)</span>
+ 182 
+ 183     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--selectionAppend&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--selectionAppend&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no&quot;</span><span class="p">)</span>
+ 184 
+ 185 
+ 186 <span class="c1"># Setup a usage string for docopt...</span>
+ 187 <span class="n">_docoptUsage_</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+ 188 <span class="s2">PyMOLExtractSelection.py - Extract selection from a macromolecule</span>
+ 189 
+ 190 <span class="s2">Usage:</span>
+ 191 <span class="s2">    PyMOLExtractSelection.py [--overwrite] [--selectionAppend &lt;yes or no&gt;]</span>
+ 192 <span class="s2">                             [-w &lt;dir&gt;] -i &lt;infile&gt; -o &lt;outfile&gt; -s &lt;selection&gt;</span>
+ 193 <span class="s2">    PyMOLExtractSelection.py -h | --help | -e | --examples</span>
+ 194 
+ 195 <span class="s2">Description:</span>
+ 196 <span class="s2">    Extract data corresponding to a PyMOL selection specification from a</span>
+ 197 <span class="s2">    macromolecule in an input file and write it out to an output file.</span>
+ 198 
+ 199 <span class="s2">    The selection specification must be a valid PyMOL specification. No</span>
+ 200 <span class="s2">    validation is performed.</span>
+ 201 
+ 202 <span class="s2">    The supported input file format are:  PDB (.pdb) and CIF (.cif)</span>
+ 203 
+ 204 <span class="s2">    The supported output file formats are:  PDB (.pdb) and CIF (.cif)</span>
+ 205 
+ 206 <span class="s2">Options:</span>
+ 207 <span class="s2">    -e, --examples</span>
+ 208 <span class="s2">        Print examples.</span>
+ 209 <span class="s2">    -h, --help</span>
+ 210 <span class="s2">        Print this help message.</span>
+ 211 <span class="s2">    -i, --infile &lt;infile&gt;</span>
+ 212 <span class="s2">        Input file name.</span>
+ 213 <span class="s2">    -o, --outfile &lt;infile&gt;</span>
+ 214 <span class="s2">        Output file name.</span>
+ 215 <span class="s2">    -s, --selection &lt;PyMOL SelectionSpec&gt;</span>
+ 216 <span class="s2">        Selection specification for extracting data from a macromolecule in an</span>
+ 217 <span class="s2">        input file. The selection specification must be a valid PyMOL specification.</span>
+ 218 <span class="s2">        No Validation is performed.</span>
+ 219 <span class="s2">        </span>
+ 220 <span class="s2">        The specified selection specification is optionally appended to PyMOL</span>
+ 221 <span class="s2">        object name for input file.</span>
+ 222 <span class="s2">    --selectionAppend &lt;yes or no&gt;  [default: yes]</span>
+ 223 <span class="s2">        Append specified selection specification to  PyMOL object name for input</span>
+ 224 <span class="s2">        file  before creating PyMOL object for a specified selection specification.</span>
+ 225 <span class="s2">        The PyMOL object name for input file is &lt;InfileRoot&gt;.</span>
+ 226 <span class="s2">        </span>
+ 227 <span class="s2">        You may choose to explicitly specify PyMOL object name in the selection</span>
+ 228 <span class="s2">        specification instead of automatically appending it to the selection.</span>
+ 229 <span class="s2">    --overwrite</span>
+ 230 <span class="s2">        Overwrite existing files.</span>
+ 231 <span class="s2">    -w, --workingdir &lt;dir&gt;</span>
+ 232 <span class="s2">        Location of working directory which defaults to the current directory.</span>
+ 233 
+ 234 <span class="s2">Examples:</span>
+ 235 <span class="s2">    To extract all data corresponding to chain E in a macromolecule and write</span>
+ 236 <span class="s2">    out to a PDB file, type:</span>
+ 237 
+ 238 <span class="s2">        % PyMOLExtractSelection.py -i Sample3.cif -o Sample3Out.pdb -s &quot;chain E&quot; --ov</span>
+ 239 
+ 240 <span class="s2">    To extract only polymer chain data for chains E and I in a macromolecule and</span>
+ 241 <span class="s2">    write out to a PDB file, type:</span>
+ 242 
+ 243 <span class="s2">        % PyMOLExtractSelection.py -i Sample3.cif -o Sample3Out.pdb</span>
+ 244 <span class="s2">          -s &quot;((chain E) or (chain I)) and polymer&quot; --ov</span>
+ 245 
+ 246 <span class="s2">    To extract only polymer chain data for chain E in a macromolecule and write</span>
+ 247 <span class="s2">    out to a PDB file, type:</span>
+ 248 
+ 249 <span class="s2">        % PyMOLExtractSelection.py -i Sample3.pdb -o Sample3Out.pdb</span>
+ 250 <span class="s2">          -s &quot;(chain E) and polymer&quot; --ov</span>
+ 251 
+ 252 <span class="s2">    To extract only polymer chain data for chain E in a macromolecule by explicitly</span>
+ 253 <span class="s2">    ignoring non-polymer chain data and write out to a CIF file, type:</span>
+ 254 
+ 255 <span class="s2">        % PyMOLExtractSelection.py -i Sample3.pdb -o Sample3Out.cif</span>
+ 256 <span class="s2">          -s &quot;(chain E) and (not organic) and (not solvent) and</span>
+ 257 <span class="s2">          (not inorganic)&quot; --ov</span>
+ 258 
+ 259 <span class="s2">    To extract solvent data corresponding to chain E in a macromolecule and write</span>
+ 260 <span class="s2">    out to a PDB file, type:</span>
+ 261 
+ 262 <span class="s2">        % PyMOLExtractSelection.py -i Sample3.pdb -o Sample3Out.pdb</span>
+ 263 <span class="s2">          -s &quot;(chain E) and solvent&quot; --ov</span>
+ 264 
+ 265 <span class="s2">    To extract ligand data corresponding to chain E in a macromolecule and write</span>
+ 266 <span class="s2">    out to a PDB file, type:</span>
+ 267 
+ 268 <span class="s2">        % PyMOLExtractSelection.py -i Sample3.pdb -o Sample3Out.pdb</span>
+ 269 <span class="s2">          -s &quot;(chain E) and organic&quot; --ov</span>
+ 270 
+ 271 <span class="s2">    To extract binding pocket residues with 5.0 of ligand ID ADP in chain E and write</span>
+ 272 <span class="s2">    out a PDB file, type:</span>
+ 273 
+ 274 <span class="s2">        % PyMOLExtractSelection.py -i Sample3.pdb -o Sample3Out.pdb</span>
+ 275 <span class="s2">           --selectionAppend no -s &quot;(byresidue (Sample3 and chain E)</span>
+ 276 <span class="s2">          within 5.0 of (Sample3 and chain E and organic and resn ADP))</span>
+ 277 <span class="s2">          and polymer&quot; --ov</span>
+ 278 
+ 279 <span class="s2">Author:</span>
+ 280 <span class="s2">    Manish Sud(msud@san.rr.com)</span>
+ 281 
+ 282 <span class="s2">See also:</span>
+ 283 <span class="s2">    PyMOLAlignChains.py, PyMOLSplitChainsAndLigands.py,</span>
+ 284 <span class="s2">    PyMOLVisualizeMacromolecules.py</span>
+ 285 
+ 286 <span class="s2">Copyright:</span>
+ 287 <span class="s2">    Copyright (C) 2026 Manish Sud. All rights reserved.</span>
+ 288 
+ 289 <span class="s2">    The functionality available in this script is implemented using PyMOL, a</span>
+ 290 <span class="s2">    molecular visualization system on an open source foundation originally</span>
+ 291 <span class="s2">    developed by Warren DeLano.</span>
+ 292 
+ 293 <span class="s2">    This file is part of MayaChemTools.</span>
+ 294 
+ 295 <span class="s2">    MayaChemTools is free software; you can redistribute it and/or modify it under</span>
+ 296 <span class="s2">    the terms of the GNU Lesser General Public License as published by the Free</span>
+ 297 <span class="s2">    Software Foundation; either version 3 of the License, or (at your option) any</span>
+ 298 <span class="s2">    later version.</span>
+ 299 
+ 300 <span class="s2">&quot;&quot;&quot;</span>
+ 301 
+ 302 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+ 303     <span class="n">main</span><span class="p">()</span>
+</pre>
+<br />
+<center>
+<img src="../../../images/h2o2.png">
+</center>
+</body>
+</html>

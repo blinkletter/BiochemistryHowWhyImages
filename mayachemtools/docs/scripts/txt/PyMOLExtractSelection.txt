@@ -1,0 +1,124 @@
+NAME
+    PyMOLExtractSelection.py - Extract selection from a macromolecule
+
+SYNOPSIS
+    PyMOLExtractSelection.py [--overwrite] [--selectionAppend <yes or no>]
+    [-w <dir>] -i <infile> -o <outfile> -s <selection>
+
+    PyMOLExtractSelection.py -h | --help | -e | --examples
+
+DESCRIPTION
+    Extract data corresponding to a PyMOL selection specification from a
+    macromolecule in an input file and write it out to an output file.
+
+    The selection specification must be a valid PyMOL specification. No
+    validation is performed.
+
+    The supported input file format are: PDB (.pdb) and CIF (.cif)
+
+    The supported output file formats are: PDB (.pdb) and CIF (.cif)
+
+OPTIONS
+    -e, --examples
+        Print examples.
+
+    -h, --help
+        Print this help message.
+
+    -i, --infile <infile>
+        Input file name.
+
+    -o, --outfile <infile>
+        Output file name.
+
+    -s, --selection <PyMOL SelectionSpec>
+        Selection specification for extracting data from a macromolecule in
+        an input file. The selection specification must be a valid PyMOL
+        specification. No Validation is performed.
+
+        The specified selection specification is optionally appended to
+        PyMOL object name for input file.
+
+    --selectionAppend <yes or no> [default: yes]
+        Append specified selection specification to PyMOL object name for
+        input file before creating PyMOL object for a specified selection
+        specification. The PyMOL object name for input file is <InfileRoot>.
+
+        You may choose to explicitly specify PyMOL object name in the
+        selection specification instead of automatically appending it to the
+        selection.
+
+    --overwrite
+        Overwrite existing files.
+
+    -w, --workingdir <dir>
+        Location of working directory which defaults to the current
+        directory.
+
+EXAMPLES
+    To extract all data corresponding to chain E in a macromolecule and
+    write out to a PDB file, type:
+
+        % PyMOLExtractSelection.py -i Sample3.cif -o Sample3Out.pdb -s "chain E" --ov
+
+    To extract only polymer chain data for chains E and I in a macromolecule
+    and write out to a PDB file, type:
+
+        % PyMOLExtractSelection.py -i Sample3.cif -o Sample3Out.pdb
+          -s "((chain E) or (chain I)) and polymer" --ov
+
+    To extract only polymer chain data for chain E in a macromolecule and
+    write out to a PDB file, type:
+
+        % PyMOLExtractSelection.py -i Sample3.pdb -o Sample3Out.pdb
+          -s "(chain E) and polymer" --ov
+
+    To extract only polymer chain data for chain E in a macromolecule by
+    explicitly ignoring non-polymer chain data and write out to a CIF file,
+    type:
+
+        % PyMOLExtractSelection.py -i Sample3.pdb -o Sample3Out.cif
+          -s "(chain E) and (not organic) and (not solvent) and
+          (not inorganic)" --ov
+
+    To extract solvent data corresponding to chain E in a macromolecule and
+    write out to a PDB file, type:
+
+        % PyMOLExtractSelection.py -i Sample3.pdb -o Sample3Out.pdb
+          -s "(chain E) and solvent" --ov
+
+    To extract ligand data corresponding to chain E in a macromolecule and
+    write out to a PDB file, type:
+
+        % PyMOLExtractSelection.py -i Sample3.pdb -o Sample3Out.pdb
+          -s "(chain E) and organic" --ov
+
+    To extract binding pocket residues with 5.0 of ligand ID ADP in chain E
+    and write out a PDB file, type:
+
+        % PyMOLExtractSelection.py -i Sample3.pdb -o Sample3Out.pdb
+           --selectionAppend no -s "(byresidue (Sample3 and chain E)
+          within 5.0 of (Sample3 and chain E and organic and resn ADP))
+          and polymer" --ov
+
+AUTHOR
+    Manish Sud(msud@san.rr.com)
+
+SEE ALSO
+    PyMOLAlignChains.py, PyMOLSplitChainsAndLigands.py,
+    PyMOLVisualizeMacromolecules.py
+
+COPYRIGHT
+    Copyright (C) 2026 Manish Sud. All rights reserved.
+
+    The functionality available in this script is implemented using PyMOL, a
+    molecular visualization system on an open source foundation originally
+    developed by Warren DeLano.
+
+    This file is part of MayaChemTools.
+
+    MayaChemTools is free software; you can redistribute it and/or modify it
+    under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or (at
+    your option) any later version.
+

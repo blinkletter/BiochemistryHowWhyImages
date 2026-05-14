@@ -1,0 +1,2521 @@
+<html>
+<head>
+<title>MayaChemTools:Documentation:Python/OpenFEUtil.py</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../css/MayaChemTools.css">
+</head>
+<body leftmargin="20" rightmargin="20" topmargin="10" bottommargin="10">
+<br/>
+<center>
+<a href="http://www.mayachemtools.org" title="MayaChemTools Home"><img src="../../images/MayaChemToolsLogo.gif" border="0" alt="MayaChemTools"></a>
+</center>
+<br/>
+<div class="DocNav">
+<table width="100%" border=0 cellpadding=0 cellspacing=2>
+<tr align="left" valign="top"><td width="33%" align="left"><a href="./MiscUtil.py.html" title="MiscUtil.py.html">Previous</a>&nbsp;&nbsp;<a href="./index.html" title="Table of Contents">TOC</a>&nbsp;&nbsp;<a href="./OpenMMUtil.py.html" title="OpenMMUtil.py.html">Next</a></td><td width="34%" align="middle"><strong>Python/OpenFEUtil.py</strong></td><td width="33%" align="right"><a href="././code/OpenFEUtil.py.html" title="View source code">Code</a>&nbsp;|&nbsp;<a href="./../pdf/OpenFEUtil.py.pdf" title="PDF US Letter Size">PDF</a>&nbsp;|&nbsp;<a href="./../pdfa4/OpenFEUtil.py.pdf" title="PDF A4 Size">PDFA4</a></td></tr>
+</table>
+</div>
+<h1 id="NAME">NAME</h2>
+<p>OpenFEUtil</p>
+<h1 id="SYNOPSIS">SYNOPSIS</h2>
+<p>import OpenFEUtil</p>
+<h1 id="DESCRIPTION">DESCRIPTION</h2>
+<p><b>OpenFEUtil</b> module provides the following functions:</p>
+<p>
+ <a href="#CalculatePartialCharges">CalculatePartialCharges</a>, <a href="#ExecuteProtocolDAG">ExecuteProtocolDAG</a>, <a href="#ExecuteProtocolDAGsAndGatherResults">ExecuteProtocolDAGsAndGatherResults</a>, <a href="#GenerateLigandNetwork">GenerateLigandNetwork</a>, <a href="#GetMissingPartialChargesMolCount">GetMissingPartialChargesMolCount</a>, <a href="#GetMolFromName">GetMolFromName</a>, <a href="#GetMolNamePresentCount">GetMolNamePresentCount</a>, <a href="#GetPartialChargePropName">GetPartialChargePropName</a>, <a href="#InitializeAbsoluteBindingFreeEngeryProtocol">InitializeAbsoluteBindingFreeEngeryProtocol</a>, <a href="#InitializeAbsoluteSolvationFreeEngeryProtocol">InitializeAbsoluteSolvationFreeEngeryProtocol</a>, <a href="#InitializeAtomMapper">InitializeAtomMapper</a>, <a href="#InitializeAtomMapperScorer">InitializeAtomMapperScorer</a>, <a href="#InitializeAtomMappers">InitializeAtomMappers</a>, <a href="#InitializeChemicalSystem">InitializeChemicalSystem</a>, <a href="#InitializeProtocolDAG">InitializeProtocolDAG</a>, <a href="#InitializeRelativeFreeEngeryHybridTopologyProtocol">InitializeRelativeFreeEngeryHybridTopologyProtocol</a>, <a href="#InitializeRelativeFreeEngerySeparatedTopologyProtocol">InitializeRelativeFreeEngerySeparatedTopologyProtocol</a>, <a href="#InitializeSolventComponent">InitializeSolventComponent</a>, <a href="#InitializeTransformation">InitializeTransformation</a>, <a href="#IsMolNamePresent">IsMolNamePresent</a>, <a href="#IsMolNamePresentMultipleTimes">IsMolNamePresentMultipleTimes</a>, <a href="#ListOpenFESettings">ListOpenFESettings</a>, <a href="#ListOpenFESettingsByGroupName">ListOpenFESettingsByGroupName</a>, <a href="#ProcessMoleculeNames">ProcessMoleculeNames</a>, <a href="#ProcessMoleculePairs">ProcessMoleculePairs</a>, <a href="#ProcessOptionOpenFEAbsoluteBindingFreeEnergyParameters">ProcessOptionOpenFEAbsoluteBindingFreeEnergyParameters</a>, <a href="#ProcessOptionOpenFEAbsoluteFreeEnergyMode">ProcessOptionOpenFEAbsoluteFreeEnergyMode</a>, <a href="#ProcessOptionOpenFEAbsoluteHydrationFreeEnergyParameters">ProcessOptionOpenFEAbsoluteHydrationFreeEnergyParameters</a>, <a href="#ProcessOptionOpenFECharge">ProcessOptionOpenFECharge</a>, <a href="#ProcessOptionOpenFEChargeParameters">ProcessOptionOpenFEChargeParameters</a>, <a href="#ProcessOptionOpenFEExecuteDAGParameters">ProcessOptionOpenFEExecuteDAGParameters</a>, <a href="#ProcessOptionOpenFEMapper">ProcessOptionOpenFEMapper</a>, <a href="#ProcessOptionOpenFEMapperParameters">ProcessOptionOpenFEMapperParameters</a>, <a href="#ProcessOptionOpenFEMissingChargeMode">ProcessOptionOpenFEMissingChargeMode</a>, <a href="#ProcessOptionOpenFEMoleculePairs">ProcessOptionOpenFEMoleculePairs</a>, <a href="#ProcessOptionOpenFENetwork">ProcessOptionOpenFENetwork</a>, <a href="#ProcessOptionOpenFENetworkParameters">ProcessOptionOpenFENetworkParameters</a>, <a href="#ProcessOptionOpenFERelativeFreeEnergyChargeCorrectionParameters">ProcessOptionOpenFERelativeFreeEnergyChargeCorrectionParameters</a>, <a href="#ProcessOptionOpenFERelativeFreeEnergyMode">ProcessOptionOpenFERelativeFreeEnergyMode</a>, <a href="#ProcessOptionOpenFERelativeFreeEnergyParameters">ProcessOptionOpenFERelativeFreeEnergyParameters</a>, <a href="#ProcessOptionOpenFERelativeFreeEnergySeparatedTopologyParameters">ProcessOptionOpenFERelativeFreeEnergySeparatedTopologyParameters</a>, <a href="#ProcessOptionOpenFERelativeFreeEnergyVacuumParameters">ProcessOptionOpenFERelativeFreeEnergyVacuumParameters</a>, <a href="#ProcessOptionOpenFEResultFileParameters">ProcessOptionOpenFEResultFileParameters</a>, <a href="#ProcessOptionOpenFESolventParameters">ProcessOptionOpenFESolventParameters</a>, <a href="#ProcessRadialCentralLigandName">ProcessRadialCentralLigandName</a>, <a href="#ReadAndValidateMolecules">ReadAndValidateMolecules</a>, <a href="#ReadPDBFile">ReadPDBFile</a>, <a href="#SetupAbsoluteBindingFreeEnergySettings">SetupAbsoluteBindingFreeEnergySettings</a>, <a href="#SetupAbsoluteHydrationFreeEnergySettings">SetupAbsoluteHydrationFreeEnergySettings</a>, <a href="#SetupRelativeFreeEnergySeparatedTopologySettings">SetupRelativeFreeEnergySeparatedTopologySettings</a>, <a href="#SetupRelativeFreeEnergySettings">SetupRelativeFreeEnergySettings</a>, <a href="#SuggestAtomMappingsForMoleculePairs">SuggestAtomMappingsForMoleculePairs</a>, <a href="#UpdateRelativeFreeEnergySettingsForChargeCorrection">UpdateRelativeFreeEnergySettingsForChargeCorrection</a>, <a href="#UpdateRelativeFreeEnergySettingsForVacuum">UpdateRelativeFreeEnergySettingsForVacuum</a>, <a href="#WriteLigandNetworkGraphMLFile">WriteLigandNetworkGraphMLFile</a>, <a href="#WriteLigandNetworkImageFile">WriteLigandNetworkImageFile</a>, <a href="#WriteMappingImageFile">WriteMappingImageFile</a>, <a href="#WriteProtocolDAGResultFile">WriteProtocolDAGResultFile</a>
+</p><h1 id="FUNCTIONS">FUNCTIONS</h2>
+<dl>
+<dt id="CalculatePartialCharges"><b>CalculatePartialCharges</b></dt>
+<dd>
+    <div class="OptionsBox">CalculatePartialCharges(Mols, ChargeMethod, ChargeParamsInfo)</div>
+<p>Calculate partial atomic charges for molecules and return a set of OpenFE charges molecule objects. The calculated charges are stored as value of the molecule property named &#39;atom.dprop.PartialCharge&#39;.</p>
+<p>The following methods are supported to calculate partial atomic charges: AM1BCC, M1-Mulliken, Espaloma, Gasteiger, MMFF94, or NAGL.</p>
+<p>The ChargeParamsInfo parameter is a dictionary of name and value pairs for charge parameters and may be generated by calling the function named ProcessOptionOpenFEChargeParameters().</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">Mols (list): List of OpenFE molecule objects.
+<br/>    ChargeMethod (str): Charge method.
+<br/>    ChargeParamsInfo (dict): Parameter name and value pairs.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">list: List of OpenFE charged molecule objects.
+<br/>    bool: True or False.</div>
+</dd>
+<dt id="ExecuteProtocolDAG"><b>ExecuteProtocolDAG</b></dt>
+<dd>
+    <div class="OptionsBox">ExecuteProtocolDAG(ProtocolDAG, SharedOutDirPath, ScratchOutDirPath, KeepShared=True, KeepScratch=False, NRetries=0)</div>
+<p>Execute protocol DAG to perform simulations for calculating FE.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">ProtocolDAG (object): OpenFE protocol DAG object.
+<br/>    SharedOutDirPath (object): Pathlib path object.
+<br/>    ScratchOutDirPath (object): Pathlib path object.
+<br/>    KeepShared (bool): Keep shared directory.
+<br/>    KeepScratch (bool): Keep scratch directory.
+<br/>    NRetries (int): Number of times to attempt the execution. A value
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0 implies only 1 try.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">object: OpenFE DAG result object.</div>
+</dd>
+<dt id="ExecuteProtocolDAGsAndGatherResults"><b>ExecuteProtocolDAGsAndGatherResults</b></dt>
+<dd>
+    <div class="OptionsBox">ExecuteProtocolDAGsAndGatherResults(MolTransformations, MolProtocolDAGs, SharedOutDirPath, ScratchOutDirPath, KeepShared=True, KeepScratch=False, NRetries=0, WriteResults=True)</div>
+<p>Execute protocol DAG and gather results.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">MolTransformations (List): List of OpenFE transformation objects.
+<br/>    MolProtocolDAGs (List): List of OpenFE DAG objects.
+<br/>    SharedOutDirPath (str): Shared results directory path.
+<br/>    ScratchOutDirPath (str): Scratch results directory path.
+<br/>    KeepShared (bool): Keep shared directory.
+<br/>    KeepScratch (bool): Keep scratch directory.
+<br/>    NRetries (int): Number of times to attempt the execution. A value
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0 implies only 1 try.
+<br/>    WriteResults (bool): Write results to a JSON file.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">list: List of OpenFE DAG result objects.</div>
+</dd>
+<dt id="GenerateLigandNetwork"><b>GenerateLigandNetwork</b></dt>
+<dd>
+    <div class="OptionsBox">GenerateLigandNetwork(Mols, NetworkName, NetworkParamsInfo, Mappers, MapperScorer)</div>
+<p>Generate a ligand network for molecules using the specified atom mappers and scorer. You may specify multiple atom mappers for generating mapping between two molecules. All specified mappers are employed to identify the highest scoring edges for generating a ligand network.</p>
+<p>Possible values for network name are: LOMAP, MinimalSpanning, or Radial.</p>
+<p>The NetworkParamsInfo parameter is a dictionary of name and value pairs for network parameters and may be generated by calling the function named ProcessOptionOpenFENetworkParameters().</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">Mols (list): List of OpenFE molecule objects.
+<br/>    NetworkName (str): Network name.
+<br/>    NetworkParamsInfo (dict): Parameter name and value pairs.
+<br/>    Mapper (list): List of OpenFE atom mapper objects.
+<br/>    MapperScorer (Callable): OpenFE atom mapper scorer.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">object: OpenFE ligand network object.</div>
+</dd>
+<dt id="GetMissingPartialChargesMolCount"><b>GetMissingPartialChargesMolCount</b></dt>
+<dd>
+    <div class="OptionsBox">GetMissingPartialChargesMolCount(Mols)</div>
+<p>Get count of molecules with missing partial atomic charges.</p>
+<p>The absence of molecule property name, atom.dprop.PartialCharge, implies missing charges for the molecule.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">Mols (list): List OpenFE molecule objects.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">int: Molecule count with missing partial charges.</div>
+</dd>
+<dt id="GetMolFromName"><b>GetMolFromName</b></dt>
+<dd>
+    <div class="OptionsBox">GetMolFromName(Mols, MolName)</div>
+<p>Get the first molecule whose name matches the specified molecule name from a list of molecules.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">Mols (list): List of OpenFE molecule objects.
+<br/>    MolName (str): Molecule name</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">object or None: Open FE molecule object.</div>
+</dd>
+<dt id="GetMolNamePresentCount"><b>GetMolNamePresentCount</b></dt>
+<dd>
+    <div class="OptionsBox">GetMolNamePresentCount(Mols, MolName)</div>
+<p>Get count of molecule name present in a list of molecules.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">Mols (list): List OpenFE molecule objects.
+<br/>    MolName (str): Molecule name</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">int: Molecule name present count.</div>
+</dd>
+<dt id="GetPartialChargePropName"><b>GetPartialChargePropName</b></dt>
+<dd>
+    <div class="OptionsBox">GetPartialChargePropName()</div>
+<p>Get partial atomic charge property name used for associating partial charges to a molecule.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">None</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">str: Propery name &#39;atom.dprop.PartialCharge&#39;</div>
+</dd>
+<dt id="InitializeAbsoluteBindingFreeEngeryProtocol"><b>InitializeAbsoluteBindingFreeEngeryProtocol</b></dt>
+<dd>
+    <div class="OptionsBox">InitializeAbsoluteBindingFreeEngeryProtocol(ABFESettings)</div>
+<p>Initialize absolute binding free energy protocol.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">ABFESettings (object): OpenFE AbsoluteBindindProtocol settings
+       object.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">object: OpenFE AbsoluteBindingProtocol object.</div>
+</dd>
+<dt id="InitializeAbsoluteSolvationFreeEngeryProtocol"><b>InitializeAbsoluteSolvationFreeEngeryProtocol</b></dt>
+<dd>
+    <div class="OptionsBox">InitializeAbsoluteSolvationFreeEngeryProtocol(AHFESettings)</div>
+<p>Initialize absolute solvation free energy protocol.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">AHFESettings (object): OpenFE AbsoluteSolvationProtocol settings
+       object.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">object: OpenFE AbsoluteSolvationProtocol object.</div>
+</dd>
+<dt id="InitializeAtomMapper"><b>InitializeAtomMapper</b></dt>
+<dd>
+    <div class="OptionsBox">InitializeAtomMapper(MapperName, MapperParamsInfo)</div>
+<p>Initialize an atom mapper.</p>
+<p>Possible values for atom mapper names are: LOMAP or Kartograf.</p>
+<p>The MapperParamsInfo parameter is a dictionary of name and value pairs for network parameters and may be generated by calling the function named ProcessOptionOpenFEMapperParameters().</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">MapperName (str): Atom mapper name.
+<br/>    MapperParamsInfo (dict): Parameter name and value pairs.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">object: OpenFE Atom mapper object.</div>
+</dd>
+<dt id="InitializeAtomMapperScorer"><b>InitializeAtomMapperScorer</b></dt>
+<dd>
+    <div class="OptionsBox">InitializeAtomMapperScorer(ScorerName)</div>
+<p>Initialize an atom mapper scorer.</p>
+<p>Possible value for scorer name is LOMAP.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">ScorerName (str): Atom mapper scorer name.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">object: Atom mapper scorer object.</div>
+</dd>
+<dt id="InitializeAtomMappers"><b>InitializeAtomMappers</b></dt>
+<dd>
+    <div class="OptionsBox">InitializeAtomMappers(MapperNameList, MapperParamsInfo)</div>
+<p>Initialize atom mappers.</p>
+<p>Possible values for atom mapper names: LOMAP or Kartograf.</p>
+<p>The MapperParamsInfo parameter is a dictionary of name and value pairs for network parameters and may be generated by calling the function named ProcessOptionOpenFEMapperParameters().</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">MapperNameList (list):List of atom mapper names.
+<br/>    MapperParamsInfo (dict): Parameter name and value pairs.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">list:  List of OpenFE atom mapper objects.</div>
+</dd>
+<dt id="InitializeChemicalSystem"><b>InitializeChemicalSystem</b></dt>
+<dd>
+    <div class="OptionsBox">InitializeChemicalSystem(SmallMol=None, MacroMol=None, Solvent=None, Name=&quot;&quot;)</div>
+<p>Initialize a chemical system.</p>
+<p>A valid value must be specified for at least one part of the system.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">SmallMol (object): OpenFE SMC object.
+<br/>    MacroMol (object): OpenFE PDB object.
+<br/>    Solvent (object): OpenFE solvent component object.
+<br/>    Name (str): Chemical system name.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">object: OpenFE ChemicalSystem object.</div>
+</dd>
+<dt id="InitializeProtocolDAG"><b>InitializeProtocolDAG</b></dt>
+<dd>
+    <div class="OptionsBox">InitializeProtocolDAG(Transformation, Name=&quot;&quot;)</div>
+<p>Create a protocol DAG (Directed Acyclic Graph) for a transformation to perform calculation.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">Transformation (object): OpenFE Transformation object.
+<br/>    Name (str): DAG name.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">object: OpenFE DAG object.</div>
+</dd>
+<dt id="InitializeRelativeFreeEngeryHybridTopologyProtocol"><b>InitializeRelativeFreeEngeryHybridTopologyProtocol</b></dt>
+<dd>
+    <div class="OptionsBox">InitializeRelativeFreeEngeryHybridTopologyProtocol(RBFESettings)</div>
+<p>Initialize relative free energy hybrid topology protocol.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">RBFESettings (object): OpenFE RelativeHybridTopologyProtocol settings
+       object.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">object: OpenFE RelativeHybridTopologyProtocol object.</div>
+</dd>
+<dt id="InitializeRelativeFreeEngerySeparatedTopologyProtocol"><b>InitializeRelativeFreeEngerySeparatedTopologyProtocol</b></dt>
+<dd>
+    <div class="OptionsBox">InitializeRelativeFreeEngerySeparatedTopologyProtocol(RBFESettings)</div>
+<p>Initialize relative free energy separated topologies protocol.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">RBFESettings (object): OpenFE SeparatedTopologyProtocol settings
+       object.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">object: OpenFE SeparatedTopologyProtocol object.</div>
+</dd>
+<dt id="InitializeSolventComponent"><b>InitializeSolventComponent</b></dt>
+<dd>
+    <div class="OptionsBox">InitializeSolventComponent(SolventParamsInfo)</div>
+<p>Initialize a solvent component.</p>
+<p>The SolventParamsInfo parameter is a dictionary of name and value pairs for network parameters and may be generated by calling the function named ProcessOptionOpenFESolventParameters().</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">SolventParamsInfo (dict):  Parameter name and value pairs.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">object: OpenFE SolventComponent object.</div>
+</dd>
+<dt id="InitializeTransformation"><b>InitializeTransformation</b></dt>
+<dd>
+    <div class="OptionsBox">InitializeTransformation(StateA, StateB, Mapping, Protocol, Name=&quot;&quot;, Validate=False)</div>
+<p>Initialize a transformation between two chemical systems represented by StateA and StateB.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">StateA (object): OpenFE ChemicalSystem object.
+<br/>    StateB (object): OpenFE ChemicalSystem object.
+<br/>    Mapping (object): OpenFE mapping object.
+<br/>    Protocol (object): OpenFE protocol object.
+<br/>    Name (str): Transformation name.
+<br/>    Validate (bool): Validate inputs for transformation..</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">object: OpenFE Transformation object.</div>
+</dd>
+<dt id="IsMolNamePresent"><b>IsMolNamePresent</b></dt>
+<dd>
+    <div class="OptionsBox">IsMolNamePresent(Mols, MolName)</div>
+<p>Check for the presence of a molecule name in a list of molecules.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">Mols (list): List OpenFE molecule objects.
+<br/>    MolName (str): Molecule name</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">bool: True or False.</div>
+</dd>
+<dt id="IsMolNamePresentMultipleTimes"><b>IsMolNamePresentMultipleTimes</b></dt>
+<dd>
+    <div class="OptionsBox">IsMolNamePresentMultipleTimes(Mols, MolName)</div>
+<p>Check for the presence of a molecule name in a list of molecules.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">Mols (list): List OpenFE molecule objects.
+<br/>    MolName (str): Molecule name</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">bool: True or False.</div>
+</dd>
+<dt id="ListOpenFESettings"><b>ListOpenFESettings</b></dt>
+<dd>
+    <div class="OptionsBox">ListOpenFESettings(Settings)</div>
+<p>List setting retrieved from a protocol settings object.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">Settings (object): OpenFE protocol settings object.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">None</div>
+</dd>
+<dt id="ListOpenFESettingsByGroupName"><b>ListOpenFESettingsByGroupName</b></dt>
+<dd>
+    <div class="OptionsBox">ListOpenFESettingsByGroupName(Settings, SettingName)</div>
+<p>List setting retrieved from a protocol settings object for a specified settings group name.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">Settings (object): OpenFE protocol settings object.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">None</div>
+</dd>
+<dt id="ProcessMoleculeNames"><b>ProcessMoleculeNames</b></dt>
+<dd>
+    <div class="OptionsBox">ProcessMoleculeNames(Mols, MoleculeNamesList=None)</div>
+<p>Process molecule names to generate a list of molecule objects for specified names. The molecule name must be a valid name and occur only once in the list of molecules.</p>
+<p>The first molecule in the list of molecules is returned for an unspecified list of molecule names.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">Mols (list): List of OpenFE molecule objects.
+<br/>    MoleculeNamesList (list): List of molecule names.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">list: List of OpenFE molecule objects corresponding to molecule names.</div>
+</dd>
+<dt id="ProcessMoleculePairs"><b>ProcessMoleculePairs</b></dt>
+<dd>
+    <div class="OptionsBox">ProcessMoleculePairs(Mols, MoleculePairsList=None)</div>
+<p>Process molecule names, corresponding to pairs of molecules, to generate a list of molecule objects for these names. The molecule name must be a valid name and occur only once in the list of molecules.</p>
+<p>The first and the second molecule in the list of molecules is returned for an unspecified list of molecule names.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">Mols (list): List of OpenFE molecule objects.
+<br/>    MoleculePairsList (list): List of molecule names corresponding to pairs
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        of molecules.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">list: List of OpenFE molecule objects corresponding to pairs of molecule
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        names.</div>
+</dd>
+<dt id="ProcessOptionOpenFEAbsoluteBindingFreeEnergyParameters"><b>ProcessOptionOpenFEAbsoluteBindingFreeEnergyParameters</b></dt>
+<dd>
+    <div class="OptionsBox">ProcessOptionOpenFEAbsoluteBindingFreeEnergyParameters(ParamsOptionName, ParamsOptionValue, ParamsDefaultInfo=None)</div>
+<p>Process parameters for ABFE parameters option and return a map containing processed parameter names and values.</p>
+<p>The ParamsOptionValue is a comma delimited list of parameter name and value pairs to setup ABFE calculations.</p>
+<p>The default values are automatically updated to match settings provided by OpenFE module AbsoluteBindingProtocol.</p>
+<p>You must specify valid OpenFE values for these parameters. An extensive validation is not performed.</p>
+<p>The supported parameter names along with their default and possible values are shown below:</p>
+    <div class="OptionsBox">protocolRepeats, 3
+<br/>    
+<br/>    Complex equil output settings:
+<br/>    
+<br/>    complexEquilOutputCheckpointInterval, 1  [ Units: nanosecond ]
+<br/>    complexEquilOutputCheckpointStorageFilename, checkpoint.chk
+<br/>    complexEquilOutputEquilNPTStructure, equil_npt_structure.pdb
+<br/>    complexEquilOutputEquilNVTstructure, equil_nvt_structure.pdb
+<br/>    complexEquilOutputForcefieldCache, db.json
+<br/>    complexEquilOutputLogOutput, production_equil_simulation.log
+<br/>    complexEquilOutputMinimizedStructure, minimized.pdb
+<br/>    complexEquilOutputIndices, all  [ Possible value: Any valid
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        selection. ]
+<br/>    complexEquilOutputPremnimizedStructure, system.pdb
+<br/>    complexEquilOutputProductionTrajectoryFilename, production_equil.xtc
+<br/>    complexEquilOutputTrajectoryWriteInterval,  20.0  [ Units:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        picosecond ]
+<br/>    
+<br/>    Complex equil simulation settings:
+<br/>    
+<br/>    complexEquilSimulationEquilibrationLength, 0.5 [ Units: nanosecond ]
+<br/>    complexEquilSimulationEquilibrationLengthNVT, 0.25   [ Units:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        nanosecond ]
+<br/>    complexEquilSimulationMinimizationSteps, 5000
+<br/>    complexEquilSimulationProductionLength, 5.0  [ Units: nanosecond ]
+<br/>    
+<br/>    Complex lambda settings:
+<br/>    
+<br/>    complexLambdaElec, 0.0 0.0 0.0 0.0 0.0 0.0 0.1 0.2 0.3 0.4 0.5 0.6
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0.7 0.8 0.9 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        1.0 1.0  [ Possible values: A space delimited list of values
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        between 0.0 and 1.0 ]
+<br/>    complexLambdaRestraints, 0.0 0.2 0.4 0.6 0.8 1.0 1.0 1.0 1.0 1.0
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        1.0 1.0 1.0 1.0  [ Possible values: A space delimited list of
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        values between 0.0 and 1.0 ]
+<br/>    complexLambdaVdw, 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0.0 0.0 0.0 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.65 0.7 0.75 0.8 0.85
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0.9 0.95 1.0  [ Possible values: A space delimited list of values
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        between 0.0 and 1.0 ]
+<br/>    
+<br/>    Complex output settings:
+<br/>    
+<br/>    complexOutputCheckpointInterval, 1.0  [ Units: nanosecond ]
+<br/>    complexOutputCheckpointStorageFilename, complex_checkpoint.nc
+<br/>    complexOutputForcefieldCache, db.json
+<br/>    complexOutputFilename, complex.nc
+<br/>    complexOutputIndices, not water   [ Possible value: Any valid
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        selection. ]
+<br/>    complexOutputStructure, alchemical_system.pdb
+<br/>    complexOutputPositionsWriteFrequency, 100  [ Units: picosecond ]
+<br/>    complexOutputVelocitiesWriteFrequency, None  [ Possible
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        values: &gt; 0; Units: picosecond ]
+<br/>    
+<br/>    Complex simulation settings:
+<br/>    
+<br/>    complexSimulationEarlyTerminationTargetError, 0.0  [ Units:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        kilocalorie_per_mole ]
+<br/>    complexSimulationEquilibrationLength,  1.0  [ Units: nanosecond ]
+<br/>    complexSimulationMinimizationSteps, 5000
+<br/>    complexSimulationNReplicas, 30
+<br/>    complexSimulationProductionLength, 10.0  [ Units: nanosecond ]
+<br/>    complexSimulationRealTimeAnalysisInterval, 250.0  [ Units:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        picosecond ]
+<br/>    complexSimulationRealTimeAnalysisMinimumTime, 500.0  [ Units:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        picosecond ]
+<br/>    complexSimulationSamplerMethod, repex  [ Possible values: repex,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        sams, or independent ]
+<br/>    complexSimulationSamsFlatnessCriteria, logZ-flatness  [ Possible
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        values: logZ-flatness, minimum-visits or histogram-flatness ]
+<br/>    complexSimulationSamsGamma0, 1.0
+<br/>    complexSimulationTimePerIteration, 2.5   [ Units: picosecond ]
+<br/>    
+<br/>    Complex solvation settings:
+<br/>    
+<br/>    complexSolvationBoxShape, dodecahedron  [  Possible values: cube,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        dodecahedron, or octahedron ]
+<br/>    complexSolvationBoxSize, None  [ Possible value: A triplet of space
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        X Y Z values; Units: nanometer ]
+<br/>    complexSolvationSolventModel, tip3p  [ Possible values: tip3p, spce,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        tip4pew, or tip5p ]
+<br/>    complexSolvationSolventPadding, 1.0  [ Units: nanometer ]
+<br/>    
+<br/>    Engine settings:
+<br/>    
+<br/>    engineComputePlatform, CPU  [ Possible values: CPU, CUDA,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        OpenCL, or Reference ]
+<br/>    engineGpuDeviceIndex, None [ Possible values: 0, 0 1, etc. ]
+<br/>    
+<br/>    Forcefield settings:
+<br/>    
+<br/>    forcefieldConstraints, HBonds  [ Possible values: HBonds,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        AllBonds, or HAngles ]
+<br/>    forcefields, amber/ff14SB.xml amber/tip3p_standard.xml
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        amber/tip3p_HFE_multivalent.xml amber/phosaa10.xml
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        [ Possible values: A space delimited list of valid names. ]
+<br/>    forcefieldHydrogenMass, 3.0  [ Units: amu ]
+<br/>    forcefieldNonbondedCutoff, 0.9   [ Units: nanometer ]
+<br/>    forcefieldNonbondedMethod, PME  [ Possible values: PME or
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        NoCutoff ]
+<br/>    forcefieldRigidWater, yes,  [ Possible values: yes or no ]
+<br/>    forcefieldSmallMoleculeForcefield, openff-2.1.1  [ Possible
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        value: A valid forcefield name. ]
+<br/>    
+<br/>    Integrator settings:
+<br/>    
+<br/>    integratorBarostatFrequency, 25.0 * timestep  [ The specified value
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        is a multiple of integratorTimestep. ]
+<br/>    integratorConstraintTolerance, 1e-06
+<br/>    integratorLangevinCollisionRate, 1.0  [ Units: 1 / picosecond ]
+<br/>    integratorNRestartAttempts, 20
+<br/>    integratorReassignVelocities, no  [ Possible values: yes or no ]
+<br/>    integratorRemoveCom, no  [ Possible values: yes or no ]
+<br/>    integratorTimestep, 4.0 [ Units: femtosecond ]
+<br/>    
+<br/>    Partial charge settings:
+<br/>    
+<br/>    partialChargeNaglModel, None  [ Default: Production AM1BCC model for
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        NAGL; Possible value: Any valid name. ]
+<br/>    partialChargeNumberOfConformers, None  [ Possible value: &gt; 0 ]
+<br/>    partialChargeOffToolkitBackend, AmberTools  [ Possible values:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        AmberTools or RDKit ]
+<br/>    partialChargeMethod, AM1BCC  [ Possble values: AM1BCC, Espaloma,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        or NAGL ]
+<br/>    
+<br/>    Restraint settings:
+<br/>    
+<br/>    restraintKPhiA, 334.72  [ Units: kilojoule_per_mole / radian**2
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        The default value is equivalent to 80 kcal/mol/radian**2 ]
+<br/>    restraintKPhiB, 334.72  [ Units: kilojoule_per_mole / radian**2 ]
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        The default value is equivalent to 80 kcal/mol/radian**2 ]
+<br/>    restraintKPhiC, 334.72  [ Units: kilojoule_per_mole / radian**2 ]
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        The default value is equivalent to 80 kcal/mo/radian**2 ]
+<br/>    restraintKR, 4184.0  [ Units: kilojoule_per_molel / nanometer**2
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            The default value is equivalent to 10 kcal/mol/angstrom**2
+<br/>    restraintKThetaA, 334.72  [ Units: kilojoule_per_mole / radian**2 ]
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        The default value is equivalent to 80 kcal/mol/radian**2 ]
+<br/>    restraintKThetaB, 334.72  [ Units: kilojoule_per_mole / radian**2
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        The default value is equivalent to 80 kcal/mol/radian**2 ]
+<br/>    restraintAnchorFindingStrategy, bonded  [ Possible values:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        multi-residue or bonded ]
+<br/>    restraintDsspFilter, yes   [ Possible values: yes or no ]
+<br/>    restraintHostMaxDistance, 1.5  [ Units: nanometer ]
+<br/>    restraintHostMinDistance, 0.5  [ Units: nanometer ]
+<br/>    restraintHostSelection, backbone   [ Possible value: Any valid
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        selection. ]
+<br/>    restraintRmsfCutoff, 0.1  [ Units: nanometer ]
+<br/>    
+<br/>    Solvent equil output settings:
+<br/>    
+<br/>    solventEquilOutputCheckpointInterval, 1.0  [ Units: nanosecond ]
+<br/>    solventEquilOutputCheckpointStorageFilename, checkpoint.chk
+<br/>    solventEquilEquilOutputNPTStructure, equil_npt_structure.pdb
+<br/>    solventEquilEquilNVTOutputStructure, equil_nvt_structure.pdb
+<br/>    solventEquilOutputForcefieldCache, db.json
+<br/>    solventEquilOutputLogOutput, production_equil_simulation.log
+<br/>    solventEquilOutputMinimizedStructure, minimized.pdb
+<br/>    solventEquilOutputIndices, all  [  Possible value: Any valid
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        selection. ]
+<br/>    solventEquilOutputPreminimizedStructure, system.pdb
+<br/>    solventEquilOutputProductionTrajectoryFilename, production_equil.xtc
+<br/>    solventEquilOutputTrajectoryWriteInterval, 20.0  [ Units:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        picosecond ]
+<br/>    
+<br/>    Solvent_equil_simulation_settings:
+<br/>    
+<br/>    solventEquilSimulationEquilibrationLength, 0.2 [ Units: nanosecond ]
+<br/>    solventEquilSimulationEquilibrationLengthNVT, 0.1  [ Units:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        nanosecond ]
+<br/>    solventEquilSimulationMinimizationSteps, 5000
+<br/>    solventEquilSimulationProductionLength, 0.5  [ Units: nanosecond ]
+<br/>    
+<br/>    Solvent lambda settings:
+<br/>    
+<br/>    solventLambdaElec, 0.0 0.25 0.5 0.75 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        1.0 1.0  [ Possible values: A space delimited list of values
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        between 0.0 and 1.0 ]
+<br/>    solventLambdaRestraints, 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0.0 0.0 0.0  [ Possible values: A space delimited list of values
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        between 0.0 and 1.0 ]
+<br/>    solventLambdaVdw, 0.0 0.0 0.0 0.0 0.0 0.12 0.24 0.36 0.48 0.6 0.7
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0.77 0.85 1.0  [ Possible values: A space delimited list of values
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        between 0.0 and 1.0 ]
+<br/>    
+<br/>    Solvent output settings:
+<br/>    
+<br/>    solventOutputCheckpointInterval, 1.0  [ Units: nanosecond ]
+<br/>    solventOutputCheckpointStorageFilename, solvent_checkpoint.nc
+<br/>    solventOutputForcefieldCache, db.json
+<br/>    solventOutputFilename, solvent.nc
+<br/>    solventOutputIndices, not water  [ Possible value: Any valid
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        selection. ]
+<br/>    solventOutputStructure, alchemical_system.pdb
+<br/>    solventOutputPositionsWriteFrequency, 100.0  [ Units: picosecond ]
+<br/>    solventOutputVelocitiesWriteFrequency, None  [ Possible
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        values: &gt; 0; Units: picosecond ]
+<br/>    
+<br/>    Solvent simulation settings:
+<br/>    
+<br/>    solventSimulationEarlyTerminationTargetError, 0.0  [ Units:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        kilocalorie_per_mole ]
+<br/>    solventSimulationEquilibrationLength, 1.0  [ Units: nanosecond ]
+<br/>    solventSimulationMinimizationSteps, 5000
+<br/>    solventSimulationNReplicas, 14
+<br/>    solventSimulationProductionLength, 10.0  [ Units: nanosecond ]
+<br/>    solventSimulationRealTimeAnalysisInterval, 250.0  [ Unit: picosecond ]
+<br/>    solventSimulationRealTimeAnalysisMinimumTime, 500.0  [ Units:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        picosecond ]
+<br/>    solventSimulationSamplerMethod, repex  [ Possible values: repex,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        sams, or independent ]
+<br/>    solventSimulationSamsFlatnessCriteria, logZ-flatness  [ Possible
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        values: logZ-flatness, minimum-visits or histogram-flatness ]
+<br/>    solventSimulationSamsGamma0, 1.0
+<br/>    solventSimulationTimePerIteration, 2.5  [ Units: picosecond ]
+<br/>    
+<br/>    Solvent solvation settings:
+<br/>    
+<br/>    solventSolvationBoxShape, dodecahedron  [  Possible values: cube,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        dodecahedron, or octahedron ]
+<br/>    solventSolvationBoxSize, None  [ Possible value: A triplet of space
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        X Y Z values; Units: nanometer ]
+<br/>    solventSolvationSolventModel, tip3p  [ Possible values: tip3p, spce,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        tip4pew, or tip5p ]
+<br/>    solventSolvationSolventPadding, 1.5  [ Units: nanometer ]
+<br/>    
+<br/>    Thermo settings:
+<br/>    
+<br/>    thermoPh, None  [ Possible values: &gt; 0 ]
+<br/>    thermoPressure, 1.0  [ Units: bar ]
+<br/>    thermoRedoxPotential, None  [ Possible values: A valid float.
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Units: millivolts (mV) ]
+<br/>    thermoTemperature, 298.15  [ Units: kelvin ]</div>
+<p>A brief description of parameters, taken from OpenFE documentation, is provided below:</p>
+    <div class="OptionsBox">protocolRepeats: Number of completely independent repeats of the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        entire sampling process.
+<br/>    
+<br/>    Complex settings:
+<br/>    
+<br/>    Complex parameters for the system, including the solvent model and
+<br/>    the solvent padding.
+<br/>    
+<br/>    Complex equil output settings:
+<br/>    
+<br/>    Parameters controlling simulation output during equilibration
+<br/>    phase of complex transformation.
+<br/>    
+<br/>    complexEquilOutputCheckpointInterval: Frequency to write the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        checkpoint file.
+<br/>    complexEquilOutputCheckpointStorageFilename: Checkpoint filename.
+<br/>    complexEquilOutputEquilNPTStructure: NPT structure filename.
+<br/>    complexEquilOutputEquilNVTstructure: NVT strucure filename.
+<br/>    complexEquilOutputForcefieldCache:  Filename for caching small
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        molecule residue templates.
+<br/>    complexEquilOutputLogOutput: Simulation log filename.
+<br/>    complexEquilOutputMinimizedStructure: Minimized structire filename.
+<br/>    complexEquilOutputIndices: Selection string for selecting
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        coordinates to write.
+<br/>    complexEquilOutputPremnimizedStructure: Initial structure filename.
+<br/>    complexEquilOutputProductionTrajectoryFilename: Trajectory filename.
+<br/>    complexEquilOutputTrajectoryWriteInterval: Frequency for writing
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        velocities to trajectory file.
+<br/>    
+<br/>    Complex equil simulation settings:
+<br/>    
+<br/>    Parameters controlling simulation during equilibration phase of
+<br/>    complex transformation.
+<br/>    
+<br/>    complexEquilSimulationEquilibrationLength:  Length of the NPT
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        equilibration phase.
+<br/>    complexEquilSimulationEquilibrationLengthNVT: Length of the NVT
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        equilibration phase.
+<br/>    complexEquilSimulationMinimizationSteps: Maximum number of
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        minimization steps to perform.
+<br/>    complexEquilSimulationProductionLength:  Length of the NPT
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        production phase.
+<br/>    
+<br/>    Complex lambda settings:
+<br/>    
+<br/>    Lambda protocol parameters for complex transformation.
+<br/>    
+<br/>    complexLambdaElec: List of lambda values for electrostatics. The
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        values of 0 and 1 imply state A and state B respectively.
+<br/>    complexLambdaRestraints: List of lambda values for restraints. The
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        values of 0 and 1 imply state A and state B respectively.
+<br/>    complexLambdaVdw: List of lamda values for van der Waals. The
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        values of of 0 and 1 imply state A and state B respectively.
+<br/>    
+<br/>    Complex output settings:
+<br/>    
+<br/>    Parameters controlling simulation output during final phase of
+<br/>    complex transformation.
+<br/>    
+<br/>    complexOutputCheckpointInterval:  Frequency to write the checkpoint
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        file.
+<br/>    complexOutputCheckpointStorageFilename: Checkpoint filename.
+<br/>    complexOutputForcefieldCache: Filename for caching small molecule
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        residue templates.
+<br/>    complexOutputFilename: Trajectory filename.
+<br/>    complexOutputIndices: Selection string for selecting coordinates to
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        write.
+<br/>    complexOutputStructure: Topology structure filename.
+<br/>    complexOutputPositionsWriteFrequency: Frequency for writing
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        positions to trajectory file.
+<br/>    complexOutputVelocitiesWriteFrequency: Frequency for writing
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        velocities to trajectory file.
+<br/>    
+<br/>    Complex simulation settings:
+<br/>    
+<br/>    Parameters controlling simulation during final phase of complex
+<br/>    transformation.
+<br/>    
+<br/>    complexSimulationEarlyTerminationTargetError: Target error for the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        real time analysis measured in kcal/mol. Once the MBAR error of
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        the free energy is at or below this value, the simulation will
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        be considered complete. The suggested value of 0.12 has shown to
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        be effective in both hydration and binding free energy
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        benchmarks.
+<br/>    complexSimulationEquilibrationLength: Length of the equilibration
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        phase. The specified value must be divisible by
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &#39;integratorTimestep&#39;.
+<br/>    complexSimulationMinimizationSteps: Maximum number of minimization
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        steps to perform.
+<br/>    complexSimulationNReplicas: Number of replicas to use.
+<br/>    complexSimulationProductionLength: Length of the production phase.
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        The specified value must be divisible by &#39;integratorTimestep&#39;.
+<br/>    complexSimulationRealTimeAnalysisMinimumTime: Time interval for
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        performing analysis of the free energies. At each interval, real
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        time analysis data will be written to a yaml file named
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &lt;outputFileName&gt;_real_time_analysis.yaml. The current error
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        in the estimate will also be assessed and the simulation will
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        be terminated when it drops below
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &#39;complexSimulationEarlyTerminationTargetError&#39;.
+<br/>    complexSimulationSamplerMethod: Alchemical sampling method to use:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        REPEX (Hamiltonian REPlica EXchange), SAMS (Self-Adjusted
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Mixture Sampling), or Independent (Independently sampled lambda
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        windows).
+<br/>    complexSimulationSamsFlatnessCriteria:Method for assessing when to
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        switch to asymptomatically optimal scheme for SAMS.
+<br/>    complexSimulationsamsGamma0: Initial weight adaptation rate for
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        SAMS.
+<br/>    complexSimulationTimePerIteration: Simulation time between each
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        MCMC move attempt
+<br/>    
+<br/>    Complex solvation settings:
+<br/>    
+<br/>    Solvation parameters for the system, including the solvent model and
+<br/>    the solvent padding.
+<br/>    
+<br/>    complexSolvationBoxShape: Shape of the periodic solvent box.
+<br/>    complexSolvationBoxSize:  Lengths of the unit cell for a solvent box.
+<br/>    complexSolvationSolventModel: Forcefield water model to use during
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        solvation and defining the model properties.
+<br/>    complexSolvationSolventPadding: Minimum distance from any solute
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        bounding sphere to the edge of the box.
+<br/>    
+<br/>    Engine settings:
+<br/>    
+<br/>    Parameters configuring the compute platform used by the OpenMM to
+<br/>    perform the simulation.
+<br/>    
+<br/>    engineComputePlatform: Platform to use for running OpenMM MD
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        calculations.
+<br/>    engineGpuDeviceIndex: Space delimited list of device indices
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        to use for running OpenMM MD calculations.
+<br/>    
+<br/>    Forcefield settings:
+<br/>    
+<br/>    forcefieldConstraints:Constraints  to use.
+<br/>    forcefields: List of valid forcefield paths for all components
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        except small molecules.
+<br/>    forcefieldHydrogenMass: Mass to be repartitioned to hydrogens
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        from neighboring heavy atoms.
+<br/>    forcefieldNonbondedCutoff: Cutoff for short range nonbonded
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        interactions.
+<br/>    forcefieldNonbondedMethod: Method for treating nonbonded
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        interactions.
+<br/>    forcefieldRigidWater: Use a rigid water model.
+<br/>    forcefieldSmallMoleculeForcefield: A valid forcefield name to use
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        for small molecules.
+<br/>    
+<br/>    Integrator settings:
+<br/>    
+<br/>    Parameters controlling the LangevinSplittingDynamicsMove integrator
+<br/>    used for simulation.
+<br/>    
+<br/>    integratorBarostatFrequency: Frequency at which volume scaling
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        changes should be attempted.
+<br/>    integratorConstraintTolerance: Tolerance for constraint solver.
+<br/>    integratorLangevinCollisionRate: Collision frequency.
+<br/>    integratorNRestartAttempts: Number of attempts to restart from
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Context in case there are NaNs in the energies after
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        integration.
+<br/>    integratorReassignVelocities: Reassign velocities  from the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Maxwell-Boltzmann distribution at the beginning of each
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Monte Carlo move.
+<br/>    integratorRemoveCom: Remove the center of mass motion.
+<br/>    integratorTimestep: Size of the simulation timestep.
+<br/>    
+<br/>    Partial charge settings:
+<br/>    
+<br/>    Parameters for automatically assigning missing partial charges to
+<br/>    small molecules, including the partial charge method.
+<br/>    
+<br/>    partialChargeNaglModel: Model to use for partial charge assignment.
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        A value of None implies the use of the latest available
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        production AM1BCC model.
+<br/>    partialChargeNumberOfConformers: Number of conformers to generate
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        as part of the partial charge assignment. A value of None
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        implies the use of the existing conformer.
+<br/>    partialChargeOffToolkitBackend: OpenFF toolkit registry backend to
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        use for calculating partial charges.
+<br/>    partialChargeMethod: Method to use for calculating partial charges.
+<br/>    
+<br/>    Restraint settings:
+<br/>    
+<br/>    Parameters to configure Boresch-style restraint between two groups
+<br/>    of atoms named host  (Hx) and guest (Gx).
+<br/>    
+<br/>    restraintKPhiA: Equilibrium force constant for the dihedral formed
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        by H2-H1-H0-G0.
+<br/>    restraintKPhiB: Equilibrium force constant for the dihedral formed
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        by H1-H0-G0-G1.
+<br/>    restraintKPhiC: Equilibrium force constant for the dihedral formed
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        by H0-G0-G1-G2.
+<br/>    restraintKR: Bond spring constant between H0 and G0.
+<br/>    restraintKThetaA: Spring constant for the angle formed by H1-H0-G0.
+<br/>    restraintKThetaB: Spring constant for the angle formed by H0-G0-G1
+<br/>    restraintAnchorFindingStrategy: Boresch atom picking strategy to
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        use. bonded: pick host atoms that are bonded to each other.
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        multi-residue: pick host atoms which can span multiple
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        residues.
+<br/>    restraintDsspFilter: Apply DSSP filter to the host atoms.
+<br/>    restraintHostMaxDistance: Minimum distance between any host atom
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        and the guest G0 atom.
+<br/>    restraintHostMinDistance: Xaximum distance between any host atom
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        and the guest G0 atom
+<br/>    restraintHostSelection: A valid selection string to sub-select the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        host atoms which will be involved in the restraint.
+<br/>    restraintRmsfCutoff: Cutoff value for filtering atoms by their root
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        mean square fluctuation. Atoms with values above this cutoff
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        are ignored.
+<br/>    
+<br/>    Solvent equil output settings:
+<br/>    Solvent equil simulation settings:
+<br/>    Solvent lambda settings:
+<br/>    Solvent output settings:
+<br/>    Solvent simulation settings:
+<br/>    Solvent solvation settings:
+<br/>    
+<br/>    The solvent settings are similar to the complex settings already
+<br/>    described under various sections for complex. The prefix &#39;solvent&#39;
+<br/>    is used for the names of the pramaters instead of the prefix
+<br/>    &#39;complex.&#39;
+<br/>    
+<br/>    Thermo settings:
+<br/>    
+<br/>    Thermodynamic parameters, including the temperature and the pressure
+<br/>    of the system.
+<br/>    
+<br/>    thermoPh: Simulation pH
+<br/>    thermoPressure: Simulation pressure.
+<br/>    thermoRedoxPotential:Simulation redox potential.
+<br/>    thermoTemperature: Simulation temperature.</div>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">ParamsOptionName (str): Command line OpenFE RFE parameters option name.
+<br/>    ParamsOptionValue (str): Comma delimited list of parameter name and value pairs.
+<br/>    ParamsDefaultInfo (dict): Default values to override selected parameters.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">dictionary: Processed parameter name and value pairs.</div>
+</dd>
+<dt id="ProcessOptionOpenFEAbsoluteFreeEnergyMode"><b>ProcessOptionOpenFEAbsoluteFreeEnergyMode</b></dt>
+<dd>
+    <div class="OptionsBox">ProcessOptionOpenFEAbsoluteFreeEnergyMode(OptionName, OptionValue)</div>
+<p>Process absolute FE mode command line option and return a valid canonical value.</p>
+<p>Valid values names are: FirstMolecule, AllMolecules, or MoleculeNames.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">OptionName (str): Command line missing charge mode option name.
+<br/>    OptionValue (str): Command line missing charge mode option value.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">str: Canonical value for missing charge mode.</div>
+</dd>
+<dt id="ProcessOptionOpenFEAbsoluteHydrationFreeEnergyParameters"><b>ProcessOptionOpenFEAbsoluteHydrationFreeEnergyParameters</b></dt>
+<dd>
+    <div class="OptionsBox">ProcessOptionOpenFEAbsoluteHydrationFreeEnergyParameters(ParamsOptionName, ParamsOptionValue, ParamsDefaultInfo=None)</div>
+<p>Process parameters for AHFE parameters option and return a map containing processed parameter names and values.</p>
+<p>The ParamsOptionValue is a comma delimited list of parameter name and value pairs to setup AHFE calculations.</p>
+<p>The default values are automatically updated to match settings provided by OpenFE module AbsoluteSolvationProtocol.</p>
+<p>You must specify valid OpenFE values for these parameters. An extensive validation is not performed.</p>
+<p>The supported parameter names along with their default and possible values are shown below:</p>
+    <div class="OptionsBox">protocolRepeats, 3
+<br/>    
+<br/>    Integrator settings:
+<br/>    
+<br/>    integratorBarostatFrequency, 25.0 * timestep  [ The specified value
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        is a multiple of integratorTimestep. ]
+<br/>    integratorConstraintTolerance, 1e-06
+<br/>    integratorLangevinCollisionRate, 1.0  [ Units: 1 / picosecond ]
+<br/>    integratorNRestartAttempts, 20
+<br/>    integratorReassignVelocities, no  [ Possible values: yes or no ]
+<br/>    integratorRemoveCom, no  [ Possible values: yes or no ]
+<br/>    integratorTimestep, 4.0 [ Units: femtosecond ]
+<br/>    
+<br/>    Lambda settings:
+<br/>    
+<br/>    lambdaElec, 0.0 0.25 0.5 0.75 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        1.0  [ Possible values: A space delimited list of values
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        between 0.0 and 1.0 ]
+<br/>    lambdaRestraints, 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0.0 0.0  [ Possible values: A space delimited list of values
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        between 0.0 and 1.0 ]
+<br/>    lambdaVdw, [0.0 0.0 0.0 0.0 0.0 0.12 0.24 0.36 0.48 0.6 0.7 0.77
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0.85 1.0  [ Possible values: A space delimited list of values
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        between 0.0 and 1.0 ]
+<br/>    
+<br/>    Partial charge settings:
+<br/>    
+<br/>    partialChargeNaglModel, None  [ Default: Production AM1BCC model for
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        NAGL; Possible value: Any valid name. ]
+<br/>    partialChargeNumberOfConformers, None  [ Possible value: &gt; 0 ]
+<br/>    partialChargeOffToolkitBackend, AmberTools  [ Possible values:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        AmberTools or RDKit ]
+<br/>    partialChargeMethod, AM1BCC  [ Possble values: AM1BCC, Espaloma,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        or NAGL ]
+<br/>    
+<br/>    Solvation settings:
+<br/>    
+<br/>    solvationBoxShape, dodecahedron  [  Possible values: cube,,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        dodecahedron, or octahedron ]
+<br/>    solvationBoxSize, None  [ Possible value: A triplet of space
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        X Y Z values; Units: nanometer ]
+<br/>    solvationSolventModel, tip3p  [ Possible values: tip3p, spce, tip4pew,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        or tip5p ]
+<br/>    solvationSolventPadding, 1.5  [ Units: nanometer ]
+<br/>    
+<br/>    Solvent engine settings:
+<br/>    
+<br/>    solventEngineComputePlatform, CPU  [ Possible values: CPU, CUDA,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        OpenCL, or Reference ]
+<br/>    solventEngineGpuDeviceIndex, None [ Possible values: 0, 0 1, etc. ]
+<br/>    
+<br/>    Solvent equil output settings:
+<br/>    
+<br/>    solventEquilOutputCheckpointInterval, 1.0  [ Units: nanosecond ]
+<br/>    solventEquilOutputCheckpointStorageFilename, checkpoint.chk
+<br/>    solventEquilOutputNPTStructure, equil_npt_structure.pdb
+<br/>    solventEquilOutputNVTStructure, equil_nvt_structure.pdb
+<br/>    solventEquilOutputForcefieldCache, db.json
+<br/>    solventEquilOutputLogOutput, equil_simulation.log
+<br/>    solventEquilOutputMinimizedStructure, minimized.pdb
+<br/>    solventEquilOutputIndices, not water   [ Possible value: Any valid
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        selection. ]
+<br/>    solventEquilOutputPreminimizedStructure, system.pdb
+<br/>    solventEquilOutputProductionTrajectoryFilename, production_equil.xtc
+<br/>    solventEquilOutputTrajectoryWriteInterval, 20.0  [ Units: picosecond ]
+<br/>    
+<br/>    Solvent equil simulation settings:
+<br/>    
+<br/>    solventEquilSimulationEquilLength, 0.2  [ Units: nanosecond ]
+<br/>    solventEquilSimulationEquiLengthNVT, 0.1  [ Units: nanosecond ]
+<br/>    solventEquilSimulationMinimizationSteps,5000
+<br/>    solventEquilSimulationProductionLength,0.5  [ Units: nanosecond ]
+<br/>    
+<br/>    Solvent forcefield settings:
+<br/>    
+<br/>    solventForcefieldConstraints, HBonds  [ Possible values: HBonds,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        AllBonds, or HAngles ]
+<br/>    solventForcefields, amber/ff14SB.xml, amber/tip3p_standard.xml
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        amber/tip3p_HFE_multivalent.xml amber/phosaa10.xml
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        [ Possible values: A space delimited list of valid names. ]
+<br/>    solventForcefieldHydrogenMass, 3.0  [ Units: amu ]
+<br/>    solventForcefieldNonbondedCutoff, 0.9   [ Units: nanometer ]
+<br/>    solventForcefieldNonbondedMethod, PME  [ Possible values: PME or
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        NoCutoff ]
+<br/>    solventForcefieldRigidWater, yes,  [ Possible values: yes or no ]
+<br/>    solventForcefieldSmallMoleculeForcefield, openff-2.1.1  [ Possible
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        value: A valid forcefield name. ]
+<br/>    
+<br/>    Solvent output settings:
+<br/>    
+<br/>    solventOutputCheckpointInterval, 1.0  [ Units: nanosecond ]
+<br/>    solventOutputCheckpointStorageFilename, solvent_checkpoint.nc
+<br/>    solventOutputForcefieldCache, db.json
+<br/>    solventOutputFilename, solvent.nc
+<br/>    solventOutputIndices, not water   [ Possible value: Any valid
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        selection. ]
+<br/>    solventOutputStructure, hybrid_system.pdb
+<br/>    solventOutputPositionsWriteFrequency, 100.0 [ Units: picosecond ]
+<br/>    solventOutputVelocitiesWriteFrequency, None  [ Possible
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        values: &gt; 0; Units: picosecond ]
+<br/>    
+<br/>    Solvent simulation settings:
+<br/>    
+<br/>    solventSimulationEarlyTerminationTargetError, 0.0  [ Units:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        kilocalorie_per_mole ]
+<br/>    solventSimulationEquilibrationLength, 1.0  [ Units: nanosecond ]
+<br/>    solventSimulationMinimizationSteps, 5000
+<br/>    solventSimulationNReplicas, 14
+<br/>    solventSimulationProductionLength, 10.0  [ Units: nanosecond ]
+<br/>    solventSimulationRealTimeAnalysisInterval, 250.0  [ Units:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        picosecond ]
+<br/>    solventSimulationRealTimeAnalysisMinimumTime, 500.0 [ Units:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        picosecond
+<br/>    solventSimulationSamplerMethod, repex  [ Possible values: repex,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        sams, or independent ]
+<br/>    solventSimulationSamsFlatnessCriteria, logZ-flatness  [ Possible
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        values: logZ-flatness, minimum-visits or histogram-flatness ]
+<br/>    solventSimulationsamsGamma0, 1.0
+<br/>    solventSimulationTimePerIteration,2.5  [ Units: picosecond ]
+<br/>    
+<br/>    Thermo settings:
+<br/>    
+<br/>    thermoPh, None  [ Possible values: &gt; 0 ]
+<br/>    thermoPressure, 1.0  [ Units: bar ]
+<br/>    thermoRedoxPotential, None  [ Possible values: A valid float.
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Units: millivolts (mV) ]
+<br/>    thermoTemperature, 298.15  [ Units: kelvin ]
+<br/>    
+<br/>    Vacuum engine settings:
+<br/>    
+<br/>    vacuumEngineComputePlatform, CPU  [ Possible values: CPU, CUDA,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        OpenCL, or Reference ]
+<br/>    vacummEngineGpuDeviceIndex, None [ Possible values: 0, 0 1, etc. ]
+<br/>    
+<br/>    Vacuum equil output settings:
+<br/>    
+<br/>    vacuumEquilOutputCheckpointInterval, 1.0  [ Units: nanosecond ]
+<br/>    vacuumEquilOutputCheckpointStorageFilename, checkpoint.chk
+<br/>    vacuumEquilOutputNPTStructure, equil_structure.pdb
+<br/>    vacuumEquilOutputNVTStructure,None
+<br/>    vacuumEquilOutputForcefieldCache, db.json
+<br/>    vacuumEquilOutputLogOutput, equil_simulation.log
+<br/>    vacuumEquilOutputMinimizedStructure, minimized.pdb
+<br/>    vacuumEquilOutputIndices, not water   [ Possible value: Any valid
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        selection. ]
+<br/>    vacuumEquilOutputPreminimizedStructure, system.pdb
+<br/>    vacuumEquilOutputProductionTrajectoryFilename, production_equil.xtc
+<br/>    vacuumEquilOutputTrajectoryWriteInterval, 20.0  [ Units: picosecond ]
+<br/>    
+<br/>    Vacuum equil simulation settings:
+<br/>    
+<br/>    vacuumEquilSimulationEquilLength, 0.2  [ Units: nanosecond ]
+<br/>    vacuumEquilSimulationEquilLengthNVT, None  [ Units: nanosecond ]
+<br/>    vacuumEquilSimulationMinimizationSteps, 5000
+<br/>    vacuumEquilSimulationProductionLength, 0.5 [ Units: nanosecond ]
+<br/>    
+<br/>    Vacuum forcefield settings:
+<br/>    
+<br/>    vacuumForcefieldConstraints, HBonds  [ Possible values: HBonds,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        AllBonds, or HAngles ]
+<br/>    vacuumForcefields, amber/ff14SB.xml, amber/tip3p_standard.xml
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        amber/tip3p_HFE_multivalent.xml amber/phosaa10.xml
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        [ Possible values: A space delimited list of valid names. ]
+<br/>    vacuumForcefieldHydrogenMass, 3.0  [ Units: amu ]
+<br/>    vacuumForcefieldNonbondedCutoff, 0.9  [ Units: nanometer ]
+<br/>    vacuumForcefieldNonbondedMethod, nocutoff  [ Possible values: PME
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        or NoCutoff ]
+<br/>    vacuumForcefieldRigidWater, yes,  [ Possible values: yes or no ]
+<br/>    vacuumForcefieldSmallMoleculeForcefield, openff-2.1.1  [ Possible
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        value: A valid forcefield name. ]
+<br/>    
+<br/>    Vacuum output settings:
+<br/>    
+<br/>    vacuumOutputCheckpointInterval, 1.0  [ Units: nanosecond ]
+<br/>    vacuumOutputCheckpointStorageFilename, vacuum_checkpoint.nc
+<br/>    vacuumOutputForcefieldCache, db.json
+<br/>    vacuumOutputFilename, vacuum.nc
+<br/>    vacuumOutputIndices, not water   [ Possible value: Any valid
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        selection. ]
+<br/>    vacuumOutputStructure, hybrid_system.pdb
+<br/>    vacuumOutputPositionsWriteFrequency, 100.0  [ Units: picosecond ]
+<br/>    vacuumOutputVelocitiesWriteFrequency, None  [ Possible
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        values: &gt; 0; Units: picosecond ]
+<br/>    
+<br/>    Vacuum simulation settings:
+<br/>    
+<br/>    vacuumSimulationEarlyTerminationTargetError, 0.0  [ Units:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0.0 kilocalorie_per_mole ]
+<br/>    vacuumSimulationEquilibrationLength, 0.5  [ Units: nanosecond ]
+<br/>    vacuumSimulationMinimizationSteps, 5000
+<br/>    vacuumSimulationNReplicas, 14
+<br/>    vacuumSimulationProductionLength, 2.0  [ Units: nanosecond ]
+<br/>    vacuumSimulationRealTimeAnalysisInterval, 250.0  [ Units: picosecond ]
+<br/>    vacuumSimulationRealTimeAnalysisMinimumTime, 500.0  [ Units: picosecond]
+<br/>    vacuumSimulationSamplerMethod, repex [ Possible values: repex,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        sams, or independent ]
+<br/>    vacuumSimulationSamsFlatnessCriteria, logZ-flatness  [ Possible
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        values: logZ-flatness, minimum-visits or histogram-flatness ]
+<br/>    vacuumSimulationSamsGamma0, 1.0
+<br/>    vacuumSimulationTimePerIteration,2.5  [ Units: picosecond ]
+<br/>    
+<br/>    Thermo settings:
+<br/>    
+<br/>    thermoPh, None  [ Possible values: &gt; 0 ]
+<br/>    thermoPressure, 0.98692327  [ Units: standard_atmosphere ]
+<br/>    thermoRedoxPotential, None  [ Possible values: A valid float.
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Units: millivolts (mV) ]
+<br/>    thermoTemperature, 298.15  [ Units: kelvin ]</div>
+<p>A brief description of parameters, taken from OpenFE documentation, is provided below:</p>
+    <div class="OptionsBox">protocolRepeats: Number of completely independent repeats of the
+<br/>    entire sampling process.
+<br/>    
+<br/>    Integrator settings:
+<br/>    
+<br/>    Parameters controlling the LangevinSplittingDynamicsMove integrator
+<br/>    used for simulation.
+<br/>    
+<br/>    integratorBarostatFrequency: Frequency at which volume scaling
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        changes should be attempted.
+<br/>    integratorConstraintTolerance: Tolerance for constraint solver.
+<br/>    integratorLangevinCollisionRate: Collision frequency.
+<br/>    integratorNRestartAttempts: Number of attempts to restart from
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Context in case there are NaNs in the energies after
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        integration.
+<br/>    integratorReassignVelocities: Reassign velocities  from the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Maxwell-Boltzmann distribution at the beginning of each
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Monte Carlo move.
+<br/>    integratorRemoveCom: Remove the center of mass motion.
+<br/>    integratorTimestep: Size of the simulation timestep.
+<br/>    
+<br/>    Lambda settings:
+<br/>    
+<br/>    Lambda protocol parameters, including number of lambda windows and
+<br/>    
+<br/>    lambdaElec: List of lambda values for electrostatics. The values of
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0 and 1 imply state A and state B respectively.
+<br/>    lambdaRestraints: List of lambda values for restraints. The values
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        of 0 and 1 imply state A and state B respectively.
+<br/>    lambdaVdw: List of lamda values for van der Waals. The values of
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        of 0 and 1 imply state A and state B respectively.
+<br/>    
+<br/>    Partial charge settings:
+<br/>    
+<br/>    Parameters for automatically assigning missing partial charges to
+<br/>    small molecules, including the partial charge method.
+<br/>    
+<br/>    partialChargeNaglModel: Model to use for partial charge assignment.
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        A value of None implies the use of the latest available
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        production AM1BCC model.
+<br/>    partialChargeNumberOfConformers: Number of conformers to generate
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        as part of the partial charge assignment. A value of None
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        implies the use of the existing conformer.
+<br/>    partialChargeOffToolkitBackend: OpenFF toolkit registry backend to
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        use for calculating partial charges.
+<br/>    partialChargeMethod: Method to use for calculating partial charges.
+<br/>    
+<br/>    Solvation settings:
+<br/>    
+<br/>    Solvation parameters for the system, including the solvent model and
+<br/>    the solvent padding.
+<br/>    
+<br/>    solvationBoxShape: Shape of the periodic solvent box to create.
+<br/>    solvationBoxSize: Lengths of the unit cell for a solvent box.
+<br/>    solvationSolventModel: Forcefield water model to use during
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        solvation and defining the model properties.
+<br/>    solvationSolventPadding: Minimum distance from any solute bounding
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        sphere to the edge of the box.
+<br/>    
+<br/>    Solvent engine settings:
+<br/>    
+<br/>    Parameters configuring the compute platform used by the OpenMM to
+<br/>    perform the simulation.
+<br/>    
+<br/>    solventEngineComputePlatform: Platform to use for running OpenMM MD
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        calculations.
+<br/>    solventEngineGpuDeviceIndex: Space delimited list of device indices
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        to use for running OpenMM MD calculations.
+<br/>    
+<br/>    Solvent equil output settings:
+<br/>    
+<br/>    Parameters controlling simulation output during equilibration
+<br/>    phase of solvent transformation.
+<br/>    
+<br/>    solventEquilOutputCheckpointInterval: Frequency to write the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        checkpoint file.
+<br/>    solventEquilOutputCheckpointStorageFilename: Checkpoint filename.
+<br/>    solventEquilOutputNPTStructure: NPT structure filename.
+<br/>    solventEquilOutputNVTStructure: NVT strucure filename.
+<br/>    solventEquilOutputForcefieldCache: Filename for caching small
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        molecule residue templates.
+<br/>    solventEquilOutputLogOutput: Simulation log filename.
+<br/>    solventEquilOutputMinimizedStructure: Minimized structire filename.
+<br/>    solventEquilOutputIndices: Selection string for selecting
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        coordinates to write.
+<br/>    solventEquilOutputPreminimizedStructure: Initial structure filename.
+<br/>    solventEquilOutputProductionTrajectoryFilename: Trajectory filename.
+<br/>    solventEquilOutputTrajectoryWriteInterval: Frequency for writing
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        velocities to trajectory file.
+<br/>    
+<br/>    Solvent equil simulation settings:
+<br/>    
+<br/>    Parameters controlling simulation during equilibration phase of
+<br/>    solvent transformation.
+<br/>    
+<br/>    solventEquilSimulationEquilLength: Length of the NPT equilibration
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        phase.
+<br/>    solventEquilSimulationEquiLengthNVT: Length of the NVT equilibration
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        phase.
+<br/>    solventEquilSimulationMinimizationSteps: Maximum number of
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        minimization steps to perform.
+<br/>    solventEquilSimulationProductionLength: Length of the NPT production
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        phase.
+<br/>    
+<br/>    Solvent forcefield settings:
+<br/>    
+<br/>    Parameters to set up the force field with OpenMM Force Fields
+<br/>    equilibration phase of solvent transformation.
+<br/>    
+<br/>    solventForcefieldConstraints:  Constraints to use.
+<br/>    solventForcefields:  List of valid forcefield paths for all
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        components except small molecules.
+<br/>    solventForcefieldHydrogenMass: Mass to be repartitioned to
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        hydrogens from neighboring heavy atoms.
+<br/>    solventForcefieldNonbondedCutoff: Cutoff for short range nonbonded
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        interactions.
+<br/>    solventForcefieldNonbondedMethod: Method for treating nonbonded
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        interactions.
+<br/>    solventForcefieldRigidWater: Use a rigid water model.
+<br/>    solventForcefieldSmallMoleculeForcefield: A valid forcefield name
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        to use small molecules.
+<br/>    
+<br/>    Solvent output settings:
+<br/>    
+<br/>    Parameters controlling simulation output during final phase of
+<br/>    solvent transformation.
+<br/>    
+<br/>    solventOutputCheckpointInterval: Frequency to write the checkpoint
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        file.
+<br/>    solventOutputCheckpointStorageFilename: Checkpoint filename.
+<br/>    solventOutputForcefieldCache: Filename for caching small molecule
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        residue templates.
+<br/>    solventOutputFilename: Trajectory filename.
+<br/>    solventOutputIndices: Selection string for selecting coordinates to
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        write.
+<br/>    solventOutputStructure: Hybrid topology structure filename.
+<br/>    solventOutputPositionsWriteFrequency: Frequency for writing
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        positions to trajectory file.
+<br/>    solventOutputVelocitiesWriteFrequency:  Frequency for writing
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        velocities to trajectory file.
+<br/>    
+<br/>    Solvent simulation settings:
+<br/>    
+<br/>    Parameters controlling simulation during final phase of solvent
+<br/>    transformation.
+<br/>    
+<br/>    solventSimulationEarlyTerminationTargetError: Target error for the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        real time analysis measured in kcal/mol. Once the MBAR error of
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        the free energy is at or below this value, the simulation will
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        be considered complete. The suggested value of 0.12 has shown to
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        be effective in both hydration and binding free energy
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        benchmarks.
+<br/>    solventSimulationEquilibrationLength: Length of the equilibration
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        phase. The specified value must be divisible by &#39;integratorTimestep&#39;.
+<br/>    solventSimulationMinimizationSteps: Maximum number of minimization
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        steps to perform.
+<br/>    solventSimulationNReplicas: Number of replicas to use.
+<br/>    solventSimulationProductionLength: Length of the production phase.
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        The specified value must be divisible by &#39;integratorTimestep&#39;.
+<br/>    solventSimulationRealTimeAnalysisMinimumTime: Time interval for
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        performing analysis of the free energies. At each interval, real
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        time analysis data will be written to a yaml file named
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &lt;outputFileName&gt;_real_time_analysis.yaml. The current error
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        in the estimate will also be assessed and the simulation will
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        be terminated when it drops below
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &#39;simulationEarlyTerminationTargetError&#39;.
+<br/>    solventSimulationSamplerMethod: Minimum simulation time after
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        which the real time analysis is performed.
+<br/>    solventSimulationSamplerMethod: Alchemical sampling method to use:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        REPEX (Hamiltonian REPlica EXchange), SAMS (Self-Adjusted
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Mixture Sampling), or Independent (Independently sampled lambda
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        windows).
+<br/>    solventSimulationSamsFlatnessCriteria:Method for assessing when to
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        switch to asymptomatically optimal scheme for SAMS.
+<br/>    solventSimulationsamsGamma0: Initial weight adaptation rate for
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        SAMS.
+<br/>    solventSimulationTimePerIteration: Simulation time between each
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        MCMC move attempt
+<br/>    
+<br/>    Vacuum engine settings:
+<br/>    
+<br/>    Parameters configuring the compute platform used by the OpenMM to
+<br/>    perform the simulation.
+<br/>    
+<br/>    vacuumEngineComputePlatform: Platform to use for running OpenMM MD
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        calculations.
+<br/>    vacuumEngineGpuDeviceIndex: Space delimited list of device indices
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        to use for running OpenMM MD calculations.
+<br/>    
+<br/>    The rest of the vacuum settings are similar to the solvent settings already
+<br/>    described under various sections for solvent. The prefix &#39;vacuum&#39; is used
+<br/>    for the names of the pramaters instead of the prefix &#39;solvent.&#39;
+<br/>    
+<br/>    Thermo settings:
+<br/>    
+<br/>    Thermodynamic parameters, including the temperature and the pressure
+<br/>    of the system.
+<br/>    
+<br/>    thermoPh: Simulation pH
+<br/>    thermoPressure: Simulation pressure.
+<br/>    thermoRedoxPotential:Simulation redox potential.
+<br/>    thermoTemperature: Simulation temperature.</div>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">ParamsOptionName (str): Command line OpenFE RFE parameters option name.
+<br/>    ParamsOptionValue (str): Comma delimited list of parameter name and value pairs.
+<br/>    ParamsDefaultInfo (dict): Default values to override selected parameters.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">dictionary: Processed parameter name and value pairs.</div>
+</dd>
+<dt id="ProcessOptionOpenFECharge"><b>ProcessOptionOpenFECharge</b></dt>
+<dd>
+    <div class="OptionsBox">ProcessOptionOpenFECharge(OptionName, OptionValue)</div>
+<p>Process charge command line option and return a valid canonical charge method name.</p>
+<p>Valid network names are: AM1BCC, AM1-Mulliken, Espaloma, Gasteiger, MMFF94 or NAGL</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">OptionName (str): Command line charge option name.
+<br/>    OptionValue (str): Command line charge option value.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">str: Canonical charge method name.</div>
+</dd>
+<dt id="ProcessOptionOpenFEChargeParameters"><b>ProcessOptionOpenFEChargeParameters</b></dt>
+<dd>
+    <div class="OptionsBox">ProcessOptionOpenFEChargeParameters(ParamsOptionName, ParamsOptionValue, ChargeMethod, ParamsDefaultInfo=None)</div>
+<p>Process parameters for charge option and return a map containing processed parameter names and values.</p>
+<p>The ParamsOptionValue is a comma delimited list of parameter name and value pairs to setup platform.</p>
+<p>The supported parameter names along with their default and possible values are shown below:</p>
+    <div class="OptionsBox">naglModel, auto [ Possible value: A valid NAGL model name. By
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        default, it corresponds to the latest AM1BCC production model ]
+<br/>    toolkit, auto [ Possible values: RDKit or AmberTools. Default value:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        RDKit for Gasteiger and MMFF94; AmberTools for AM1BCC and
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        AM1-Mulliken; Not used for Espaloma and NAGL. ]
+<br/>    
+<br/>    numProcessors, 1  [ Only used for AM1BCC, AM1-Mulliken, Espaloma,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        and NAGL ]
+<br/>    
+<br/>    precision, 4
+<br/>    lineSize, 90
+<br/>    
+<br/>    useConformer, auto  [ Use current conformer. Possible values: yes or
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        no. Default value: no for Gasteiger using AmberToolkit;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        otherwise, yes. ]</div>
+<p>A brief description of parameters is provided below:</p>
+    <div class="OptionsBox">naglModel: NAGL model name. The latest AM1BCC NAGL production
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        model is used by default. You must specify it explicitly in case no
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        production model is available.
+<br/>    toolkit: Toolkit name. RDKit for Gasteiger and MMFF94; AmberTools
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        for AM1BCC, AM1-Mulliken, and Gasteiger.
+<br/>    
+<br/>    numProcessors: Number of processors. This is only used during the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        calculation of AM1BCC, AM1-Mulliken, Espaloma, and NAGL
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        employing OpenFE method bulk_assign_partial_charges().
+<br/>    
+<br/>    precision: Floating point precision for writing the calculated
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        partial atomic charges.
+<br/>    lineSize: Line size for writing the calculated partial aromic
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        charges to SD file as a string value for data field label
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &#39;atom.dprop.PartialCharge&#39;.
+<br/>    
+<br/>    useConformer: Use current conformer. The current conformer is
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        always used to calculate AM1BCC, Espaloma abd NAGL charges
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        using OpenFE method bulk_assign_partial_charges() and this
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        option is ignored. In addition, the option value is passed to
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        OpenFF method assign_partial_charges() during the calculation
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        of AM1-Mulliken, Gasteiger and MMFF94 charges employing
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        AmberTools or RDKit. The RDKit functions, however, ignore the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        conformer during the calculation of Gasteiger and MMFF94
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        charges. The current conformer appears not used to calculate
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Gasteiger charges employing AmberTools.</div>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">ParamsOptionName (str): Command line OpenFE network parameters option name.
+<br/>    ParamsOptionValue (str): Comma delimited list of parameter name and value pairs.
+<br/>    ChargeMethod (str): Charge method name.
+<br/>    ParamsDefaultInfo (dict): Default values to override for selected parameters.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">dictionary: Processed parameter name and value pairs.</div>
+</dd>
+<dt id="ProcessOptionOpenFEExecuteDAGParameters"><b>ProcessOptionOpenFEExecuteDAGParameters</b></dt>
+<dd>
+    <div class="OptionsBox">ProcessOptionOpenFEExecuteDAGParameters(ParamsOptionName, ParamsOptionValue, ParamsDefaultInfo=None)</div>
+<p>Process parameters for protocol DAG execution and return a map containing processed parameter names and values.</p>
+<p>The ParamsOptionValue is a comma delimited list of parameter name and value pairs to setup execution of protocol DAG.</p>
+<p>The supported parameter names along with their default and possible values are shown below:</p>
+    <div class="OptionsBox">keepShared, yes  [ Possible values: yes or no ]
+<br/>    keepScratch, no  [ Possible values: yes or no ]
+<br/>    nRetries, 2  [ Possible values: &gt;= 0. A value of 0 implies only 1 try. ]</div>
+<p>A brief description of parameters is provided below:</p>
+    <div class="OptionsBox">keepShared: Keep shared directories after the execution of DAG.
+<br/>    keepScratch: Keep scratch directories after the execution of DAG.
+<br/>    nRetries: Number of times to attempt the execution.</div>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">ParamsOptionName (str): Command line execute DAG parameters option name.
+<br/>    ParamsOptionValues (str): Comma delimited list of parameter name and value pairs.
+<br/>    ParamsDefaultInfo (dict): Default values to override for selected parameters.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">dictionary: Processed parameter name and value pairs.</div>
+</dd>
+<dt id="ProcessOptionOpenFEMapper"><b>ProcessOptionOpenFEMapper</b></dt>
+<dd>
+    <div class="OptionsBox">ProcessOptionOpenFEMapper(OptionName, OptionValue)</div>
+<p>Process mapper command line option and return a list of valid mapper names.</p>
+<p>Valid atom mapper names are: LOMAP or Kartograf</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">OptionName (str): Command line mapper option name.
+<br/>    OptionValue (str): Comma delimited lis of mapper option values.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">list: List of valid canonical mapper names.</div>
+</dd>
+<dt id="ProcessOptionOpenFEMapperParameters"><b>ProcessOptionOpenFEMapperParameters</b></dt>
+<dd>
+    <div class="OptionsBox">ProcessOptionOpenFEMapperParameters(ParamsOptionName, ParamsOptionValue, ParamsDefaultInfo=None)</div>
+<p>Process parameters for mapper option and return a map containing processed parameter names and values.</p>
+<p>The ParamsOptionValue is a comma delimited list of parameter name and value pairs to setup platform.</p>
+<p>The supported parameter names along with their default and possible values are shown below:</p>
+    <div class="OptionsBox">lomapTime, 20, [ Units: seconds ]
+<br/>    lomapThreeD, yes [ Possible values: yes or no ]
+<br/>    lomapMax3D, 1.0 [ Units: Angstrom ]
+<br/>    lomapElementChange, yes [ Possible values: yes or no]
+<br/>    lomapSeed, None [ Possible value: A string. An empty string causes
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        MCS search to start from scratch ]
+<br/>    lomapShift, no [  Possible values: yes or no]
+<br/>    
+<br/>    kartografAtomMaxDistance, 0.95 [ Units: Angstrom ]
+<br/>    kartografAtomMapHydrogens, yes [ Possible values: yes or no ]
+<br/>    kartografMapHydrogensOnHydrogensOnly, No [ Possible values: yes or
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        no ]
+<br/>    kartografMapExactRingMatchesOnly, yes [ Possible values: yes or no ]
+<br/>    kartografAllowPartialFusedRings, yes [ Possible values: yes or no ]</div>
+<p>A brief description of parameters is provided below:</p>
+    <div class="OptionsBox">lomapTime: Time out for MCS algorithm.
+<br/>    lomapThreeD: Use atom positions to prune symmetric mappings.
+<br/>    lomapMax3D: Forbid mapping between atoms with distance more than
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        specified value.
+<br/>    lomapElementChange: Allow mappings that change an atom element.
+<br/>    lomapSeed: An Empty SMARTS string causes MCS search to start from
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        scratch.
+<br/>    lomapShift: Keep pre-aligned atom positions for 3D position checks.
+<br/>    
+<br/>    kartografAtomMaxDistance: Geometric criteria for two atoms
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        corresponding to maximum distance between them.
+<br/>    kartografAtomMapHydrogens: Map hydrogens.
+<br/>    kartografMapHydrogensOnHydrogensOnly: Map hydrogens only on
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        hydrogens.
+<br/>    kartografMapExactRingMatchesOnly: Map rings with only matching ring
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        size and bond orders. In addition, ring breaking is not permitted.
+<br/>    kartografAllowPartialFusedRings: Allow mapping of partially fused
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        rings.</div>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">ParamsOptionName (str): Command line OpenFE mapper parameters option name.
+<br/>    ParamsOptionValue (str): Comma delimited list of parameter name and value pairs.
+<br/>    ParamsDefaultInfo (dict): Default values to override for selected parameters.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">dictionary: Processed parameter name and value pairs.</div>
+</dd>
+<dt id="ProcessOptionOpenFEMissingChargeMode"><b>ProcessOptionOpenFEMissingChargeMode</b></dt>
+<dd>
+    <div class="OptionsBox">ProcessOptionOpenFEMissingChargeMode(OptionName, OptionValue)</div>
+<p>Process missing charge mode command line option and return a valid canonical value.</p>
+<p>Valid values are: Calculate or Stop.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">OptionName (str): Command line missing charge mode option name.
+<br/>    OptionValue (str): Command line missing charge mode option value.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">str: Canonical value for missing charge mode.</div>
+</dd>
+<dt id="ProcessOptionOpenFEMoleculePairs"><b>ProcessOptionOpenFEMoleculePairs</b></dt>
+<dd>
+    <div class="OptionsBox">ProcessOptionOpenFEMoleculePairs(OptionName, OptionValue)</div>
+<p>Process molecule pairs command line option and return a list of molecule names.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">OptionName (str): Command line molecule pairs option name.
+<br/>    OptionValue (str): Command line molecule pairs option value.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">list or none: List of  molecule names.</div>
+</dd>
+<dt id="ProcessOptionOpenFENetwork"><b>ProcessOptionOpenFENetwork</b></dt>
+<dd>
+    <div class="OptionsBox">ProcessOptionOpenFENetwork(OptionName, OptionValue)</div>
+<p>Process network command line option and return a valid canonical network name.</p>
+<p>Valid network names are: LOMAP, MinimalSpanning, or Radial.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">OptionName (str): Command line network option name.
+<br/>    OptionValue (str): Command line network option value.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">str: Canonical network name.</div>
+</dd>
+<dt id="ProcessOptionOpenFENetworkParameters"><b>ProcessOptionOpenFENetworkParameters</b></dt>
+<dd>
+    <div class="OptionsBox">ProcessOptionOpenFENetworkParameters(ParamsOptionName, ParamsOptionValue, ParamsDefaultInfo=None, RadialNetworkStatus=False)</div>
+<p>Process parameters for network option and return a map containing processed parameter names and values.</p>
+<p>The ParamsOptionValue is a comma delimited list of parameter name and value pairs to setup platform.</p>
+<p>The supported parameter names along with their default and possible values are shown below:</p>
+    <div class="OptionsBox">lomapDistanceCutoff, 0.4
+<br/>    lomapMaxPathLength, 6
+<br/>    lomapRequireCycleCovering, yes  [ Possible values: yes or no ]
+<br/>    
+<br/>    minimalSpanningProgress, no  [ Possible values: yes or no ]
+<br/>    
+<br/>    radialCentralLigand, None  [ Possible values: Valid ligand name ]
+<br/>    
+<br/>    outputEdges, no  [ Possible values: yes or no ]
+<br/>    outputNetworkFormat, svg  [ Possible values: Any valid format. ]</div>
+<p>A brief description of parameters is provided below:</p>
+    <div class="OptionsBox">lomapDistanceCutoff: Maximum distance/dissimilarity between two
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        molecules for an edge to be accepted.
+<br/>    lomapMaxPathLength: Maximum distance between any two molecules in
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        the resulting network
+<br/>    lomapRequireCycleCovering: Add cycles into the network
+<br/>    
+<br/>    minimalSpanningProgress: Show progress using tqdm.
+<br/>    
+<br/>    radialCentralLigand: Name of central ligand. A valid ligand name
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        must be specified to generate a radial ligand network.
+<br/>    
+<br/>    outputEdges: Generate PNG image files for all edges in a ligand
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        network.
+<br/>    outputNetworkFormat: Valid image file format for ligand network.
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        You must specify a valid format supported by Python module
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Matplotlib. For example: PNG (.png), SVG (.svg), PDF (.pdf),
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        etc. In addition, the graphml file is always generated.</div>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">ParamsOptionName (str): Command line OpenFE network parameters option name.
+<br/>    ParamsOptionValue (str): Comma delimited list of parameter name and value pairs.
+<br/>    ParamsDefaultInfo (dict): Default values to override for selected parameters.
+<br/>    RadialNetworkStatus (bool): Radial network status.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">dictionary: Processed parameter name and value pairs.</div>
+</dd>
+<dt id="ProcessOptionOpenFERelativeFreeEnergyChargeCorrectionParameters"><b>ProcessOptionOpenFERelativeFreeEnergyChargeCorrectionParameters</b></dt>
+<dd>
+    <div class="OptionsBox">ProcessOptionOpenFERelativeFreeEnergyChargeCorrectionParameters(ParamsOptionName, ParamsOptionValue, ParamsDefaultInfo=None)</div>
+<p>Process parameters for RBFE charge correction option and return a map containing processed parameter names and values.</p>
+<p>The ParamsOptionValue is a comma delimited list of parameter name and value pairs to setup charge correction for RBFE calculations.</p>
+<p>The supported parameter names along with their default and possible values are shown below:</p>
+    <div class="OptionsBox">alchemicalExplicitChargeCorrection, yes
+<br/>    simulationProductionLength = 20 * unit.nanosecond
+<br/>    simulationNReplicas, 22
+<br/>    lambdaWindows, 22</div>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">ParamsOptionName (str): Command line OpenFE RBFE charge correction
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        parameters option name.
+<br/>    ParamsOptionValue (str): Comma delimited list of parameter name and value pairs.
+<br/>    ParamsDefaultInfo (dict): Default values to override for selected parameters.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">dictionary: Processed parameter name and value pairs.</div>
+</dd>
+<dt id="ProcessOptionOpenFERelativeFreeEnergyMode"><b>ProcessOptionOpenFERelativeFreeEnergyMode</b></dt>
+<dd>
+    <div class="OptionsBox">ProcessOptionOpenFERelativeFreeEnergyMode(OptionName, OptionValue)</div>
+<p>Process relative FE mode command line option and return a valid canonical value.</p>
+<p>Valid values names are: MoleculePairs or MoleculeNetwork.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">OptionName (str): Command line missing charge mode option name.
+<br/>    OptionValue (str): Command line missing charge mode option value.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">str: Canonical value for missing charge mode.</div>
+</dd>
+<dt id="ProcessOptionOpenFERelativeFreeEnergyParameters"><b>ProcessOptionOpenFERelativeFreeEnergyParameters</b></dt>
+<dd>
+    <div class="OptionsBox">ProcessOptionOpenFERelativeFreeEnergyParameters(ParamsOptionName, ParamsOptionValue, ParamsDefaultInfo=None)</div>
+<p>Process parameters for RFE parameters option and return a map containing processed parameter names and values.</p>
+<p>The ParamsOptionValue is a comma delimited list of parameter name and value pairs to setup RFE calculations.</p>
+<p>The default values are automatically updated to match settings provided by OpenFE module RelativeHybridTopologyProtocol.</p>
+<p>You must specify valid OpenFE values for these parameters. An extensive validation is not performed.</p>
+<p>The supported parameter names along with their default and possible values are shown below:</p>
+    <div class="OptionsBox">protocolRepeats, 3
+<br/>    
+<br/>    Alchemical settings:
+<br/>    
+<br/>    alchemicalEndstateDispersionCorrection, no  [ Possible values:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        yes or no ]
+<br/>    alchemicalExplicitChargeCorrection, no  [ Possible values:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        yes or no ]
+<br/>    alchemicalExplicitChargeCorrectionCutoff, 0.8  [ Units: nanometer ]
+<br/>    alchemicalSoftcoreLJ, Gapsys [ Possible values: Gapsys or Beutler ]
+<br/>    alchemicalSoftcoreAlpha, 0.85
+<br/>    alchemicalTurnOffCoreUniqueExceptions, no  [ Possible values:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        yes or no ]
+<br/>    alchemicalUseDispersionCorrection, no [ Possible values: yes or no ]
+<br/>    
+<br/>    Engine settings:
+<br/>    
+<br/>    engineComputePlatform, CPU  [ Possible values: CPU, CUDA, OpenCL,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        or Reference ]
+<br/>    engineGpuDeviceIndex, None [ Possible values: 0, 0 1, etc. ]
+<br/>    
+<br/>    Forcefield settings:
+<br/>    
+<br/>    forcefieldConstraints, HBonds  [ Possible values: HBonds, ALLBonds or
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        HAngles  ]
+<br/>    forcefields, [&#39;amber/ff14SB.xml&#39;, &#39;amber/tip3p_standard.xml&#39;,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &#39;amber/tip3p_HFE_multivalent.xml&#39;, &#39;amber/phosaa10.xml&#39;]
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        [ Possible values: A space delimited list of valid names. ]
+<br/>    forcefieldHydrogenMass, 3.0  [ Units: amu ]
+<br/>    forcefieldNonbondedCutoff, 0.9  [ Units: nanometer ]
+<br/>    forcefieldNonbondedMethod, PME [ Possible values: PME or NoCutoff ]
+<br/>    forcefieldRigidWater, yes  [ Possible values: yes or no ]
+<br/>    forcefieldSmallMoleculeForcefield, openff-2.1.1  [ Possible value:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        A valid forcefield name. ]
+<br/>    
+<br/>    Integrator settings:
+<br/>    
+<br/>    integratorBarostatFrequency, 25.0 * timestep  [ The specified value
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        is a multiple of integratorTimestep. ]
+<br/>    integratorConstraintTolerance, 1e-06
+<br/>    integratorLangevinCollisionRate, 1.0  [ Units: 1 / picosecond ]
+<br/>    integratorNRestartAttempts, 20
+<br/>    integratorReassignVelocities, no  [ Possible values: yes or no ]
+<br/>    integratorRemoveCom, no  [ Possible values: yes or no ]
+<br/>    integratorTimestep, 4.0 [ Units: femtosecond ]
+<br/>    
+<br/>    Lambda settings:
+<br/>    
+<br/>    lambdaFunctions, default  [ Possible values: Default, namd, or
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        quarters ]
+<br/>    lambdaWindows, 11
+<br/>    
+<br/>    Output settings:
+<br/>    
+<br/>    outputCheckpointInterval, 1.0 [ Units: nanosecond ]
+<br/>    outputCheckpointStorageFilename, checkpoint.chk
+<br/>    outputForcefieldCache, db.json
+<br/>    outputFilename, simulation.nc
+<br/>    outputIndices, not water  [ Possible value: Any valid selection. ]
+<br/>    outputStructure, hybrid_system.pdb
+<br/>    outputPositionsWriteFrequency, 100.0 [ Units: picosecond ]
+<br/>    outputVelocitiesWriteFrequency, None  [  Possible values: &gt; 0;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Units: picosecond ]
+<br/>    
+<br/>    Partial charge settings:
+<br/>    
+<br/>    partialChargeNaglModel, None  [ Default: Production AM1BCC model for
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        NAGL; Possible value: Any valid name. ]
+<br/>    partialChargeNumberOfConformers, None  [ Possible value: &gt; 0 ]
+<br/>    partialChargeOffToolkitBackend, AmberTools  [ Possible values:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        AmberTools or RDKit ]
+<br/>    partialChargeMethod, AM1BCC  [ Possble values: AM1BCC, Espaloma,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        or NAGL ]
+<br/>    
+<br/>    Simulation settings:
+<br/>    
+<br/>    simulationEarlyTerminationTargetError, 0.0 [ Units:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        kilocalorie_per_mole ]
+<br/>    simulationEquilibrationLength, 1.0 [ Units: nanosecond ]
+<br/>    simulationMinimizationSteps, 5000
+<br/>    simulationNReplicas, 11
+<br/>    simulationProductionLength, 5.0 [ Units: nanosecond ]
+<br/>    simulationRealTimeAnalysisInterval, 250.0 [ Units: picosecond ]
+<br/>    simulationRealTimeAnalysisMinimumTime, 500.0  [ Units: picosecond ]
+<br/>    simulationSamplerMethod, repex  [ Possible values: repex, sams,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        or independent ]
+<br/>    simulationSamsFlatnessCriteria, logZ-flatness  [ Possible values:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        logZ-flatness, minimum-visits or histogram-flatness ]
+<br/>    simulationSamsGamma0, 1.0
+<br/>    simulationTimePerIteration, 2.5  [ Units: picosecond ]
+<br/>    
+<br/>    Solvation settings:
+<br/>    
+<br/>    solvationBoxShape, dodecahedron  [  Possible values: cube,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        dodecahedron, or octahedron ]
+<br/>    solvationBoxSize, None  [ Possible value: A triplet of space
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        X Y Z values; Units: nanometer ]
+<br/>    solvationSolventModel, tip3p  [ Possible values: tip3p, spce, tip4pew,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        or tip5p ]
+<br/>    solvationSolventPadding, 1.5  [ Units: nanometer ]
+<br/>    
+<br/>    Thermo settings:
+<br/>    
+<br/>    thermoPh, None  [ Possible values: &gt; 0 ]
+<br/>    thermoPressure, 1.0  [ Units: bar ]
+<br/>    thermoRedoxPotential, None  [ Possible values: A valid float.
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Units: millivolts (mV) ]
+<br/>    thermoTemperature, 298.15  [ Units: kelvin ]</div>
+<p>A brief description of parameters, taken from OpenFE documentation, is provided below:</p>
+    <div class="OptionsBox">protocolRepeats: Number of completely independent repeats of the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        entire sampling process.
+<br/>    
+<br/>    Alchemical settings:
+<br/>    
+<br/>    Parameters controlling the creation of the hybrid topology system,
+<br/>    including various parameters ranging from softcore parameters to
+<br/>    whether or not to apply an explicit charge correction for systems
+<br/>    with net charge changes.
+<br/>    
+<br/>    alchemicalEndstateDispersionCorrection: Employ extra unsampled
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        endstate windows for long range correction.
+<br/>    alchemicalExplicitChargeCorrection: Explicitly account for a charge
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        difference during the alchemical transformation by transforming
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        a water to a counterion of the opposite charge of the formal
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        charge difference.
+<br/>    alchemicalExplicitChargeCorrectionCutoff: Minimum distance from the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        system solutes from which an alchemical water can be chosen.
+<br/>    alchemicalSoftcoreLJ: Use LJ softcore function as defined by Gapsys
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        [ Ref 181 ] or Buetler [ Ref 182 ].
+<br/>    alchemicalSoftcoreAlpha: Softcore alpha parameter.
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        alchemicalTurnOffCoreUniqueExceptions: Turn off interactions for
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        new exceptions (not just 1,4s) at lambda 0 and old exceptions at
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        lambda 1 between unique atoms and core atoms.
+<br/>    alchemicalUseDispersionCorrection: Use dispersion correction in the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        hybrid topology state.
+<br/>    
+<br/>    Engine settings:
+<br/>    
+<br/>    Parameters configuring the compute platform used by the OpenMM to
+<br/>    perform the simulation.
+<br/>    
+<br/>    engineComputePlatform: Platform to use for running OpenMM MD
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        calculations.
+<br/>    engineGpuDeviceIndex: Space delimited list of device indices to use
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        for running OpenMM MD calculations.
+<br/>    
+<br/>    Forcefield settings:
+<br/>    
+<br/>    Parameters to set up the force field with OpenMM Force Fields,
+<br/>    including the general force fields, the small molecule force field,
+<br/>    the nonbonded method, and the nonbonded cutoff.
+<br/>    
+<br/>    forcefieldConstraints: Constraints to use.
+<br/>    forcefields: List of valid forcefield paths for all components
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        except small molecules.
+<br/>    forcefieldHydrogenMass: Mass to be repartitioned to hydrogens from
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        neighboring heavy atoms.
+<br/>    forcefieldNonbondedCutoff: Cutoff for short range nonbonded
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        interactions.
+<br/>    forcefieldNonbondedMethod: Method for treating nonbonded
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        interactions.
+<br/>    forcefieldRigidWater: Use a rigid water model.
+<br/>    forcefieldSmallMoleculeForcefield: A valid forcefield name to use
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        for small molecules.
+<br/>    
+<br/>    Integrator settings
+<br/>    
+<br/>    Parameters controlling the LangevinSplittingDynamicsMove integrator
+<br/>    used for simulation.
+<br/>    
+<br/>    integratorBarostatFrequency: Frequency at which volume scaling
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        changes should be attempted.
+<br/>    integratorConstraintTolerance: Tolerance for constraint solver.
+<br/>    integratorLangevinCollisionRate: Collision frequency.
+<br/>    integratorNRestartAttempts: Number of attempts to restart from
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Context in case there are NaNs in the energies after
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        integration.
+<br/>    integratorReassignVelocities: Reassign velocities  from the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Maxwell-Boltzmann distribution at the beginning of each
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Monte Carlo move.
+<br/>    integratorRemoveCom: Remove the center of mass motion.
+<br/>    integratorTimestep: Size of the simulation timestep.
+<br/>    
+<br/>    Lambda settings:
+<br/>    
+<br/>    Lambda protocol parameters, including number of lambda windows and
+<br/>    lambda functions.
+<br/>    
+<br/>    lambdaFunctions: Function name to use for alchemical mutation.
+<br/>    lambdaWindows: Number of lambda windows to calculate.
+<br/>    
+<br/>    Output settings:
+<br/>    
+<br/>    Parameter controlling simulation output, including the frequency to
+<br/>    write a checkpoint file, the selection string for writing selected
+<br/>    coordinates, and the paths to the trajectory and output structure
+<br/>    files.
+<br/>    
+<br/>    outputCheckpointInterval: Frequency to write the checkpoint file.
+<br/>    outputCheckpointStorageFilename: Checkpoint filename.
+<br/>    outputForcefieldCache: Filename for caching small molecule residue
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        templates.
+<br/>    outputFilename: Trajectory filename.
+<br/>    outputIndices: Selection string for selecting coordinates to write.
+<br/>    outputStructure: Hybrid topology structure filename.
+<br/>    outputPositionsWriteFrequency: Frequency for writing positions to
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        trajectory file.
+<br/>    outputVelocitiesWriteFrequency: Frequency for writing velocities to
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        trajectory file.
+<br/>    
+<br/>    Partial charge settings:
+<br/>    
+<br/>    Parameters for automatically assigning missing partial charges to
+<br/>    small molecules, including the partial charge method.
+<br/>    
+<br/>    partialChargeNaglModel: Model to use for partial charge assignment.
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        A value of None implies the use of the latest available
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        production AM1BCC model.
+<br/>    partialChargeNumberOfConformers: Number of conformers to generate
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        as part of the partial charge assignment. A value of None
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        implies the use of the existing conformer.
+<br/>    partialChargeOffToolkitBackend: OpenFF toolkit registry backend to
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        use for calculating partial charges.
+<br/>    partialChargeMethod: Method to use for calculating partial charges.
+<br/>    
+<br/>    Simulation settings:
+<br/>    
+<br/>    Parameters controlling the simulation plan and the alchemical
+<br/>    sampler, including the number of minimization steps, lengths of
+<br/>    equilibration and production runs, the sampler method (e.g.
+<br/>    Hamiltonian REPlica EXchange (repex), and the time interval at
+<br/>    which to perform an analysis of the free energies.
+<br/>    
+<br/>    simulationEarlyTerminationTargetError: Target error for the real
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        time analysis measured in kcal/mol. Once the MBAR error of the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        free energy is at or below this value, the simulation will be
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        considered complete. The suggested value of 0.12 has shown to
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        be effective in both hydration and binding free energy
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        benchmarks.
+<br/>    simulationEquilibrationLength: Length of the equilibration phase.
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        The specified value must be divisible by &#39;integratorTimestep&#39;.
+<br/>    simulationMinimizationSteps: Number of minimization steps to
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        perform.
+<br/>    simulationNReplicas: Number of replicas to use.
+<br/>    simulationProductionLength: Length of the production phase.
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        The specified value must be divisible by &#39;integratorTimestep&#39;.
+<br/>    simulationRealTimeAnalysisInterval: Time interval for performing
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        analysis of the free energies. At each interval, real time
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        analysis data will be written to a yaml file named
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &lt;outputFileName&gt;_real_time_analysis.yaml. The current error
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        in the estimate will also be assessed and the simulation will
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        be terminated when it drops below
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &#39;simulationEarlyTerminationTargetError&#39;.
+<br/>    simulationRealTimeAnalysisMinimumTime: Minimum simulation time
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        after which the real time analysis is performed.
+<br/>    simulationSamplerMethod: Alchemical sampling method to use:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        REPEX (Hamiltonian REPlica EXchange), SAMS (Self-Adjusted
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Mixture Sampling), or Independent (Independently sampled lambda
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        windows).
+<br/>    simulationSamsFlatnessCriteria:Method for assessing when to switch
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        to asymptomatically optimal scheme for SAMS.
+<br/>    simulationSamsGamma0: Initial weight adaptation rate for SAMS.
+<br/>    simulationTimePerIteration: Simulation time between each MCMC move
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        attempt
+<br/>    
+<br/>    Solvation settings:
+<br/>    
+<br/>    Solvation parameters for the system, including the solvent model and
+<br/>    the solvent padding.
+<br/>    
+<br/>    solvationBoxShape: Shape of the periodic solvent box to create.
+<br/>    solvationBoxSize: Lengths of the unit cell for a solvent box.
+<br/>    solvationSolventModel: Forcefield water model to use during
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        solvation and defining the model properties.
+<br/>    solvationSolventPadding: Minimum distance from any solute bounding
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        sphere to the edge of the box.
+<br/>    
+<br/>    Thermo settings:
+<br/>    
+<br/>    Thermodynamic parameters, including the temperature and the pressure
+<br/>    of the system.
+<br/>    
+<br/>    thermoPh: Simulation pH.
+<br/>    thermoPressure: Simulation pressure.
+<br/>    thermoRedoxPotential:Simulation redox potential.
+<br/>    thermoTemperature: Simulation temperature.</div>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">ParamsOptionName (str): Command line OpenFE RFE parameters option name.
+<br/>    ParamsOptionValue (str): Comma delimited list of parameter name and value pairs.
+<br/>    ParamsDefaultInfo (dict): Default values to override selected parameters.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">dictionary: Processed parameter name and value pairs.</div>
+</dd>
+<dt id="ProcessOptionOpenFERelativeFreeEnergySeparatedTopologyParameters"><b>ProcessOptionOpenFERelativeFreeEnergySeparatedTopologyParameters</b></dt>
+<dd>
+    <div class="OptionsBox">ProcessOptionOpenFERelativeFreeEnergySeparatedTopologyParameters(ParamsOptionName, ParamsOptionValue, ParamsDefaultInfo=None)</div>
+<p>Process parameters for RBFE parameters option and return a map containing processed parameter names and values.</p>
+<p>The ParamsOptionValue is a comma delimited list of parameter name and value pairs to setup RBFE calculations using a separated topologies approach.</p>
+<p>The default values are automatically updated to match settings provided by OpenFE module SepTopProtocol.</p>
+<p>You must specify valid OpenFE values for these parameters. An extensive validation is not performed.</p>
+<p>The supported parameter names along with their default and possible values are shown below:</p>
+    <div class="OptionsBox"> protocolRepeats, 3
+   
+<br/>    Complex equil output settings:
+<br/>    
+<br/>    complexEquilOutputCheckpointInterval, 1  [ Units: nanosecond ]
+<br/>    complexEquilOutputCheckpointStorageFilename, checkpoint.chk
+<br/>    complexEquilOutputEquilNPTStructure, equil_npt.pdb
+<br/>    complexEquilOutputEquilNVTstructure, None
+<br/>    complexEquilOutputForcefieldCache, db.json
+<br/>    complexEquilOutputLogOutput, equil_simulation.log
+<br/>    complexEquilOutputMinimizedStructure, minimized.pdb
+<br/>    complexEquilOutputIndices, all  [ Possible value: Any valid
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        selection. ]
+<br/>    complexEquilOutputPreminimizedStructure, system.pdb
+<br/>    complexEquilOutputProductionTrajectoryFilename, production_equil.xtc
+<br/>    complexEquilOutputTrajectoryWriteInterval,  20.0  [ Units:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        picosecond ]
+   
+<br/>    Complex equil simulation settings:
+   
+<br/>    complexEquilSimulationEquilibrationLength, 0.1 [ Units: nanosecond ]
+<br/>    complexEquilSimulationEquilibrationLengthNVT, 0.1   [ Units:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        nanosecond ]
+<br/>    complexEquilSimulationMinimizationSteps, 5000
+<br/>    complexEquilSimulationProductionLength, 2.0  [ Units: nanosecond ]
+   
+<br/>    Complex lambda settings:
+   
+<br/>    complexLambdaElecA, 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.25 0.5 0.75
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0  [ Possible values: A space
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        delimited list of values between 0.0 and 1.0 ]
+<br/>    complexLambdaElecB, 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 0.75 0.5 0.25
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 [ Possible values: A space
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        delimited list of values between 0.0 and 1.0 ]
+<br/>    complexLambdaRestraintsA, 0.0 0.05 0.1 0.3 0.5 0.75 1.0 1.0 1.0
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 [ Possible values: A
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        space delimited list of values between 0.0 and 1.0 ]
+<br/>    complexLambdaRestraintsB, 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        1.0 1.0 1.0 0.75 0.5 0.3 0.1 0.05 0.0 [ Possible values: A space
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        delimited list of values between 0.0 and 1.0 ]
+<br/>    complexLambdaVdwA, 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0.143 0.286 0.429 0.572 0.715 0.857 1.0 [ Possible values: A
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        delimited list of values between 0.0 and 1.0 ]
+<br/>    complexLambdaVdwB, 1.0 0.857 0.715 0.572 0.429 0.286 0.143 0.0
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 [ Possible values: A
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        delimited list of values between 0.0 and 1.0 ]
+   
+<br/>    Complex output settings:
+   
+<br/>    complexOutputCheckpointInterval, 1.0  [ Units: nanosecond ]
+<br/>    complexOutputCheckpointStorageFilename, complex_checkpoint.nc
+<br/>    complexOutputForcefieldCache, db.json
+<br/>    complexOutputFilename, complex.nc
+<br/>    complexOutputIndices, not water  [ Possible value: Any valid
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        selection. ]
+<br/>    complexOutputStructure, alchemical_system.pdb
+<br/>    complexOutputPositionsWriteFrequency, 100.0  [ Units: picosecond ]
+<br/>    complexOutputVelocitiesWriteFrequency, None  [ Possible
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        values: &gt; 0; Units: picosecond ]
+   
+<br/>    Complex restraint settings:
+   
+<br/>    complexRestraintKPhiA, 334.72  [ Units: kilojoule_per_mole/radian**2
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        The default value is equivalent to 80 kcal/mol/radian**2 ]
+<br/>    complexRestraintKPhiB, 334.72  [ Units: kilojoule_per_mole/radian**2
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        The default value is equivalent to 80 kcal/mol/radian**2 ]
+<br/>    complexRestraintKPhiC, 334.72  [ Units: kilojoule_per_mole/radian**2
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        The default value is equivalent to 80 kcal/mol/radian**2 ]
+<br/>    complexRestraintKR, 4184.0  [ Units: kilojoule_per_mole/nanometer**2
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            The default value is equivalent to 10 kcal/mol/angstrom**2
+<br/>    complexRestraintKThetaA, 334.72  [ Units:kilojoule_per_mole/radian**2
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        The default value is equivalent to 80 kcal/mol/radian**2 ]
+<br/>    complexRestraintKThetaB, 334.72  [ Units:kilojoule_per_mole/radian**2
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        The default value is equivalent to 80 kcal/mol/radian**2 ]
+<br/>    complexRestraintAnchorFindingStrategy, bonded  [ Possible values:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        multi-residue or bonded ] 
+<br/>    complexRestraintDsspFilter, yes   [ Possible values: yes or no ]
+<br/>    complexRestraintHostMaxDistance, 1.5  [ Units: nanometer ]
+<br/>    complexRestraintHostMinDistance, 0.5  [ Units: nanometer ]
+<br/>    complexRestraintHostSelection, backbone   [ Possible value: Any valid
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        selection. ]
+<br/>    complexRestraintRmsfCutoff, 0.1  [ Units: nanometer ]
+   
+<br/>    Complex simulation settings:
+   
+<br/>    complexSimulationEarlyTerminationTargetError, 0.0  [ Units:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        kilocalorie_per_mole ]
+<br/>    complexSimulationEquilibrationLength,  1.0  [ Units: nanosecond ]
+<br/>    complexSimulationMinimizationSteps, 5000
+<br/>    complexSimulationNReplicas, 19
+<br/>    complexSimulationProductionLength, 10.0  [ Units: nanosecond ]
+<br/>    complexSimulationRealTimeAnalysisInterval, 250.0  [ Units:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        picosecond ]
+<br/>    complexSimulationRealTimeAnalysisMinimumTime, 500.0  [ Units:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        picosecond ]
+<br/>    complexSimulationSamplerMethod, repex  [ Possible values: repex,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        sams, or independent ]
+<br/>    complexSimulationSamsFlatnessCriteria, logZ-flatness  [ Possible
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        values: logZ-flatness, minimum-visits or histogram-flatness ]
+<br/>    complexSimulationSamsGamma0, 1.0
+<br/>    complexSimulationTimePerIteration, 2.5   [ Units: picosecond ]
+   
+<br/>    Complex solvation settings:
+   
+<br/>    complexSolvationBoxShape, dodecahedron  [  Possible values: cube,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        dodecahedron, or octahedron ]
+<br/>    complexSolvationBoxSize, None  [ Possible value: A triplet of space
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        X Y Z values; Units: nanometer ]
+<br/>    complexSolvationSolventModel, tip3p  [ Possible values: tip3p, spce,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        tip4pew, or tip5p ]
+<br/>    complexSolvationSolventPadding, 1.0  [ Units: nanometer ]
+   
+<br/>    Engine settings:
+   
+<br/>    engineComputePlatform, CPU  [ Possible values: CPU, CUDA,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        OpenCL, or Reference ]
+<br/>    engineGpuDeviceIndex, None [ Possible values: 0, 0 1, etc. ]
+   
+<br/>    Forcefield settings:
+   
+<br/>    forcefieldConstraints, HBonds  [ Possible values: HBonds,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        AllBonds, or HAngles ]
+<br/>    forcefields, amber/ff14SB.xml amber/tip3p_standard.xml
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        amber/tip3p_HFE_multivalent.xml amber/phosaa10.xml
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        [ Possible values: A space delimited list of valid names. ]
+<br/>    forcefieldHydrogenMass, 3.0  [ Units: amu ]
+<br/>    forcefieldNonbondedCutoff, 0.9   [ Units: nanometer ]
+<br/>    forcefieldNonbondedMethod, PME  [ Possible values: PME or
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        NoCutoff ]
+<br/>    forcefieldRigidWater, yes  [ Possible values: yes or no ]
+<br/>    forcefieldSmallMoleculeForcefield, openff-2.1.1  [ Possible
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        value: A valid forcefield name. ]
+   
+<br/>    Integrator settings:
+<br/>    
+<br/>    integratorBarostatFrequency, 25.0 * timestep  [ The specified value
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        is a multiple of integratorTimestep. ]
+<br/>    integratorConstraintTolerance, 1e-06
+<br/>    integratorLangevinCollisionRate, 1.0  [ Units: 1 / picosecond ]
+<br/>    integratorNRestartAttempts, 20
+<br/>    integratorReassignVelocities, no  [ Possible values: yes or no ]
+<br/>    integratorRemoveCom, no  [ Possible values: yes or no ]
+<br/>    integratorTimestep, 4.0 [ Units: femtosecond ] 
+   
+<br/>    Partial charge settings:
+   
+<br/>    partialChargeNaglModel, None  [ Default: Production AM1BCC model for
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        NAGL; Possible value: Any valid name. ]
+<br/>    partialChargeNumberOfConformers, None  [ Possible value: &gt; 0 ]
+<br/>    partialChargeOffToolkitBackend, AmberTools  [ Possible values:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        AmberTools or RDKit ]
+<br/>    partialChargeMethod, AM1BCC  [ Possble values: AM1BCC, Espaloma,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        or NAGL ]
+   
+<br/>    Solvent equil output settings:
+   
+<br/>    solventEquilOutputCheckpointInterval, 1.0  [ Units: nanosecond ]
+<br/>    solventEquilOutputCheckpointStorageFilename, checkpoint.chk
+<br/>    solventEquilOutputEquilNPTStructure, equil_npt.pdb
+<br/>    solventEquilOutputEquilNVTstructure, None
+<br/>    solventEquilOutputForcefieldCache, db.json
+<br/>    solventEquilOutputLogOutput, equil_simulation.log
+<br/>    solventEquilOutputMinimizedStructure, minimized.pdb
+<br/>    solventEquilOutputIndices, all  [  Possible value: Any valid
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        selection. ]
+<br/>    solventEquilOutputPreminimizedStructure, system.pdb
+<br/>    solventEquilOutputProductionTrajectoryFilename, equil_npt.xtc
+<br/>    solventEquilOutputTrajectoryWriteInterval, 20.0  [ Units:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        picosecond ]
+   
+<br/>    Solvent_equil_simulation_settings:
+   
+<br/>    solventEquilSimulationEquilibrationLength, 0.1 [ Units: nanosecond ]
+<br/>    solventEquilSimulationEquilibrationLengthNVT, 0.1  [ Units:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        nanosecond ]
+<br/>    solventEquilSimulationMinimizationSteps, 5000
+<br/>    solventEquilSimulationProductionLength, 2.0  [ Units: nanosecond ]
+   
+<br/>    Solvent lambda settings:
+   
+<br/>    solventLambdaElecA, 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.125
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0.25 0.375 0.5 0.625 0.75 0.875 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        1.0 1.0 1.0 [ Possible values: A space delimited list of values
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        between 0.0 and 1.0 ]
+<br/>    solventLambdaElecB, 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 0.875
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0.75 0.625 0.5 0.375 0.25 0.125 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0.0 0.0 0.0 [ Possible values: A space delimited list of values
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            between 0.0 and 1.0 ]
+<br/>    solventLambdaRestraintsA, 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0.0 [ Possible values: A space delimited list of values between
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0.0 and 1.0 ]
+<br/>    solventLambdaRestraintsB, 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0.0 [ Possible values: A space delimited list of values between
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0.0 and 1.0 ]
+<br/>    solventLambdaVdwA, 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0.0 0.0 0.0 0.0 0.0 0.0 0.15 0.23 0.3 0.4 0.52 0.64 0.76 0.88
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        1.0 [ Possible values: A space delimited list of values between
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            0.0 and 1.0 ]
+<br/>    solventLambdaVdwB, 1.0 0.85 0.77 0.7 0.6 0.48 0.36 0.24 0.12 0.0
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0.0 [ Possible values: A space delimited list of values between
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0.0 and 1.0 ]
+   
+<br/>    Solvent output settings:
+   
+<br/>    solventOutputCheckpointInterval, 1.0  [ Units: nanosecond ]
+<br/>    solventOutputCheckpointStorageFilename, solvent_checkpoint.nc
+<br/>    solventOutputForcefieldCache, db.json
+<br/>    solventOutputFilename, solvent.nc
+<br/>    solventOutputIndices, not water  [ Possible value: Any valid
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        selection. ]
+<br/>    solventOutputStructure, alchemical_system.pdb
+<br/>    solventOutputPositionsWriteFrequency, 100.0  [ Units: picosecond ]
+<br/>    solventOutputVelocitiesWriteFrequency, None  [ Possible
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        values: &gt; 0; Units: picosecond ]
+   
+<br/>    Solvent restraint settings:
+<br/>    
+<br/>    solventRestraintCentralAtomsOnly, No  [ Possible values: yes or no ]
+<br/>    solventRestraintSpringConstant, 1000.0 [ Units: kilojoule_per_mole /
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        nanometer ** 2. The default value is equivalent to 2.40
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        kilocalorie_per_mole / angstromg ** 2 ]
+   
+<br/>    Solvent simulation settings:
+   
+<br/>    solventSimulationEarlyTerminationTargetError, 0.0  [ Units:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        kilocalorie_per_mole ]
+<br/>    solventSimulationEquilibrationLength, 1.0  [ Units: nanosecond ]
+<br/>    solventSimulationMinimizationSteps, 5000
+<br/>    solventSimulationNReplicas, 27
+<br/>    solventSimulationProductionLength, 10.0  [ Units: nanosecond ]
+<br/>    solventSimulationRealTimeAnalysisInterval, 250.0  [ Unit: picosecond ]
+<br/>    solventSimulationRealTimeAnalysisMinimumTime, 500.0  [ Units:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        picosecond ]
+<br/>    solventSimulationSamplerMethod, repex  [ Possible values: repex,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        sams, or independent ]
+<br/>    solventSimulationSamsFlatnessCriteria, logZ-flatness  [ Possible
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        values: logZ-flatness, minimum-visits or histogram-flatness ]
+<br/>    solventSimulationSamsGamma0, 1.0
+<br/>    solventSimulationTimePerIteration, 2.5  [ Units: picosecond ]
+   
+<br/>    Solvent solvation settings:
+   
+<br/>    solventSolvationBoxShape, dodecahedron  [  Possible values: cube,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        dodecahedron, or octahedron ]
+<br/>    solventSolvationBoxSize, None  [ Possible value: A triplet of space
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        X Y Z values; Units: nanometer ]
+<br/>    solventSolvationSolventModel, tip3p  [ Possible values: tip3p, spce,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        tip4pew, or tip5p ]
+<br/>    solventSolvationSolventPadding, 1.5  [ Units: nanometer ]
+   
+<br/>    Thermo settings:
+<br/>    
+<br/>    thermoPh, None  [ Possible values: &gt; 0 ]
+<br/>    thermoPressure, 1.0  [ Units: bar ]
+<br/>    thermoRedoxPotential, None  [ Possible values: A valid float.
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Units: millivolts (mV) ]
+<br/>    thermoTemperature, 298.15  [ Units: kelvin ]</div>
+<p>A brief description of parameters, taken from OpenFE documentation, is provided below:</p>
+    <div class="OptionsBox"> protocolRepeats: Number of completely independent repeats of the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        entire sampling process.
+   
+<br/>    Complex settings:
+   
+<br/>    Complex parameters for the system, including the solvent model and
+<br/>    the solvent padding.
+   
+<br/>    Complex equil output settings:
+   
+<br/>    Parameters controlling simulation output during equilibration
+<br/>    phase of complex transformation.
+   
+<br/>    complexEquilOutputCheckpointInterval: Frequency to write the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        checkpoint file.
+<br/>    complexEquilOutputCheckpointStorageFilename: Checkpoint filename.
+<br/>    complexEquilOutputEquilNPTStructure: NPT structure filename.
+<br/>    complexEquilOutputEquilNVTstructure: NVT strucure filename.
+<br/>    complexEquilOutputForcefieldCache:  Filename for caching small
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        molecule residue templates.
+<br/>    complexEquilOutputLogOutput: Simulation log filename.
+<br/>    complexEquilOutputMinimizedStructure: Minimized structure filename.
+<br/>    complexEquilOutputIndices: Selection string for selecting
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        coordinates to write.
+<br/>    complexEquilOutputPremnimizedStructure: Initial structure filename.
+<br/>    complexEquilOutputProductionTrajectoryFilename: Trajectory filename.
+<br/>    complexEquilOutputTrajectoryWriteInterval: Frequency for writing
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        velocities to trajectory file.
+   
+<br/>    Complex equil simulation settings:
+   
+<br/>    Parameters controlling simulation during equilibration phase of
+<br/>    complex transformation.
+   
+<br/>    complexEquilSimulationEquilibrationLength:  Length of the NPT
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        equilibration phase.
+<br/>    complexEquilSimulationEquilibrationLengthNVT: Length of the NVT
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        equilibration phase.
+<br/>    complexEquilSimulationMinimizationSteps: Maximum number of
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        minimization steps to perform.
+<br/>    complexEquilSimulationProductionLength:  Length of the NPT
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        production phase.
+   
+<br/>    Complex lambda settings:
+<br/>    
+<br/>    Lambda protocol parameters for complex transformation.
+   
+<br/>    complexLambdaElecA: List of lambda values for electrostatics. The
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        values of 0 and 1 imply state A and state B respectively.
+<br/>    complexLambdaElecB: List of lambda values for electrostatics. The
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        values of 0 and 1 imply state A and state B respectively.
+<br/>    complexLambdaRestraintsA: List of lambda values for restraints. The
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        values of 0 and 1 imply state A and state B respectively.
+<br/>    complexLambdaRestraintsB: List of lambda values for restraints. The
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        values of 0 and 1 imply state A and state B respectively.
+<br/>    complexLambdaVdwA: List of lamda values for van der Waals. The
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        values of of 0 and 1 imply state A and state B respectively.
+<br/>    complexLambdaVdwB: List of lamda values for van der Waals. The
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        values of of 0 and 1 imply state A and state B respectively.
+   
+<br/>    Complex output settings:
+<br/>    
+<br/>    Parameters controlling simulation output during final phase of
+<br/>    complex transformation.
+   
+<br/>    complexOutputCheckpointInterval:  Frequency to write the checkpoint
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        file.
+<br/>    complexOutputCheckpointStorageFilename: Checkpoint filename.
+<br/>    complexOutputForcefieldCache: Filename for caching small molecule
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        residue templates.
+<br/>    complexOutputFilename: Trajectory filename.
+<br/>    complexOutputIndices: Selection string for selecting coordinates to
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        write.
+<br/>    complexOutputStructure: Topology structure filename.
+<br/>    complexOutputPositionsWriteFrequency: Frequency for writing
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        positions to trajectory file.
+<br/>    complexOutputVelocitiesWriteFrequency: Frequency for writing
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        velocities to trajectory file.
+   
+<br/>    Complex restraint settings:
+<br/>    
+<br/>    Parameters to configure Boresch-style restraint between two groups
+<br/>    of atoms named host  (Hx) and guest (Gx).
+   
+<br/>    complexRestraintKPhiA: Equilibrium force constant for the dihedral
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        formed by H2-H1-H0-G0.
+<br/>    complexRestraintKPhiB: Equilibrium force constant for the dihedral
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        formed by H1-H0-G0-G1.
+<br/>    complexRestraintKPhiC: Equilibrium force constant for the dihedral
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        formed by H0-G0-G1-G2.
+<br/>    complexRestraintKR: Bond spring constant between H0 and G0.
+<br/>    restraintKThetaA: Spring constant for the angle formed by H1-H0-G0.
+<br/>    complexRestraintKThetaA: Spring constant for the angle formed by
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        H1-H0-G0.
+<br/>    complexRestraintKThetaB:  Spring constant for the angle formed by
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        H0-G0-G1.
+<br/>    complexRestraintAnchorFindingStrategy: Boresch atom picking strategy
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        to use. bonded: pick host atoms that are bonded to each other.
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        multi-residue: pick host atoms which can span multiple residues.
+<br/>    complexRestraintDsspFilter: Apply DSSP filter to the host atoms.
+<br/>    complexRestraintHostMaxDistance: Maximum distance between any
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        host atom and the guest G0 atom.
+<br/>    complexRestraintHostMinDistance: Minimum distance between any
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        host atom and the guest G0 atom
+<br/>    complexRestraintHostSelection: A valid selection string to
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        sub-select the host atoms which will be involved in the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        restraint.
+<br/>    complexRestraintRmsfCutoff: Cutoff value for filtering atoms by their
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        root mean square fluctuation. Atoms with values above this
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        cutoff are ignored.
+   
+<br/>    Complex simulation settings:
+<br/>    
+<br/>    Parameters controlling simulation during final phase of complex
+<br/>    transformation.
+   
+<br/>    complexSimulationEarlyTerminationTargetError: Target error for the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        real time analysis measured in kcal/mol. Once the MBAR error of
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        the free energy is at or below this value, the simulation will
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        be considered complete. The suggested value of 0.12 has shown to
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        be effective in both hydration and binding free energy
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            benchmarks.
+<br/>    complexSimulationEquilibrationLength: Length of the equilibration
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        phase. The specified value must be divisible by
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &#39;integratorTimestep&#39;.
+<br/>    complexSimulationMinimizationSteps: Maximum number of minimization
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        steps to perform.
+<br/>    complexSimulationNReplicas: Number of replicas to use.
+<br/>    complexSimulationProductionLength: Length of the production phase.
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        The specified value must be divisible by &#39;integratorTimestep&#39;.
+<br/>    complexSimulationRealTimeAnalysisMinimumTime: Time interval for
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        performing analysis of the free energies. At each interval, real
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        time analysis data will be written to a yaml file named
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &lt;outputFileName&gt;_real_time_analysis.yaml. The current error
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        in the estimate will also be assessed and the simulation will
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        be terminated when it drops below
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &#39;complexSimulationEarlyTerminationTargetError&#39;.
+<br/>    complexSimulationSamplerMethod: Alchemical sampling method to use:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        REPEX (Hamiltonian REPlica EXchange), SAMS (Self-Adjusted
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Mixture Sampling), or Independent (Independently sampled lambda
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        windows).
+<br/>    complexSimulationSamsFlatnessCriteria:Method for assessing when to
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        switch to asymptomatically optimal scheme for SAMS.
+<br/>    complexSimulationsamsGamma0: Initial weight adaptation rate for
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        SAMS.
+<br/>    complexSimulationTimePerIteration: Simulation time between each
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        MCMC move attempt 
+   
+<br/>    Complex solvation settings:
+   
+<br/>    Solvation parameters for the system, including the solvent model and
+<br/>    the solvent padding.
+   
+<br/>    complexSolvationBoxShape: Shape of the periodic solvent box.
+<br/>    complexSolvationBoxSize:  Lengths of the unit cell for a solvent box.
+<br/>    complexSolvationSolventModel: Forcefield water model to use during
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        solvation and defining the model properties.
+<br/>    complexSolvationSolventPadding: Minimum distance from any solute
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        bounding sphere to the edge of the box.
+   
+<br/>    Engine settings:
+<br/>    
+<br/>    Parameters configuring the compute platform used by the OpenMM to
+<br/>    perform the simulation.
+   
+<br/>    engineComputePlatform: Platform to use for running OpenMM MD
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        calculations.
+<br/>    engineGpuDeviceIndex: Space delimited list of device indices
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        to use for running OpenMM MD calculations.
+   
+<br/>    Forcefield settings:
+<br/>    
+<br/>    forcefieldConstraints:Constraints  to use.
+<br/>    forcefields: List of valid forcefield paths for all components
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        except small molecules.
+<br/>    forcefieldHydrogenMass: Mass to be repartitioned to hydrogens
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        from neighboring heavy atoms.
+<br/>    forcefieldNonbondedCutoff: Cutoff for short range nonbonded
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        interactions.
+<br/>    forcefieldNonbondedMethod: Method for treating nonbonded
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        interactions.
+<br/>    forcefieldRigidWater: Use a rigid water model.
+<br/>    forcefieldSmallMoleculeForcefield: A valid forcefield name to use
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        for small molecules.
+   
+<br/>    Integrator settings:
+   
+<br/>    Parameters controlling the LangevinSplittingDynamicsMove integrator
+<br/>    used for simulation.
+   
+<br/>    integratorBarostatFrequency: Frequency at which volume scaling
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        changes should be attempted.
+<br/>    integratorConstraintTolerance: Tolerance for constraint solver.
+<br/>    integratorLangevinCollisionRate: Collision frequency.
+<br/>    integratorNRestartAttempts: Number of attempts to restart from
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Context in case there are NaNs in the energies after
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        integration.
+<br/>    integratorReassignVelocities: Reassign velocities  from the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Maxwell-Boltzmann distribution at the beginning of each
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Monte Carlo move.
+<br/>    integratorRemoveCom: Remove the center of mass motion.
+<br/>    integratorTimestep: Size of the simulation timestep.
+   
+<br/>    Partial charge settings:
+<br/>    
+<br/>    Parameters for automatically assigning missing partial charges to
+<br/>    small molecules, including the partial charge method.
+   
+<br/>    partialChargeNaglModel: Model to use for partial charge assignment.
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        A value of None implies the use of the latest available
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        production AM1BCC model.
+<br/>    partialChargeNumberOfConformers: Number of conformers to generate
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        as part of the partial charge assignment. A value of None
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        implies the use of the existing conformer.
+<br/>    partialChargeOffToolkitBackend: OpenFF toolkit registry backend to
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        use for calculating partial charges.
+<br/>    partialChargeMethod: Method to use for calculating partial charges.
+   
+<br/>    Solvent equil output settings:
+<br/>    Solvent equil simulation settings:
+<br/>    Solvent lambda settings:
+<br/>    Solvent output settings:
+<br/>    Solvent restraint settings:
+<br/>    Solvent simulation settings:
+<br/>    Solvent solvation settings:
+   
+<br/>    The solvent settings are similar to the complex settings already
+<br/>    described under various sections for complex. The prefix &#39;solvent&#39;
+<br/>    is used for the names of the pramaters instead of the prefix
+<br/>    &#39;complex.&#39;
+   
+<br/>    Thermo settings:
+<br/>    
+<br/>    Thermodynamic parameters, including the temperature and the pressure
+<br/>    of the system.
+   
+<br/>    thermoPh: Simulation pH
+<br/>    thermoPressure: Simulation pressure.
+<br/>    thermoRedoxPotential:Simulation redox potential.
+<br/>    thermoTemperature: Simulation temperature. </div>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">ParamsOptionName (str): Command line OpenFE RFE parameters option name.
+<br/>    ParamsOptionValue (str): Comma delimited list of parameter name and value pairs.
+<br/>    ParamsDefaultInfo (dict): Default values to override selected parameters.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">dictionary: Processed parameter name and value pairs.</div>
+</dd>
+<dt id="ProcessOptionOpenFERelativeFreeEnergyVacuumParameters"><b>ProcessOptionOpenFERelativeFreeEnergyVacuumParameters</b></dt>
+<dd>
+    <div class="OptionsBox">ProcessOptionOpenFERelativeFreeEnergyVacuumParameters(ParamsOptionName, ParamsOptionValue, ParamsDefaultInfo=None)</div>
+<p>Process parameters for RBFE vacuum option and return a map containing processed parameter names and values.</p>
+<p>The ParamsOptionValue is a comma delimited list of parameter name and value pairs to setup charge correction for RBFE calculations.</p>
+<p>The supported parameter names along with their default and possible values are shown below:</p>
+    <div class="OptionsBox">forcefieldNonbondedMethod, NoCutoff [ Possible values: PME or NoCutoff ]</div>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">ParamsOptionName (str): Command line OpenFE RBFE vacuum parameters
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        option name.
+<br/>    ParamsOptionValue (str): Comma delimited list of parameter name and value pairs.
+<br/>    ParamsDefaultInfo (dict): Default values to override for selected parameters.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">dictionary: Processed parameter name and value pairs.</div>
+</dd>
+<dt id="ProcessOptionOpenFEResultFileParameters"><b>ProcessOptionOpenFEResultFileParameters</b></dt>
+<dd>
+    <div class="OptionsBox">ProcessOptionOpenFEResultFileParameters(ParamsOptionName, ParamsOptionValue, ParamsDefaultInfo=None)</div>
+<p>Process parameters for result file and return a map containing processed parameter names and values.</p>
+<p>The supported parameter names along with their default and possible values are shown below:</p>
+    <div class="OptionsBox">precision, 4  [ Possible values: &gt; 0 ]
+<br/>    delimiter, comma  [ Possible values: comma or tab ]</div>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">ParamsOptionName (str): Command line result file parameters option name.
+<br/>    ParamsOptionValues (str): Comma delimited list of parameter name and value pairs.
+<br/>    ParamsDefaultInfo (dict): Default values to override for selected parameters.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">dictionary: Processed parameter name and value pairs.</div>
+</dd>
+<dt id="ProcessOptionOpenFESolventParameters"><b>ProcessOptionOpenFESolventParameters</b></dt>
+<dd>
+    <div class="OptionsBox">ProcessOptionOpenFESolventParameters(ParamsOptionName, ParamsOptionValue, ParamsDefaultInfo=None)</div>
+<p>Process parameters for solvation option and return a map containing processed parameter names and values.</p>
+<p>The ParamsOptionValue is a comma delimited list of parameter name and value pairs to setup solvation parameters for creating OpenFE SolventComponent.</p>
+<p>The supported parameter names along with their default and possible values are shown below:</p>
+    <div class="OptionsBox">positiveIon, Na+ [ Possible value: Li+, Na+, K+, Rb+, or Cs+ ]
+<br/>    negativeIon, Cl- [ Possible values: Cl-, Br-, F-, or I- ]
+<br/>    neutralize, yes  [ Possible values: yes or no ]
+<br/>    ionConcentration, 0.15  [ Units: molar ]</div>
+<p>A brief description of parameters is provided below:</p>
+    <div class="OptionsBox">positiveIon, negativeion: Pair of ions used to neutralize and bring
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        the solvent to required ionic concentration.
+<br/>    neutralize: Neutralize the net charge on the chemical state by the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        ions in the solvent component.
+<br/>    ionConcentration: Ionic concentration.</div>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">ParamsOptionName (str): Command line solvation parameters option name.
+<br/>    ParamsOptionValue (str): Comma delimited list of parameter name and value pairs.
+<br/>    ParamsDefaultInfo (dict): Default values to override for selected parameters.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">dictionary: Processed parameter name and value pairs.</div>
+</dd>
+<dt id="ProcessRadialCentralLigandName"><b>ProcessRadialCentralLigandName</b></dt>
+<dd>
+    <div class="OptionsBox">ProcessRadialCentralLigandName(Mols, RadialCentralMolName)</div>
+<p>Check for the presence of the central ligand name, used for generating a radial ligand network, in a list of molecules and make sure it occurs only once in the list.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">Mols (list): List of OpenFE molecule objects.
+<br/>    CentralMoleculeName (str): Molecule name.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">Object or none: OpenFE molecule object or None.</div>
+</dd>
+<dt id="ReadAndValidateMolecules"><b>ReadAndValidateMolecules</b></dt>
+<dd>
+    <div class="OptionsBox">ReadAndValidateMolecules(FileName, **KeyWordArgs)</div>
+<p>Read molecules from an input file, validate all molecule objects, and return a list of valid OpenFE SmallMoleculeComponent objects along with the count of valid and non-valid molecule objects.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">FileName (str): Name of a file with complete path.
+<br/>    **KeyWordArgs (dict) : Parameter name and value pairs for reading
+<br/>    and processing molecules.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">list or None: List of valid OpenFE molecule objects.
+<br/>    int : Number of total molecules in input file.
+<br/>    int : Number of valid molecules in input file.</div>
+<p>The file extension is used to determine type of the file and set up an appropriate file reader.</p>
+</dd>
+<dt id="ReadPDBFile"><b>ReadPDBFile</b></dt>
+<dd>
+    <div class="OptionsBox">ReadPDBFile(PDBFile, Name=&quot;&quot;)</div>
+<p>Read molecule from a PDB file.</p>
+<p>The supported PDB file formats are: PDB(.pdb) and CIF (.cif)</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">PDBFile (str): PDB file path.
+<br/>    Name (str): Name of macromolecule.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">object: OpenFE PDB object.</div>
+</dd>
+<dt id="SetupAbsoluteBindingFreeEnergySettings"><b>SetupAbsoluteBindingFreeEnergySettings</b></dt>
+<dd>
+    <div class="OptionsBox">SetupAbsoluteBindingFreeEnergySettings(ParamsOptionName, ParamsInfo)</div>
+<p>Setup absolute binding free energy protocol settings to calculate ABFE.</p>
+<p>The ParamsInfo is a comma delimited list of parameter name and value pairs returned by ProcessOptionOpenFEAbsoluteBindingFreeEnergyParameters().</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">ParamsOptionName (str): Command line OpenFE RFE parameters option name.
+<br/>    ParamsInfo (dict): Parameter name and value pairs.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">object: OpenFE AbsoluteBindingProtocol settings object.</div>
+</dd>
+<dt id="SetupAbsoluteHydrationFreeEnergySettings"><b>SetupAbsoluteHydrationFreeEnergySettings</b></dt>
+<dd>
+    <div class="OptionsBox">SetupAbsoluteHydrationFreeEnergySettings(ParamsOptionName, ParamsInfo)</div>
+<p>Setup absolute hydration free energy protocol settings to calculate AHFE.</p>
+<p>The ParamsInfo is a comma delimited list of parameter name and value pairs returned by ProcessOptionOpenFEAbsoluteHydrationFreeEnergyParameters().</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">ParamsOptionName (str): Command line OpenFE RFE parameters option name.
+<br/>    ParamsInfo (dict): Parameter name and value pairs.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">object: OpenFE AbsoluteSolvationProtocol settings object.</div>
+</dd>
+<dt id="SetupRelativeFreeEnergySeparatedTopologySettings"><b>SetupRelativeFreeEnergySeparatedTopologySettings</b></dt>
+<dd>
+    <div class="OptionsBox">SetupRelativeFreeEnergySeparatedTopologySettings(ParamsOptionName, ParamsInfo)</div>
+<p>Setup relative binding free energy protocol settings to calculate RBFE using separated topology.</p>
+<p>The ParamsInfo is a comma delimited list of parameter name and value pairs returned by ProcessOptionOpenFERelatibveBindingFreeEnergySeparatedTopologyParameters().</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">ParamsOptionName (str): Command line OpenFE RFE parameters option name.
+<br/>    ParamsInfo (dict): Parameter name and value pairs.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">object: OpenFE SepTopProtocol settings object.</div>
+</dd>
+<dt id="SetupRelativeFreeEnergySettings"><b>SetupRelativeFreeEnergySettings</b></dt>
+<dd>
+    <div class="OptionsBox">SetupRelativeFreeEnergySettings(ParamsOptionName, ParamsInfo)</div>
+<p>Setup relative free energy protocol settings to calculate RBFE.</p>
+<p>The ParamsInfo is a comma delimited list of parameter name and value pairs returned by ProcessOptionOpenFERelativeFreeEnergyParameters().</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">ParamsOptionName (str): Command line OpenFE RFE parameters option name.
+<br/>    ParamsInfo (dict): Parameter name and value pairs.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">object: OpenFE RelativeHybridTopologyProtocol settings object.</div>
+</dd>
+<dt id="SuggestAtomMappingsForMoleculePairs"><b>SuggestAtomMappingsForMoleculePairs</b></dt>
+<dd>
+    <div class="OptionsBox">SuggestAtomMappingsForMoleculePairs(MoleculePairs, Mappers, MapperScorer)</div>
+<p>Suggest atom mapping between a pair of molecules using specified mappers and a scorer.</p>
+<p>You may specify multiple mappers for generating mapping between pair of molecules. All specified mappers are employed to identify the highest scoring mapping between a pair of molecules.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">Mols (list): List pf OpenFE molecule objects.
+<br/>    Mappers (list): List of OpenFE mapper objects.
+<br/>    MapperScorer (object): OpenFE scorer object.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">list: List of OpenFE mapping objects.</div>
+</dd>
+<dt id="UpdateRelativeFreeEnergySettingsForChargeCorrection"><b>UpdateRelativeFreeEnergySettingsForChargeCorrection</b></dt>
+<dd>
+    <div class="OptionsBox">UpdateRelativeFreeEnergySettingsForChargeCorrection(ParamsOptionName, ParamsInfo, RBFESettings)</div>
+<p>Update relative free energy protocol settings for charge correction.</p>
+<p>The ParamsInfo is a comma delimited list of parameter name and value pairs returned by ProcessOptionOpenFERelativeFreeEnergyChargeCorrectionParameters().</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">ParamsOptionName (str): Command line OpenFE RBFE charge correction
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        parameters option name.
+<br/>    ParamsInfo (dict): Parameter name and value pairs.
+<br/>    RBFESettings (dict): OpenFE RelativeHybridTopologyProtocol settings object.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">None</div>
+</dd>
+<dt id="UpdateRelativeFreeEnergySettingsForVacuum"><b>UpdateRelativeFreeEnergySettingsForVacuum</b></dt>
+<dd>
+    <div class="OptionsBox">UpdateRelativeFreeEnergySettingsForVacuum(ParamsOptionName, ParamsInfo, RBFESettings)</div>
+<p>Update relative free energy protocol settings for vacuum.</p>
+<p>The ParamsInfo is a comma delimited list of parameter name and value pairs returned by ProcessOptionOpenFERelativeFreeEnergyVacuumParameters().</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">ParamsOptionName (str): Command line OpenFE RBFE vacuum parameters
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        option name.
+<br/>    ParamsInfo (dict): Parameter name and value pairs.
+<br/>    RBFESettings (dict): OpenFE RelativeHybridTopologyProtocol settings object.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">None</div>
+</dd>
+<dt id="WriteLigandNetworkGraphMLFile"><b>WriteLigandNetworkGraphMLFile</b></dt>
+<dd>
+    <div class="OptionsBox">WriteLigandNetworkGraphMLFile(LigandNetwork, GraphMLOutfile)</div>
+<p>Write ligand network to a GraphML file.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">LigandNetwork (object): OpenFE ligand network object.
+<br/>    GraphMLOutfile (str): GraphML file path.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">None</div>
+</dd>
+<dt id="WriteLigandNetworkImageFile"><b>WriteLigandNetworkImageFile</b></dt>
+<dd>
+    <div class="OptionsBox">WriteLigandNetworkImageFile(LigandNetwork, ImageOutfile)</div>
+<p>Write ligand network to an image file.</p>
+<p>You must specify a valid format supported by Python module Matplotlib. For example: PNG (.png), SVG (.svg), PDF (.pdf), etc.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">LigandNetwork (object): OpenFE ligand network object.
+<br/>    ImageOutfile (str): Image file path.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">None</div>
+</dd>
+<dt id="WriteMappingImageFile"><b>WriteMappingImageFile</b></dt>
+<dd>
+    <div class="OptionsBox">WriteMappingImageFile(Mapping, ImageOutfile)</div>
+<p>Write mapping to an image file.</p>
+<p>You must specify PNG (.png) format for the image file.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">Mapping (object): OpenFE mapping object.
+<br/>    ImageOutfile (str):  Image file path.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">None</div>
+</dd>
+<dt id="WriteProtocolDAGResultFile"><b>WriteProtocolDAGResultFile</b></dt>
+<dd>
+    <div class="OptionsBox">WriteProtocolDAGResultFile(ProtocolDAGResult, ProtocolResult, ResultsFilePath)</div>
+<p>Write DAG results to a JSON file.</p>
+<p>The file format and contents are based on the OpenFECLI code in quickrun.py.</p>
+<p><i>Arguments:</i></p>
+    <div class="OptionsBox">ProtocolDAGResult (object): OpenFE DAG result object.
+<br/>    ProtocolResult (object): OpenFE protocol result object.
+<br/>    ResultsFilePath (str): File path.</div>
+<p><i>Returns:</i></p>
+    <div class="OptionsBox">None</div>
+</dd>
+</dl>
+<h1 id="AUTHOR">AUTHOR</h2>
+<p><a href="mailto:msud@san.rr.com">Manish Sud</a></p>
+<h1 id="COPYRIGHT">COPYRIGHT</h2>
+<p>Copyright (C) 2026 Manish Sud. All rights reserved.</p>
+<p>The functionality available in this script is implemented using OpenFE, an open source package for alchemical free energy calculations.</p>
+<p>This file is part of MayaChemTools.</p>
+<p>MayaChemTools is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.</p>
+<p>&nbsp</p><p>&nbsp</p><div class="DocNav">
+<table width="100%" border=0 cellpadding=0 cellspacing=2>
+<tr align="left" valign="top"><td width="33%" align="left"><a href="./MiscUtil.py.html" title="MiscUtil.py.html">Previous</a>&nbsp;&nbsp;<a href="./index.html" title="Table of Contents">TOC</a>&nbsp;&nbsp;<a href="./OpenMMUtil.py.html" title="OpenMMUtil.py.html">Next</a></td><td width="34%" align="middle"><strong>February 8, 2026</strong></td><td width="33%" align="right"><strong>Python/OpenFEUtil.py</strong></td></tr>
+</table>
+</div>
+<br />
+<center>
+<img src="../../images/h2o2.png">
+</center>
+</body>
+</html>

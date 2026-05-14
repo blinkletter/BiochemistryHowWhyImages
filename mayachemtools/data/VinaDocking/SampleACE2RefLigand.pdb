@@ -1,0 +1,60 @@
+HEADER    HYDROLASE                               07-OCT-03   1R4L              
+TITLE     INHIBITOR BOUND HUMAN ANGIOTENSIN CONVERTING ENZYME-RELATED           
+CRYST1  100.531   86.509  105.858  90.00 103.65  90.00 C 1 2 1       1
+HETATM    1 CL24 XX5 A 804      45.569   8.433  32.649  1.00 51.74          CL  
+HETATM    2 CL28 XX5 A 804      42.225   4.519  34.516  1.00 35.70          CL  
+HETATM    3  O1  XX5 A 804      38.275   6.568  23.496  1.00 34.24           O  
+HETATM    4  C2  XX5 A 804      38.329   6.978  24.645  1.00 37.98           C  
+HETATM    5  O3  XX5 A 804      38.258   8.171  24.888  1.00 35.41           O  
+HETATM    6  C4  XX5 A 804      38.497   5.953  25.798  1.00 43.43           C  
+HETATM    7  C5  XX5 A 804      37.212   5.541  26.544  1.00 40.81           C  
+HETATM    8  C6  XX5 A 804      35.846   6.059  26.119  1.00 38.40           C  
+HETATM    9  C7  XX5 A 804      34.829   5.531  27.110  1.00 44.99           C  
+HETATM   10  C8  XX5 A 804      35.445   5.521  24.741  1.00 42.43           C  
+HETATM   11  N9  XX5 A 804      39.477   6.366  26.812  1.00 49.77           N  
+HETATM   12  C10 XX5 A 804      40.870   6.006  26.523  1.00 52.31           C  
+HETATM   13  C11 XX5 A 804      41.104   4.529  26.073  1.00 52.07           C  
+HETATM   14  O12 XX5 A 804      41.443   4.331  24.910  1.00 50.89           O  
+HETATM   15  O13 XX5 A 804      40.957   3.615  26.874  1.00 50.99           O  
+HETATM   16  C14 XX5 A 804      41.777   6.341  27.739  1.00 50.77           C  
+HETATM   17  C15 XX5 A 804      43.235   6.162  27.357  1.00 48.32           C  
+HETATM   18  C16 XX5 A 804      43.858   6.771  26.249  1.00 41.23           C  
+HETATM   19  N17 XX5 A 804      45.121   6.364  26.246  1.00 47.37           N  
+HETATM   20  C18 XX5 A 804      45.264   5.543  27.309  1.00 47.63           C  
+HETATM   21  N19 XX5 A 804      44.158   5.367  28.044  1.00 47.23           N  
+HETATM   22  C20 XX5 A 804      43.951   4.519  29.301  1.00 42.67           C  
+HETATM   23  C21 XX5 A 804      43.925   5.153  30.723  1.00 40.42           C  
+HETATM   24  C22 XX5 A 804      44.666   6.346  30.990  1.00 41.89           C  
+HETATM   25  C23 XX5 A 804      44.653   6.950  32.307  1.00 49.05           C  
+HETATM   26  C25 XX5 A 804      43.905   6.381  33.369  1.00 41.90           C  
+HETATM   27  C26 XX5 A 804      43.171   4.591  31.824  1.00 40.69           C  
+HETATM   28  C27 XX5 A 804      43.162   5.207  33.146  1.00 45.72           C  
+CONECT    1   25
+CONECT    2   28
+CONECT    3    4
+CONECT    4    3    5    6
+CONECT    5    4
+CONECT    6    4    7   11
+CONECT    7    6    8
+CONECT    8    7    9   10
+CONECT    9    8
+CONECT   10    8
+CONECT   11    6   12
+CONECT   12   11   13   16
+CONECT   13   12   14   15
+CONECT   14   13
+CONECT   15   13
+CONECT   16   12   17
+CONECT   17   16   18   21
+CONECT   18   17   19
+CONECT   19   18   20
+CONECT   20   19   21
+CONECT   21   17   20   22
+CONECT   22   21   23
+CONECT   23   22   24   27
+CONECT   24   23   25
+CONECT   25   24    1   26
+CONECT   26   25   28
+CONECT   27   23   28
+CONECT   28   26   27    2
+END

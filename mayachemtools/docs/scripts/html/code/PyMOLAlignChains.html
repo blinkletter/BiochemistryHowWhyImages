@@ -1,0 +1,478 @@
+<html>
+<head>
+<title>MayaChemTools:Code:PyMOLAlignChains.py</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../../css/MayaChemToolsPythonCode.css">
+</head>
+<body leftmargin="20" rightmargin="20" topmargin="10" bottommargin="10">
+<br/>
+<center>
+<a href="http://www.mayachemtools.org" title="MayaChemTools Home"><img src="../../../images/MayaChemToolsLogo.gif" border="0" alt="MayaChemTools"></a>
+</center>
+<br/>
+<pre>
+   1 <span class="ch">#!/bin/env python</span>
+   2 <span class="c1">#</span>
+   3 <span class="c1"># File: PyMOLAlignChains.py</span>
+   4 <span class="c1"># Author: Manish Sud &lt;msud@san.rr.com&gt;</span>
+   5 <span class="c1">#</span>
+   6 <span class="c1"># Copyright (C) 2026 Manish Sud. All rights reserved.</span>
+   7 <span class="c1">#</span>
+   8 <span class="c1"># The functionality available in this script is implemented using PyMOL, a</span>
+   9 <span class="c1"># molecular visualization system on an open source foundation originally</span>
+  10 <span class="c1"># developed by Warren DeLano.</span>
+  11 <span class="c1">#</span>
+  12 <span class="c1"># This file is part of MayaChemTools.</span>
+  13 <span class="c1">#</span>
+  14 <span class="c1"># MayaChemTools is free software; you can redistribute it and/or modify it under</span>
+  15 <span class="c1"># the terms of the GNU Lesser General Public License as published by the Free</span>
+  16 <span class="c1"># Software Foundation; either version 3 of the License, or (at your option) any</span>
+  17 <span class="c1"># later version.</span>
+  18 <span class="c1">#</span>
+  19 <span class="c1"># MayaChemTools is distributed in the hope that it will be useful, but without</span>
+  20 <span class="c1"># any warranty; without even the implied warranty of merchantability of fitness</span>
+  21 <span class="c1"># for a particular purpose.  See the GNU Lesser General Public License for more</span>
+  22 <span class="c1"># details.</span>
+  23 <span class="c1">#</span>
+  24 <span class="c1"># You should have received a copy of the GNU Lesser General Public License</span>
+  25 <span class="c1"># along with MayaChemTools; if not, see &lt;http://www.gnu.org/licenses/&gt; or</span>
+  26 <span class="c1"># write to the Free Software Foundation Inc., 59 Temple Place, Suite 330,</span>
+  27 <span class="c1"># Boston, MA, 02111-1307, USA.</span>
+  28 <span class="c1">#</span>
+  29 
+  30 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+  31 
+  32 <span class="kn">import</span> <span class="nn">os</span>
+  33 <span class="kn">import</span> <span class="nn">sys</span>
+  34 <span class="kn">import</span> <span class="nn">time</span>
+  35 <span class="kn">import</span> <span class="nn">re</span>
+  36 
+  37 <span class="c1"># PyMOL imports...</span>
+  38 <span class="k">try</span><span class="p">:</span>
+  39     <span class="kn">import</span> <span class="nn">pymol</span>
+  40 
+  41     <span class="c1"># Finish launching PyMOL in  a command line mode for batch processing (-c)</span>
+  42     <span class="c1"># along with the following options:  disable loading of pymolrc and plugins (-k);</span>
+  43     <span class="c1"># suppress start up messages (-q)</span>
+  44     <span class="n">pymol</span><span class="o">.</span><span class="n">finish_launching</span><span class="p">([</span><span class="s2">&quot;pymol&quot;</span><span class="p">,</span> <span class="s2">&quot;-ckq&quot;</span><span class="p">])</span>
+  45 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ErrMsg</span><span class="p">:</span>
+  46     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Failed to import PyMOL module/package: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ErrMsg</span><span class="p">)</span>
+  47     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Check/update your PyMOL environment and try again.</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+  48     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  49 
+  50 <span class="c1"># MayaChemTools imports...</span>
+  51 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;lib&quot;</span><span class="p">,</span> <span class="s2">&quot;Python&quot;</span><span class="p">))</span>
+  52 <span class="k">try</span><span class="p">:</span>
+  53     <span class="kn">from</span> <span class="nn">docopt</span> <span class="kn">import</span> <span class="n">docopt</span>
+  54     <span class="kn">import</span> <span class="nn">MiscUtil</span>
+  55     <span class="kn">import</span> <span class="nn">PyMOLUtil</span>
+  56 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ErrMsg</span><span class="p">:</span>
+  57     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Failed to import MayaChemTools module/package: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ErrMsg</span><span class="p">)</span>
+  58     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Check/update your MayaChemTools environment and try again.</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+  59     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  60 
+  61 <span class="n">ScriptName</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+  62 <span class="n">Options</span> <span class="o">=</span> <span class="p">{}</span>
+  63 <span class="n">OptionsInfo</span> <span class="o">=</span> <span class="p">{}</span>
+  64 
+  65 
+  66 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+  67     <span class="sd">&quot;&quot;&quot;Start execution of the script.&quot;&quot;&quot;</span>
+  68 
+  69     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span>
+  70         <span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2"> (PyMOL v</span><span class="si">%s</span><span class="s2">; MayaChemTools v</span><span class="si">%s</span><span class="s2">; </span><span class="si">%s</span><span class="s2">): Starting...</span><span class="se">\n</span><span class="s2">&quot;</span>
+  71         <span class="o">%</span> <span class="p">(</span><span class="n">ScriptName</span><span class="p">,</span> <span class="n">pymol</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">get_version</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetMayaChemToolsVersion</span><span class="p">(),</span> <span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">())</span>
+  72     <span class="p">)</span>
+  73 
+  74     <span class="p">(</span><span class="n">WallClockTime</span><span class="p">,</span> <span class="n">ProcessorTime</span><span class="p">)</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetWallClockAndProcessorTime</span><span class="p">()</span>
+  75 
+  76     <span class="c1"># Retrieve command line arguments and options...</span>
+  77     <span class="n">RetrieveOptions</span><span class="p">()</span>
+  78 
+  79     <span class="c1"># Process and validate command line arguments and options...</span>
+  80     <span class="n">ProcessOptions</span><span class="p">()</span>
+  81 
+  82     <span class="c1"># Perform actions required by the script...</span>
+  83     <span class="n">PerformChainAlignment</span><span class="p">()</span>
+  84 
+  85     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2">: Done...</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ScriptName</span><span class="p">)</span>
+  86     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Total time: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetFormattedElapsedTime</span><span class="p">(</span><span class="n">WallClockTime</span><span class="p">,</span> <span class="n">ProcessorTime</span><span class="p">))</span>
+  87 
+  88 
+  89 <span class="k">def</span> <span class="nf">PerformChainAlignment</span><span class="p">():</span>
+  90     <span class="sd">&quot;&quot;&quot;Align chains and write out new files.&quot;&quot;&quot;</span>
+  91 
+  92     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Generating output files...&quot;</span><span class="p">)</span>
+  93 
+  94     <span class="c1"># Load reffile for alignment..</span>
+  95     <span class="n">SetupAlignReference</span><span class="p">()</span>
+  96 
+  97     <span class="c1"># Perform alignment for each input file and write it out...</span>
+  98     <span class="k">for</span> <span class="n">FileIndex</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfilesInfo&quot;</span><span class="p">][</span><span class="s2">&quot;InfilesNames&quot;</span><span class="p">])):</span>
+  99         <span class="n">SetupInputObject</span><span class="p">(</span><span class="n">FileIndex</span><span class="p">)</span>
+ 100         <span class="n">AlignInputObject</span><span class="p">(</span><span class="n">FileIndex</span><span class="p">)</span>
+ 101         <span class="n">WriteAlignedInputObject</span><span class="p">(</span><span class="n">FileIndex</span><span class="p">)</span>
+ 102         <span class="n">DeleteInputObject</span><span class="p">(</span><span class="n">FileIndex</span><span class="p">)</span>
+ 103 
+ 104     <span class="c1"># Delete reference object...</span>
+ 105     <span class="n">pymol</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RefFileInfo&quot;</span><span class="p">][</span><span class="s2">&quot;PyMOLObjectName&quot;</span><span class="p">])</span>
+ 106 
+ 107 
+ 108 <span class="k">def</span> <span class="nf">SetupAlignReference</span><span class="p">():</span>
+ 109     <span class="sd">&quot;&quot;&quot;Setup object for alignment reference.&quot;&quot;&quot;</span>
+ 110 
+ 111     <span class="n">RefFile</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RefFileInfo&quot;</span><span class="p">][</span><span class="s2">&quot;RefFileName&quot;</span><span class="p">]</span>
+ 112     <span class="n">RefName</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RefFileInfo&quot;</span><span class="p">][</span><span class="s2">&quot;PyMOLObjectName&quot;</span><span class="p">]</span>
+ 113 
+ 114     <span class="n">pymol</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">RefFile</span><span class="p">,</span> <span class="n">RefName</span><span class="p">)</span>
+ 115 
+ 116 
+ 117 <span class="k">def</span> <span class="nf">SetupInputObject</span><span class="p">(</span><span class="n">FileIndex</span><span class="p">):</span>
+ 118     <span class="sd">&quot;&quot;&quot;Setup a PyMOL object for input file.&quot;&quot;&quot;</span>
+ 119 
+ 120     <span class="n">InputFile</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfilesInfo&quot;</span><span class="p">][</span><span class="s2">&quot;InfilesNames&quot;</span><span class="p">][</span><span class="n">FileIndex</span><span class="p">]</span>
+ 121     <span class="n">InputName</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfilesInfo&quot;</span><span class="p">][</span><span class="s2">&quot;PyMOLObjectNames&quot;</span><span class="p">][</span><span class="n">FileIndex</span><span class="p">]</span>
+ 122 
+ 123     <span class="n">pymol</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">InputFile</span><span class="p">,</span> <span class="n">InputName</span><span class="p">)</span>
+ 124 
+ 125 
+ 126 <span class="k">def</span> <span class="nf">AlignInputObject</span><span class="p">(</span><span class="n">FileIndex</span><span class="p">):</span>
+ 127     <span class="sd">&quot;&quot;&quot;Align input object to reference object.&quot;&quot;&quot;</span>
+ 128 
+ 129     <span class="n">RefName</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RefFileInfo&quot;</span><span class="p">][</span><span class="s2">&quot;PyMOLObjectName&quot;</span><span class="p">]</span>
+ 130     <span class="n">FitName</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfilesInfo&quot;</span><span class="p">][</span><span class="s2">&quot;PyMOLObjectNames&quot;</span><span class="p">][</span><span class="n">FileIndex</span><span class="p">]</span>
+ 131 
+ 132     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Aligning </span><span class="si">%s</span><span class="s2"> to </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">FitName</span><span class="p">,</span> <span class="n">RefName</span><span class="p">))</span>
+ 133 
+ 134     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^FirstChain$&quot;</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AlignMode&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 135         <span class="n">RefFirstChainID</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RefFileInfo&quot;</span><span class="p">][</span><span class="s2">&quot;ChainIDs&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+ 136         <span class="n">RefSelection</span> <span class="o">=</span> <span class="s2">&quot;(</span><span class="si">%s</span><span class="s2"> and chain </span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">RefName</span><span class="p">,</span> <span class="n">RefFirstChainID</span><span class="p">)</span>
+ 137 
+ 138         <span class="n">FitFirstChainID</span> <span class="o">=</span> <span class="n">RetrieveFirstChainID</span><span class="p">(</span><span class="n">FileIndex</span><span class="p">)</span>
+ 139         <span class="n">FitSelection</span> <span class="o">=</span> <span class="s2">&quot;(</span><span class="si">%s</span><span class="s2"> and chain </span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">FitName</span><span class="p">,</span> <span class="n">FitFirstChainID</span><span class="p">)</span>
+ 140     <span class="k">else</span><span class="p">:</span>
+ 141         <span class="n">RefSelection</span> <span class="o">=</span> <span class="n">RefName</span>
+ 142         <span class="n">FitSelection</span> <span class="o">=</span> <span class="n">FitName</span>
+ 143 
+ 144     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^align$&quot;</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AlignMethod&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 145         <span class="n">pymol</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">align</span><span class="p">(</span><span class="n">FitSelection</span><span class="p">,</span> <span class="n">RefSelection</span><span class="p">)</span>
+ 146     <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^cealign$&quot;</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AlignMethod&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 147         <span class="n">pymol</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">cealign</span><span class="p">(</span><span class="n">RefSelection</span><span class="p">,</span> <span class="n">FitSelection</span><span class="p">)</span>
+ 148     <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^super$&quot;</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AlignMethod&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 149         <span class="n">pymol</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">super</span><span class="p">(</span><span class="n">FitSelection</span><span class="p">,</span> <span class="n">RefSelection</span><span class="p">)</span>
+ 150     <span class="k">else</span><span class="p">:</span>
+ 151         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span><span class="s2">&quot;Invalid alignment method: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AlignMethod&quot;</span><span class="p">])</span>
+ 152 
+ 153 
+ 154 <span class="k">def</span> <span class="nf">WriteAlignedInputObject</span><span class="p">(</span><span class="n">FileIndex</span><span class="p">):</span>
+ 155     <span class="sd">&quot;&quot;&quot;Write out aligned input object.&quot;&quot;&quot;</span>
+ 156 
+ 157     <span class="n">Outfile</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfilesInfo&quot;</span><span class="p">][</span><span class="s2">&quot;OutfilesNames&quot;</span><span class="p">][</span><span class="n">FileIndex</span><span class="p">]</span>
+ 158     <span class="n">InputName</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfilesInfo&quot;</span><span class="p">][</span><span class="s2">&quot;PyMOLObjectNames&quot;</span><span class="p">][</span><span class="n">FileIndex</span><span class="p">]</span>
+ 159 
+ 160     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Generating aligned output file </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="n">Outfile</span><span class="p">)</span>
+ 161 
+ 162     <span class="n">pymol</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">Outfile</span><span class="p">,</span> <span class="n">InputName</span><span class="p">)</span>
+ 163 
+ 164     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">Outfile</span><span class="p">):</span>
+ 165         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintWarning</span><span class="p">(</span><span class="s2">&quot;Failed to generate aligned output file, </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">Outfile</span><span class="p">))</span>
+ 166 
+ 167 
+ 168 <span class="k">def</span> <span class="nf">DeleteInputObject</span><span class="p">(</span><span class="n">FileIndex</span><span class="p">):</span>
+ 169     <span class="sd">&quot;&quot;&quot;Delete aligned input object.&quot;&quot;&quot;</span>
+ 170 
+ 171     <span class="n">InputName</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfilesInfo&quot;</span><span class="p">][</span><span class="s2">&quot;PyMOLObjectNames&quot;</span><span class="p">][</span><span class="n">FileIndex</span><span class="p">]</span>
+ 172     <span class="n">pymol</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">InputName</span><span class="p">)</span>
+ 173 
+ 174 
+ 175 <span class="k">def</span> <span class="nf">RetrieveInfilesInfo</span><span class="p">():</span>
+ 176     <span class="sd">&quot;&quot;&quot;Retrieve information for input files.&quot;&quot;&quot;</span>
+ 177 
+ 178     <span class="n">InfilesInfo</span> <span class="o">=</span> <span class="p">{}</span>
+ 179 
+ 180     <span class="n">InfilesInfo</span><span class="p">[</span><span class="s2">&quot;InfilesNames&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+ 181     <span class="n">InfilesInfo</span><span class="p">[</span><span class="s2">&quot;InfilesRoots&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+ 182     <span class="n">InfilesInfo</span><span class="p">[</span><span class="s2">&quot;ChainIDs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+ 183     <span class="n">InfilesInfo</span><span class="p">[</span><span class="s2">&quot;PyMOLObjectNames&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+ 184 
+ 185     <span class="n">InfilesInfo</span><span class="p">[</span><span class="s2">&quot;OutfilesNames&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+ 186 
+ 187     <span class="n">OutSuffix</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutSuffix&quot;</span><span class="p">]</span>
+ 188 
+ 189     <span class="k">for</span> <span class="n">Infile</span> <span class="ow">in</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfilesNames&quot;</span><span class="p">]:</span>
+ 190         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Retrieving chains information for input file </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="n">Infile</span><span class="p">)</span>
+ 191 
+ 192         <span class="n">FileDir</span><span class="p">,</span> <span class="n">FileName</span><span class="p">,</span> <span class="n">FileExt</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ParseFileName</span><span class="p">(</span><span class="n">Infile</span><span class="p">)</span>
+ 193         <span class="n">InfileRoot</span> <span class="o">=</span> <span class="n">FileName</span>
+ 194 
+ 195         <span class="n">ChainIDs</span> <span class="o">=</span> <span class="n">RetrieveChainIDs</span><span class="p">(</span><span class="n">Infile</span><span class="p">,</span> <span class="n">InfileRoot</span><span class="p">)</span>
+ 196         <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">ChainIDs</span><span class="p">):</span>
+ 197             <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^FirstChain$&quot;</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AlignMode&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 198                 <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 199                     <span class="s2">&quot;The align mode, </span><span class="si">%s</span><span class="s2">, can&#39;t be used for aligning chains: No non-empty chain IDs found in input file.&quot;</span>
+ 200                     <span class="o">%</span> <span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AlignMode&quot;</span><span class="p">])</span>
+ 201                 <span class="p">)</span>
+ 202 
+ 203         <span class="n">InfilesInfo</span><span class="p">[</span><span class="s2">&quot;InfilesNames&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Infile</span><span class="p">)</span>
+ 204         <span class="n">InfilesInfo</span><span class="p">[</span><span class="s2">&quot;InfilesRoots&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">InfileRoot</span><span class="p">)</span>
+ 205         <span class="n">InfilesInfo</span><span class="p">[</span><span class="s2">&quot;ChainIDs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ChainIDs</span><span class="p">)</span>
+ 206 
+ 207         <span class="n">InfilesInfo</span><span class="p">[</span><span class="s2">&quot;PyMOLObjectNames&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">InfileRoot</span><span class="p">)</span>
+ 208 
+ 209         <span class="c1"># Setup outfile name...</span>
+ 210         <span class="n">Outfile</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s%s</span><span class="s2">.pdb&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">InfileRoot</span><span class="p">,</span> <span class="n">OutSuffix</span><span class="p">)</span>
+ 211         <span class="n">InfilesInfo</span><span class="p">[</span><span class="s2">&quot;OutfilesNames&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Outfile</span><span class="p">)</span>
+ 212         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">Outfile</span><span class="p">):</span>
+ 213             <span class="k">if</span> <span class="ow">not</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Overwrite&quot;</span><span class="p">]:</span>
+ 214                 <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 215                     <span class="s1">&#39;The output file, </span><span class="si">%s</span><span class="s1">, already exist. Use option &quot;--ov&quot; or &quot;--overwrite&quot; and try again.</span><span class="se">\n</span><span class="s1">&#39;</span>
+ 216                     <span class="o">%</span> <span class="p">(</span><span class="n">Outfile</span><span class="p">)</span>
+ 217                 <span class="p">)</span>
+ 218 
+ 219     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfilesInfo&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">InfilesInfo</span>
+ 220 
+ 221 
+ 222 <span class="k">def</span> <span class="nf">RetrieveRefFileInfo</span><span class="p">():</span>
+ 223     <span class="sd">&quot;&quot;&quot;Retrieve information for ref file.&quot;&quot;&quot;</span>
+ 224 
+ 225     <span class="n">RefFileInfo</span> <span class="o">=</span> <span class="p">{}</span>
+ 226 
+ 227     <span class="n">RefFile</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RefFileName&quot;</span><span class="p">]</span>
+ 228 
+ 229     <span class="n">FileDir</span><span class="p">,</span> <span class="n">FileName</span><span class="p">,</span> <span class="n">FileExt</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ParseFileName</span><span class="p">(</span><span class="n">RefFile</span><span class="p">)</span>
+ 230     <span class="n">RefFileRoot</span> <span class="o">=</span> <span class="n">FileName</span>
+ 231 
+ 232     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^FirstInputFile$&quot;</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AlignRefFile&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 233         <span class="n">ChainIDs</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfilesInfo&quot;</span><span class="p">][</span><span class="s2">&quot;ChainIDs&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+ 234     <span class="k">else</span><span class="p">:</span>
+ 235         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Retrieving chains information for alignment reference file </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="n">RefFile</span><span class="p">)</span>
+ 236         <span class="n">ChainIDs</span> <span class="o">=</span> <span class="n">RetrieveChainIDs</span><span class="p">(</span><span class="n">RefFile</span><span class="p">,</span> <span class="n">RefFileRoot</span><span class="p">)</span>
+ 237         <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">ChainIDs</span><span class="p">):</span>
+ 238             <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^FirstChain$&quot;</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AlignMode&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 239                 <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 240                     <span class="s2">&quot;The align mode, </span><span class="si">%s</span><span class="s2">, can&#39;t be used for aligning chains: No non-empty chain IDs found in input file.&quot;</span>
+ 241                     <span class="o">%</span> <span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AlignMode&quot;</span><span class="p">])</span>
+ 242                 <span class="p">)</span>
+ 243 
+ 244     <span class="n">RefFileInfo</span><span class="p">[</span><span class="s2">&quot;RefFileName&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">RefFile</span>
+ 245     <span class="n">RefFileInfo</span><span class="p">[</span><span class="s2">&quot;RefFileRoot&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">RefFileRoot</span>
+ 246     <span class="n">RefFileInfo</span><span class="p">[</span><span class="s2">&quot;PyMOLObjectName&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;AlignRef_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">RefFileRoot</span>
+ 247     <span class="n">RefFileInfo</span><span class="p">[</span><span class="s2">&quot;ChainIDs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ChainIDs</span>
+ 248 
+ 249     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RefFileInfo&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">RefFileInfo</span>
+ 250 
+ 251 
+ 252 <span class="k">def</span> <span class="nf">RetrieveChainIDs</span><span class="p">(</span><span class="n">Infile</span><span class="p">,</span> <span class="n">InfileRoot</span><span class="p">):</span>
+ 253     <span class="sd">&quot;&quot;&quot;Retrieve chains IDs for an input file.&quot;&quot;&quot;</span>
+ 254 
+ 255     <span class="n">pymol</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">reinitialize</span><span class="p">()</span>
+ 256 
+ 257     <span class="n">MolName</span> <span class="o">=</span> <span class="n">InfileRoot</span>
+ 258     <span class="n">pymol</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">Infile</span><span class="p">,</span> <span class="n">MolName</span><span class="p">)</span>
+ 259 
+ 260     <span class="n">ChainIDs</span> <span class="o">=</span> <span class="n">PyMOLUtil</span><span class="o">.</span><span class="n">GetChains</span><span class="p">(</span><span class="n">MolName</span><span class="p">)</span>
+ 261     <span class="n">pymol</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">MolName</span><span class="p">)</span>
+ 262 
+ 263     <span class="k">if</span> <span class="n">ChainIDs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+ 264         <span class="n">ChainIDs</span> <span class="o">=</span> <span class="p">[]</span>
+ 265 
+ 266     <span class="c1"># Print out chain and ligand IDs...</span>
+ 267     <span class="n">ChainInfo</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ChainIDs</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ChainIDs</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;None&quot;</span>
+ 268     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Chain IDs: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ChainInfo</span><span class="p">)</span>
+ 269 
+ 270     <span class="k">return</span> <span class="n">ChainIDs</span>
+ 271 
+ 272 
+ 273 <span class="k">def</span> <span class="nf">RetrieveFirstChainID</span><span class="p">(</span><span class="n">FileIndex</span><span class="p">):</span>
+ 274     <span class="sd">&quot;&quot;&quot;Get first chain ID.&quot;&quot;&quot;</span>
+ 275 
+ 276     <span class="n">ChainIDs</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfilesInfo&quot;</span><span class="p">][</span><span class="s2">&quot;ChainIDs&quot;</span><span class="p">][</span><span class="n">FileIndex</span><span class="p">]</span>
+ 277 
+ 278     <span class="n">FirstChainID</span> <span class="o">=</span> <span class="kc">None</span>
+ 279     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ChainIDs</span><span class="p">):</span>
+ 280         <span class="n">FirstChainID</span> <span class="o">=</span> <span class="n">ChainIDs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+ 281 
+ 282     <span class="k">return</span> <span class="n">FirstChainID</span>
+ 283 
+ 284 
+ 285 <span class="k">def</span> <span class="nf">ProcessOptions</span><span class="p">():</span>
+ 286     <span class="sd">&quot;&quot;&quot;Process and validate command line arguments and options.&quot;&quot;&quot;</span>
+ 287 
+ 288     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Processing options...&quot;</span><span class="p">)</span>
+ 289 
+ 290     <span class="c1"># Validate options...</span>
+ 291     <span class="n">ValidateOptions</span><span class="p">()</span>
+ 292 
+ 293     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AlignMethod&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--alignMethod&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+ 294     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AlignMode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--alignMode&quot;</span><span class="p">]</span>
+ 295 
+ 296     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Infiles&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infiles&quot;</span><span class="p">]</span>
+ 297     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfilesNames&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infileNames&quot;</span><span class="p">]</span>
+ 298 
+ 299     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AlignRefFile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--alignRefFile&quot;</span><span class="p">]</span>
+ 300     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^FirstInputFile$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--alignRefFile&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 301         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RefFileName&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfilesNames&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+ 302     <span class="k">else</span><span class="p">:</span>
+ 303         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RefFileName&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--alignRefFile&quot;</span><span class="p">]</span>
+ 304 
+ 305     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutSuffix&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outSuffix&quot;</span><span class="p">]</span>
+ 306 
+ 307     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Overwrite&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--overwrite&quot;</span><span class="p">]</span>
+ 308 
+ 309     <span class="n">RetrieveInfilesInfo</span><span class="p">()</span>
+ 310     <span class="n">RetrieveRefFileInfo</span><span class="p">()</span>
+ 311 
+ 312 
+ 313 <span class="k">def</span> <span class="nf">RetrieveOptions</span><span class="p">():</span>
+ 314     <span class="sd">&quot;&quot;&quot;Retrieve command line arguments and options.&quot;&quot;&quot;</span>
+ 315 
+ 316     <span class="c1"># Get options...</span>
+ 317     <span class="k">global</span> <span class="n">Options</span>
+ 318     <span class="n">Options</span> <span class="o">=</span> <span class="n">docopt</span><span class="p">(</span><span class="n">_docoptUsage_</span><span class="p">)</span>
+ 319 
+ 320     <span class="c1"># Set current working directory to the specified directory...</span>
+ 321     <span class="n">WorkingDir</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--workingdir&quot;</span><span class="p">]</span>
+ 322     <span class="k">if</span> <span class="n">WorkingDir</span><span class="p">:</span>
+ 323         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">WorkingDir</span><span class="p">)</span>
+ 324 
+ 325     <span class="c1"># Handle examples option...</span>
+ 326     <span class="k">if</span> <span class="s2">&quot;--examples&quot;</span> <span class="ow">in</span> <span class="n">Options</span> <span class="ow">and</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--examples&quot;</span><span class="p">]:</span>
+ 327         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetExamplesTextFromDocOptText</span><span class="p">(</span><span class="n">_docoptUsage_</span><span class="p">))</span>
+ 328         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+ 329 
+ 330 
+ 331 <span class="k">def</span> <span class="nf">ValidateOptions</span><span class="p">():</span>
+ 332     <span class="sd">&quot;&quot;&quot;Validate option values.&quot;&quot;&quot;</span>
+ 333 
+ 334     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--alignMethod&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--alignMethod&quot;</span><span class="p">],</span> <span class="s2">&quot;align cealign super&quot;</span><span class="p">)</span>
+ 335     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--alignMode&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--alignMode&quot;</span><span class="p">],</span> <span class="s2">&quot;FirstChain Complex&quot;</span><span class="p">)</span>
+ 336 
+ 337     <span class="c1"># Expand infiles to handle presence of multiple input files...</span>
+ 338     <span class="n">InfileNames</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ExpandFileNames</span><span class="p">(</span><span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infiles&quot;</span><span class="p">],</span> <span class="s2">&quot;,&quot;</span><span class="p">)</span>
+ 339     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">InfileNames</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+ 340         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 341             <span class="s1">&#39;Number of input files specified for &quot;-i, --infiles&quot; option, </span><span class="si">%d</span><span class="s1">, must be greater than 2...&#39;</span>
+ 342             <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">InfileNames</span><span class="p">))</span>
+ 343         <span class="p">)</span>
+ 344 
+ 345     <span class="c1"># Validate file extensions...</span>
+ 346     <span class="k">for</span> <span class="n">Infile</span> <span class="ow">in</span> <span class="n">InfileNames</span><span class="p">:</span>
+ 347         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFilePath</span><span class="p">(</span><span class="s2">&quot;-i, --infiles&quot;</span><span class="p">,</span> <span class="n">Infile</span><span class="p">)</span>
+ 348         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFileExt</span><span class="p">(</span><span class="s2">&quot;-i, --infiles&quot;</span><span class="p">,</span> <span class="n">Infile</span><span class="p">,</span> <span class="s2">&quot;pdb cif&quot;</span><span class="p">)</span>
+ 349     <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infileNames&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">InfileNames</span>
+ 350 
+ 351     <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^FirstInputFile$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--alignRefFile&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 352         <span class="n">AlignRefFile</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--alignRefFile&quot;</span><span class="p">]</span>
+ 353         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFilePath</span><span class="p">(</span><span class="s2">&quot;--alignRefFile&quot;</span><span class="p">,</span> <span class="n">AlignRefFile</span><span class="p">)</span>
+ 354         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFileExt</span><span class="p">(</span><span class="s2">&quot;--alignRefFile&quot;</span><span class="p">,</span> <span class="n">AlignRefFile</span><span class="p">,</span> <span class="s2">&quot;pdb cif&quot;</span><span class="p">)</span>
+ 355 
+ 356 
+ 357 <span class="c1"># Setup a usage string for docopt...</span>
+ 358 <span class="n">_docoptUsage_</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+ 359 <span class="s2">PyMOLAlignChains.py - Align chains</span>
+ 360 
+ 361 <span class="s2">Usage:</span>
+ 362 <span class="s2">    PyMOLAlignChains.py [--alignMethod &lt;align, cealign, super&gt;]</span>
+ 363 <span class="s2">                        [--alignMode &lt;FirstChain or Complex&gt;] [--alignRefFile &lt;filename&gt;]</span>
+ 364 <span class="s2">                        [--outSuffix &lt;text&gt;] [--overwrite] [-w &lt;dir&gt;] -i &lt;infile1,infile2,infile3...&gt;</span>
+ 365 <span class="s2">    PyMOLAlignChains.py -h | --help | -e | --examples</span>
+ 366 
+ 367 <span class="s2">Description:</span>
+ 368 <span class="s2">    Align chains in input files to a reference file and write out aligned files.</span>
+ 369 
+ 370 <span class="s2">    The supported input and output file format are: PDB (.pdb), CIF(.cif)</span>
+ 371 
+ 372 <span class="s2">    The names of the aligned output files are automatically generated from the</span>
+ 373 <span class="s2">    names of input as shown below:</span>
+ 374 <span class="s2">    </span>
+ 375 <span class="s2">        &lt;InfileRoot&gt;&lt;OutSuffux&gt;.pdb</span>
+ 376 <span class="s2">        Default: &lt;InfileRoot&gt;_Aligned.pdb</span>
+ 377 <span class="s2">    </span>
+ 378 <span class="s2">Options:</span>
+ 379 <span class="s2">    -a, --alignMethod &lt;align, cealign, super&gt;  [default: super]</span>
+ 380 <span class="s2">        Alignment methodology to use for aligning input files to a</span>
+ 381 <span class="s2">        reference file.</span>
+ 382 <span class="s2">    --alignMode &lt;FirstChain or Complex&gt;  [default: FirstChain]</span>
+ 383 <span class="s2">        Portion of input and reference files to use for spatial alignment of</span>
+ 384 <span class="s2">        input files against reference file.  Possible values: FirstChain or</span>
+ 385 <span class="s2">        Complex.</span>
+ 386 <span class="s2">        </span>
+ 387 <span class="s2">        The FirstChain mode allows alignment of the first chain in each input</span>
+ 388 <span class="s2">        file to the first chain in the reference file along with moving the rest</span>
+ 389 <span class="s2">        of the complex to coordinate space of the reference file. The complete</span>
+ 390 <span class="s2">        complex in each input file is aligned to the complete complex in reference</span>
+ 391 <span class="s2">        file for the Complex mode.</span>
+ 392 <span class="s2">    --alignRefFile &lt;filename&gt;  [default: FirstInputFile]</span>
+ 393 <span class="s2">        Reference input file name. The default is to use the first input file</span>
+ 394 <span class="s2">        name specified using &#39;-i, --infiles&#39; option.</span>
+ 395 <span class="s2">    -e, --examples</span>
+ 396 <span class="s2">        Print examples.</span>
+ 397 <span class="s2">    -h, --help</span>
+ 398 <span class="s2">        Print this help message.</span>
+ 399 <span class="s2">    -i, --infiles &lt;infile1,infile2,...&gt;</span>
+ 400 <span class="s2">        A comma delimited list of input files. The wildcards are also allowed</span>
+ 401 <span class="s2">        in file names.</span>
+ 402 <span class="s2">    --outSuffix &lt;text&gt;  [default: _Aligned]</span>
+ 403 <span class="s2">        Suffix to append to input file root for generating name of output file.</span>
+ 404 <span class="s2">    --overwrite</span>
+ 405 <span class="s2">        Overwrite existing files.</span>
+ 406 <span class="s2">    -w, --workingdir &lt;dir&gt;</span>
+ 407 <span class="s2">        Location of working directory which defaults to the current directory.</span>
+ 408 
+ 409 <span class="s2">Examples:</span>
+ 410 <span class="s2">    To align first chain in all input files to the first chain in first input file</span>
+ 411 <span class="s2">    and write out aligned output files, type:</span>
+ 412 
+ 413 <span class="s2">        % PyMOLAlignChains.py -i &quot;Sample3.pdb,Sample4.pdb,Sample5.pdb&quot;</span>
+ 414 
+ 415 <span class="s2">    To align first chain in all input files to the first chain in specific reference</span>
+ 416 <span class="s2">    file and write out aligned output files, type:</span>
+ 417 
+ 418 <span class="s2">        % PyMOLAlignChains.py --alignRefFile Sample5.pdb</span>
+ 419 <span class="s2">          -i &quot;Sample3.pdb,Sample4.pdb,Sample5.pdb&quot;</span>
+ 420 
+ 421 <span class="s2">    To align first chain in all input files to the first chain in first input file</span>
+ 422 <span class="s2">    using a specific alignment method and write out aligned output files</span>
+ 423 <span class="s2">    with specific suffix in names, type:</span>
+ 424 
+ 425 <span class="s2">        % PyMOLAlignChains.py --alignMethod cealign --outSuffix &quot;_aligned&quot;</span>
+ 426 <span class="s2">          -i &quot;Sample3.pdb,Sample4.pdb,Sample5.pdb&quot;</span>
+ 427 
+ 428 <span class="s2">    To align all chains in each input files to all chains in first input file and</span>
+ 429 <span class="s2">    write out aligned output files, type:</span>
+ 430 
+ 431 <span class="s2">        % PyMOLAlignChains.py --alignMode Complex</span>
+ 432 <span class="s2">          -i &quot;Sample3.pdb,Sample4.pdb,Sample5.pdb&quot;</span>
+ 433 
+ 434 <span class="s2">Author:</span>
+ 435 <span class="s2">    Manish Sud(msud@san.rr.com)</span>
+ 436 
+ 437 <span class="s2">See also:</span>
+ 438 <span class="s2">    PyMOLCalculateRMSD.py, PyMOLSplitChainsAndLigands.py,</span>
+ 439 <span class="s2">    PyMOLVisualizeMacromolecules.py</span>
+ 440 
+ 441 <span class="s2">Copyright:</span>
+ 442 <span class="s2">    Copyright (C) 2026 Manish Sud. All rights reserved.</span>
+ 443 
+ 444 <span class="s2">    The functionality available in this script is implemented using PyMOL, a</span>
+ 445 <span class="s2">    molecular visualization system on an open source foundation originally</span>
+ 446 <span class="s2">    developed by Warren DeLano.</span>
+ 447 
+ 448 <span class="s2">    This file is part of MayaChemTools.</span>
+ 449 
+ 450 <span class="s2">    MayaChemTools is free software; you can redistribute it and/or modify it under</span>
+ 451 <span class="s2">    the terms of the GNU Lesser General Public License as published by the Free</span>
+ 452 <span class="s2">    Software Foundation; either version 3 of the License, or (at your option) any</span>
+ 453 <span class="s2">    later version.</span>
+ 454 
+ 455 <span class="s2">&quot;&quot;&quot;</span>
+ 456 
+ 457 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+ 458     <span class="n">main</span><span class="p">()</span>
+</pre>
+<br />
+<center>
+<img src="../../../images/h2o2.png">
+</center>
+</body>
+</html>

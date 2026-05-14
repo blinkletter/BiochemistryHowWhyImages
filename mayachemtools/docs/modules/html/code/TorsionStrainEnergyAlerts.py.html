@@ -1,0 +1,1211 @@
+<html>
+<head>
+<title>MayaChemTools:Code:Python/TorsionAlerts/TorsionStrainEnergyAlerts.py</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../../css/MayaChemToolsPythonCode.css">
+</head>
+<body leftmargin="20" rightmargin="20" topmargin="10" bottommargin="10">
+<br/>
+<center>
+<a href="http://www.mayachemtools.org" title="MayaChemTools Home"><img src="../../../images/MayaChemToolsLogo.gif" border="0" alt="MayaChemTools"></a>
+</center>
+<br/>
+<pre>
+    1 <span class="ch">#</span>
+    2 <span class="c1"># File: TorsionStrainEnergyAlerts.py</span>
+    3 <span class="c1"># Author: Manish Sud &lt;msud@san.rr.com&gt;</span>
+    4 <span class="c1">#</span>
+    5 <span class="c1"># Collaborator: Pat Walters</span>
+    6 <span class="c1">#</span>
+    7 <span class="c1"># Copyright (C) 2026 Manish Sud. All rights reserved.</span>
+    8 <span class="c1">#</span>
+    9 <span class="c1"># This module uses the torsion strain energy library developed by Gu, S.;</span>
+   10 <span class="c1"># Smith, M. S.; Yang, Y.; Irwin, J. J.; Shoichet, B. K. [ Ref 153 ].</span>
+   11 <span class="c1">#</span>
+   12 <span class="c1"># The torsion strain enegy library is based on the Torsion Library jointly</span>
+   13 <span class="c1"># developed by the University of Hamburg, Center for Bioinformatics,</span>
+   14 <span class="c1"># Hamburg, Germany and F. Hoffmann-La-Roche Ltd., Basel, Switzerland.</span>
+   15 <span class="c1">#</span>
+   16 <span class="c1"># This file is part of MayaChemTools.</span>
+   17 <span class="c1">#</span>
+   18 <span class="c1"># MayaChemTools is free software; you can redistribute it and/or modify it under</span>
+   19 <span class="c1"># the terms of the GNU Lesser General Public License as published by the Free</span>
+   20 <span class="c1"># Software Foundation; either version 3 of the License, or (at your option) any</span>
+   21 <span class="c1"># later version.</span>
+   22 <span class="c1">#</span>
+   23 <span class="c1"># MayaChemTools is distributed in the hope that it will be useful, but without</span>
+   24 <span class="c1"># any warranty; without even the implied warranty of merchantability of fitness</span>
+   25 <span class="c1"># for a particular purpose.  See the GNU Lesser General Public License for more</span>
+   26 <span class="c1"># details.</span>
+   27 <span class="c1">#</span>
+   28 <span class="c1"># You should have received a copy of the GNU Lesser General Public License</span>
+   29 <span class="c1"># along with MayaChemTools; if not, see &lt;http://www.gnu.org/licenses/&gt; or</span>
+   30 <span class="c1"># write to the Free Software Foundation Inc., 59 Temple Place, Suite 330,</span>
+   31 <span class="c1"># Boston, MA, 02111-1307, USA.</span>
+   32 <span class="c1">#</span>
+   33 
+   34 <span class="kn">import</span> <span class="nn">os</span>
+   35 <span class="kn">import</span> <span class="nn">re</span>
+   36 <span class="kn">import</span> <span class="nn">math</span>
+   37 
+   38 <span class="kn">from</span> <span class="nn">rdkit</span> <span class="kn">import</span> <span class="n">Chem</span>
+   39 <span class="kn">from</span> <span class="nn">rdkit.Chem</span> <span class="kn">import</span> <span class="n">rdMolTransforms</span>
+   40 
+   41 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">TorsionAlertsUtil</span>
+   42 
+   43 
+   44 <span class="k">class</span> <span class="nc">TorsionStrainEnergyAlerts</span><span class="p">:</span>
+   45     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+   46         <span class="bp">self</span><span class="p">,</span>
+   47         <span class="n">AlertsMode</span><span class="o">=</span><span class="s2">&quot;TotalEnergy&quot;</span><span class="p">,</span>
+   48         <span class="n">TotalEnergyCutoff</span><span class="o">=</span><span class="mf">6.0</span><span class="p">,</span>
+   49         <span class="n">MaxSingleEnergyCutoff</span><span class="o">=</span><span class="mf">1.8</span><span class="p">,</span>
+   50         <span class="n">RotBondsSMARTSMode</span><span class="o">=</span><span class="s2">&quot;SemiStrict&quot;</span><span class="p">,</span>
+   51         <span class="n">RotBondsSMARTSPattern</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+   52         <span class="n">TorsionLibraryFilePath</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+   53         <span class="n">AlertTorsionsNotObserved</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+   54     <span class="p">):</span>
+   55         <span class="sd">&quot;&quot;&quot;Identify strained molecules based on torsion strain energy library [ Ref 153 ]</span>
+   56 <span class="sd">        alerts by matching rotatable bonds against SMARTS patterns specified for</span>
+   57 <span class="sd">        torsion rules in a torsion energy library file. The molecules must have 3D coordinates.</span>
+   58 <span class="sd">        The default torsion strain energy library file, TorsionStrainEnergyLibrary.xml, is</span>
+   59 <span class="sd">        ia available in the directory containing this file.</span>
+   60 
+   61 <span class="sd">        The data in torsion strain energy library file is organized in a hierarchical</span>
+   62 <span class="sd">        manner. It consists of one generic class and six specific classes at the highest</span>
+   63 <span class="sd">        level. Each class contains multiple subclasses corresponding to named functional</span>
+   64 <span class="sd">        groups or substructure patterns. The subclasses consist of torsion rules sorted</span>
+   65 <span class="sd">        from specific to generic torsion patterns. The torsion rule, in turn, contains a</span>
+   66 <span class="sd">        list of peak values for torsion angles and two tolerance values. A pair of tolerance</span>
+   67 <span class="sd">        values define torsion bins around a torsion peak value.</span>
+   68 
+   69 <span class="sd">        A strain energy calculation method, &#39;exact&#39; or &#39;approximate&#39; [ Ref 153 ], is</span>
+   70 <span class="sd">        associated with each torsion rule for calculating torsion strain energy. The &#39;exact&#39;</span>
+   71 <span class="sd">        stain energy calculation relies on the energy bins available under the energy histogram</span>
+   72 <span class="sd">        consisting of 36 bins covering angles from -180 to 180. The width of each bin is 10</span>
+   73 <span class="sd">        degree. The energy bins are are defined at the right end points. The first and the</span>
+   74 <span class="sd">        last energy bins correspond to -170 and 180 respectively. The torsion angle is mapped</span>
+   75 <span class="sd">        to a energy bin. An angle offset is calculated for the torsion angle from the the right</span>
+   76 <span class="sd">        end point angle of the bin. The strain energy is estimated for the angle offset based</span>
+   77 <span class="sd">        on the energy difference between the current and previous bins. The torsion strain</span>
+   78 <span class="sd">        energy, in terms of torsion energy units (TEUs), corresponds to the sum of bin strain</span>
+   79 <span class="sd">        energy and the angle offset strain energy.</span>
+   80 
+   81 <span class="sd">            Energy = BinEnergyDiff/10.0 * BinAngleOffset + BinEnergy[BinNum]</span>
+   82 
+   83 <span class="sd">            Where:</span>
+   84 
+   85 <span class="sd">            BinEnergyDiff = BinEnergy[BinNum] - BinEnergy[PreviousBinNum]</span>
+   86 <span class="sd">            BinAngleOffset = TorsionAngle - BinAngleRightSide</span>
+   87 
+   88 <span class="sd">        The &#39;approximate&#39; strain energy calculation relies on the angle difference between a</span>
+   89 <span class="sd">        torsion angle and the torsion peaks observed for the torsion rules in the torsion</span>
+   90 <span class="sd">        energy library. The torsion angle is matched to a torsion peak based on the value of</span>
+   91 <span class="sd">        torsion angle difference. It must be less than or equal to the value for the second</span>
+   92 <span class="sd">        tolerance &#39;tolerance2&#39;. Otherwise, the torsion angle is not observed in the torsion</span>
+   93 <span class="sd">        energy library and a value of &#39;NA&#39; is assigned for torsion energy along with the lower</span>
+   94 <span class="sd">        and upper bounds on energy at 95% confidence interval. The &#39;approximate&#39; torsion</span>
+   95 <span class="sd">        energy (TEUs) for observed torsion angle is calculated using the following formula:</span>
+   96 
+   97 <span class="sd">            Energy = beta_1 * (AngleDiff ** 2) + beta_2 * (AngleDiff ** 4)</span>
+   98 
+   99 <span class="sd">        The coefficients &#39;beta_1&#39; and &#39;beta_2&#39; are available for the observed angles in</span>
+  100 <span class="sd">        the torsion strain energy library. The &#39;AngleDiff&#39; is the difference between the</span>
+  101 <span class="sd">        torsion angle and the matched torsion peak.</span>
+  102 
+  103 <span class="sd">        For example:</span>
+  104 
+  105 <span class="sd">            &lt;library&gt;</span>
+  106 <span class="sd">                &lt;hierarchyClass id1=&quot;G&quot; id2=&quot;G&quot; name=&quot;GG&quot;&gt;</span>
+  107 <span class="sd">                ...</span>
+  108 <span class="sd">                &lt;/hierarchyClass&gt;</span>
+  109 <span class="sd">                &lt;hierarchyClass id1=&quot;C&quot; id2=&quot;O&quot; name=&quot;CO&quot;&gt;</span>
+  110 <span class="sd">                    &lt;hierarchySubClass name=&quot;Ester bond I&quot; smarts=&quot;O=[C:2][O:3]&quot;&gt;</span>
+  111 <span class="sd">                        &lt;torsionRule method=&quot;exact&quot; smarts=</span>
+  112 <span class="sd">                            &quot;[O:1]=[C:2]!@[O:3]~[CH0:4]&quot;&gt;</span>
+  113 <span class="sd">                            &lt;angleList&gt;</span>
+  114 <span class="sd">                                &lt;angle score=&quot;56.52&quot; tolerance1=&quot;20.00&quot;</span>
+  115 <span class="sd">                                tolerance2=&quot;25.00&quot; value=&quot;0.0&quot;/&gt;</span>
+  116 <span class="sd">                            &lt;/angleList&gt;</span>
+  117 <span class="sd">                            &lt;histogram&gt;</span>
+  118 <span class="sd">                                &lt;bin count=&quot;1&quot;/&gt;</span>
+  119 <span class="sd">                                ...</span>
+  120 <span class="sd">                            &lt;/histogram&gt;</span>
+  121 <span class="sd">                            &lt;histogram_shifted&gt;</span>
+  122 <span class="sd">                                &lt;bin count=&quot;0&quot;/&gt;</span>
+  123 <span class="sd">                                ...</span>
+  124 <span class="sd">                            &lt;/histogram_shifted&gt;</span>
+  125 <span class="sd">                            &lt;histogram_converted&gt;</span>
+  126 <span class="sd">                                &lt;bin energy=&quot;4.67... lower=&quot;2.14...&quot; upper=&quot;Inf&quot;/&gt;</span>
+  127 <span class="sd">                                ...</span>
+  128 <span class="sd">                                &lt;bin energy=&quot;1.86...&quot; lower=&quot;1.58...&quot; upper=&quot;2.40...&quot;/&gt;</span>
+  129 <span class="sd">                                ...</span>
+  130 <span class="sd">                               &lt;/histogram_converted&gt;</span>
+  131 <span class="sd">                        &lt;/torsionRule&gt;</span>
+  132 <span class="sd">                        &lt;torsionRule method=&quot;approximate&quot; smarts=</span>
+  133 <span class="sd">                            &quot;[cH0:1][c:2]([cH0])!@[O:3][p:4]&quot;&gt;</span>
+  134 <span class="sd">                            &lt;angleList&gt;</span>
+  135 <span class="sd">                            &lt;angle beta_1=&quot;0.002...&quot; beta_2=&quot;-7.843...e-07&quot;</span>
+  136 <span class="sd">                                score=&quot;27.14&quot; theta_0=&quot;-90.0&quot; tolerance1=&quot;30.00&quot;</span>
+  137 <span class="sd">                                tolerance2=&quot;45.00&quot; value=&quot;-90.0&quot;/&gt;</span>
+  138 <span class="sd">                            ...</span>
+  139 <span class="sd">                            &lt;/angleList&gt;</span>
+  140 <span class="sd">                            &lt;histogram&gt;</span>
+  141 <span class="sd">                                &lt;bin count=&quot;0&quot;/&gt;</span>
+  142 <span class="sd">                                 ...</span>
+  143 <span class="sd">                            &lt;/histogram&gt;</span>
+  144 <span class="sd">                            &lt;histogram_shifted&gt;</span>
+  145 <span class="sd">                                &lt;bin count=&quot;0&quot;/&gt;</span>
+  146 <span class="sd">                                ...</span>
+  147 <span class="sd">                            &lt;/histogram_shifted&gt;</span>
+  148 <span class="sd">                        &lt;/torsionRule&gt;</span>
+  149 <span class="sd">                    ...</span>
+  150 <span class="sd">                 ...</span>
+  151 <span class="sd">                &lt;/hierarchyClass&gt;</span>
+  152 <span class="sd">                 &lt;hierarchyClass id1=&quot;N&quot; id2=&quot;C&quot; name=&quot;NC&quot;&gt;</span>
+  153 <span class="sd">                 ...</span>
+  154 <span class="sd">                &lt;/hierarchyClass&gt;</span>
+  155 <span class="sd">                &lt;hierarchyClass id1=&quot;S&quot; id2=&quot;N&quot; name=&quot;SN&quot;&gt;</span>
+  156 <span class="sd">                ...</span>
+  157 <span class="sd">                &lt;/hierarchyClass&gt;</span>
+  158 <span class="sd">                &lt;hierarchyClass id1=&quot;C&quot; id2=&quot;S&quot; name=&quot;CS&quot;&gt;</span>
+  159 <span class="sd">                ...</span>
+  160 <span class="sd">                &lt;/hierarchyClass&gt;</span>
+  161 <span class="sd">                &lt;hierarchyClass id1=&quot;C&quot; id2=&quot;C&quot; name=&quot;CC&quot;&gt;</span>
+  162 <span class="sd">                ...</span>
+  163 <span class="sd">                &lt;/hierarchyClass&gt;</span>
+  164 <span class="sd">                &lt;hierarchyClass id1=&quot;S&quot; id2=&quot;S&quot; name=&quot;SS&quot;&gt;</span>
+  165 <span class="sd">                 ...</span>
+  166 <span class="sd">                &lt;/hierarchyClass&gt;</span>
+  167 <span class="sd">            &lt;/library&gt;</span>
+  168 
+  169 <span class="sd">        The rotatable bonds in a 3D molecule are identified using a default SMARTS pattern.</span>
+  170 <span class="sd">        A custom SMARTS pattern may be optionally specified to detect rotatable bonds.</span>
+  171 <span class="sd">        Each rotatable bond is matched to a torsion rule in the torsion strain energy library.</span>
+  172 <span class="sd">        The strain energy is calculated for each rotatable bond using the calculation</span>
+  173 <span class="sd">        method, &#39;exact&#39; or &#39;approximate&#39;, associated with the matched torsion rule.</span>
+  174 
+  175 <span class="sd">        The total strain energy (TEUs) of a molecule corresponds to the sum of  &#39;exact&#39; and</span>
+  176 <span class="sd">        &#39;approximate&#39; strain energies calculated for all matched rotatable bonds in the</span>
+  177 <span class="sd">        molecule. The total strain energy is set to &#39;NA&#39; for molecules containing a &#39;approximate&#39;</span>
+  178 <span class="sd">        energy estimate for a torsion angle not observed in the torsion energy library. In</span>
+  179 <span class="sd">        addition, the lower and upper bounds on energy at 95% confidence interval are</span>
+  180 <span class="sd">        set to &#39;NA&#39;.</span>
+  181 
+  182 <span class="sd">        Arguments:</span>
+  183 <span class="sd">            AlertsMode (str): Torsion strain energy library alert types to use</span>
+  184 <span class="sd">                for issuing alerts. Possible values: TotalEnergy,</span>
+  185 <span class="sd">                MaxSingleEnergy, or TotalOrMaxSingleEnergy.</span>
+  186 <span class="sd">            TotalEnergyCutoff (float): Total strain strain energy (TEUs) cutoff.</span>
+  187 <span class="sd">            MaxSingleEnergyCutoff (float): Maximum single strain energy (TEUs)</span>
+  188 <span class="sd">                cutoff.</span>
+  189 <span class="sd">            RotBondsSMARTSMode (str): SMARTS pattern to use for identifying</span>
+  190 <span class="sd">                rotatable bonds in a molecule. Possible values: NonStrict,</span>
+  191 <span class="sd">                SemiStrict, Strict or Specify.</span>
+  192 <span class="sd">            RotBondsSMARTSPattern (str):SMARTS pattern for identifying rotatable</span>
+  193 <span class="sd">                bonds. This paramater is only valid for &#39;Specify&#39; value</span>
+  194 <span class="sd">                &#39;RotBondsSMARTSMode&#39;.</span>
+  195 <span class="sd">            TorsionLibraryFilePath (str): A XML file name containing data for</span>
+  196 <span class="sd">                torsion starin energy library.</span>
+  197 <span class="sd">            AlertTorsionsNotObserved (bool): Issue alerts about molecules</span>
+  198 <span class="sd">                containing torsion angles not observed in torsion strain energy</span>
+  199 <span class="sd">                library.</span>
+  200 
+  201 <span class="sd">        Returns:</span>
+  202 <span class="sd">            object: An instantiated class object.</span>
+  203 
+  204 <span class="sd">        Examples:</span>
+  205 
+  206 <span class="sd">            StrainEnergyAlertsHandle = TorsionStrainEnergyAlerts()</span>
+  207 
+  208 <span class="sd">            StrainEnergyAlertsHandle = TorsionStrainEnergyAlerts(AlertsMode = &quot;TotalEnergy&quot;,</span>
+  209 <span class="sd">                TotalEnergyCutoff = 6.0, MaxSingleEnergyCutoff = 1.8, RotBondsSMARTSMode = &quot;SemiStrict&quot;,</span>
+  210 <span class="sd">                RotBondsSMARTSPattern = None, TorsionLibraryFilePath = &quot;auto&quot;, AlertTorsionsNotObserved = False)</span>
+  211 
+  212 <span class="sd">        Notes:</span>
+  213 <span class="sd">            The following sections provide additional details for the parameters.</span>
+  214 
+  215 <span class="sd">            AlertsMode: Torsion strain energy library alert types to use for issuing</span>
+  216 <span class="sd">            alerts about molecules containing rotatable bonds based on the calculated</span>
+  217 <span class="sd">            values for the total torsion strain energy of a molecule and  the maximum</span>
+  218 <span class="sd">            single strain energy of a rotatable bond in a molecule.</span>
+  219 
+  220 <span class="sd">            Possible values: TotalEnergy, MaxSingleEnergy, or TotalOrMaxSingleEnergy</span>
+  221 
+  222 <span class="sd">            The strain energy cutoff values in terms of torsion energy units (TEUs) are</span>
+  223 <span class="sd">            used to filter molecules as shown below:</span>
+  224 
+  225 <span class="sd">                AlertsMode                AlertsEnergyCutoffs (TEUs)</span>
+  226 
+  227 <span class="sd">                TotalEnergy               &gt;= TotalEnergyCutoff</span>
+  228 
+  229 <span class="sd">                MaxSingleEnergy           &gt;= MaxSingleEnergyCutoff</span>
+  230 
+  231 <span class="sd">                TotalOrMaxSingleEnergy    &gt;= TotalEnergyCutoff</span>
+  232 <span class="sd">                                          or &gt;= MaxSingleEnergyCutoff</span>
+  233 
+  234 <span class="sd">            TotalEnergyCutoff: Total strain strain energy (TEUs) cutoff [ Ref 153 ] for</span>
+  235 <span class="sd">            issuing alerts based on total strain energy for all rotatable bonds in a</span>
+  236 <span class="sd">            molecule. This option is used during &#39;TotalEnergy&#39; or &#39;TotalOrMaxSingleEnergy&#39;</span>
+  237 <span class="sd">            values of &#39;AlertsMode&#39; parameter.</span>
+  238 
+  239 <span class="sd">            The total strain energy must be greater than or equal to the specified</span>
+  240 <span class="sd">            cutoff value to identify a molecule containing strained torsions.</span>
+  241 
+  242 <span class="sd">            MaxSingleEnergyCutoff: Maximum single strain energy (TEUs) cutoff [ Ref 153 ]</span>
+  243 <span class="sd">            for issuing alerts based on the maximum value of a single strain energy of a</span>
+  244 <span class="sd">            rotatable bond in  a molecule. This option is used during &#39;MaxSingleEnergy&#39; or</span>
+  245 <span class="sd">            &#39;TotalOrMaxSingleEnergy&#39; values of &#39;AlertsMode&#39; parameter.</span>
+  246 
+  247 <span class="sd">            The maximum single strain energy must be greater than or equal to the</span>
+  248 <span class="sd">            specified cutoff valueo to identify a molecule containing strained torsions.</span>
+  249 
+  250 <span class="sd">            RotBondsSMARTSMode: SMARTS pattern to use for identifying rotatable bonds in</span>
+  251 <span class="sd">            a molecule for matching against torsion rules in the torsion library. Possible values:</span>
+  252 <span class="sd">            NonStrict, SemiStrict, Strict or Specify. The rotatable bond SMARTS matches</span>
+  253 <span class="sd">            are filtered to ensure that each atom in the rotatable bond is attached to</span>
+  254 <span class="sd">            at least two heavy atoms.</span>
+  255 
+  256 <span class="sd">            The following SMARTS patterns are used to identify rotatable bonds for</span>
+  257 <span class="sd">            different modes:</span>
+  258 
+  259 <span class="sd">                NonStrict: [!$(*#*)&amp;!D1]-&amp;!@[!$(*#*)&amp;!D1]</span>
+  260 
+  261 <span class="sd">                SemiStrict:</span>
+  262 <span class="sd">                [!$(*#*)&amp;!D1&amp;!$(C(F)(F)F)&amp;!$(C(Cl)(Cl)Cl)&amp;!$(C(Br)(Br)Br)</span>
+  263 <span class="sd">                &amp;!$(C([CH3])([CH3])[CH3])]-!@[!$(*#*)&amp;!D1&amp;!$(C(F)(F)F)</span>
+  264 <span class="sd">                &amp;!$(C(Cl)(Cl)Cl)&amp;!$(C(Br)(Br)Br)&amp;!$(C([CH3])([CH3])[CH3])]</span>
+  265 
+  266 <span class="sd">                Strict:</span>
+  267 <span class="sd">                [!$(*#*)&amp;!D1&amp;!$(C(F)(F)F)&amp;!$(C(Cl)(Cl)Cl)&amp;!$(C(Br)(Br)Br)</span>
+  268 <span class="sd">                &amp;!$(C([CH3])([CH3])[CH3])&amp;!$([CD3](=[N,O,S])-!@[#7,O,S!D1])</span>
+  269 <span class="sd">                &amp;!$([#7,O,S!D1]-!@[CD3]=[N,O,S])&amp;!$([CD3](=[N+])-!@[#7!D1])</span>
+  270 <span class="sd">                &amp;!$([#7!D1]-!@[CD3]=[N+])]-!@[!$(*#*)&amp;!D1&amp;!$(C(F)(F)F)</span>
+  271 <span class="sd">                &amp;!$(C(Cl)(Cl)Cl)&amp;!$(C(Br)(Br)Br)&amp;!$(C([CH3])([CH3])[CH3])]</span>
+  272 
+  273 <span class="sd">            The &#39;NonStrict&#39; and &#39;Strict&#39; SMARTS patterns are available in RDKit. The</span>
+  274 <span class="sd">            &#39;NonStrict&#39; SMARTS pattern corresponds to original Daylight SMARTS</span>
+  275 <span class="sd">            specification for rotatable bonds. The &#39;SemiStrict&#39; SMARTS pattern is</span>
+  276 <span class="sd">            derived from &#39;Strict&#39; SMARTS pattern.</span>
+  277 
+  278 <span class="sd">            TorsionLibraryFilePath (str): Specify a XML file name containing data for</span>
+  279 <span class="sd">            torsion starin energy library hierarchy or use default file,</span>
+  280 <span class="sd">            TorsionEnergyLibrary.xml, available in the directory containing this file.</span>
+  281 
+  282 <span class="sd">            AlertTorsionsNotObserved: Issue alerts abpout molecules con ntaining torsion</span>
+  283 <span class="sd">            angles not observed in torsion strain energy library. It&#39;s not possible to</span>
+  284 <span class="sd">            calculate torsion strain energies for these torsions during &#39;approximate&#39;</span>
+  285 <span class="sd">            match to a specified torsion in the library.</span>
+  286 
+  287 <span class="sd">            The &#39;approximate&#39; strain energy calculation relies on the angle difference</span>
+  288 <span class="sd">            between a torsion angle and the torsion peaks observed for the torsion</span>
+  289 <span class="sd">            rules in the torsion energy library. The torsion angle is matched to a</span>
+  290 <span class="sd">            torsion peak based on the value of torsion angle difference. It must be</span>
+  291 <span class="sd">            less than or equal to the value for the second tolerance &#39;tolerance2&#39;.</span>
+  292 <span class="sd">            Otherwise, the torsion angle is not observed in the torsion energy library</span>
+  293 <span class="sd">            and a value of &#39;NA&#39; is assigned for torsion energy along with the lower and</span>
+  294 <span class="sd">            upper bounds on energy at 95% confidence interval.</span>
+  295 
+  296 <span class="sd">        &quot;&quot;&quot;</span>
+  297 
+  298         <span class="bp">self</span><span class="o">.</span><span class="n">_ProcessTorsionStrainEnergyAlertsParameters</span><span class="p">(</span>
+  299             <span class="n">AlertsMode</span><span class="p">,</span>
+  300             <span class="n">TotalEnergyCutoff</span><span class="p">,</span>
+  301             <span class="n">MaxSingleEnergyCutoff</span><span class="p">,</span>
+  302             <span class="n">RotBondsSMARTSMode</span><span class="p">,</span>
+  303             <span class="n">RotBondsSMARTSPattern</span><span class="p">,</span>
+  304             <span class="n">TorsionLibraryFilePath</span><span class="p">,</span>
+  305             <span class="n">AlertTorsionsNotObserved</span><span class="p">,</span>
+  306         <span class="p">)</span>
+  307 
+  308         <span class="bp">self</span><span class="o">.</span><span class="n">_InitializeTorsionStrainEnergyAlerts</span><span class="p">()</span>
+  309 
+  310     <span class="k">def</span> <span class="nf">_ProcessTorsionStrainEnergyAlertsParameters</span><span class="p">(</span>
+  311         <span class="bp">self</span><span class="p">,</span>
+  312         <span class="n">AlertsMode</span><span class="p">,</span>
+  313         <span class="n">TotalEnergyCutoff</span><span class="p">,</span>
+  314         <span class="n">MaxSingleEnergyCutoff</span><span class="p">,</span>
+  315         <span class="n">RotBondsSMARTSMode</span><span class="p">,</span>
+  316         <span class="n">RotBondsSMARTSPattern</span><span class="p">,</span>
+  317         <span class="n">TorsionLibraryFilePath</span><span class="p">,</span>
+  318         <span class="n">AlertTorsionsNotObserved</span><span class="p">,</span>
+  319     <span class="p">):</span>
+  320         <span class="sd">&quot;&quot;&quot;Process torsion strain energy alerts paramaters.&quot;&quot;&quot;</span>
+  321 
+  322         <span class="c1"># Process AltertsMode paramater...</span>
+  323         <span class="bp">self</span><span class="o">.</span><span class="n">_ProcessAlertsModeParameter</span><span class="p">(</span><span class="n">AlertsMode</span><span class="p">)</span>
+  324 
+  325         <span class="c1"># Process TotalEnergyCutoff parameter...</span>
+  326         <span class="k">if</span> <span class="n">TotalEnergyCutoff</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+  327             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+  328                 <span class="s2">&quot;The value, </span><span class="si">%s</span><span class="s2">, specified for TotalEnergyCutoff parameter is not valid. Supported value: &gt; 0.0&quot;</span>
+  329                 <span class="o">%</span> <span class="n">TotalEnergyCutoff</span>
+  330             <span class="p">)</span>
+  331         <span class="bp">self</span><span class="o">.</span><span class="n">TotalEnergyCutoff</span> <span class="o">=</span> <span class="n">TotalEnergyCutoff</span>
+  332 
+  333         <span class="c1"># Process  MaxSingleEnergyCutoff parameter...</span>
+  334         <span class="k">if</span> <span class="n">MaxSingleEnergyCutoff</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+  335             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+  336                 <span class="s2">&quot;The value, </span><span class="si">%s</span><span class="s2">, specified for MaxSingleEnergyCutoff parameter is not valid. Supported value: &gt; 0.0&quot;</span>
+  337                 <span class="o">%</span> <span class="n">MaxSingleEnergyCutoff</span>
+  338             <span class="p">)</span>
+  339         <span class="bp">self</span><span class="o">.</span><span class="n">MaxSingleEnergyCutoff</span> <span class="o">=</span> <span class="n">MaxSingleEnergyCutoff</span>
+  340 
+  341         <span class="c1"># Process RotBondsSMARTSMode and RotBondsSMARTSPattern parameters...</span>
+  342         <span class="bp">self</span><span class="o">.</span><span class="n">_ProcessRotBondsParameters</span><span class="p">(</span><span class="n">RotBondsSMARTSMode</span><span class="p">,</span> <span class="n">RotBondsSMARTSPattern</span><span class="p">)</span>
+  343 
+  344         <span class="c1"># Process TorsionLibraryFilePath parameter...</span>
+  345         <span class="bp">self</span><span class="o">.</span><span class="n">_ProcessTorsionLibraryFilePathParameter</span><span class="p">(</span><span class="n">TorsionLibraryFilePath</span><span class="p">)</span>
+  346 
+  347         <span class="c1"># AlertTorsionsNotObserved parameter...</span>
+  348         <span class="bp">self</span><span class="o">.</span><span class="n">AlertTorsionsNotObserved</span> <span class="o">=</span> <span class="n">AlertTorsionsNotObserved</span>
+  349 
+  350     <span class="k">def</span> <span class="nf">_InitializeTorsionStrainEnergyAlerts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  351         <span class="sd">&quot;&quot;&quot;Initialize tosion strain energy alerts.&quot;&quot;&quot;</span>
+  352 
+  353         <span class="c1"># Retrieve and setup torsion library info for matching rotatable bonds...</span>
+  354         <span class="n">TorsionLibraryInfo</span> <span class="o">=</span> <span class="p">{}</span>
+  355 
+  356         <span class="n">TorsionLibElementTree</span> <span class="o">=</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">RetrieveTorsionLibraryInfo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryFilePath</span><span class="p">)</span>
+  357         <span class="n">TorsionLibraryInfo</span><span class="p">[</span><span class="s2">&quot;TorsionLibElementTree&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">TorsionLibElementTree</span>
+  358 
+  359         <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">SetupTorsionLibraryInfoForMatchingRotatableBonds</span><span class="p">(</span><span class="n">TorsionLibraryInfo</span><span class="p">)</span>
+  360 
+  361         <span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryInfo</span> <span class="o">=</span> <span class="n">TorsionLibraryInfo</span>
+  362 
+  363     <span class="k">def</span> <span class="nf">_ProcessAlertsModeParameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">AlertsMode</span><span class="p">):</span>
+  364         <span class="sd">&quot;&quot;&quot;Process AlertsMode parameter.&quot;&quot;&quot;</span>
+  365 
+  366         <span class="n">TotalEnergyMode</span><span class="p">,</span> <span class="n">MaxSingleEnergyMode</span><span class="p">,</span> <span class="n">TotalOrMaxSingleEnergyMode</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
+  367         <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^TotalEnergy$&quot;</span><span class="p">,</span> <span class="n">AlertsMode</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  368             <span class="n">TotalEnergyMode</span> <span class="o">=</span> <span class="kc">True</span>
+  369         <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^MaxSingleEnergy$&quot;</span><span class="p">,</span> <span class="n">AlertsMode</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  370             <span class="n">MaxSingleEnergyMode</span> <span class="o">=</span> <span class="kc">True</span>
+  371         <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^TotalOrMaxSingleEnergy$&quot;</span><span class="p">,</span> <span class="n">AlertsMode</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  372             <span class="n">TotalOrMaxSingleEnergyMode</span> <span class="o">=</span> <span class="kc">True</span>
+  373         <span class="k">else</span><span class="p">:</span>
+  374             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+  375                 <span class="s2">&quot;Invalid value, </span><span class="si">%s</span><span class="s2">, specified for AlertsMode parameter. Valid values: TotalEnergy, MaxSingleEnergy, or TotalOrMaxSingleEnergy&quot;</span>
+  376                 <span class="o">%</span> <span class="p">(</span><span class="n">AlertsMode</span><span class="p">)</span>
+  377             <span class="p">)</span>
+  378 
+  379         <span class="bp">self</span><span class="o">.</span><span class="n">AltersMode</span> <span class="o">=</span> <span class="n">AlertsMode</span>
+  380         <span class="bp">self</span><span class="o">.</span><span class="n">TotalEnergyMode</span> <span class="o">=</span> <span class="n">TotalEnergyMode</span>
+  381         <span class="bp">self</span><span class="o">.</span><span class="n">MaxSingleEnergyMode</span> <span class="o">=</span> <span class="n">MaxSingleEnergyMode</span>
+  382         <span class="bp">self</span><span class="o">.</span><span class="n">TotalOrMaxSingleEnergyMode</span> <span class="o">=</span> <span class="n">TotalOrMaxSingleEnergyMode</span>
+  383 
+  384     <span class="k">def</span> <span class="nf">_ProcessRotBondsParameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">RotBondsSMARTSMode</span><span class="p">,</span> <span class="n">RotBondsSMARTSPattern</span><span class="p">):</span>
+  385         <span class="sd">&quot;&quot;&quot;Process  RotBondsSMARTSMode and RotBondsSMARTSPattern parameters.&quot;&quot;&quot;</span>
+  386 
+  387         <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^NonStrict$&quot;</span><span class="p">,</span> <span class="n">RotBondsSMARTSMode</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  388             <span class="n">RotBondsSMARTSPattern</span> <span class="o">=</span> <span class="s2">&quot;[!$(*#*)&amp;!D1]-&amp;!@[!$(*#*)&amp;!D1]&quot;</span>
+  389         <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^SemiStrict$&quot;</span><span class="p">,</span> <span class="n">RotBondsSMARTSMode</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  390             <span class="n">RotBondsSMARTSPattern</span> <span class="o">=</span> <span class="s2">&quot;[!$(*#*)&amp;!D1&amp;!$(C(F)(F)F)&amp;!$(C(Cl)(Cl)Cl)&amp;!$(C(Br)(Br)Br)&amp;!$(C([CH3])([CH3])[CH3])]-!@[!$(*#*)&amp;!D1&amp;!$(C(F)(F)F)&amp;!$(C(Cl)(Cl)Cl)&amp;!$(C(Br)(Br)Br)&amp;!$(C([CH3])([CH3])[CH3])]&quot;</span>
+  391         <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^Strict$&quot;</span><span class="p">,</span> <span class="n">RotBondsSMARTSMode</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  392             <span class="n">RotBondsSMARTSPattern</span> <span class="o">=</span> <span class="s2">&quot;[!$(*#*)&amp;!D1&amp;!$(C(F)(F)F)&amp;!$(C(Cl)(Cl)Cl)&amp;!$(C(Br)(Br)Br)&amp;!$(C([CH3])([CH3])[CH3])&amp;!$([CD3](=[N,O,S])-!@[#7,O,S!D1])&amp;!$([#7,O,S!D1]-!@[CD3]=[N,O,S])&amp;!$([CD3](=[N+])-!@[#7!D1])&amp;!$([#7!D1]-!@[CD3]=[N+])]-!@[!$(*#*)&amp;!D1&amp;!$(C(F)(F)F)&amp;!$(C(Cl)(Cl)Cl)&amp;!$(C(Br)(Br)Br)&amp;!$(C([CH3])([CH3])[CH3])]&quot;</span>
+  393         <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^Specify$&quot;</span><span class="p">,</span> <span class="n">RotBondsSMARTSMode</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  394             <span class="k">if</span> <span class="n">RotBondsSMARTSPattern</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  395                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+  396                     <span class="s2">&quot;The RotBondsSMARTSPattern parameter value must be specified during Specify value for RotBondsSMARTSMode parameter.&quot;</span>
+  397                 <span class="p">)</span>
+  398             <span class="n">RotBondsSMARTSPattern</span> <span class="o">=</span> <span class="n">RotBondsSMARTSPattern</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+  399             <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">RotBondsSMARTSPattern</span><span class="p">):</span>
+  400                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Empty value specified for  RotBondsSMARTSPattern parameter.&quot;</span><span class="p">)</span>
+  401         <span class="k">else</span><span class="p">:</span>
+  402             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+  403                 <span class="s2">&quot;Invalid value, </span><span class="si">%s</span><span class="s2">, specified for RotBondsSMARTSMode parameter. Valid values: NonStrict, SemiStrict, Strict or Specify&quot;</span>
+  404                 <span class="o">%</span> <span class="p">(</span><span class="n">RotBondsSMARTSMode</span><span class="p">)</span>
+  405             <span class="p">)</span>
+  406 
+  407         <span class="n">RotBondsPatternMol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmarts</span><span class="p">(</span><span class="n">RotBondsSMARTSPattern</span><span class="p">)</span>
+  408         <span class="k">if</span> <span class="n">RotBondsPatternMol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  409             <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;Specify&quot;</span><span class="p">,</span> <span class="n">RotBondsSMARTSMode</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  410                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+  411                     <span class="s1">&#39;Failed to create rotatable bonds pattern molecule. The rotatable bonds SMARTS pattern, &quot;</span><span class="si">%s</span><span class="s1">&quot;, specified using RotBondsSMARTSPattern parameter is not valid.&#39;</span>
+  412                     <span class="o">%</span> <span class="p">(</span><span class="n">RotBondsSMARTSPattern</span><span class="p">)</span>
+  413                 <span class="p">)</span>
+  414             <span class="k">else</span><span class="p">:</span>
+  415                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+  416                     <span class="s1">&#39;Failed to create rotatable bonds pattern molecule. The default rotatable bonds SMARTS pattern, &quot;</span><span class="si">%s</span><span class="s1">&quot;, used for </span><span class="si">%s</span><span class="s1"> value of RotBondsSMARTSMode parameter is not valid.&#39;</span>
+  417                     <span class="o">%</span> <span class="p">(</span><span class="n">RotBondsSMARTSPattern</span><span class="p">,</span> <span class="n">RotBondsSMARTSMode</span><span class="p">)</span>
+  418                 <span class="p">)</span>
+  419 
+  420         <span class="bp">self</span><span class="o">.</span><span class="n">RotBondsSMARTSMode</span> <span class="o">=</span> <span class="n">RotBondsSMARTSMode</span>
+  421         <span class="bp">self</span><span class="o">.</span><span class="n">RotBondsSMARTSPattern</span> <span class="o">=</span> <span class="n">RotBondsSMARTSPattern</span>
+  422         <span class="bp">self</span><span class="o">.</span><span class="n">RotBondsPatternMol</span> <span class="o">=</span> <span class="n">RotBondsPatternMol</span>
+  423 
+  424     <span class="k">def</span> <span class="nf">_ProcessTorsionLibraryFilePathParameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">TorsionLibraryFilePath</span><span class="p">):</span>
+  425         <span class="sd">&quot;&quot;&quot;Process torsion library path.&quot;&quot;&quot;</span>
+  426 
+  427         <span class="c1"># TorsionLibraryFilePath parameter...</span>
+  428         <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^auto$&quot;</span><span class="p">,</span> <span class="n">TorsionLibraryFilePath</span><span class="p">):</span>
+  429             <span class="n">TorsionLibraryFile</span> <span class="o">=</span> <span class="s2">&quot;TorsionStrainEnergyLibrary.xml&quot;</span>
+  430             <span class="n">TorsionLibraryFilePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span> <span class="n">TorsionLibraryFile</span><span class="p">)</span>
+  431             <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">TorsionLibraryFilePath</span><span class="p">):</span>
+  432                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The default torsion alerts library file </span><span class="si">%s</span><span class="s2"> doesn&#39;t exist.&quot;</span> <span class="o">%</span> <span class="n">TorsionLibraryFilePath</span><span class="p">)</span>
+  433         <span class="k">else</span><span class="p">:</span>
+  434             <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">TorsionLibraryFilePath</span><span class="p">):</span>
+  435                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+  436                     <span class="s2">&quot;The file specified, </span><span class="si">%s</span><span class="s2">, for parameter TorsionLibraryFilePath doesn&#39;t exist.&quot;</span>
+  437                     <span class="o">%</span> <span class="n">TorsionLibraryFilePath</span>
+  438                 <span class="p">)</span>
+  439             <span class="n">TorsionLibraryFilePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">TorsionLibraryFilePath</span><span class="p">)</span>
+  440 
+  441         <span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryFilePath</span> <span class="o">=</span> <span class="n">TorsionLibraryFilePath</span>
+  442 
+  443     <span class="k">def</span> <span class="nf">GetTorsionLibraryFilePath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  444         <span class="sd">&quot;&quot;&quot;Get torsion strain library file path.</span>
+  445 
+  446 <span class="sd">        Arguments:</span>
+  447 <span class="sd">            None</span>
+  448 
+  449 <span class="sd">        Returns:</span>
+  450 <span class="sd">            FilePath (str): Torsion strain library path.</span>
+  451 
+  452 <span class="sd">        &quot;&quot;&quot;</span>
+  453 
+  454         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryFilePath</span>
+  455 
+  456     <span class="k">def</span> <span class="nf">ListTorsionLibraryInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  457         <span class="sd">&quot;&quot;&quot;List torsion strain library information.</span>
+  458 
+  459 <span class="sd">        Arguments:</span>
+  460 <span class="sd">            None</span>
+  461 
+  462 <span class="sd">        Returns:</span>
+  463 <span class="sd">            None</span>
+  464 
+  465 <span class="sd">        &quot;&quot;&quot;</span>
+  466 
+  467         <span class="k">return</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">ListTorsionLibraryInfo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryInfo</span><span class="p">[</span><span class="s2">&quot;TorsionLibElementTree&quot;</span><span class="p">])</span>
+  468 
+  469     <span class="k">def</span> <span class="nf">IdentifyTorsionLibraryAlertsForRotatableBonds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">):</span>
+  470         <span class="sd">&quot;&quot;&quot;Identify torsion strain library alerts for a molecule by matching rotatable</span>
+  471 <span class="sd">        bonds against SMARTS patterns specified for torsion rules in torsion energy</span>
+  472 <span class="sd">        library file.</span>
+  473 
+  474 <span class="sd">        Arguments:</span>
+  475 <span class="sd">            Mol (object): RDKit molecule object.</span>
+  476 
+  477 <span class="sd">        Returns:</span>
+  478 <span class="sd">            bool: True - Molecule contains strained torsions; False - Molecule</span>
+  479 <span class="sd">                contains no strained torsions or rotatable bonds.</span>
+  480 <span class="sd">            dict or None: Torsion alerts information regarding matching of</span>
+  481 <span class="sd">                rotatable bonds to torsion strain library.</span>
+  482 
+  483 <span class="sd">        Examples:</span>
+  484 
+  485 <span class="sd">            from TorsionAlerts.TorsionStrainEnergyAlerts import</span>
+  486 <span class="sd">                TorsionStrainEnergyAlerts</span>
+  487 
+  488 <span class="sd">            StrainEnergyAlerts = TorsionStrainEnergyAlerts()</span>
+  489 <span class="sd">            AlertsStatus, AlertsInfo = StrainEnergyAlerts.</span>
+  490 <span class="sd">                IdentifyTorsionLibraryAlertsForRotatableBonds(RDKitMol)</span>
+  491 
+  492 <span class="sd">            RotBondsAlertsStatus = AlertsInfo[&quot;RotBondsAlertsStatus&quot;]</span>
+  493 <span class="sd">            TotalEnergy = AlertsInfo[&quot;TotalEnergy&quot;]</span>
+  494 <span class="sd">            TotalEnergyLowerBound = AlertsInfo[&quot;TotalEnergyLowerBound&quot;]</span>
+  495 <span class="sd">            TotalEnergyUpperBound = AlertsInfo[&quot;TotalEnergyUpperBound&quot;]</span>
+  496 <span class="sd">            AnglesNotObservedCount = AlertsInfo[&quot;AnglesNotObservedCount&quot;]</span>
+  497 <span class="sd">            MaxSingleEnergy = AlertsInfo[&quot;MaxSingleEnergy&quot;])</span>
+  498 <span class="sd">            MaxSingleEnergyAlertsCount = AlertsInfo[</span>
+  499 <span class="sd">                &quot;MaxSingleEnergyAlertsCount&quot;]</span>
+  500 
+  501 <span class="sd">            # List of rotatable bond IDs...</span>
+  502 <span class="sd">            RotatableBondIDs = AlertsInfo[&quot;IDs&quot;]</span>
+  503 
+  504 <span class="sd">            # Dictionaries containing information for rotatable bonds by using</span>
+  505 <span class="sd">            # bond ID as key...</span>
+  506 <span class="sd">            for ID in AlertsInfo[&quot;IDs&quot;]:</span>
+  507 <span class="sd">                MatchStatus = AlertsInfo[&quot;MatchStatus&quot;][ID]</span>
+  508 <span class="sd">                MaxSingleEnergyAlertStatus = AlertsInfo[</span>
+  509 <span class="sd">                    &quot;MaxSingleEnergyAlertStatus&quot;][ID]</span>
+  510 <span class="sd">                AtomIndices = AlertsInfo[&quot;AtomIndices&quot;][ID]</span>
+  511 <span class="sd">                TorsionAtomIndices = AlertsInfo[&quot;TorsionAtomIndices&quot;][ID]</span>
+  512 <span class="sd">                TorsionAngle = AlertsInfo[&quot;TorsionAngle&quot;][ID]</span>
+  513 <span class="sd">                HierarchyClassName = AlertsInfo[&quot;HierarchyClassName&quot;][ID]</span>
+  514 <span class="sd">                HierarchySubClassName = AlertsInfo[&quot;HierarchySubClassName&quot;][ID]</span>
+  515 <span class="sd">                TorsionRuleNodeID = AlertsInfo[&quot;TorsionRuleNodeID&quot;][ID]</span>
+  516 <span class="sd">                TorsionRuleSMARTS = AlertsInfo[&quot;TorsionRuleSMARTS&quot;][ID]</span>
+  517 <span class="sd">                EnergyMethod = AlertsInfo[&quot;EnergyMethod&quot;][ID]</span>
+  518 <span class="sd">                AngleNotObserved = AlertsInfo[&quot;AngleNotObserved&quot;][ID]</span>
+  519 <span class="sd">                Energy = AlertsInfo[&quot;Energy&quot;][ID]</span>
+  520 <span class="sd">                EnergyLowerBound = AlertsInfo[&quot;EnergyLowerBound&quot;][ID]</span>
+  521 <span class="sd">                EnergyUpperBound = AlertsInfo[&quot;EnergyUpperBound&quot;][ID]</span>
+  522 
+  523 <span class="sd">        &quot;&quot;&quot;</span>
+  524 
+  525         <span class="c1"># Identify rotatable bonds...</span>
+  526         <span class="n">RotBondsStatus</span><span class="p">,</span> <span class="n">RotBondsInfo</span> <span class="o">=</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">IdentifyRotatableBondsForTorsionLibraryMatch</span><span class="p">(</span>
+  527             <span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryInfo</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">RotBondsPatternMol</span>
+  528         <span class="p">)</span>
+  529 
+  530         <span class="k">if</span> <span class="ow">not</span> <span class="n">RotBondsStatus</span><span class="p">:</span>
+  531             <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+  532 
+  533         <span class="c1"># Identify alerts for rotatable bonds...</span>
+  534         <span class="n">RotBondsAlertsStatus</span><span class="p">,</span> <span class="n">RotBondsAlertsInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MatchRotatableBondsToTorsionLibrary</span><span class="p">(</span><span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondsInfo</span><span class="p">)</span>
+  535 
+  536         <span class="k">return</span> <span class="p">(</span><span class="n">RotBondsAlertsStatus</span><span class="p">,</span> <span class="n">RotBondsAlertsInfo</span><span class="p">)</span>
+  537 
+  538     <span class="k">def</span> <span class="nf">_MatchRotatableBondsToTorsionLibrary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondsInfo</span><span class="p">):</span>
+  539         <span class="sd">&quot;&quot;&quot;Match rotatable bond to torsion library.&quot;&quot;&quot;</span>
+  540 
+  541         <span class="c1"># Initialize...</span>
+  542         <span class="n">RotBondsAlertsInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_InitializeRotatableBondsAlertsInfo</span><span class="p">()</span>
+  543 
+  544         <span class="c1"># Match rotatable bonds to torsion library...</span>
+  545         <span class="k">for</span> <span class="n">ID</span> <span class="ow">in</span> <span class="n">RotBondsInfo</span><span class="p">[</span><span class="s2">&quot;IDs&quot;</span><span class="p">]:</span>
+  546             <span class="n">AtomIndices</span> <span class="o">=</span> <span class="n">RotBondsInfo</span><span class="p">[</span><span class="s2">&quot;AtomIndices&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span>
+  547             <span class="n">HierarchyClass</span> <span class="o">=</span> <span class="n">RotBondsInfo</span><span class="p">[</span><span class="s2">&quot;HierarchyClass&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span>
+  548 
+  549             <span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MatchRotatableBondToTorsionLibrary</span><span class="p">(</span><span class="n">Mol</span><span class="p">,</span> <span class="n">AtomIndices</span><span class="p">,</span> <span class="n">HierarchyClass</span><span class="p">)</span>
+  550             <span class="bp">self</span><span class="o">.</span><span class="n">_TrackRotatableBondsAlertsInfo</span><span class="p">(</span><span class="n">RotBondsAlertsInfo</span><span class="p">,</span> <span class="n">ID</span><span class="p">,</span> <span class="n">AtomIndices</span><span class="p">,</span> <span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span><span class="p">)</span>
+  551 
+  552         <span class="n">RotBondsAlertsStatus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_SetupRotatableBondsAlertStatusTotalStrainEnergiesInfo</span><span class="p">(</span><span class="n">RotBondsAlertsInfo</span><span class="p">)</span>
+  553 
+  554         <span class="k">return</span> <span class="p">(</span><span class="n">RotBondsAlertsStatus</span><span class="p">,</span> <span class="n">RotBondsAlertsInfo</span><span class="p">)</span>
+  555 
+  556     <span class="k">def</span> <span class="nf">_InitializeRotatableBondsAlertsInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  557         <span class="sd">&quot;&quot;&quot;Initialize alerts information for rotatable bonds.&quot;&quot;&quot;</span>
+  558 
+  559         <span class="n">RotBondsAlertsInfo</span> <span class="o">=</span> <span class="p">{}</span>
+  560         <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;IDs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+  561 
+  562         <span class="k">for</span> <span class="n">DataLabel</span> <span class="ow">in</span> <span class="p">[</span>
+  563             <span class="s2">&quot;RotBondsAlertsStatus&quot;</span><span class="p">,</span>
+  564             <span class="s2">&quot;TotalEnergy&quot;</span><span class="p">,</span>
+  565             <span class="s2">&quot;TotalEnergyLowerBound&quot;</span><span class="p">,</span>
+  566             <span class="s2">&quot;TotalEnergyUpperBound&quot;</span><span class="p">,</span>
+  567             <span class="s2">&quot;AnglesNotObservedCount&quot;</span><span class="p">,</span>
+  568             <span class="s2">&quot;MaxSingleEnergy&quot;</span><span class="p">,</span>
+  569             <span class="s2">&quot;MaxSingleEnergyAlertsCount&quot;</span><span class="p">,</span>
+  570         <span class="p">]:</span>
+  571             <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="n">DataLabel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+  572 
+  573         <span class="k">for</span> <span class="n">DataLabel</span> <span class="ow">in</span> <span class="p">[</span>
+  574             <span class="s2">&quot;MatchStatus&quot;</span><span class="p">,</span>
+  575             <span class="s2">&quot;MaxSingleEnergyAlertStatus&quot;</span><span class="p">,</span>
+  576             <span class="s2">&quot;AtomIndices&quot;</span><span class="p">,</span>
+  577             <span class="s2">&quot;TorsionAtomIndices&quot;</span><span class="p">,</span>
+  578             <span class="s2">&quot;TorsionAngle&quot;</span><span class="p">,</span>
+  579             <span class="s2">&quot;HierarchyClassName&quot;</span><span class="p">,</span>
+  580             <span class="s2">&quot;HierarchySubClassName&quot;</span><span class="p">,</span>
+  581             <span class="s2">&quot;TorsionRuleNodeID&quot;</span><span class="p">,</span>
+  582             <span class="s2">&quot;TorsionRuleSMARTS&quot;</span><span class="p">,</span>
+  583             <span class="s2">&quot;EnergyMethod&quot;</span><span class="p">,</span>
+  584             <span class="s2">&quot;AngleNotObserved&quot;</span><span class="p">,</span>
+  585             <span class="s2">&quot;Energy&quot;</span><span class="p">,</span>
+  586             <span class="s2">&quot;EnergyLowerBound&quot;</span><span class="p">,</span>
+  587             <span class="s2">&quot;EnergyUpperBound&quot;</span><span class="p">,</span>
+  588         <span class="p">]:</span>
+  589             <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="n">DataLabel</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+  590 
+  591         <span class="k">return</span> <span class="n">RotBondsAlertsInfo</span>
+  592 
+  593     <span class="k">def</span> <span class="nf">_TrackRotatableBondsAlertsInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">RotBondsAlertsInfo</span><span class="p">,</span> <span class="n">ID</span><span class="p">,</span> <span class="n">AtomIndices</span><span class="p">,</span> <span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span><span class="p">):</span>
+  594         <span class="sd">&quot;&quot;&quot;Track alerts information for rotatable bonds.&quot;&quot;&quot;</span>
+  595 
+  596         <span class="k">if</span> <span class="n">MatchInfo</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">MatchInfo</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+  597             <span class="p">(</span>
+  598                 <span class="n">TorsionAtomIndices</span><span class="p">,</span>
+  599                 <span class="n">TorsionAngle</span><span class="p">,</span>
+  600                 <span class="n">HierarchyClassName</span><span class="p">,</span>
+  601                 <span class="n">HierarchySubClassName</span><span class="p">,</span>
+  602                 <span class="n">TorsionRuleNodeID</span><span class="p">,</span>
+  603                 <span class="n">TorsionRuleSMARTS</span><span class="p">,</span>
+  604                 <span class="n">EnergyMethod</span><span class="p">,</span>
+  605                 <span class="n">AngleNotObserved</span><span class="p">,</span>
+  606                 <span class="n">Energy</span><span class="p">,</span>
+  607                 <span class="n">EnergyLowerBound</span><span class="p">,</span>
+  608                 <span class="n">EnergyUpperBound</span><span class="p">,</span>
+  609             <span class="p">)</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="mi">11</span>
+  610         <span class="k">else</span><span class="p">:</span>
+  611             <span class="p">(</span>
+  612                 <span class="n">TorsionAtomIndices</span><span class="p">,</span>
+  613                 <span class="n">TorsionAngle</span><span class="p">,</span>
+  614                 <span class="n">HierarchyClassName</span><span class="p">,</span>
+  615                 <span class="n">HierarchySubClassName</span><span class="p">,</span>
+  616                 <span class="n">TorsionRuleNodeID</span><span class="p">,</span>
+  617                 <span class="n">TorsionRuleSMARTS</span><span class="p">,</span>
+  618                 <span class="n">EnergyMethod</span><span class="p">,</span>
+  619                 <span class="n">AngleNotObserved</span><span class="p">,</span>
+  620                 <span class="n">Energy</span><span class="p">,</span>
+  621                 <span class="n">EnergyLowerBound</span><span class="p">,</span>
+  622                 <span class="n">EnergyUpperBound</span><span class="p">,</span>
+  623             <span class="p">)</span> <span class="o">=</span> <span class="n">MatchInfo</span>
+  624 
+  625         <span class="c1"># Track torsion match information...</span>
+  626         <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;IDs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ID</span><span class="p">)</span>
+  627         <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;MatchStatus&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">MatchStatus</span>
+  628         <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;AtomIndices&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">AtomIndices</span>
+  629         <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;TorsionAtomIndices&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">TorsionAtomIndices</span>
+  630         <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;TorsionAngle&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">TorsionAngle</span>
+  631         <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;HierarchyClassName&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">HierarchyClassName</span>
+  632         <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;HierarchySubClassName&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">HierarchySubClassName</span>
+  633         <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;TorsionRuleNodeID&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">TorsionRuleNodeID</span>
+  634         <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;TorsionRuleSMARTS&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">TorsionRuleSMARTS</span>
+  635         <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;EnergyMethod&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">EnergyMethod</span>
+  636         <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;AngleNotObserved&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">AngleNotObserved</span>
+  637         <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;Energy&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">Energy</span>
+  638         <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;EnergyLowerBound&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">EnergyLowerBound</span>
+  639         <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;EnergyUpperBound&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">EnergyUpperBound</span>
+  640 
+  641     <span class="k">def</span> <span class="nf">_SetupRotatableBondsAlertStatusTotalStrainEnergiesInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">RotBondsAlertsInfo</span><span class="p">):</span>
+  642         <span class="sd">&quot;&quot;&quot;Setup rotatable bonds alert status along with total strain energies.&quot;&quot;&quot;</span>
+  643 
+  644         <span class="c1"># Initialize...</span>
+  645         <span class="n">RotBondsAlertsStatus</span> <span class="o">=</span> <span class="kc">False</span>
+  646         <span class="n">TotalEnergy</span><span class="p">,</span> <span class="n">TotalEnergyLowerBound</span><span class="p">,</span> <span class="n">TotalEnergyUpperBound</span><span class="p">,</span> <span class="n">AnglesNotObservedCount</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+  647         <span class="n">MaxSingleEnergy</span><span class="p">,</span> <span class="n">MaxSingleEnergyAlertsCount</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+  648 
+  649         <span class="c1"># Initialize max single energy alert status...</span>
+  650         <span class="k">for</span> <span class="n">ID</span> <span class="ow">in</span> <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;IDs&quot;</span><span class="p">]:</span>
+  651             <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;MaxSingleEnergyAlertStatus&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+  652 
+  653         <span class="c1"># Check for torsion angles not obervered in the strain library...</span>
+  654         <span class="n">AnglesNotObservedCount</span> <span class="o">=</span> <span class="mi">0</span>
+  655         <span class="k">for</span> <span class="n">ID</span> <span class="ow">in</span> <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;IDs&quot;</span><span class="p">]:</span>
+  656             <span class="n">AngleNotObserved</span> <span class="o">=</span> <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;AngleNotObserved&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span>
+  657             <span class="k">if</span> <span class="n">AngleNotObserved</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">AngleNotObserved</span><span class="p">:</span>
+  658                 <span class="n">AnglesNotObservedCount</span> <span class="o">+=</span> <span class="mi">1</span>
+  659 
+  660         <span class="c1"># Setup alert status for rotable bonds...</span>
+  661         <span class="k">if</span> <span class="n">AnglesNotObservedCount</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+  662             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">AlertTorsionsNotObserved</span><span class="p">:</span>
+  663                 <span class="n">RotBondsAlertsStatus</span> <span class="o">=</span> <span class="kc">True</span>
+  664         <span class="k">else</span><span class="p">:</span>
+  665             <span class="n">TotalEnergy</span> <span class="o">=</span> <span class="mf">0.0</span>
+  666             <span class="k">for</span> <span class="n">ID</span> <span class="ow">in</span> <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;IDs&quot;</span><span class="p">]:</span>
+  667                 <span class="n">Energy</span> <span class="o">=</span> <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;Energy&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span>
+  668                 <span class="n">TotalEnergy</span> <span class="o">+=</span> <span class="n">Energy</span>
+  669                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">TotalEnergyMode</span><span class="p">:</span>
+  670                     <span class="k">if</span> <span class="n">TotalEnergy</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">TotalEnergyCutoff</span><span class="p">:</span>
+  671                         <span class="n">RotBondsAlertsStatus</span> <span class="o">=</span> <span class="kc">True</span>
+  672                         <span class="k">break</span>
+  673                 <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">MaxSingleEnergyMode</span><span class="p">:</span>
+  674                     <span class="k">if</span> <span class="n">Energy</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">MaxSingleEnergyCutoff</span><span class="p">:</span>
+  675                         <span class="n">RotBondsAlertsStatus</span> <span class="o">=</span> <span class="kc">True</span>
+  676                         <span class="k">break</span>
+  677                 <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">TotalOrMaxSingleEnergyMode</span><span class="p">:</span>
+  678                     <span class="k">if</span> <span class="n">TotalEnergy</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">TotalEnergyCutoff</span> <span class="ow">or</span> <span class="n">Energy</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">MaxSingleEnergyCutoff</span><span class="p">:</span>
+  679                         <span class="n">RotBondsAlertsStatus</span> <span class="o">=</span> <span class="kc">True</span>
+  680                         <span class="k">break</span>
+  681 
+  682             <span class="c1"># Setup energy infomation...</span>
+  683             <span class="n">TotalEnergy</span><span class="p">,</span> <span class="n">TotalEnergyLowerBound</span><span class="p">,</span> <span class="n">TotalEnergyUpperBound</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
+  684             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">MaxSingleEnergyMode</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">TotalOrMaxSingleEnergyMode</span><span class="p">:</span>
+  685                 <span class="n">MaxSingleEnergy</span><span class="p">,</span> <span class="n">MaxSingleEnergyAlertsCount</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+  686 
+  687             <span class="k">for</span> <span class="n">ID</span> <span class="ow">in</span> <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;IDs&quot;</span><span class="p">]:</span>
+  688                 <span class="n">Energy</span> <span class="o">=</span> <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;Energy&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span>
+  689 
+  690                 <span class="c1"># Setup total energy along with the lower and upper bounds...</span>
+  691                 <span class="n">TotalEnergy</span> <span class="o">+=</span> <span class="n">Energy</span>
+  692                 <span class="n">TotalEnergyLowerBound</span> <span class="o">+=</span> <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;EnergyLowerBound&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span>
+  693                 <span class="n">TotalEnergyUpperBound</span> <span class="o">+=</span> <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;EnergyUpperBound&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span>
+  694 
+  695                 <span class="c1"># Setup max single energy and max single energy alerts count...</span>
+  696                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">MaxSingleEnergyMode</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">TotalOrMaxSingleEnergyMode</span><span class="p">:</span>
+  697                     <span class="n">MaxSingleEnergyAlertStatus</span> <span class="o">=</span> <span class="kc">False</span>
+  698 
+  699                     <span class="k">if</span> <span class="n">Energy</span> <span class="o">&gt;</span> <span class="n">MaxSingleEnergy</span><span class="p">:</span>
+  700                         <span class="n">MaxSingleEnergy</span> <span class="o">=</span> <span class="n">Energy</span>
+  701                         <span class="k">if</span> <span class="n">Energy</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">MaxSingleEnergyCutoff</span><span class="p">:</span>
+  702                             <span class="n">MaxSingleEnergyAlertStatus</span> <span class="o">=</span> <span class="kc">True</span>
+  703                             <span class="n">MaxSingleEnergyAlertsCount</span> <span class="o">+=</span> <span class="mi">1</span>
+  704 
+  705                     <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;MaxSingleEnergyAlertStatus&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">MaxSingleEnergyAlertStatus</span>
+  706 
+  707         <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;RotBondsAlertsStatus&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">RotBondsAlertsStatus</span>
+  708 
+  709         <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;TotalEnergy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">TotalEnergy</span>
+  710         <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;TotalEnergyLowerBound&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">TotalEnergyLowerBound</span>
+  711         <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;TotalEnergyUpperBound&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">TotalEnergyUpperBound</span>
+  712 
+  713         <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;AnglesNotObservedCount&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">AnglesNotObservedCount</span>
+  714 
+  715         <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;MaxSingleEnergy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">MaxSingleEnergy</span>
+  716         <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;MaxSingleEnergyAlertsCount&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">MaxSingleEnergyAlertsCount</span>
+  717 
+  718         <span class="k">return</span> <span class="n">RotBondsAlertsStatus</span>
+  719 
+  720     <span class="k">def</span> <span class="nf">_MatchRotatableBondToTorsionLibrary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">RotBondHierarchyClass</span><span class="p">):</span>
+  721         <span class="sd">&quot;&quot;&quot;Match rotatable bond to torsion library.&quot;&quot;&quot;</span>
+  722 
+  723         <span class="k">if</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">IsSpecificHierarchyClass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryInfo</span><span class="p">,</span> <span class="n">RotBondHierarchyClass</span><span class="p">):</span>
+  724             <span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MatchRotatableBondAgainstSpecificHierarchyClass</span><span class="p">(</span>
+  725                 <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">RotBondHierarchyClass</span>
+  726             <span class="p">)</span>
+  727             <span class="k">if</span> <span class="ow">not</span> <span class="n">MatchStatus</span><span class="p">:</span>
+  728                 <span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MatchRotatableBondAgainstGenericHierarchyClass</span><span class="p">(</span>
+  729                     <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">RotBondHierarchyClass</span>
+  730                 <span class="p">)</span>
+  731         <span class="k">else</span><span class="p">:</span>
+  732             <span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MatchRotatableBondAgainstGenericHierarchyClass</span><span class="p">(</span>
+  733                 <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">RotBondHierarchyClass</span>
+  734             <span class="p">)</span>
+  735 
+  736         <span class="k">return</span> <span class="p">(</span><span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span><span class="p">)</span>
+  737 
+  738     <span class="k">def</span> <span class="nf">_MatchRotatableBondAgainstSpecificHierarchyClass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">RotBondHierarchyClass</span><span class="p">):</span>
+  739         <span class="sd">&quot;&quot;&quot;Match rotatable bond against a specific hierarchy class.&quot;&quot;&quot;</span>
+  740 
+  741         <span class="n">TorsionLibraryInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryInfo</span>
+  742 
+  743         <span class="n">HierarchyClassElementNode</span> <span class="o">=</span> <span class="kc">None</span>
+  744         <span class="k">if</span> <span class="n">RotBondHierarchyClass</span> <span class="ow">in</span> <span class="n">TorsionLibraryInfo</span><span class="p">[</span><span class="s2">&quot;SpecificClasses&quot;</span><span class="p">][</span><span class="s2">&quot;ElementNode&quot;</span><span class="p">]:</span>
+  745             <span class="n">HierarchyClassElementNode</span> <span class="o">=</span> <span class="n">TorsionLibraryInfo</span><span class="p">[</span><span class="s2">&quot;SpecificClasses&quot;</span><span class="p">][</span><span class="s2">&quot;ElementNode&quot;</span><span class="p">][</span><span class="n">RotBondHierarchyClass</span><span class="p">]</span>
+  746 
+  747         <span class="k">if</span> <span class="n">HierarchyClassElementNode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  748             <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+  749 
+  750         <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">TrackHierarchyClassElementNode</span><span class="p">(</span><span class="n">TorsionLibraryInfo</span><span class="p">,</span> <span class="n">HierarchyClassElementNode</span><span class="p">)</span>
+  751         <span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ProcessElementForRotatableBondMatch</span><span class="p">(</span>
+  752             <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">HierarchyClassElementNode</span>
+  753         <span class="p">)</span>
+  754         <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">RemoveLastHierarchyClassElementNodeFromTracking</span><span class="p">(</span><span class="n">TorsionLibraryInfo</span><span class="p">)</span>
+  755 
+  756         <span class="k">return</span> <span class="p">(</span><span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span><span class="p">)</span>
+  757 
+  758     <span class="k">def</span> <span class="nf">_MatchRotatableBondAgainstGenericHierarchyClass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">RotBondHierarchyClass</span><span class="p">):</span>
+  759         <span class="sd">&quot;&quot;&quot;Match rotatable bond against a generic hierarchy class.&quot;&quot;&quot;</span>
+  760 
+  761         <span class="n">TorsionLibraryInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryInfo</span>
+  762 
+  763         <span class="n">HierarchyClassElementNode</span> <span class="o">=</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">GetGenericHierarchyClassElementNode</span><span class="p">(</span><span class="n">TorsionLibraryInfo</span><span class="p">)</span>
+  764         <span class="k">if</span> <span class="n">HierarchyClassElementNode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  765             <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+  766 
+  767         <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">TrackHierarchyClassElementNode</span><span class="p">(</span><span class="n">TorsionLibraryInfo</span><span class="p">,</span> <span class="n">HierarchyClassElementNode</span><span class="p">)</span>
+  768 
+  769         <span class="c1">#  Match hierarchy subclasses before matching torsion rules...</span>
+  770         <span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MatchRotatableBondAgainstGenericHierarchySubClasses</span><span class="p">(</span>
+  771             <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">HierarchyClassElementNode</span>
+  772         <span class="p">)</span>
+  773 
+  774         <span class="k">if</span> <span class="ow">not</span> <span class="n">MatchStatus</span><span class="p">:</span>
+  775             <span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MatchRotatableBondAgainstGenericHierarchyTorsionRules</span><span class="p">(</span>
+  776                 <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">HierarchyClassElementNode</span>
+  777             <span class="p">)</span>
+  778 
+  779         <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">RemoveLastHierarchyClassElementNodeFromTracking</span><span class="p">(</span><span class="n">TorsionLibraryInfo</span><span class="p">)</span>
+  780 
+  781         <span class="k">return</span> <span class="p">(</span><span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span><span class="p">)</span>
+  782 
+  783     <span class="k">def</span> <span class="nf">_MatchRotatableBondAgainstGenericHierarchySubClasses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">HierarchyClassElementNode</span><span class="p">):</span>
+  784         <span class="sd">&quot;&quot;&quot;Match rotatable bond againat generic hierarchy subclasses.&quot;&quot;&quot;</span>
+  785 
+  786         <span class="k">for</span> <span class="n">ElementChildNode</span> <span class="ow">in</span> <span class="n">HierarchyClassElementNode</span><span class="p">:</span>
+  787             <span class="k">if</span> <span class="n">ElementChildNode</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="s2">&quot;hierarchySubClass&quot;</span><span class="p">:</span>
+  788                 <span class="k">continue</span>
+  789 
+  790             <span class="n">SubClassMatchStatus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ProcessHierarchySubClassElementForRotatableBondMatch</span><span class="p">(</span>
+  791                 <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">ElementChildNode</span>
+  792             <span class="p">)</span>
+  793 
+  794             <span class="k">if</span> <span class="n">SubClassMatchStatus</span><span class="p">:</span>
+  795                 <span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ProcessElementForRotatableBondMatch</span><span class="p">(</span>
+  796                     <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">ElementChildNode</span>
+  797                 <span class="p">)</span>
+  798 
+  799                 <span class="k">if</span> <span class="n">MatchStatus</span><span class="p">:</span>
+  800                     <span class="k">return</span> <span class="p">(</span><span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span><span class="p">)</span>
+  801 
+  802         <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+  803 
+  804     <span class="k">def</span> <span class="nf">_MatchRotatableBondAgainstGenericHierarchyTorsionRules</span><span class="p">(</span>
+  805         <span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">HierarchyClassElementNode</span>
+  806     <span class="p">):</span>
+  807         <span class="sd">&quot;&quot;&quot;Match rotatable bond againat torsion rules generic hierarchy class.&quot;&quot;&quot;</span>
+  808 
+  809         <span class="k">for</span> <span class="n">ElementChildNode</span> <span class="ow">in</span> <span class="n">HierarchyClassElementNode</span><span class="p">:</span>
+  810             <span class="k">if</span> <span class="n">ElementChildNode</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="s2">&quot;torsionRule&quot;</span><span class="p">:</span>
+  811                 <span class="k">continue</span>
+  812 
+  813             <span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ProcessTorsionRuleElementForRotatableBondMatch</span><span class="p">(</span>
+  814                 <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">ElementChildNode</span>
+  815             <span class="p">)</span>
+  816 
+  817             <span class="k">if</span> <span class="n">MatchStatus</span><span class="p">:</span>
+  818                 <span class="k">return</span> <span class="p">(</span><span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span><span class="p">)</span>
+  819 
+  820         <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+  821 
+  822     <span class="k">def</span> <span class="nf">_ProcessElementForRotatableBondMatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">):</span>
+  823         <span class="sd">&quot;&quot;&quot;Process element node to recursively match rotatable bond against hierarchy</span>
+  824 <span class="sd">        subclasses and torsion rules.&quot;&quot;&quot;</span>
+  825 
+  826         <span class="n">TorsionLibraryInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryInfo</span>
+  827 
+  828         <span class="k">for</span> <span class="n">ElementChildNode</span> <span class="ow">in</span> <span class="n">ElementNode</span><span class="p">:</span>
+  829             <span class="k">if</span> <span class="n">ElementChildNode</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;hierarchySubClass&quot;</span><span class="p">:</span>
+  830                 <span class="n">SubClassMatchStatus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ProcessHierarchySubClassElementForRotatableBondMatch</span><span class="p">(</span>
+  831                     <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">ElementChildNode</span>
+  832                 <span class="p">)</span>
+  833 
+  834                 <span class="k">if</span> <span class="n">SubClassMatchStatus</span><span class="p">:</span>
+  835                     <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">TrackHierarchySubClassElementNode</span><span class="p">(</span><span class="n">TorsionLibraryInfo</span><span class="p">,</span> <span class="n">ElementChildNode</span><span class="p">)</span>
+  836 
+  837                     <span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ProcessElementForRotatableBondMatch</span><span class="p">(</span>
+  838                         <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">ElementChildNode</span>
+  839                     <span class="p">)</span>
+  840                     <span class="k">if</span> <span class="n">MatchStatus</span><span class="p">:</span>
+  841                         <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">RemoveLastHierarchySubClassElementNodeFromTracking</span><span class="p">(</span><span class="n">TorsionLibraryInfo</span><span class="p">)</span>
+  842                         <span class="k">return</span> <span class="p">(</span><span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span><span class="p">)</span>
+  843 
+  844                     <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">RemoveLastHierarchySubClassElementNodeFromTracking</span><span class="p">(</span><span class="n">TorsionLibraryInfo</span><span class="p">)</span>
+  845 
+  846             <span class="k">elif</span> <span class="n">ElementChildNode</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;torsionRule&quot;</span><span class="p">:</span>
+  847                 <span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ProcessTorsionRuleElementForRotatableBondMatch</span><span class="p">(</span>
+  848                     <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">ElementChildNode</span>
+  849                 <span class="p">)</span>
+  850 
+  851                 <span class="k">if</span> <span class="n">MatchStatus</span><span class="p">:</span>
+  852                     <span class="k">return</span> <span class="p">(</span><span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span><span class="p">)</span>
+  853 
+  854         <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+  855 
+  856     <span class="k">def</span> <span class="nf">_ProcessHierarchySubClassElementForRotatableBondMatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">):</span>
+  857         <span class="sd">&quot;&quot;&quot;Process hierarchy subclass element to match rotatable bond.&quot;&quot;&quot;</span>
+  858 
+  859         <span class="c1"># Setup subclass SMARTS pattern mol...</span>
+  860         <span class="n">SubClassPatternMol</span> <span class="o">=</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">SetupHierarchySubClassElementPatternMol</span><span class="p">(</span>
+  861             <span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryInfo</span><span class="p">,</span> <span class="n">ElementNode</span>
+  862         <span class="p">)</span>
+  863         <span class="k">if</span> <span class="n">SubClassPatternMol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  864             <span class="k">return</span> <span class="kc">False</span>
+  865 
+  866         <span class="c1"># Match SMARTS pattern...</span>
+  867         <span class="n">SubClassPatternMatches</span> <span class="o">=</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">FilterSubstructureMatchesByAtomMapNumbers</span><span class="p">(</span>
+  868             <span class="n">Mol</span><span class="p">,</span> <span class="n">SubClassPatternMol</span><span class="p">,</span> <span class="n">Mol</span><span class="o">.</span><span class="n">GetSubstructMatches</span><span class="p">(</span><span class="n">SubClassPatternMol</span><span class="p">,</span> <span class="n">useChirality</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+  869         <span class="p">)</span>
+  870         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">SubClassPatternMatches</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+  871             <span class="k">return</span> <span class="kc">False</span>
+  872 
+  873         <span class="c1"># Match rotatable bond indices...</span>
+  874         <span class="n">RotBondAtomIndex1</span><span class="p">,</span> <span class="n">RotBondAtomIndex2</span> <span class="o">=</span> <span class="n">RotBondAtomIndices</span>
+  875         <span class="n">MatchStatus</span> <span class="o">=</span> <span class="kc">False</span>
+  876         <span class="k">for</span> <span class="n">SubClassPatternMatch</span> <span class="ow">in</span> <span class="n">SubClassPatternMatches</span><span class="p">:</span>
+  877             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">SubClassPatternMatch</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+  878                 <span class="c1"># Matched to pattern containing map atom numbers &quot;:2&quot; and &quot;:3&quot;...</span>
+  879                 <span class="n">CentralAtomsIndex1</span><span class="p">,</span> <span class="n">CentralAtomsIndex2</span> <span class="o">=</span> <span class="n">SubClassPatternMatch</span>
+  880             <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">SubClassPatternMatch</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+  881                 <span class="c1"># Matched to pattern containing map atom numbers &quot;:1&quot;, &quot;:2&quot;, &quot;:3&quot; and &quot;:4&quot;...</span>
+  882                 <span class="n">CentralAtomsIndex1</span> <span class="o">=</span> <span class="n">SubClassPatternMatch</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+  883                 <span class="n">CentralAtomsIndex2</span> <span class="o">=</span> <span class="n">SubClassPatternMatch</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+  884             <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">SubClassPatternMatch</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+  885                 <span class="n">SubClassSMARTSPattern</span> <span class="o">=</span> <span class="n">ElementNode</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;smarts&quot;</span><span class="p">)</span>
+  886                 <span class="k">if</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">DoesSMARTSContainsMappedAtoms</span><span class="p">(</span><span class="n">SubClassSMARTSPattern</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;:2&quot;</span><span class="p">,</span> <span class="s2">&quot;:3&quot;</span><span class="p">,</span> <span class="s2">&quot;:4&quot;</span><span class="p">]):</span>
+  887                     <span class="c1"># Matched to pattern containing map atom numbers &quot;:2&quot;, &quot;:3&quot; and &quot;:4&quot;...</span>
+  888                     <span class="n">CentralAtomsIndex1</span> <span class="o">=</span> <span class="n">SubClassPatternMatch</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+  889                     <span class="n">CentralAtomsIndex2</span> <span class="o">=</span> <span class="n">SubClassPatternMatch</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+  890                 <span class="k">else</span><span class="p">:</span>
+  891                     <span class="c1"># Matched to pattern containing map atom numbers &quot;:1&quot;, &quot;:2&quot; and &quot;:3&quot;...</span>
+  892                     <span class="n">CentralAtomsIndex1</span> <span class="o">=</span> <span class="n">SubClassPatternMatch</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+  893                     <span class="n">CentralAtomsIndex2</span> <span class="o">=</span> <span class="n">SubClassPatternMatch</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+  894             <span class="k">else</span><span class="p">:</span>
+  895                 <span class="k">continue</span>
+  896 
+  897             <span class="k">if</span> <span class="n">CentralAtomsIndex1</span> <span class="o">!=</span> <span class="n">CentralAtomsIndex2</span><span class="p">:</span>
+  898                 <span class="k">if</span> <span class="p">(</span><span class="n">CentralAtomsIndex1</span> <span class="o">==</span> <span class="n">RotBondAtomIndex1</span> <span class="ow">and</span> <span class="n">CentralAtomsIndex2</span> <span class="o">==</span> <span class="n">RotBondAtomIndex2</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+  899                     <span class="n">CentralAtomsIndex1</span> <span class="o">==</span> <span class="n">RotBondAtomIndex2</span> <span class="ow">and</span> <span class="n">CentralAtomsIndex2</span> <span class="o">==</span> <span class="n">RotBondAtomIndex1</span>
+  900                 <span class="p">):</span>
+  901                     <span class="n">MatchStatus</span> <span class="o">=</span> <span class="kc">True</span>
+  902                     <span class="k">break</span>
+  903 
+  904         <span class="k">return</span> <span class="n">MatchStatus</span>
+  905 
+  906     <span class="k">def</span> <span class="nf">_ProcessTorsionRuleElementForRotatableBondMatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">):</span>
+  907         <span class="sd">&quot;&quot;&quot;Process torsion rule element to match rotatable bond.&quot;&quot;&quot;</span>
+  908 
+  909         <span class="n">TorsionLibraryInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryInfo</span>
+  910 
+  911         <span class="c1">#  Retrieve torsions matched to rotatable bond...</span>
+  912         <span class="n">TorsionAtomIndicesList</span><span class="p">,</span> <span class="n">TorsionAnglesList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MatchTorsionRuleToRotatableBond</span><span class="p">(</span>
+  913             <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">ElementNode</span>
+  914         <span class="p">)</span>
+  915         <span class="k">if</span> <span class="n">TorsionAtomIndicesList</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  916             <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+  917 
+  918         <span class="c1"># Setup torsion angles and enery bin information for matched torsion rule...</span>
+  919         <span class="n">TorsionRuleAnglesInfo</span> <span class="o">=</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">SetupTorsionRuleAnglesInfo</span><span class="p">(</span><span class="n">TorsionLibraryInfo</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">)</span>
+  920         <span class="k">if</span> <span class="n">TorsionRuleAnglesInfo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  921             <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+  922 
+  923         <span class="c1"># Setup highest strain energy for matched torsions...</span>
+  924         <span class="n">TorsionAtomIndices</span><span class="p">,</span> <span class="n">TorsionAngle</span><span class="p">,</span> <span class="n">EnergyMethod</span><span class="p">,</span> <span class="n">AngleNotObserved</span><span class="p">,</span> <span class="n">Energy</span><span class="p">,</span> <span class="n">EnergyLowerBound</span><span class="p">,</span> <span class="n">EnergyUpperBound</span> <span class="o">=</span> <span class="p">(</span>
+  925             <span class="bp">self</span><span class="o">.</span><span class="n">_SelectHighestStrainEnergyTorsionForRotatableBond</span><span class="p">(</span>
+  926                 <span class="n">TorsionRuleAnglesInfo</span><span class="p">,</span> <span class="n">TorsionAtomIndicesList</span><span class="p">,</span> <span class="n">TorsionAnglesList</span>
+  927             <span class="p">)</span>
+  928         <span class="p">)</span>
+  929 
+  930         <span class="c1"># Setup hierarchy class and subclass names...</span>
+  931         <span class="n">HierarchyClassName</span><span class="p">,</span> <span class="n">HierarchySubClassName</span> <span class="o">=</span> <span class="p">(</span>
+  932             <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">SetupHierarchyClassAndSubClassNamesForRotatableBond</span><span class="p">(</span><span class="n">TorsionLibraryInfo</span><span class="p">)</span>
+  933         <span class="p">)</span>
+  934 
+  935         <span class="c1"># Setup rule node ID...</span>
+  936         <span class="n">TorsionRuleNodeID</span> <span class="o">=</span> <span class="n">ElementNode</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;NodeID&quot;</span><span class="p">)</span>
+  937 
+  938         <span class="c1"># Setup SMARTS...</span>
+  939         <span class="n">TorsionRuleSMARTS</span> <span class="o">=</span> <span class="n">ElementNode</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;smarts&quot;</span><span class="p">)</span>
+  940         <span class="k">if</span> <span class="s2">&quot; &quot;</span> <span class="ow">in</span> <span class="n">TorsionRuleSMARTS</span><span class="p">:</span>
+  941             <span class="n">TorsionRuleSMARTS</span> <span class="o">=</span> <span class="n">TorsionRuleSMARTS</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+  942 
+  943         <span class="c1"># Setup match info...</span>
+  944         <span class="n">MatchInfo</span> <span class="o">=</span> <span class="p">[</span>
+  945             <span class="n">TorsionAtomIndices</span><span class="p">,</span>
+  946             <span class="n">TorsionAngle</span><span class="p">,</span>
+  947             <span class="n">HierarchyClassName</span><span class="p">,</span>
+  948             <span class="n">HierarchySubClassName</span><span class="p">,</span>
+  949             <span class="n">TorsionRuleNodeID</span><span class="p">,</span>
+  950             <span class="n">TorsionRuleSMARTS</span><span class="p">,</span>
+  951             <span class="n">EnergyMethod</span><span class="p">,</span>
+  952             <span class="n">AngleNotObserved</span><span class="p">,</span>
+  953             <span class="n">Energy</span><span class="p">,</span>
+  954             <span class="n">EnergyLowerBound</span><span class="p">,</span>
+  955             <span class="n">EnergyUpperBound</span><span class="p">,</span>
+  956         <span class="p">]</span>
+  957 
+  958         <span class="c1"># Setup match status...</span>
+  959         <span class="n">MatchStatus</span> <span class="o">=</span> <span class="kc">True</span>
+  960 
+  961         <span class="k">return</span> <span class="p">(</span><span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span><span class="p">)</span>
+  962 
+  963     <span class="k">def</span> <span class="nf">_SelectHighestStrainEnergyTorsionForRotatableBond</span><span class="p">(</span>
+  964         <span class="bp">self</span><span class="p">,</span> <span class="n">TorsionRuleAnglesInfo</span><span class="p">,</span> <span class="n">TorsionAtomIndicesList</span><span class="p">,</span> <span class="n">TorsionAnglesList</span>
+  965     <span class="p">):</span>
+  966         <span class="sd">&quot;&quot;&quot;Select highest strain energy torsion matched to a rotatable bond.&quot;&quot;&quot;</span>
+  967 
+  968         <span class="n">TorsionAtomIndices</span><span class="p">,</span> <span class="n">TorsionAngle</span><span class="p">,</span> <span class="n">EnergyMethod</span><span class="p">,</span> <span class="n">AngleNotObserved</span><span class="p">,</span> <span class="n">Energy</span><span class="p">,</span> <span class="n">EnergyLowerBound</span><span class="p">,</span> <span class="n">EnergyUpperBound</span> <span class="o">=</span> <span class="p">[</span>
+  969             <span class="kc">None</span>
+  970         <span class="p">]</span> <span class="o">*</span> <span class="mi">7</span>
+  971         <span class="n">ValidEnergyValue</span><span class="p">,</span> <span class="n">ValidCurrentEnergyValue</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span>
+  972 
+  973         <span class="n">FirstTorsion</span> <span class="o">=</span> <span class="kc">True</span>
+  974         <span class="k">for</span> <span class="n">Index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">TorsionAtomIndicesList</span><span class="p">)):</span>
+  975             <span class="n">CurrentTorsionAtomIndices</span> <span class="o">=</span> <span class="n">TorsionAtomIndicesList</span><span class="p">[</span><span class="n">Index</span><span class="p">]</span>
+  976             <span class="n">CurrentTorsionAngle</span> <span class="o">=</span> <span class="n">TorsionAnglesList</span><span class="p">[</span><span class="n">Index</span><span class="p">]</span>
+  977 
+  978             <span class="k">if</span> <span class="n">FirstTorsion</span><span class="p">:</span>
+  979                 <span class="n">FirstTorsion</span> <span class="o">=</span> <span class="kc">False</span>
+  980                 <span class="n">EnergyMethod</span><span class="p">,</span> <span class="n">AngleNotObserved</span><span class="p">,</span> <span class="n">Energy</span><span class="p">,</span> <span class="n">EnergyLowerBound</span><span class="p">,</span> <span class="n">EnergyUpperBound</span> <span class="o">=</span> <span class="p">(</span>
+  981                     <span class="bp">self</span><span class="o">.</span><span class="n">_SetupStrainEnergyForRotatableBond</span><span class="p">(</span><span class="n">TorsionRuleAnglesInfo</span><span class="p">,</span> <span class="n">CurrentTorsionAngle</span><span class="p">)</span>
+  982                 <span class="p">)</span>
+  983                 <span class="n">TorsionAtomIndices</span> <span class="o">=</span> <span class="n">CurrentTorsionAtomIndices</span>
+  984                 <span class="n">TorsionAngle</span> <span class="o">=</span> <span class="n">CurrentTorsionAngle</span>
+  985                 <span class="n">ValidEnergyValue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_IsEnergyValueValid</span><span class="p">(</span><span class="n">Energy</span><span class="p">)</span>
+  986                 <span class="k">continue</span>
+  987 
+  988             <span class="c1"># Select highest strain energy...</span>
+  989             <span class="p">(</span>
+  990                 <span class="n">CurrentEnergyMethod</span><span class="p">,</span>
+  991                 <span class="n">CurrentAngleNotObserved</span><span class="p">,</span>
+  992                 <span class="n">CurrentEnergy</span><span class="p">,</span>
+  993                 <span class="n">CurrentEnergyLowerBound</span><span class="p">,</span>
+  994                 <span class="n">CurrentEnergyUpperBound</span><span class="p">,</span>
+  995             <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_SetupStrainEnergyForRotatableBond</span><span class="p">(</span><span class="n">TorsionRuleAnglesInfo</span><span class="p">,</span> <span class="n">CurrentTorsionAngle</span><span class="p">)</span>
+  996             <span class="n">ValidCurrentEnergyValue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_IsEnergyValueValid</span><span class="p">(</span><span class="n">CurrentEnergy</span><span class="p">)</span>
+  997 
+  998             <span class="n">UpdateValues</span> <span class="o">=</span> <span class="kc">False</span>
+  999             <span class="k">if</span> <span class="n">ValidEnergyValue</span> <span class="ow">and</span> <span class="n">ValidCurrentEnergyValue</span><span class="p">:</span>
+ 1000                 <span class="k">if</span> <span class="n">CurrentEnergy</span> <span class="o">&gt;</span> <span class="n">Energy</span><span class="p">:</span>
+ 1001                     <span class="n">UpdateValues</span> <span class="o">=</span> <span class="kc">True</span>
+ 1002             <span class="k">elif</span> <span class="n">ValidCurrentEnergyValue</span><span class="p">:</span>
+ 1003                 <span class="k">if</span> <span class="ow">not</span> <span class="n">ValidEnergyValue</span><span class="p">:</span>
+ 1004                     <span class="n">UpdateValues</span> <span class="o">=</span> <span class="kc">True</span>
+ 1005 
+ 1006             <span class="k">if</span> <span class="n">UpdateValues</span><span class="p">:</span>
+ 1007                 <span class="n">EnergyMethod</span><span class="p">,</span> <span class="n">AngleNotObserved</span><span class="p">,</span> <span class="n">Energy</span><span class="p">,</span> <span class="n">EnergyLowerBound</span><span class="p">,</span> <span class="n">EnergyUpperBound</span> <span class="o">=</span> <span class="p">[</span>
+ 1008                     <span class="n">CurrentEnergyMethod</span><span class="p">,</span>
+ 1009                     <span class="n">CurrentAngleNotObserved</span><span class="p">,</span>
+ 1010                     <span class="n">CurrentEnergy</span><span class="p">,</span>
+ 1011                     <span class="n">CurrentEnergyLowerBound</span><span class="p">,</span>
+ 1012                     <span class="n">CurrentEnergyUpperBound</span><span class="p">,</span>
+ 1013                 <span class="p">]</span>
+ 1014                 <span class="n">TorsionAtomIndices</span> <span class="o">=</span> <span class="n">CurrentTorsionAtomIndices</span>
+ 1015                 <span class="n">TorsionAngle</span> <span class="o">=</span> <span class="n">CurrentTorsionAngle</span>
+ 1016 
+ 1017         <span class="k">return</span> <span class="p">(</span>
+ 1018             <span class="n">TorsionAtomIndices</span><span class="p">,</span>
+ 1019             <span class="n">TorsionAngle</span><span class="p">,</span>
+ 1020             <span class="n">EnergyMethod</span><span class="p">,</span>
+ 1021             <span class="n">AngleNotObserved</span><span class="p">,</span>
+ 1022             <span class="n">Energy</span><span class="p">,</span>
+ 1023             <span class="n">EnergyLowerBound</span><span class="p">,</span>
+ 1024             <span class="n">EnergyUpperBound</span><span class="p">,</span>
+ 1025         <span class="p">)</span>
+ 1026 
+ 1027     <span class="k">def</span> <span class="nf">_IsEnergyValueValid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Value</span><span class="p">):</span>
+ 1028         <span class="sd">&quot;&quot;&quot;Check for valid energy value.&quot;&quot;&quot;</span>
+ 1029 
+ 1030         <span class="k">return</span> <span class="kc">False</span> <span class="k">if</span> <span class="p">(</span><span class="n">Value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">Value</span><span class="p">)</span> <span class="ow">or</span> <span class="n">math</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">Value</span><span class="p">))</span> <span class="k">else</span> <span class="kc">True</span>
+ 1031 
+ 1032     <span class="k">def</span> <span class="nf">_SetupStrainEnergyForRotatableBond</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">TorsionRuleAnglesInfo</span><span class="p">,</span> <span class="n">TorsionAngle</span><span class="p">):</span>
+ 1033         <span class="sd">&quot;&quot;&quot;Setup strain energy for rotatable bond.&quot;&quot;&quot;</span>
+ 1034 
+ 1035         <span class="k">if</span> <span class="n">TorsionRuleAnglesInfo</span><span class="p">[</span><span class="s2">&quot;EnergyMethodExact&quot;</span><span class="p">]:</span>
+ 1036             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_SetupStrainEnergyForRotatableBondByExactMethod</span><span class="p">(</span><span class="n">TorsionRuleAnglesInfo</span><span class="p">,</span> <span class="n">TorsionAngle</span><span class="p">)</span>
+ 1037         <span class="k">elif</span> <span class="n">TorsionRuleAnglesInfo</span><span class="p">[</span><span class="s2">&quot;EnergyMethodApproximate&quot;</span><span class="p">]:</span>
+ 1038             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_SetupStrainEnergyForRotatableBondByApproximateMethod</span><span class="p">(</span><span class="n">TorsionRuleAnglesInfo</span><span class="p">,</span> <span class="n">TorsionAngle</span><span class="p">)</span>
+ 1039         <span class="k">else</span><span class="p">:</span>
+ 1040             <span class="n">EnergyMethod</span><span class="p">,</span> <span class="n">AngleNotObserved</span><span class="p">,</span> <span class="n">Energy</span><span class="p">,</span> <span class="n">EnergyLowerBound</span><span class="p">,</span> <span class="n">EnergyUpperBound</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+ 1041             <span class="k">return</span> <span class="p">(</span><span class="n">EnergyMethod</span><span class="p">,</span> <span class="n">AngleNotObserved</span><span class="p">,</span> <span class="n">Energy</span><span class="p">,</span> <span class="n">EnergyLowerBound</span><span class="p">,</span> <span class="n">EnergyUpperBound</span><span class="p">)</span>
+ 1042 
+ 1043     <span class="k">def</span> <span class="nf">_SetupStrainEnergyForRotatableBondByExactMethod</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">TorsionRuleAnglesInfo</span><span class="p">,</span> <span class="n">TorsionAngle</span><span class="p">):</span>
+ 1044         <span class="sd">&quot;&quot;&quot;Setup strain energy for rotatable bond by exact method.&quot;&quot;&quot;</span>
+ 1045 
+ 1046         <span class="n">EnergyMethod</span><span class="p">,</span> <span class="n">AngleNotObserved</span><span class="p">,</span> <span class="n">Energy</span><span class="p">,</span> <span class="n">EnergyLowerBound</span><span class="p">,</span> <span class="n">EnergyUpperBound</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Exact&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+ 1047 
+ 1048         <span class="c1"># Map angle to energy bin numbers...</span>
+ 1049         <span class="n">BinNum</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">TorsionAngle</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span> <span class="o">+</span> <span class="mi">17</span>
+ 1050         <span class="n">PreviousBinNum</span> <span class="o">=</span> <span class="p">(</span><span class="n">BinNum</span> <span class="o">+</span> <span class="mi">35</span><span class="p">)</span> <span class="o">%</span> <span class="mi">36</span>
+ 1051 
+ 1052         <span class="c1"># Bin angle from -170 to 180 by the right end points...</span>
+ 1053         <span class="n">BinAngleRightSide</span> <span class="o">=</span> <span class="p">(</span><span class="n">BinNum</span> <span class="o">-</span> <span class="mi">17</span><span class="p">)</span> <span class="o">*</span> <span class="mi">10</span>
+ 1054 
+ 1055         <span class="c1"># Angle offset towards the left of the bin from the right end point...</span>
+ 1056         <span class="n">AngleOffset</span> <span class="o">=</span> <span class="n">TorsionAngle</span> <span class="o">-</span> <span class="n">BinAngleRightSide</span>
+ 1057 
+ 1058         <span class="n">BinEnergy</span> <span class="o">=</span> <span class="n">TorsionRuleAnglesInfo</span><span class="p">[</span><span class="s2">&quot;HistogramEnergy&quot;</span><span class="p">][</span><span class="n">BinNum</span><span class="p">]</span>
+ 1059         <span class="n">PreviousBinEnergy</span> <span class="o">=</span> <span class="n">TorsionRuleAnglesInfo</span><span class="p">[</span><span class="s2">&quot;HistogramEnergy&quot;</span><span class="p">][</span><span class="n">PreviousBinNum</span><span class="p">]</span>
+ 1060         <span class="n">Energy</span> <span class="o">=</span> <span class="n">BinEnergy</span> <span class="o">+</span> <span class="p">(</span><span class="n">BinEnergy</span> <span class="o">-</span> <span class="n">PreviousBinEnergy</span><span class="p">)</span> <span class="o">/</span> <span class="mf">10.0</span> <span class="o">*</span> <span class="n">AngleOffset</span>
+ 1061 
+ 1062         <span class="n">BinEnergyLowerBound</span> <span class="o">=</span> <span class="n">TorsionRuleAnglesInfo</span><span class="p">[</span><span class="s2">&quot;HistogramEnergyLowerBound&quot;</span><span class="p">][</span><span class="n">BinNum</span><span class="p">]</span>
+ 1063         <span class="n">PreviousBinEnergyLowerBound</span> <span class="o">=</span> <span class="n">TorsionRuleAnglesInfo</span><span class="p">[</span><span class="s2">&quot;HistogramEnergyLowerBound&quot;</span><span class="p">][</span><span class="n">PreviousBinNum</span><span class="p">]</span>
+ 1064         <span class="n">EnergyLowerBound</span> <span class="o">=</span> <span class="p">(</span>
+ 1065             <span class="n">BinEnergyLowerBound</span> <span class="o">+</span> <span class="p">(</span><span class="n">BinEnergyLowerBound</span> <span class="o">-</span> <span class="n">PreviousBinEnergyLowerBound</span><span class="p">)</span> <span class="o">/</span> <span class="mf">10.0</span> <span class="o">*</span> <span class="n">AngleOffset</span>
+ 1066         <span class="p">)</span>
+ 1067 
+ 1068         <span class="n">BinEnergyUpperBound</span> <span class="o">=</span> <span class="n">TorsionRuleAnglesInfo</span><span class="p">[</span><span class="s2">&quot;HistogramEnergyUpperBound&quot;</span><span class="p">][</span><span class="n">BinNum</span><span class="p">]</span>
+ 1069         <span class="n">PreviousBinEnergyUpperBound</span> <span class="o">=</span> <span class="n">TorsionRuleAnglesInfo</span><span class="p">[</span><span class="s2">&quot;HistogramEnergyUpperBound&quot;</span><span class="p">][</span><span class="n">PreviousBinNum</span><span class="p">]</span>
+ 1070         <span class="n">EnergyUpperBound</span> <span class="o">=</span> <span class="p">(</span>
+ 1071             <span class="n">BinEnergyUpperBound</span> <span class="o">+</span> <span class="p">(</span><span class="n">BinEnergyUpperBound</span> <span class="o">-</span> <span class="n">PreviousBinEnergyUpperBound</span><span class="p">)</span> <span class="o">/</span> <span class="mf">10.0</span> <span class="o">*</span> <span class="n">AngleOffset</span>
+ 1072         <span class="p">)</span>
+ 1073 
+ 1074         <span class="k">return</span> <span class="p">(</span><span class="n">EnergyMethod</span><span class="p">,</span> <span class="n">AngleNotObserved</span><span class="p">,</span> <span class="n">Energy</span><span class="p">,</span> <span class="n">EnergyLowerBound</span><span class="p">,</span> <span class="n">EnergyUpperBound</span><span class="p">)</span>
+ 1075 
+ 1076     <span class="k">def</span> <span class="nf">_SetupStrainEnergyForRotatableBondByApproximateMethod</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">TorsionRuleAnglesInfo</span><span class="p">,</span> <span class="n">TorsionAngle</span><span class="p">):</span>
+ 1077         <span class="sd">&quot;&quot;&quot;Setup strain energy for rotatable bond by approximate method.&quot;&quot;&quot;</span>
+ 1078 
+ 1079         <span class="n">EnergyMethod</span><span class="p">,</span> <span class="n">AngleNotObserved</span><span class="p">,</span> <span class="n">Energy</span><span class="p">,</span> <span class="n">EnergyLowerBound</span><span class="p">,</span> <span class="n">EnergyUpperBound</span> <span class="o">=</span> <span class="p">[</span>
+ 1080             <span class="s2">&quot;Approximate&quot;</span><span class="p">,</span>
+ 1081             <span class="kc">True</span><span class="p">,</span>
+ 1082             <span class="kc">None</span><span class="p">,</span>
+ 1083             <span class="kc">None</span><span class="p">,</span>
+ 1084             <span class="kc">None</span><span class="p">,</span>
+ 1085         <span class="p">]</span>
+ 1086 
+ 1087         <span class="k">for</span> <span class="n">AngleID</span> <span class="ow">in</span> <span class="n">TorsionRuleAnglesInfo</span><span class="p">[</span><span class="s2">&quot;IDs&quot;</span><span class="p">]:</span>
+ 1088             <span class="n">Tolerance2</span> <span class="o">=</span> <span class="n">TorsionRuleAnglesInfo</span><span class="p">[</span><span class="s2">&quot;Tolerance2&quot;</span><span class="p">][</span><span class="n">AngleID</span><span class="p">]</span>
+ 1089             <span class="n">Theta0</span> <span class="o">=</span> <span class="n">TorsionRuleAnglesInfo</span><span class="p">[</span><span class="s2">&quot;Theta0&quot;</span><span class="p">][</span><span class="n">AngleID</span><span class="p">]</span>
+ 1090 
+ 1091             <span class="n">AngleDiff</span> <span class="o">=</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">CalculateTorsionAngleDifference</span><span class="p">(</span><span class="n">TorsionAngle</span><span class="p">,</span> <span class="n">Theta0</span><span class="p">)</span>
+ 1092             <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">AngleDiff</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">Tolerance2</span><span class="p">:</span>
+ 1093                 <span class="n">Beta1</span> <span class="o">=</span> <span class="n">TorsionRuleAnglesInfo</span><span class="p">[</span><span class="s2">&quot;Beta1&quot;</span><span class="p">][</span><span class="n">AngleID</span><span class="p">]</span>
+ 1094                 <span class="n">Beta2</span> <span class="o">=</span> <span class="n">TorsionRuleAnglesInfo</span><span class="p">[</span><span class="s2">&quot;Beta2&quot;</span><span class="p">][</span><span class="n">AngleID</span><span class="p">]</span>
+ 1095 
+ 1096                 <span class="n">Energy</span> <span class="o">=</span> <span class="n">Beta1</span> <span class="o">*</span> <span class="p">(</span><span class="n">AngleDiff</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">Beta2</span> <span class="o">*</span> <span class="p">(</span><span class="n">AngleDiff</span><span class="o">**</span><span class="mi">4</span><span class="p">)</span>
+ 1097 
+ 1098                 <span class="c1"># Estimates of lower and upper bound are not available for</span>
+ 1099                 <span class="c1"># approximate method...</span>
+ 1100                 <span class="n">EnergyLowerBound</span> <span class="o">=</span> <span class="n">Energy</span>
+ 1101                 <span class="n">EnergyUpperBound</span> <span class="o">=</span> <span class="n">Energy</span>
+ 1102 
+ 1103                 <span class="n">AngleNotObserved</span> <span class="o">=</span> <span class="kc">False</span>
+ 1104 
+ 1105                 <span class="k">break</span>
+ 1106 
+ 1107         <span class="k">return</span> <span class="p">(</span><span class="n">EnergyMethod</span><span class="p">,</span> <span class="n">AngleNotObserved</span><span class="p">,</span> <span class="n">Energy</span><span class="p">,</span> <span class="n">EnergyLowerBound</span><span class="p">,</span> <span class="n">EnergyUpperBound</span><span class="p">)</span>
+ 1108 
+ 1109     <span class="k">def</span> <span class="nf">_MatchTorsionRuleToRotatableBond</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">):</span>
+ 1110         <span class="sd">&quot;&quot;&quot;Retrieve matched torsions for torsion rule matched to rotatable bond.&quot;&quot;&quot;</span>
+ 1111 
+ 1112         <span class="c1"># Get torsion matches...</span>
+ 1113         <span class="n">TorsionMatches</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_GetMatchesForTorsionRule</span><span class="p">(</span><span class="n">Mol</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">)</span>
+ 1114         <span class="k">if</span> <span class="n">TorsionMatches</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">TorsionMatches</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+ 1115             <span class="k">return</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+ 1116 
+ 1117         <span class="c1"># Identify all torsion matches corresponding to central atoms in RotBondAtomIndices...</span>
+ 1118         <span class="n">RotBondAtomIndex1</span><span class="p">,</span> <span class="n">RotBondAtomIndex2</span> <span class="o">=</span> <span class="n">RotBondAtomIndices</span>
+ 1119         <span class="n">RotBondTorsionMatches</span><span class="p">,</span> <span class="n">RotBondTorsionAngles</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span>
+ 1120 
+ 1121         <span class="k">for</span> <span class="n">TorsionMatch</span> <span class="ow">in</span> <span class="n">TorsionMatches</span><span class="p">:</span>
+ 1122             <span class="n">CentralAtomIndex1</span> <span class="o">=</span> <span class="n">TorsionMatch</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+ 1123             <span class="n">CentralAtomIndex2</span> <span class="o">=</span> <span class="n">TorsionMatch</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+ 1124 
+ 1125             <span class="k">if</span> <span class="p">(</span><span class="n">CentralAtomIndex1</span> <span class="o">==</span> <span class="n">RotBondAtomIndex1</span> <span class="ow">and</span> <span class="n">CentralAtomIndex2</span> <span class="o">==</span> <span class="n">RotBondAtomIndex2</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+ 1126                 <span class="n">CentralAtomIndex1</span> <span class="o">==</span> <span class="n">RotBondAtomIndex2</span> <span class="ow">and</span> <span class="n">CentralAtomIndex2</span> <span class="o">==</span> <span class="n">RotBondAtomIndex1</span>
+ 1127             <span class="p">):</span>
+ 1128                 <span class="n">TorsionAngle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_CalculateTorsionAngle</span><span class="p">(</span><span class="n">Mol</span><span class="p">,</span> <span class="n">TorsionMatch</span><span class="p">)</span>
+ 1129                 <span class="k">if</span> <span class="n">RotBondTorsionMatches</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+ 1130                     <span class="n">RotBondTorsionMatches</span> <span class="o">=</span> <span class="p">[]</span>
+ 1131                     <span class="n">RotBondTorsionAngles</span> <span class="o">=</span> <span class="p">[]</span>
+ 1132                 <span class="n">RotBondTorsionMatches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TorsionMatch</span><span class="p">)</span>
+ 1133                 <span class="n">RotBondTorsionAngles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TorsionAngle</span><span class="p">)</span>
+ 1134 
+ 1135         <span class="k">return</span> <span class="p">(</span><span class="n">RotBondTorsionMatches</span><span class="p">,</span> <span class="n">RotBondTorsionAngles</span><span class="p">)</span>
+ 1136 
+ 1137     <span class="k">def</span> <span class="nf">_CalculateTorsionAngle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">TorsionMatch</span><span class="p">):</span>
+ 1138         <span class="sd">&quot;&quot;&quot;Calculate torsion angle.&quot;&quot;&quot;</span>
+ 1139 
+ 1140         <span class="c1"># Calculate torsion angle using torsion atom indices..</span>
+ 1141         <span class="n">MolConf</span> <span class="o">=</span> <span class="n">Mol</span><span class="o">.</span><span class="n">GetConformer</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+ 1142         <span class="n">TorsionAngle</span> <span class="o">=</span> <span class="n">rdMolTransforms</span><span class="o">.</span><span class="n">GetDihedralDeg</span><span class="p">(</span>
+ 1143             <span class="n">MolConf</span><span class="p">,</span> <span class="n">TorsionMatch</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">TorsionMatch</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">TorsionMatch</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">TorsionMatch</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+ 1144         <span class="p">)</span>
+ 1145         <span class="n">TorsionAngle</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">TorsionAngle</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+ 1146 
+ 1147         <span class="k">return</span> <span class="n">TorsionAngle</span>
+ 1148 
+ 1149     <span class="k">def</span> <span class="nf">_GetMatchesForTorsionRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">):</span>
+ 1150         <span class="sd">&quot;&quot;&quot;Get matches for torsion rule.&quot;&quot;&quot;</span>
+ 1151 
+ 1152         <span class="c1"># Match torsions...</span>
+ 1153         <span class="n">TorsionMatches</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_GetSubstructureMatchesForTorsionRule</span><span class="p">(</span><span class="n">Mol</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">)</span>
+ 1154 
+ 1155         <span class="k">if</span> <span class="n">TorsionMatches</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">TorsionMatches</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+ 1156             <span class="k">return</span> <span class="n">TorsionMatches</span>
+ 1157 
+ 1158         <span class="c1"># Filter torsion matches...</span>
+ 1159         <span class="n">FiltertedTorsionMatches</span> <span class="o">=</span> <span class="p">[]</span>
+ 1160         <span class="k">for</span> <span class="n">TorsionMatch</span> <span class="ow">in</span> <span class="n">TorsionMatches</span><span class="p">:</span>
+ 1161             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">TorsionMatch</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
+ 1162                 <span class="k">continue</span>
+ 1163 
+ 1164             <span class="c1"># Ignore matches containing hydrogen atoms as first or last atom...</span>
+ 1165             <span class="k">if</span> <span class="n">Mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="n">TorsionMatch</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">GetAtomicNum</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+ 1166                 <span class="k">continue</span>
+ 1167             <span class="k">if</span> <span class="n">Mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="n">TorsionMatch</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">.</span><span class="n">GetAtomicNum</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+ 1168                 <span class="k">continue</span>
+ 1169 
+ 1170             <span class="n">FiltertedTorsionMatches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TorsionMatch</span><span class="p">)</span>
+ 1171 
+ 1172         <span class="k">return</span> <span class="n">FiltertedTorsionMatches</span>
+ 1173 
+ 1174     <span class="k">def</span> <span class="nf">_GetSubstructureMatchesForTorsionRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">):</span>
+ 1175         <span class="sd">&quot;&quot;&quot;Get substructure matches for a torsion rule.&quot;&quot;&quot;</span>
+ 1176 
+ 1177         <span class="c1"># Setup torsion rule SMARTS pattern mol....</span>
+ 1178         <span class="n">TorsionRuleNodeID</span> <span class="o">=</span> <span class="n">ElementNode</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;NodeID&quot;</span><span class="p">)</span>
+ 1179         <span class="n">TorsionSMARTSPattern</span> <span class="o">=</span> <span class="n">ElementNode</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;smarts&quot;</span><span class="p">)</span>
+ 1180         <span class="n">TorsionPatternMol</span> <span class="o">=</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">SetupTorsionRuleElementPatternMol</span><span class="p">(</span>
+ 1181             <span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryInfo</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">,</span> <span class="n">TorsionRuleNodeID</span><span class="p">,</span> <span class="n">TorsionSMARTSPattern</span>
+ 1182         <span class="p">)</span>
+ 1183         <span class="k">if</span> <span class="n">TorsionPatternMol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+ 1184             <span class="k">return</span> <span class="kc">None</span>
+ 1185 
+ 1186         <span class="c1"># Match torsions...</span>
+ 1187         <span class="n">TorsionMatches</span> <span class="o">=</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">FilterSubstructureMatchesByAtomMapNumbers</span><span class="p">(</span>
+ 1188             <span class="n">Mol</span><span class="p">,</span> <span class="n">TorsionPatternMol</span><span class="p">,</span> <span class="n">Mol</span><span class="o">.</span><span class="n">GetSubstructMatches</span><span class="p">(</span><span class="n">TorsionPatternMol</span><span class="p">,</span> <span class="n">useChirality</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+ 1189         <span class="p">)</span>
+ 1190 
+ 1191         <span class="k">return</span> <span class="n">TorsionMatches</span>
+</pre>
+<br />
+<center>
+<img src="../../../images/h2o2.png">
+</center>
+</body>
+</html>

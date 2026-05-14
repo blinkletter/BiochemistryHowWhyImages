@@ -1,0 +1,324 @@
+<html>
+<head>
+<title>MayaChemTools:Documentation:VinaPerformDocking.py</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../../css/MayaChemTools.css">
+</head>
+<body leftmargin="20" rightmargin="20" topmargin="10" bottommargin="10">
+<br/>
+<center>
+<a href="http://www.mayachemtools.org" title="MayaChemTools Home"><img src="../../../images/MayaChemToolsLogo.gif" border="0" alt="MayaChemTools"></a>
+</center>
+<br/>
+<div class="TopSubNav">
+  <ul style="padding-left: 50px;">
+    <li><a href="../../../scripts/html/index.html" title="MayaChemTools Scripts Documentation">All</a></li>
+    <li><a href="../../../scripts/html/Standalone/index.html" title="MayaChemTools Standalone Scripts Documentation">Standalone</a></li>
+    <li><a href="../../../scripts/html/RDKit/index.html" title="MayaChemTools RDKit Scripts Documentation">RDKit</a></li>
+    <li><a href="../../../scripts/html/PyMOL/index.html" title="MayaChemTools PyMOL Scripts Documentation">PyMOL</a></li>
+    <li><a href="../../../scripts/html/OpenMM/index.html" title="MayaChemTools OpenMM Scripts Documentation">OpenMM</a></li>
+    <li><a href="../../../scripts/html/OpenFE/index.html" title="MayaChemTools OpenFE Scripts Documentation">OpenFE</a></li>
+    <li><a href="../../../scripts/html/Psi4/index.html" title="MayaChemTools Psi4 Scripts Documentation">Psi4</a></li>
+    <li id="current"><a href="../../../scripts/html/Misc/index.html" title="MayaChemTools Misc Scripts Documentation">Misc</a></li>
+</ul>
+</div>
+<div class="DocNav">
+<table width="100%" border=0 cellpadding=0 cellspacing=2>
+<tr align="left" valign="top"><td width="33%" align="left">&nbsp;&nbsp;<a href="./index.html" title="Table of Contents">TOC</a>&nbsp;&nbsp;<a href="./VisualizeChemspaceUsingTMAP.html" title="VisualizeChemspaceUsingTMAP.html">Next</a></td><td width="34%" align="middle"><strong>VinaPerformDocking.py</strong></td><td width="33%" align="right"><a href="./../code/VinaPerformDocking.html" title="View source code">Code</a>&nbsp;|&nbsp;<a href="./../../pdf/VinaPerformDocking.pdf" title="PDF US Letter Size">PDF</a>&nbsp;|&nbsp;<a href="./../../pdfa4/VinaPerformDocking.pdf" title="PDF A4 Size">PDFA4</a></td></tr>
+</table>
+</div>
+<h1 id="NAME">NAME</h2>
+<p>VinaPerformDocking.py - Perform docking</p>
+<h1 id="SYNOPSIS">SYNOPSIS</h2>
+<p>VinaPerformDocking.py [<b>--energyComponents</b> &lt;yes or no&gt;] [<b>--energyComponentsLabels</b> &lt;Label1, label2, Label3&gt;] [<b>--energyLabel</b> &lt;text&gt;] [<b>--energyRange</b> &lt;number&gt;] [<b>--exhaustiveness</b> &lt;number&gt;] [<b>--forcefield</b> &lt;AD4, Vina, or Vinardo&gt;] [<b>--forcefieldWeightParams</b> &lt;Name,Value,...&gt;] [<b>--gridSpacing</b> &lt;number&gt;] [<b>--gridSize</b> &lt;xsize,ysize,zsize&gt;] [<b>--infileParams</b> &lt;Name,Value,...&gt;] [<b>--maxEvaluations</b> &lt;number&gt;] [<b>--mergeHydrogens</b> &lt;yes or no&gt;] [<b>--minRMSD</b> &lt;number&gt;] [<b>--mode</b> &lt;Dock, LocalOptimizationOnly, ScoreOnly&gt;] [<b>--mp</b> &lt;yes or no&gt;] [<b>--mpParams</b> &lt;Name, Value,...&gt;] [<b>--numPoses</b> &lt;number&gt;] [<b>--numThreads</b> &lt;number&gt;] [<b>--outfileParams</b> &lt;Name,Value,...&gt; ] [<b>--overwrite</b>] [<b>--precision</b> &lt;number&gt;] [<b>--quiet</b> &lt;yes or no&gt;] [<b>--randomSeed</b> &lt;number&gt;] [<b>--receptorFlexFile</b> &lt;receptor flex file&gt;] [<b>--skipRefinement</b> &lt;yes or no&gt;] [<b>--validateMolecules</b> &lt;yes or no&gt;] [<b>--vinaVerbosity</b> &lt;number&gt;] [<b>-w</b> &lt;dir&gt;] <b>-g</b> &lt;RefLigandFile or x,y,z&gt; <b>-r</b> &lt;receptorfile or maps prerfix&gt; <b>-i</b> &lt;infile&gt; <b>-o</b> &lt;outfile&gt;</p>
+<p>VinaPerformDocking.py <b>-h</b> | <b>--help</b> | <b>-e</b> | <b>--examples</b></p>
+<h1 id="DESCRIPTION">DESCRIPTION</h2>
+<p>Dock molecules against a protein receptor using AutoDock Vina [Ref 168, 169]. The molecules must have 3D coordinates in input file. In addition, the hydrogens must be present for all molecules in input file.</p>
+<p>No protein receptor preparation is performed during docking. It must be prepared employing standalone scripts available as part of AutoDock Vina. You may optionally specify flexible residues in the binding pocket to prepare a flexible receptor file and employ it for docking molecules along with the fixed receptor file.</p>
+<p>The following three forecefileds are available to score molecules: AD4 (AutoDock4), Vina, and Vinardo (Vina RaDii Optimized) [Ref 170].</p>
+<p>The supported input file formats are shown below:</p>
+    <div class="OptionsBox"> Rigid/Flexible protein receptor files  - PDBQT(.pdbqt)
+<br/>    Reference ligand file: PDB(.pdb), Mol (.mol), SD (.sdf, .sd)
+<br/>    
+<br/>    Input molecules file - Mol (.mol), SD (.sdf, .sd)
+<br/>    </div>
+<p>The supported output file format is: SD (.sdf, .sd).</p>
+<p>The following output files are generated:</p>
+    <div class="OptionsBox"> &lt;OutfileRoot&gt;.&lt;OutfileExt&gt; - Docked/scored molecules
+<br/>    &lt;OutfileRoot&gt;_Flex_Receptor.&lt;OutfileExt&gt; - Docked poses for flexible
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        residues 
+<br/>    </div>
+<p>The flexible receptor output file contains docked poses corresponding to flexible residues. It is only generated during &#39;Dock&#39; value of &#39;-m, --mode&#39; option. The number of poses in this file matches those written to the output file containing docked molecules.</p>
+<h1 id="OPTIONS">OPTIONS</h2>
+<dl>
+<dt id="energyComponents-yes-or-no-default:-no"><b>--energyComponents</b> &lt;yes or no&gt; [default: no]</dt>
+<dd>
+<p>Write out binding energy components of the total binding energy docking score to outfile. The following three energy components are written to outfile: intermolecula energy, internal energy, and torsions energy.</p>
+</dd>
+<dt id="energyComponentsLabels-Label1-label2-Label3-default:-auto"><b>--energyComponentsLabels</b> &lt;Label1, label2, Label3&gt; [default: auto]</dt>
+<dd>
+<p>A triplet of comma delimited values corresponding to energy data field labels for writing out the binding energy components to outfile. You must specify all three values. A value of &#39;None&#39; implies the use of the default labels as shown below:</p>
+    <div class="OptionsBox"> Label1: &lt;ForcefieldName&gt;_Intermolecular_Energy (kcal/mol)
+<br/>    Label2: &lt;ForcefieldName&gt;_Internal_Energy (kcal/mol)
+<br/>    Label3: &lt;ForcefieldName&gt;_Torsions_Energy (kcal/mol)
+<br/>    </div>
+</dd>
+<dt id="energyLabel-text-default:-auto"><b>--energyLabel</b> &lt;text&gt; [default: auto]</dt>
+<dd>
+<p>Energy data field label for writing out binding energy docking score to output file. Default: &lt;ForcefieldName&gt;_Total_Energy (kcal/mol).</p>
+</dd>
+<dt id="energyRange-number-default:-3.0"><b>--energyRange</b> &lt;number&gt; [default: 3.0]</dt>
+<dd>
+<p>Maximum energy difference from the best pose during the generation of poses. Units: kcal/mol.</p>
+</dd>
+<dt id="e---examples"><b>-e, --examples</b></dt>
+<dd>
+<p>Print examples.</p>
+</dd>
+<dt id="exhaustiveness-number-default:-8"><b>--exhaustiveness</b> &lt;number&gt; [default: 8]</dt>
+<dd>
+<p>Exhaustiveness of global MC search. The higher values make the search more exhaustive and it takes longer to complete. You may want to use &#39;16&#39; or &#39;32&#39; as the value of &#39;--exhaustiveness &#39; to increase the accuracy of your pose prediction.</p>
+</dd>
+<dt id="f---forcefield-AD4-Vina-or-Vinardo-default:-Vina"><b>-f, --forcefield</b> &lt;AD4, Vina, or Vinardo&gt; [default: Vina]</dt>
+<dd>
+<p>Forcefield to use for scoring. Possible values: AD4 (AutoDock 4), Vina [Ref 169, 169], or Vinardo (Vina RaDii Optimized) [Ref 170].</p>
+<p>You must specify affinity maps using &#39;-r, --receptor&#39; option during the use of &#39;AD4&#39; forcefield.</p>
+</dd>
+<dt id="forcefieldWeightParams-Name-Value-...-default:-auto"><b>--forcefieldWeightParams</b> &lt;Name,Value,...&gt; [default: auto]</dt>
+<dd>
+<p>A comma delimited list of parameter name and value pairs for forcefield scoring.</p>
+<p>The supported parameter names along with their default values are are shown below for different forcefields:</p>
+    <div class="OptionsBox"> AD4 (6 weights):
+<br/>    
+<br/>    ad4Vdw, 0.1662, ad4HydrogenBond, 0.1209, ad4Electrostatic, 0.1406,
+<br/>    ad4Desolvation, 0.1322, ad4GlueLinearAttraction, 50.0,
+<br/>    ad4Rot, 0.2983
+   
+<br/>    Vina (7 weights):
+<br/>    
+<br/>    vinaGaussian1, -0.035579, vinaGaussian2, -0.005156,
+<br/>    vinaRepulsion, 0.840245, vinaHydrophobic, -0.035069,
+<br/>    vinaHydrogenBond, -0.587439, vinaGlueLinearAttraction, 50.0,
+<br/>    vinaRot, 0.05846
+   
+<br/>    Vinardo (6 weights):
+<br/>    
+<br/>    vinardoGaussian1, -0.045, vinardoRepulsion, 0.8, 
+<br/>    vinardoHydrophobic, -0.035, vinardoHydrogenBond, -0.600
+<br/>    vinardoGlueLinearAttraction, 50.0, vinardoRot, 0.05846
+<br/>    </div>
+<p>The glue weight parameter corresponds to linear attraction for macrocycle closure and has the same value for AD4, Vina, and Vinardo. The rot weight has the same value for Vina and Vinardo.</p>
+</dd>
+<dt id="g---gridCenter-RefLigandFile-or-x-y-z"><b>-g, --gridCenter</b> &lt;RefLigandFile or x,y,z&gt;</dt>
+<dd>
+<p>Reference ligand file for calculating the docking grid center or a triplet of comma delimited values in Angstrom corresponding to grid center.</p>
+<p>This is required option. However, it is ignored during the specification of maps prefix for &#39;-r, --receptor&#39; option.</p>
+</dd>
+<dt id="gridSize-xsize-ysize-zsize-default:-25.0-25.0-25.0"><b>--gridSize</b> &lt;xsize,ysize,zsize&gt; [default: 25.0, 25.0, 25.0]</dt>
+<dd>
+<p>Docking grid size in Angstrom.</p>
+</dd>
+<dt id="gridSpacing-number-default:-0.375"><b>--gridSpacing</b> &lt;number&gt; [default: 0.375]</dt>
+<dd>
+<p>Docking grid spacing in Angstrom.</p>
+</dd>
+<dt id="h---help"><b>-h, --help</b></dt>
+<dd>
+<p>Print this help message.</p>
+</dd>
+<dt id="i---infile-infile"><b>-i, --infile</b> &lt;infile&gt;</dt>
+<dd>
+<p>Input file name containing molecules for docking against a receptor. The molecules must have 3D coordinates in input file. In addition, the hydrogens must be present for all molecules in input file. The input file may contain 3D conformers.</p>
+</dd>
+<dt id="infileParams-Name-Value-...-default:-auto"><b>--infileParams</b> &lt;Name,Value,...&gt; [default: auto]</dt>
+<dd>
+<p>A comma delimited list of parameter name and value pairs for reading molecules from files. The supported parameter names for different file formats, along with their default values, are shown below:</p>
+    <div class="OptionsBox"> SD, MOL: removeHydrogens,no,sanitize,yes,strictParsing,yes
+<br/>    </div>
+</dd>
+<dt id="maxEvaluations-number-default:-0"><b>--maxEvaluations</b> &lt;number&gt; [default: 0]</dt>
+<dd>
+<p>Maximum number of evaluations to perform for each MC run during docking. By default, its value is set 0 and the number of MC evaluations is determined using heuristic rules.</p>
+</dd>
+<dt id="mergeHydrogens-yes-or-no-default:-auto"><b>--mergeHydrogens</b> &lt;yes or no&gt; [default: auto]</dt>
+<dd>
+<p>Merge hydrogens during preparation of molecules for docking. The hydrogens are automatically merged during &#39;AD4&#39; value of &#39;-f, --forcefield&#39; option and its value is set to &#39;yes&#39;. Otherwise, it&#39;s set to &#39;no&#39;.</p>
+</dd>
+<dt id="minRMSD-number-default:-1.0"><b>--minRMSD</b> &lt;number&gt; [default: 1.0]</dt>
+<dd>
+<p>Minimum RMSD between output poses in Angstrom.</p>
+</dd>
+<dt id="m---mode-Dock-LocalOptimizationOnly-ScoreOnly-default:-Dock"><b>-m, --mode</b> &lt;Dock, LocalOptimizationOnly, ScoreOnly&gt; [default: Dock]</dt>
+<dd>
+<p>Dock molecules or simply score molecules without performing any docking. The supported values along with a brief explanation of the expected behavior are shown below:</p>
+    <div class="OptionsBox"> Dock: Global search along with local optimization and scoring after
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        docking
+<br/>    LocalOptimizationOnly: Local optimization and scoring without any docking
+<br/>    ScoreOnly: Scoring without any local optimizatiom and docking
+<br/>    </div>
+<p>The &#39;ScoreOnly&quot; allows you to score 3D moleculed from input file which are already positioned in a binding pocket of a receptor.</p>
+</dd>
+<dt id="mp-yes-or-no-default:-no"><b>--mp</b> &lt;yes or no&gt; [default: no]</dt>
+<dd>
+<p>Use multiprocessing.</p>
+<p>By default, input data is retrieved in a lazy manner via mp.Pool.imap() function employing lazy RDKit data iterable. This allows processing of arbitrary large data sets without any additional requirements memory.</p>
+<p>All input data may be optionally loaded into memory by mp.Pool.map() before starting worker processes in a process pool by setting the value of &#39;inputDataMode&#39; to &#39;InMemory&#39; in &#39;--mpParams&#39; option.</p>
+<p>A word to the wise: The default &#39;chunkSize&#39; value of 1 during &#39;Lazy&#39; input data mode may adversely impact the performance. The &#39;--mpParams&#39; section provides additional information to tune the value of &#39;chunkSize&#39;.</p>
+</dd>
+<dt id="mpParams-Name-Value-...-default:-auto"><b>--mpParams</b> &lt;Name,Value,...&gt; [default: auto]</dt>
+<dd>
+<p>A comma delimited list of parameter name and value pairs to configure multiprocessing.</p>
+<p>The supported parameter names along with their default and possible values are shown below:</p>
+    <div class="OptionsBox">chunkSize, auto
+<br/>    inputDataMode, Lazy   [ Possible values: InMemory or Lazy ]
+<br/>    numProcesses, auto   [ Default: mp.cpu_count() ]</div>
+<p>These parameters are used by the following functions to configure and control the behavior of multiprocessing: mp.Pool(), mp.Pool.map(), and mp.Pool.imap().</p>
+<p>The chunkSize determines chunks of input data passed to each worker process in a process pool by mp.Pool.map() and mp.Pool.imap() functions. The default value of chunkSize is dependent on the value of &#39;inputDataMode&#39;.</p>
+<p>The mp.Pool.map() function, invoked during &#39;InMemory&#39; input data mode, automatically converts RDKit data iterable into a list, loads all data into memory, and calculates the default chunkSize using the following method as shown in its code:</p>
+    <div class="OptionsBox">chunkSize, extra = divmod(len(dataIterable), len(numProcesses) * 4)
+<br/>    if extra: chunkSize += 1</div>
+<p>For example, the default chunkSize will be 7 for a pool of 4 worker processes and 100 data items.</p>
+<p>The mp.Pool.imap() function, invoked during &#39;Lazy&#39; input data mode, employs &#39;lazy&#39; RDKit data iterable to retrieve data as needed, without loading all the data into memory. Consequently, the size of input data is not known a priori. It&#39;s not possible to estimate an optimal value for the chunkSize. The default chunkSize is set to 1.</p>
+<p>The default value for the chunkSize during &#39;Lazy&#39; data mode may adversely impact the performance due to the overhead associated with exchanging small chunks of data. It is generally a good idea to explicitly set chunkSize to a larger value during &#39;Lazy&#39; input data mode, based on the size of your input data and number of processes in the process pool.</p>
+<p>The mp.Pool.map() function waits for all worker processes to process all the data and return the results. The mp.Pool.imap() function, however, returns the the results obtained from worker processes as soon as the results become available for specified chunks of data.</p>
+<p>The order of data in the results returned by both mp.Pool.map() and mp.Pool.imap() functions always corresponds to the input data.</p>
+</dd>
+<dt id="n---numPoses-number-default:-1"><b>-n, --numPoses</b> &lt;number&gt; [default: 1]</dt>
+<dd>
+<p>Number of docked poses to generate for each molecule and write out to output file. This option is only valid for &#39;Dock&#39; value of &#39;-m, --mode&#39; option.</p>
+</dd>
+<dt id="numThreads-number-default:-auto"><b>--numThreads</b> &lt;number&gt; [default: auto]</dt>
+<dd>
+<p>Number of threads/CPUs to use for MC search calculation in Vina. The default value is set to 1 during multiprocessing for &#39;Yes&#39; value of &#39;--mp&#39; option. Otherwise, it&#39;s set to 0 and rely on Vina detect and use all available CPUs for multi-threading.</p>
+</dd>
+<dt id="o---outfile-outfile"><b>-o, --outfile</b> &lt;outfile&gt;</dt>
+<dd>
+<p>Output file name for writing out molecules. The flexible receptor residues are written to &lt;OutfileRoot&gt;_Flex_Receptor.&lt;OutfileExt&gt;.</p>
+</dd>
+<dt id="outfileParams-Name-Value-...-default:-auto"><b>--outfileParams</b> &lt;Name,Value,...&gt; [default: auto]</dt>
+<dd>
+<p>A comma delimited list of parameter name and value pairs for writing molecules to files. The supported parameter names for different file formats, along with their default values, are shown below:</p>
+    <div class="OptionsBox"> SD: kekulize,yes,forceV3000,no
+<br/>    </div>
+</dd>
+<dt id="overwrite"><b>--overwrite</b></dt>
+<dd>
+<p>Overwrite existing files.</p>
+</dd>
+<dt id="precision-number-default:-2"><b>--precision</b> &lt;number&gt; [default: 2]</dt>
+<dd>
+<p>Floating point precision for writing energy values.</p>
+</dd>
+<dt id="q---quiet-yes-or-no-default:-no"><b>-q, --quiet</b> &lt;yes or no&gt; [default: no]</dt>
+<dd>
+<p>Use quiet mode. The warning and information messages will not be printed.</p>
+</dd>
+<dt id="randomSeed-number-default:-0"><b>--randomSeed</b> &lt;number&gt; [default: 0]</dt>
+<dd>
+<p>Random seed for MC search calculations. A value of zero implies it&#39;s randomly chosen by Vina during the calculation.</p>
+</dd>
+<dt id="r---receptor-receptor-file-or-maps-prerfix"><b>-r, --receptor</b> &lt;receptor file or maps prerfix&gt;</dt>
+<dd>
+<p>Protein receptor file name or prefix for affinity map files corresponding to the fixed portion of the receptor.</p>
+<p>You must specify affinity map files for &#39;AD4&#39; forcefield. The affinity map files correspond to &lt;MapsPrefix&gt;.*.map and must be present</p>
+<p>The supported receptor file format is PDBQT (.pdbqt). It must contain a prepared protein receptor ready for docking. You may prepare a PDBQT receptor file from a PDB file employing the command line scripts available with AutoDock Vina and Meeko. For example: prepare_receptor, prepare_flexreceptor.py, or or mk_make_recepror.py.</p>
+<p>You may want to perform the following steps to clean up your PDB file before generating a PDBQT receptor file: Remove extraneous molecules such as solvents, ions, and ligand etc.; Extract data for a chain containing the binding pocket of interest.</p>
+</dd>
+<dt id="receptorFlexFile-receptor-flex-file-default:-none"><b>--receptorFlexFile</b> &lt;receptor flex file&gt; [default: none]</dt>
+<dd>
+<p>Protein receptor file name corresponding to the flexible portion of the receptor. The supported receptor file format is PDBQT (.pdbqt). It must contain a prepared protein receptor ready for docking. You may prepare a flexible PDBQT receptor file from a PDB file employing the command line script prepare_flexreceptor or mk_make_recepror.py available with Autodock Vina and Meeko.</p>
+</dd>
+<dt id="skipRefinement-yes-or-no-default:-no"><b>--skipRefinement</b> &lt;yes or no&gt; [default: no]</dt>
+<dd>
+<p>Skip refinement. Vina is initialized to skip the use of explicit receptor atoms, instead of precalculated grids, during the following three docking modes: Dock, LocalOptimizationOnly, and ScoreOnly.</p>
+</dd>
+<dt id="v---validateMolecules-yes-or-no-default:-yes"><b>-v, --validateMolecules</b> &lt;yes or no&gt; [default: yes]</dt>
+<dd>
+<p>Validate molecules for docking. The input molecules must have 3D coordinates and the hydrogens must be present. You may skip validation of molecules in input file containing all valid molecules.</p>
+</dd>
+<dt id="vinaVerbosity-number-default:-auto"><b>--vinaVerbosity</b> &lt;number&gt; [default: auto]</dt>
+<dd>
+<p>Verbosity level for running Vina. Possible values: 0 - No output; 1 - Normal output; 2 - Verbose. Default: 0 during multiprocessing for &#39;Yes&#39; value of &#39;--mp&#39; option; otherwise, its set to 1. A non-zero value is not recommended during multiprocessing. It doesn&#39;t work due to the mingling of the Vina output from multiple processes.</p>
+</dd>
+<dt id="w---workingdir-dir"><b>-w, --workingdir</b> &lt;dir&gt;</dt>
+<dd>
+<p>Location of working directory which defaults to the current directory.</p>
+</dd>
+</dl>
+<h1 id="EXAMPLES">EXAMPLES</h2>
+<p>To dock molecules using Vina forcefield against a prepared receptor corresponding to chain A extracted from PDB file 1R4L.pdb, multi-threading across all available CPUs during Vina MC search, calculating grid center form a reference ligand file, using grid box size of 25 Angstrom, generating one pose for each molecule, and write out a SD file containing docked molecules, type:</p>
+<div class="ExampleBox">% VinaPerformDocking.py -g SampleACE2RefLigand.pdb
+  -r SampleACE2Receptor.pdbqt -i SampleACE2Ligands.sdf
+  -o SampleACE2LigandsOut.sdf</div>
+<p>To run the first example for generating multiple docked poses for each molecule and write out all energy terms to a SD file, type:</p>
+<div class="ExampleBox">% VinaPerformDocking.py -g SampleACE2RefLigand.pdb
+  -r SampleACE2Receptor.pdbqt  --numPoses 5 --energyComponents yes
+  -i SampleACE2Ligands.sdf -o SampleACE2LigandsOut.sdf</div>
+<p>To run the first example for docking molecules using Vinardo forcefield and write out a SD file, type:</p>
+<div class="ExampleBox">% VinaPerformDocking.py -f Vinardo -g SampleACE2RefLigand.pdb
+  -r SampleACE2Receptor.pdbqt -i SampleACE2Ligands.sdf
+  -o SampleACE2LigandsOut.sdf</div>
+<p>To run the first example for docking molecules using AD4 forcefield relying on the presence of affinity maps in the working directory and write out a SD file, type:</p>
+<div class="ExampleBox">% VinaPerformDocking.py -f AD4 -g SampleACE2RefLigand.pdb
+  -r SampleACE2Receptor -i SampleACE2Ligands.sdf
+  -o SampleACE2LigandsOut.sdf</div>
+<p>To run the first example for docking molecules using a set of explicit values for grid dimensions and write out a SD file, type:</p>
+<div class="ExampleBox">% VinaPerformDocking.py -g &quot;41.399, 5.851, 28.082&quot;
+  --gridSize &quot;25.0, 25.0, 25.0&quot; --gridSpacing 0.375
+  -r SampleACE2Receptor.pdbqt -i SampleACE2Ligands.sdf
+  -o SampleACE2LigandsOut.sdf </div>
+<p>To run the first example for only scoring molecules already positioned in the binding pocket and write out a SD file, type:</p>
+<div class="ExampleBox">% VinaPerformDocking.py -m ScoreOnly -g SampleACE2RefLigand.sdf
+  -r SampleACE2Receptor.pdbqt -i SampleACE2RefLigandWithHs.sdf
+  -o SampleACE2LigandsOut.sdf</div>
+<p>To run the first example for docking molecules to increase the accuracy of pose predictions and write out a SD file, type:</p>
+<div class="ExampleBox">% VinaPerformDocking.py -g SampleACE2RefLigand.pdb
+  -r SampleACE2Receptor.pdbqt --exhaustiveness 24
+  -i SampleACE2Ligands.sdf -o SampleACE2LigandsOut.sdf</div>
+<p>To run the first example in multiprocessing mode on all available CPUs without loading all data into memory, a single thread for Vina docking, and write out a SD file, type:</p>
+<div class="ExampleBox">% VinaPerformDocking.py -g SampleACE2RefLigand.pdb
+  -r SampleACE2Receptor.pdbqt --mp yes
+  -i SampleACE2Ligands.sdf -o SampleACE2LigandsOut.sdf</div>
+<p>To run the first example in multiprocessing mode on all available CPUs by loading all data into memory, a single thread for Vina, and write out a SD file, type:</p>
+<div class="ExampleBox">% VinaPerformDocking.py -g SampleACE2RefLigand.pdb
+  -r SampleACE2Receptor.pdbqt --mp yes --mpParams &quot;inputDataMode,
+  InMemory&quot; -i SampleACE2Ligands.sdf -o SampleACE2LigandsOut.sdf</div>
+<p>To run the first example in multiprocessing mode on specific number of CPUs and chunk size without loading all data into memory along with a specific number of threads for Vina docking and write out a SD file, type:</p>
+<div class="ExampleBox">% VinaPerformDocking.py -g SampleACE2RefLigand.pdb
+  -r SampleACE2Receptor.pdbqt --mp yes --mpParams &quot;inputDataMode,lazy,
+  numProcesses,4,chunkSize,2&quot; --numThreads 2
+  -i SampleACE2Ligands.sdf -o SampleACE2LigandsOut.sdf</div>
+<p>To run the first example for docking molecules employing a flexible portion of the receptor corresponding to ARG273 and write out a SD file, type:</p>
+<div class="ExampleBox">% VinaPerformDocking.py -g SampleACE2RefLigand.pdb
+  -r SampleACE2RigidReceptor.pdbqt
+  --receptorFlexFile SampleACE2FlexReceptor.pdbqt
+  -i SampleACE2Ligands.sdf -o SampleACE2LigandsOut.sdf</div>
+<p>To run the first example for docking molecules using specified parameters and write out a SD file, type:</p>
+<div class="ExampleBox">% VinaPerformDocking.py -g &quot;41.399, 5.851, 28.082&quot;
+  --gridSize &quot;25.0, 25.0, 25.0&quot; --gridSpacing 0.375 --energyComponents
+  yes  --exhaustiveness 32 --forcefield Vina --mode dock --numPoses 2
+  --numThreads 4 --randomSeed 42 --validateMolecules no
+  --vinaVerbosity  0 -r SampleACE2Receptor.pdbqt
+  -i SampleACE2Ligands.sdf -o SampleACE2LigandsOut.sdf </div>
+<h1 id="AUTHOR">AUTHOR</h2>
+<p><a href="mailto:msud@san.rr.com">Manish Sud</a></p>
+<h1 id="ACKNOWLEDGMENTS">ACKNOWLEDGMENTS</h2>
+<p>Diogo Santos-Martins and Stefano Forli</p>
+<h1 id="SEE-ALSO">SEE ALSO</h2>
+<p><a href="./PyMOLConvertLigandFileFormat.html">PyMOLConvertLigandFileFormat.py</a>, <a href="./PyMOLExtractSelection.html">PyMOLExtractSelection.py</a>, <a href="./PyMOLInfoMacromolecules.html">PyMOLInfoMacromolecules.py</a>, <a href="./PyMOLVisualizeMacromolecules.html">PyMOLVisualizeMacromolecules.py</a>, <a href="./RDKitConvertFileFormat.html">RDKitConvertFileFormat.py</a>, <a href="./RDKitEnumerateTautomers.html">RDKitEnumerateTautomers.py</a>, <a href="./RDKitGenerateConformers.html">RDKitGenerateConformers.py</a>, <a href="./RDKitPerformMinimization.html">RDKitPerformMinimization.py</a>, <a href="./RDKitPerformConstrainedMinimization.html">RDKitPerformConstrainedMinimization.py</a></p>
+<h1 id="COPYRIGHT">COPYRIGHT</h2>
+<p>Copyright (C) 2026 Manish Sud. All rights reserved.</p>
+<p>The functionality available in this script is implemented using AutoDockVina and Meeko, open source software packages for docking, and RDKit, an open source toolkit for cheminformatics developed by Greg Landrum.</p>
+<p>This file is part of MayaChemTools.</p>
+<p>MayaChemTools is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.</p>
+<p>&nbsp</p><p>&nbsp</p><div class="DocNav">
+<table width="100%" border=0 cellpadding=0 cellspacing=2>
+<tr align="left" valign="top"><td width="33%" align="left">&nbsp;&nbsp;<a href="./index.html" title="Table of Contents">TOC</a>&nbsp;&nbsp;<a href="./VisualizeChemspaceUsingTMAP.html" title="VisualizeChemspaceUsingTMAP.html">Next</a></td><td width="34%" align="middle"><strong>February 8, 2026</strong></td><td width="33%" align="right"><strong>VinaPerformDocking.py</strong></td></tr>
+</table>
+</div>
+<br />
+<center>
+<img src="../../../images/h2o2.png">
+</center>
+</body>
+</html>

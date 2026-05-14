@@ -1,0 +1,1309 @@
+<html>
+<head>
+<title>MayaChemTools:Code:RDKitDrawMolecules.py</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../../css/MayaChemToolsPythonCode.css">
+</head>
+<body leftmargin="20" rightmargin="20" topmargin="10" bottommargin="10">
+<br/>
+<center>
+<a href="http://www.mayachemtools.org" title="MayaChemTools Home"><img src="../../../images/MayaChemToolsLogo.gif" border="0" alt="MayaChemTools"></a>
+</center>
+<br/>
+<pre>
+    1 <span class="ch">#!/bin/env python</span>
+    2 <span class="c1">#</span>
+    3 <span class="c1"># File: RDKitDrawMolecules.py</span>
+    4 <span class="c1"># Author: Manish Sud &lt;msud@san.rr.com&gt;</span>
+    5 <span class="c1">#</span>
+    6 <span class="c1"># Copyright (C) 2026 Manish Sud. All rights reserved.</span>
+    7 <span class="c1">#</span>
+    8 <span class="c1"># The functionality available in this script is implemented using RDKit, an</span>
+    9 <span class="c1"># open source toolkit for cheminformatics developed by Greg Landrum.</span>
+   10 <span class="c1">#</span>
+   11 <span class="c1"># This file is part of MayaChemTools.</span>
+   12 <span class="c1">#</span>
+   13 <span class="c1"># MayaChemTools is free software; you can redistribute it and/or modify it under</span>
+   14 <span class="c1"># the terms of the GNU Lesser General Public License as published by the Free</span>
+   15 <span class="c1"># Software Foundation; either version 3 of the License, or (at your option) any</span>
+   16 <span class="c1"># later version.</span>
+   17 <span class="c1">#</span>
+   18 <span class="c1"># MayaChemTools is distributed in the hope that it will be useful, but without</span>
+   19 <span class="c1"># any warranty; without even the implied warranty of merchantability of fitness</span>
+   20 <span class="c1"># for a particular purpose.  See the GNU Lesser General Public License for more</span>
+   21 <span class="c1"># details.</span>
+   22 <span class="c1">#</span>
+   23 <span class="c1"># You should have received a copy of the GNU Lesser General Public License</span>
+   24 <span class="c1"># along with MayaChemTools; if not, see &lt;http://www.gnu.org/licenses/&gt; or</span>
+   25 <span class="c1"># write to the Free Software Foundation Inc., 59 Temple Place, Suite 330,</span>
+   26 <span class="c1"># Boston, MA, 02111-1307, USA.</span>
+   27 <span class="c1">#</span>
+   28 
+   29 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+   30 
+   31 <span class="kn">import</span> <span class="nn">os</span>
+   32 <span class="kn">import</span> <span class="nn">sys</span>
+   33 <span class="kn">import</span> <span class="nn">time</span>
+   34 <span class="kn">import</span> <span class="nn">re</span>
+   35 
+   36 <span class="c1"># RDKit imports...</span>
+   37 <span class="k">try</span><span class="p">:</span>
+   38     <span class="kn">from</span> <span class="nn">rdkit</span> <span class="kn">import</span> <span class="n">rdBase</span>
+   39     <span class="kn">from</span> <span class="nn">rdkit</span> <span class="kn">import</span> <span class="n">Chem</span>
+   40     <span class="kn">from</span> <span class="nn">rdkit.Chem</span> <span class="kn">import</span> <span class="n">AllChem</span>
+   41     <span class="kn">from</span> <span class="nn">rdkit.Chem</span> <span class="kn">import</span> <span class="n">Draw</span>
+   42     <span class="kn">from</span> <span class="nn">rdkit.Chem.Draw.MolDrawing</span> <span class="kn">import</span> <span class="n">DrawingOptions</span>
+   43 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ErrMsg</span><span class="p">:</span>
+   44     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Failed to import RDKit module/package: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ErrMsg</span><span class="p">)</span>
+   45     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Check/update your RDKit environment and try again.</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+   46     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+   47 
+   48 <span class="c1"># MayaChemTools imports...</span>
+   49 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;lib&quot;</span><span class="p">,</span> <span class="s2">&quot;Python&quot;</span><span class="p">))</span>
+   50 <span class="k">try</span><span class="p">:</span>
+   51     <span class="kn">from</span> <span class="nn">docopt</span> <span class="kn">import</span> <span class="n">docopt</span>
+   52     <span class="kn">import</span> <span class="nn">MiscUtil</span>
+   53     <span class="kn">import</span> <span class="nn">RDKitUtil</span>
+   54 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ErrMsg</span><span class="p">:</span>
+   55     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Failed to import MayaChemTools module/package: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ErrMsg</span><span class="p">)</span>
+   56     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Check/update your MayaChemTools environment and try again.</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+   57     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+   58 
+   59 <span class="n">ScriptName</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+   60 <span class="n">Options</span> <span class="o">=</span> <span class="p">{}</span>
+   61 <span class="n">OptionsInfo</span> <span class="o">=</span> <span class="p">{}</span>
+   62 
+   63 
+   64 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+   65     <span class="sd">&quot;&quot;&quot;Start execution of the script.&quot;&quot;&quot;</span>
+   66 
+   67     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span>
+   68         <span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2"> (RDKit v</span><span class="si">%s</span><span class="s2">; MayaChemTools v</span><span class="si">%s</span><span class="s2">; </span><span class="si">%s</span><span class="s2">): Starting...</span><span class="se">\n</span><span class="s2">&quot;</span>
+   69         <span class="o">%</span> <span class="p">(</span><span class="n">ScriptName</span><span class="p">,</span> <span class="n">rdBase</span><span class="o">.</span><span class="n">rdkitVersion</span><span class="p">,</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetMayaChemToolsVersion</span><span class="p">(),</span> <span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">())</span>
+   70     <span class="p">)</span>
+   71 
+   72     <span class="p">(</span><span class="n">WallClockTime</span><span class="p">,</span> <span class="n">ProcessorTime</span><span class="p">)</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetWallClockAndProcessorTime</span><span class="p">()</span>
+   73 
+   74     <span class="c1"># Retrieve command line arguments and options...</span>
+   75     <span class="n">RetrieveOptions</span><span class="p">()</span>
+   76 
+   77     <span class="c1"># Process and validate command line arguments and options...</span>
+   78     <span class="n">ProcessOptions</span><span class="p">()</span>
+   79 
+   80     <span class="c1"># Perform actions required by the script...</span>
+   81     <span class="n">DrawMolecules</span><span class="p">()</span>
+   82 
+   83     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2">: Done...</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ScriptName</span><span class="p">)</span>
+   84     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Total time: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetFormattedElapsedTime</span><span class="p">(</span><span class="n">WallClockTime</span><span class="p">,</span> <span class="n">ProcessorTime</span><span class="p">))</span>
+   85 
+   86 
+   87 <span class="k">def</span> <span class="nf">DrawMolecules</span><span class="p">():</span>
+   88     <span class="sd">&quot;&quot;&quot;Draw molecules.&quot;&quot;&quot;</span>
+   89 
+   90     <span class="n">Infile</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Infile&quot;</span><span class="p">]</span>
+   91     <span class="n">Outfile</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Outfile&quot;</span><span class="p">]</span>
+   92 
+   93     <span class="c1"># Read molecules...</span>
+   94     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Reading file </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="n">Infile</span><span class="p">)</span>
+   95 
+   96     <span class="n">ValidMols</span><span class="p">,</span> <span class="n">MolCount</span><span class="p">,</span> <span class="n">ValidMolCount</span> <span class="o">=</span> <span class="n">RDKitUtil</span><span class="o">.</span><span class="n">ReadAndValidateMolecules</span><span class="p">(</span><span class="n">Infile</span><span class="p">,</span> <span class="o">**</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfileParams&quot;</span><span class="p">])</span>
+   97 
+   98     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Total number of molecules: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">MolCount</span><span class="p">)</span>
+   99     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Number of valid molecules: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ValidMolCount</span><span class="p">)</span>
+  100     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Number of ignored molecules: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">MolCount</span> <span class="o">-</span> <span class="n">ValidMolCount</span><span class="p">))</span>
+  101 
+  102     <span class="c1"># Compute 2D coordinates...</span>
+  103     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Compute2DCoords&quot;</span><span class="p">]:</span>
+  104         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Computing 2D coordinates...&quot;</span><span class="p">)</span>
+  105         <span class="k">for</span> <span class="n">Mol</span> <span class="ow">in</span> <span class="n">ValidMols</span><span class="p">:</span>
+  106             <span class="n">AllChem</span><span class="o">.</span><span class="n">Compute2DCoords</span><span class="p">(</span><span class="n">Mol</span><span class="p">)</span>
+  107 
+  108     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Generating image grid...&quot;</span><span class="p">)</span>
+  109 
+  110     <span class="c1"># Setup atoms lists for highlighting atoms and bonds...</span>
+  111     <span class="n">AtomLists</span> <span class="o">=</span> <span class="n">SetupAtomListsToHighlight</span><span class="p">(</span><span class="n">ValidMols</span><span class="p">)</span>
+  112     <span class="n">BondLists</span> <span class="o">=</span> <span class="kc">None</span>
+  113 
+  114     <span class="c1"># Set up legends...</span>
+  115     <span class="n">MolNames</span> <span class="o">=</span> <span class="kc">None</span>
+  116     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ShowMolName&quot;</span><span class="p">]:</span>
+  117         <span class="n">MolNames</span> <span class="o">=</span> <span class="p">[]</span>
+  118         <span class="n">MolCount</span> <span class="o">=</span> <span class="mi">0</span>
+  119         <span class="k">for</span> <span class="n">Mol</span> <span class="ow">in</span> <span class="n">ValidMols</span><span class="p">:</span>
+  120             <span class="n">MolCount</span> <span class="o">+=</span> <span class="mi">1</span>
+  121             <span class="n">MolName</span> <span class="o">=</span> <span class="n">RDKitUtil</span><span class="o">.</span><span class="n">GetMolName</span><span class="p">(</span><span class="n">Mol</span><span class="p">,</span> <span class="n">MolCount</span><span class="p">)</span>
+  122             <span class="n">MolNames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MolName</span><span class="p">)</span>
+  123 
+  124     <span class="c1"># Perform alignment to a common template...</span>
+  125     <span class="n">PerformAlignment</span><span class="p">(</span><span class="n">ValidMols</span><span class="p">)</span>
+  126 
+  127     <span class="c1"># Generate appropriate output files...</span>
+  128     <span class="k">if</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">CheckFileExt</span><span class="p">(</span><span class="n">Outfile</span><span class="p">,</span> <span class="s2">&quot;svg&quot;</span><span class="p">):</span>
+  129         <span class="n">GenerateSVGImageFile</span><span class="p">(</span><span class="n">ValidMols</span><span class="p">,</span> <span class="n">MolNames</span><span class="p">,</span> <span class="n">AtomLists</span><span class="p">,</span> <span class="n">BondLists</span><span class="p">)</span>
+  130     <span class="k">elif</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">CheckFileExt</span><span class="p">(</span><span class="n">Outfile</span><span class="p">,</span> <span class="s2">&quot;html htm&quot;</span><span class="p">):</span>
+  131         <span class="n">GenerateHTMLTableFile</span><span class="p">(</span><span class="n">ValidMols</span><span class="p">,</span> <span class="n">MolNames</span><span class="p">,</span> <span class="n">AtomLists</span><span class="p">,</span> <span class="n">BondLists</span><span class="p">)</span>
+  132     <span class="k">else</span><span class="p">:</span>
+  133         <span class="n">GenerateImageFile</span><span class="p">(</span><span class="n">ValidMols</span><span class="p">,</span> <span class="n">MolNames</span><span class="p">,</span> <span class="n">AtomLists</span><span class="p">,</span> <span class="n">BondLists</span><span class="p">)</span>
+  134 
+  135 
+  136 <span class="k">def</span> <span class="nf">GenerateSVGImageFile</span><span class="p">(</span><span class="n">ValidMols</span><span class="p">,</span> <span class="n">MolNames</span><span class="p">,</span> <span class="n">AtomLists</span><span class="p">,</span> <span class="n">BondLists</span><span class="p">):</span>
+  137     <span class="sd">&quot;&quot;&quot;Generate a SVG image file.&quot;&quot;&quot;</span>
+  138 
+  139     <span class="n">MolsSVGText</span> <span class="o">=</span> <span class="n">RDKitUtil</span><span class="o">.</span><span class="n">GetSVGForMolecules</span><span class="p">(</span>
+  140         <span class="n">ValidMols</span><span class="p">,</span>
+  141         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;NumOfMolsPerRow&quot;</span><span class="p">],</span>
+  142         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MolImageWidth&quot;</span><span class="p">],</span>
+  143         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MolImageHeight&quot;</span><span class="p">],</span>
+  144         <span class="n">Legends</span><span class="o">=</span><span class="n">MolNames</span><span class="p">,</span>
+  145         <span class="n">AtomListsToHighlight</span><span class="o">=</span><span class="n">AtomLists</span><span class="p">,</span>
+  146         <span class="n">BondListsToHighlight</span><span class="o">=</span><span class="n">BondLists</span><span class="p">,</span>
+  147         <span class="n">BoldText</span><span class="o">=</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;FontBold&quot;</span><span class="p">],</span>
+  148     <span class="p">)</span>
+  149 
+  150     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Generating SVG image file </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Outfile&quot;</span><span class="p">])</span>
+  151 
+  152     <span class="n">OutFH</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Outfile&quot;</span><span class="p">],</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+  153     <span class="n">OutFH</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">MolsSVGText</span><span class="p">)</span>
+  154     <span class="n">OutFH</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+  155 
+  156 
+  157 <span class="k">def</span> <span class="nf">GenerateImageFile</span><span class="p">(</span><span class="n">ValidMols</span><span class="p">,</span> <span class="n">MolNames</span><span class="p">,</span> <span class="n">AtomLists</span><span class="p">,</span> <span class="n">BondLists</span><span class="p">):</span>
+  158     <span class="sd">&quot;&quot;&quot;Generate a non SVG image file.&quot;&quot;&quot;</span>
+  159 
+  160     <span class="n">Outfile</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Outfile&quot;</span><span class="p">]</span>
+  161 
+  162     <span class="n">NumOfMolsPerRow</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;NumOfMolsPerRow&quot;</span><span class="p">]</span>
+  163     <span class="n">Width</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MolImageWidth&quot;</span><span class="p">]</span>
+  164     <span class="n">Height</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MolImageHeight&quot;</span><span class="p">]</span>
+  165 
+  166     <span class="c1"># Setup drawing options...</span>
+  167     <span class="n">UpdatedDrawingOptions</span> <span class="o">=</span> <span class="n">DrawingOptions</span><span class="p">()</span>
+  168     <span class="n">UpdatedDrawingOptions</span><span class="o">.</span><span class="n">atomLabelFontSize</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AtomLabelFontSize&quot;</span><span class="p">])</span>
+  169     <span class="n">UpdatedDrawingOptions</span><span class="o">.</span><span class="n">bondLineWidth</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;BondLineWidth&quot;</span><span class="p">])</span>
+  170 
+  171     <span class="k">try</span><span class="p">:</span>
+  172         <span class="n">MolsImage</span> <span class="o">=</span> <span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">(</span>
+  173             <span class="n">ValidMols</span><span class="p">,</span>
+  174             <span class="n">molsPerRow</span><span class="o">=</span><span class="n">NumOfMolsPerRow</span><span class="p">,</span>
+  175             <span class="n">subImgSize</span><span class="o">=</span><span class="p">(</span><span class="n">Width</span><span class="p">,</span> <span class="n">Height</span><span class="p">),</span>
+  176             <span class="n">legends</span><span class="o">=</span><span class="n">MolNames</span><span class="p">,</span>
+  177             <span class="n">highlightAtomLists</span><span class="o">=</span><span class="n">AtomLists</span><span class="p">,</span>
+  178             <span class="n">highlightBondLists</span><span class="o">=</span><span class="n">BondLists</span><span class="p">,</span>
+  179             <span class="n">useSVG</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+  180             <span class="n">kekulize</span><span class="o">=</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Kekulize&quot;</span><span class="p">],</span>
+  181             <span class="n">options</span><span class="o">=</span><span class="n">UpdatedDrawingOptions</span><span class="p">,</span>
+  182         <span class="p">)</span>
+  183     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+  184         <span class="c1"># MolsToGridImage doesn&#39;t appear to handle the following parameters in the latest version of RDKit:</span>
+  185         <span class="c1">#      . kekulize = OptionsInfo[&quot;Kekulize&quot;], options = UpdatedDrawingOptions</span>
+  186         <span class="n">MolsImage</span> <span class="o">=</span> <span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">(</span>
+  187             <span class="n">ValidMols</span><span class="p">,</span>
+  188             <span class="n">molsPerRow</span><span class="o">=</span><span class="n">NumOfMolsPerRow</span><span class="p">,</span>
+  189             <span class="n">subImgSize</span><span class="o">=</span><span class="p">(</span><span class="n">Width</span><span class="p">,</span> <span class="n">Height</span><span class="p">),</span>
+  190             <span class="n">legends</span><span class="o">=</span><span class="n">MolNames</span><span class="p">,</span>
+  191             <span class="n">highlightAtomLists</span><span class="o">=</span><span class="n">AtomLists</span><span class="p">,</span>
+  192             <span class="n">highlightBondLists</span><span class="o">=</span><span class="n">BondLists</span><span class="p">,</span>
+  193             <span class="n">useSVG</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+  194             <span class="n">returnPNG</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+  195         <span class="p">)</span>
+  196 
+  197     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Generating image file </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="n">Outfile</span><span class="p">)</span>
+  198 
+  199     <span class="k">if</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">CheckFileExt</span><span class="p">(</span><span class="n">Outfile</span><span class="p">,</span> <span class="s2">&quot;pdf&quot;</span><span class="p">):</span>
+  200         <span class="k">if</span> <span class="n">MolsImage</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;RGBA&quot;</span><span class="p">:</span>
+  201             <span class="n">MolsImage</span> <span class="o">=</span> <span class="n">MolsImage</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">)</span>
+  202 
+  203     <span class="n">MolsImage</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">Outfile</span><span class="p">)</span>
+  204 
+  205 
+  206 <span class="k">def</span> <span class="nf">GenerateHTMLTableFile</span><span class="p">(</span><span class="n">ValidMols</span><span class="p">,</span> <span class="n">MolNames</span><span class="p">,</span> <span class="n">HighlightAtomLists</span><span class="p">,</span> <span class="n">HighlightBondLists</span><span class="p">):</span>
+  207     <span class="sd">&quot;&quot;&quot;Generate a HTML table file.&quot;&quot;&quot;</span>
+  208 
+  209     <span class="n">Outfile</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Outfile&quot;</span><span class="p">]</span>
+  210 
+  211     <span class="n">Writer</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">Outfile</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+  212     <span class="k">if</span> <span class="n">Writer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  213         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span><span class="s2">&quot;Failed to setup a writer for output fie </span><span class="si">%s</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="n">Outfile</span><span class="p">)</span>
+  214 
+  215     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Generating HTML table file </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="n">Outfile</span><span class="p">)</span>
+  216 
+  217     <span class="n">WriteHTMLPageHeader</span><span class="p">(</span><span class="n">Writer</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ValidMols</span><span class="p">))</span>
+  218     <span class="n">WriteHTMLPageTitle</span><span class="p">(</span><span class="n">Writer</span><span class="p">)</span>
+  219 
+  220     <span class="n">WriteHTMLTableHeader</span><span class="p">(</span><span class="n">Writer</span><span class="p">)</span>
+  221     <span class="n">WriteHTMLTableRows</span><span class="p">(</span><span class="n">Writer</span><span class="p">,</span> <span class="n">ValidMols</span><span class="p">,</span> <span class="n">MolNames</span><span class="p">,</span> <span class="n">HighlightAtomLists</span><span class="p">,</span> <span class="n">HighlightBondLists</span><span class="p">)</span>
+  222     <span class="n">WriteHTMLTableEnd</span><span class="p">(</span><span class="n">Writer</span><span class="p">)</span>
+  223 
+  224     <span class="n">WriteHTMLPageFooter</span><span class="p">(</span><span class="n">Writer</span><span class="p">)</span>
+  225     <span class="n">WriteHTMLPageEnd</span><span class="p">(</span><span class="n">Writer</span><span class="p">)</span>
+  226 
+  227     <span class="k">if</span> <span class="n">Writer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+  228         <span class="n">Writer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+  229 
+  230 
+  231 <span class="k">def</span> <span class="nf">WriteHTMLTableRows</span><span class="p">(</span><span class="n">Writer</span><span class="p">,</span> <span class="n">ValidMols</span><span class="p">,</span> <span class="n">MolNames</span><span class="p">,</span> <span class="n">HighlightAtomLists</span><span class="p">,</span> <span class="n">HighlightBondLists</span><span class="p">):</span>
+  232     <span class="sd">&quot;&quot;&quot;Write out HTML table rows.&quot;&quot;&quot;</span>
+  233 
+  234     <span class="n">WriteTableHeaderRow</span><span class="p">(</span><span class="n">Writer</span><span class="p">,</span> <span class="n">ValidMols</span><span class="p">)</span>
+  235     <span class="n">WriteTableDataRows</span><span class="p">(</span><span class="n">Writer</span><span class="p">,</span> <span class="n">ValidMols</span><span class="p">,</span> <span class="n">MolNames</span><span class="p">,</span> <span class="n">HighlightAtomLists</span><span class="p">,</span> <span class="n">HighlightBondLists</span><span class="p">)</span>
+  236     <span class="n">WriteTableFooterRow</span><span class="p">(</span><span class="n">Writer</span><span class="p">,</span> <span class="n">ValidMols</span><span class="p">)</span>
+  237 
+  238 
+  239 <span class="k">def</span> <span class="nf">WriteTableDataRows</span><span class="p">(</span><span class="n">Writer</span><span class="p">,</span> <span class="n">ValidMols</span><span class="p">,</span> <span class="n">MolNames</span><span class="p">,</span> <span class="n">HighlightAtomLists</span><span class="p">,</span> <span class="n">HighlightBondLists</span><span class="p">):</span>
+  240     <span class="sd">&quot;&quot;&quot;Write out table data row.&quot;&quot;&quot;</span>
+  241 
+  242     <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;        &lt;tbody&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  243 
+  244     <span class="n">MolCount</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ValidMols</span><span class="p">)</span>
+  245     <span class="n">ColCount</span> <span class="o">=</span> <span class="n">GetColCount</span><span class="p">(</span><span class="n">MolCount</span><span class="p">)</span>
+  246 
+  247     <span class="k">for</span> <span class="n">Index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">MolCount</span><span class="p">,</span> <span class="n">ColCount</span><span class="p">):</span>
+  248         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;          &lt;tr&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  249 
+  250         <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;CounterCol&quot;</span><span class="p">]:</span>
+  251             <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;            &lt;td&gt;&lt;/td&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  252 
+  253         <span class="k">for</span> <span class="n">MolIndex</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Index</span><span class="p">,</span> <span class="p">(</span><span class="n">Index</span> <span class="o">+</span> <span class="n">ColCount</span><span class="p">)):</span>
+  254             <span class="n">SetupStructureDataDrawing</span><span class="p">(</span><span class="n">Writer</span><span class="p">,</span> <span class="n">MolIndex</span><span class="p">,</span> <span class="n">ValidMols</span><span class="p">,</span> <span class="n">MolNames</span><span class="p">,</span> <span class="n">HighlightAtomLists</span><span class="p">,</span> <span class="n">HighlightBondLists</span><span class="p">)</span>
+  255 
+  256         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;          &lt;/tr&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  257 
+  258     <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;        &lt;/tbody&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  259 
+  260 
+  261 <span class="k">def</span> <span class="nf">SetupStructureDataDrawing</span><span class="p">(</span><span class="n">Writer</span><span class="p">,</span> <span class="n">MolIndex</span><span class="p">,</span> <span class="n">Mols</span><span class="p">,</span> <span class="n">MolNames</span><span class="p">,</span> <span class="n">HighlightAtomLists</span><span class="p">,</span> <span class="n">HighlightBondLists</span><span class="p">):</span>
+  262     <span class="sd">&quot;&quot;&quot;Setup structure data drawing for a tabel cell.&quot;&quot;&quot;</span>
+  263 
+  264     <span class="k">if</span> <span class="n">MolIndex</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">Mols</span><span class="p">):</span>
+  265         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;            &lt;td&gt;&lt;/td&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  266         <span class="k">return</span>
+  267 
+  268     <span class="n">Mol</span> <span class="o">=</span> <span class="n">Mols</span><span class="p">[</span><span class="n">MolIndex</span><span class="p">]</span>
+  269     <span class="n">MolName</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">MolNames</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">MolNames</span><span class="p">[</span><span class="n">MolIndex</span><span class="p">]</span>
+  270     <span class="n">HighlightAtomList</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">HighlightAtomLists</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">HighlightAtomLists</span><span class="p">[</span><span class="n">MolIndex</span><span class="p">]</span>
+  271     <span class="n">HighlightBondList</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">HighlightBondLists</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">HighlightBondLists</span><span class="p">[</span><span class="n">MolIndex</span><span class="p">]</span>
+  272 
+  273     <span class="n">SVGText</span> <span class="o">=</span> <span class="n">RDKitUtil</span><span class="o">.</span><span class="n">GetInlineSVGForMolecule</span><span class="p">(</span>
+  274         <span class="n">Mol</span><span class="p">,</span>
+  275         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MolImageWidth&quot;</span><span class="p">],</span>
+  276         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MolImageHeight&quot;</span><span class="p">],</span>
+  277         <span class="n">Legend</span><span class="o">=</span><span class="n">MolName</span><span class="p">,</span>
+  278         <span class="n">AtomListToHighlight</span><span class="o">=</span><span class="n">HighlightAtomList</span><span class="p">,</span>
+  279         <span class="n">BondListToHighlight</span><span class="o">=</span><span class="n">HighlightBondList</span><span class="p">,</span>
+  280         <span class="n">BoldText</span><span class="o">=</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;FontBold&quot;</span><span class="p">],</span>
+  281         <span class="n">Base64Encoded</span><span class="o">=</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MolImageEncoded&quot;</span><span class="p">],</span>
+  282     <span class="p">)</span>
+  283 
+  284     <span class="n">PopoverTag</span> <span class="o">=</span> <span class="n">GetMolPopoverTag</span><span class="p">(</span><span class="n">Mol</span><span class="p">)</span>
+  285     <span class="n">ImageTag</span> <span class="o">=</span> <span class="s2">&quot;img&quot;</span> <span class="k">if</span> <span class="n">PopoverTag</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;img </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">PopoverTag</span>
+  286 
+  287     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MolImageEncoded&quot;</span><span class="p">]:</span>
+  288         <span class="n">SVGInlineImageTag</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> src=&quot;data:image/svg+xml;base64,</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ImageTag</span><span class="p">,</span> <span class="n">SVGText</span><span class="p">)</span>
+  289     <span class="k">else</span><span class="p">:</span>
+  290         <span class="n">SVGInlineImageTag</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> src=&quot;data:image/svg+xml;charset=UTF-8,</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ImageTag</span><span class="p">,</span> <span class="n">SVGText</span><span class="p">)</span>
+  291 
+  292     <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;            &lt;td bgcolor=&quot;white&quot;&gt;&lt;</span><span class="si">%s</span><span class="s2">&gt;&lt;/td&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="n">SVGInlineImageTag</span><span class="p">)</span>
+  293 
+  294 
+  295 <span class="k">def</span> <span class="nf">WriteTableHeaderRow</span><span class="p">(</span><span class="n">Writer</span><span class="p">,</span> <span class="n">ValidMols</span><span class="p">):</span>
+  296     <span class="sd">&quot;&quot;&quot;Write out table header row.&quot;&quot;&quot;</span>
+  297 
+  298     <span class="k">if</span> <span class="ow">not</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;TableHeader&quot;</span><span class="p">]:</span>
+  299         <span class="k">return</span>
+  300 
+  301     <span class="n">TableHeaderStyle</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;TableHeaderStyle&quot;</span><span class="p">]</span>
+  302     <span class="k">if</span> <span class="n">TableHeaderStyle</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  303         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;      &lt;thead&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  304         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;        &lt;tr&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  305     <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^(thead|table)&quot;</span><span class="p">,</span> <span class="n">TableHeaderStyle</span><span class="p">):</span>
+  306         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;      &lt;thead class=&quot;</span><span class="si">%s</span><span class="s2">&quot;&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="n">TableHeaderStyle</span><span class="p">)</span>
+  307         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;        &lt;tr&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  308     <span class="k">else</span><span class="p">:</span>
+  309         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;      &lt;thead&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  310         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;        &lt;tr bgcolor=&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="n">TableHeaderStyle</span><span class="p">)</span>
+  311 
+  312     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;CounterCol&quot;</span><span class="p">]:</span>
+  313         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;          &lt;th&gt;&lt;/th&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  314 
+  315     <span class="c1"># Write out rest of the column headers...</span>
+  316     <span class="n">MolCount</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ValidMols</span><span class="p">)</span>
+  317     <span class="n">ColCount</span> <span class="o">=</span> <span class="n">GetColCount</span><span class="p">(</span><span class="n">MolCount</span><span class="p">)</span>
+  318     <span class="k">for</span> <span class="n">ColIndex</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ColCount</span><span class="p">):</span>
+  319         <span class="n">ColLabel</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetExcelStyleColumnLabel</span><span class="p">(</span><span class="n">ColIndex</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+  320         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;          &lt;th&gt;</span><span class="si">%s</span><span class="s2">&lt;/th&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="n">ColLabel</span><span class="p">)</span>
+  321 
+  322     <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;        &lt;/tr&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  323     <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;      &lt;/thead&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  324 
+  325 
+  326 <span class="k">def</span> <span class="nf">WriteTableFooterRow</span><span class="p">(</span><span class="n">Writer</span><span class="p">,</span> <span class="n">ValidMols</span><span class="p">):</span>
+  327     <span class="sd">&quot;&quot;&quot;Write out table footer row.&quot;&quot;&quot;</span>
+  328 
+  329     <span class="k">if</span> <span class="ow">not</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;TableFooter&quot;</span><span class="p">]:</span>
+  330         <span class="k">return</span>
+  331 
+  332     <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;      &lt;tfoot&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  333     <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;        &lt;tr&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  334 
+  335     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;CounterCol&quot;</span><span class="p">]:</span>
+  336         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;          &lt;td&gt;&lt;/td&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  337 
+  338     <span class="c1"># Write out rest of the column headers...</span>
+  339     <span class="n">MolCount</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ValidMols</span><span class="p">)</span>
+  340     <span class="n">ColCount</span> <span class="o">=</span> <span class="n">GetColCount</span><span class="p">(</span><span class="n">MolCount</span><span class="p">)</span>
+  341     <span class="k">for</span> <span class="n">ColIndex</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ColCount</span><span class="p">):</span>
+  342         <span class="n">ColLabel</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetExcelStyleColumnLabel</span><span class="p">(</span><span class="n">ColIndex</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+  343         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;          &lt;td&gt;</span><span class="si">%s</span><span class="s2">&lt;/td&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="n">ColLabel</span><span class="p">)</span>
+  344 
+  345     <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;        &lt;/tr&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  346     <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;      &lt;/tfoot&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  347 
+  348 
+  349 <span class="k">def</span> <span class="nf">WriteHTMLPageHeader</span><span class="p">(</span><span class="n">Writer</span><span class="p">,</span> <span class="n">MolCount</span><span class="p">):</span>
+  350     <span class="sd">&quot;&quot;&quot;Write out HTML page header.&quot;&quot;&quot;</span>
+  351 
+  352     <span class="n">ColCount</span> <span class="o">=</span> <span class="n">GetColCount</span><span class="p">(</span><span class="n">MolCount</span><span class="p">)</span>
+  353 
+  354     <span class="c1"># Exclude counter and structure columns from sorting and searching...</span>
+  355     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;CounterCol&quot;</span><span class="p">]:</span>
+  356         <span class="n">ColIndicesList</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;0&quot;</span><span class="p">]</span>
+  357         <span class="n">ColVisibilityExcludeColIndicesList</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;0&quot;</span><span class="p">]</span>
+  358         <span class="n">ColIndexOffset</span> <span class="o">=</span> <span class="mi">1</span>
+  359         <span class="n">FreezeLeftColumns</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+  360     <span class="k">else</span><span class="p">:</span>
+  361         <span class="n">ColIndicesList</span> <span class="o">=</span> <span class="p">[]</span>
+  362         <span class="n">ColVisibilityExcludeColIndicesList</span> <span class="o">=</span> <span class="p">[]</span>
+  363         <span class="n">ColIndexOffset</span> <span class="o">=</span> <span class="mi">0</span>
+  364 
+  365     <span class="n">MaxDataColVisColCount</span> <span class="o">=</span> <span class="mi">25</span>
+  366     <span class="k">for</span> <span class="n">Index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ColCount</span><span class="p">):</span>
+  367         <span class="n">ColIndex</span> <span class="o">=</span> <span class="n">Index</span> <span class="o">+</span> <span class="n">ColIndexOffset</span>
+  368         <span class="n">ColIndicesList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ColIndex</span><span class="p">)</span>
+  369 
+  370         <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ColVisibility&quot;</span><span class="p">]:</span>
+  371             <span class="k">if</span> <span class="n">Index</span> <span class="o">&gt;=</span> <span class="n">MaxDataColVisColCount</span><span class="p">:</span>
+  372                 <span class="n">ColVisibilityExcludeColIndicesList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ColIndex</span><span class="p">)</span>
+  373 
+  374     <span class="n">ColIndices</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">JoinWords</span><span class="p">(</span><span class="n">ColIndicesList</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ColIndicesList</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+  375     <span class="n">ColVisibilityExcludeColIndices</span> <span class="o">=</span> <span class="p">(</span>
+  376         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">JoinWords</span><span class="p">(</span><span class="n">ColVisibilityExcludeColIndicesList</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ColVisibilityExcludeColIndicesList</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+  377     <span class="p">)</span>
+  378 
+  379     <span class="n">DataColVisibilityExclude</span> <span class="o">=</span> <span class="kc">False</span>
+  380     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ColVisibility&quot;</span><span class="p">]:</span>
+  381         <span class="k">if</span> <span class="n">ColCount</span> <span class="o">&gt;</span> <span class="n">MaxDataColVisColCount</span><span class="p">:</span>
+  382             <span class="n">DataColVisibilityExclude</span> <span class="o">=</span> <span class="kc">True</span>
+  383             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintWarning</span><span class="p">(</span>
+  384                 <span class="s2">&quot;The number of data columns, </span><span class="si">%d</span><span class="s2">, is quite large. Only first </span><span class="si">%d</span><span class="s2"> data columns will be available in column visibility pulldown.&quot;</span>
+  385                 <span class="o">%</span> <span class="p">(</span><span class="n">ColCount</span><span class="p">,</span> <span class="n">MaxDataColVisColCount</span><span class="p">)</span>
+  386             <span class="p">)</span>
+  387 
+  388     <span class="n">DisplayButtons</span> <span class="o">=</span> <span class="kc">False</span>
+  389     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ColVisibility&quot;</span><span class="p">]:</span>
+  390         <span class="k">if</span> <span class="n">ColCount</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+  391             <span class="n">DisplayButtons</span> <span class="o">=</span> <span class="kc">True</span>
+  392 
+  393     <span class="n">FreezeCols</span> <span class="o">=</span> <span class="kc">False</span>
+  394     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;CounterCol&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ScrollX&quot;</span><span class="p">]:</span>
+  395         <span class="n">FreezeCols</span> <span class="o">=</span> <span class="kc">True</span>
+  396 
+  397     <span class="n">Paging</span> <span class="o">=</span> <span class="s2">&quot;true&quot;</span> <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Paging&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;false&quot;</span>
+  398     <span class="n">PageLength</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;PageLength&quot;</span><span class="p">]</span>
+  399     <span class="n">PagingType</span> <span class="o">=</span> <span class="s1">&#39;&quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;PagingType&quot;</span><span class="p">]</span>
+  400 
+  401     <span class="n">ScrollX</span> <span class="o">=</span> <span class="s2">&quot;true&quot;</span> <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ScrollX&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;false&quot;</span>
+  402 
+  403     <span class="n">ScrollY</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+  404     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ScrollY&quot;</span><span class="p">]:</span>
+  405         <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;vh$&quot;</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ScrollYSize&quot;</span><span class="p">]):</span>
+  406             <span class="n">ScrollY</span> <span class="o">=</span> <span class="s1">&#39;&quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ScrollYSize&quot;</span><span class="p">]</span>
+  407         <span class="k">else</span><span class="p">:</span>
+  408             <span class="n">ScrollY</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ScrollYSize&quot;</span><span class="p">]</span>
+  409 
+  410     <span class="c1"># Start HTML header...</span>
+  411     <span class="n">Title</span> <span class="o">=</span> <span class="s2">&quot;Molecules table&quot;</span> <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Header&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Header&quot;</span><span class="p">]</span>
+  412 
+  413     <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+  414         <span class="sd">&quot;&quot;&quot;\</span>
+  415 <span class="sd">&lt;!doctype html&gt;</span>
+  416 <span class="sd">&lt;html lang=&quot;en&quot;&gt;</span>
+  417 <span class="sd">&lt;head&gt;</span>
+  418 <span class="sd">    &lt;title&gt;%s&lt;/title&gt;</span>
+  419 <span class="sd">    &lt;meta charset=&quot;utf-8&quot;&gt;</span>
+  420 <span class="sd">    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1, shrink-to-fit=no&quot;&gt;</span>
+  421 <span class="sd">    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css&quot;&gt;</span>
+  422 <span class="sd">    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap4.min.css&quot;&gt;</span>
+  423 <span class="sd">  </span>
+  424 <span class="sd">&quot;&quot;&quot;</span>
+  425         <span class="o">%</span> <span class="p">(</span><span class="n">Title</span><span class="p">)</span>
+  426     <span class="p">)</span>
+  427 
+  428     <span class="k">if</span> <span class="n">FreezeCols</span><span class="p">:</span>
+  429         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+  430 <span class="s2">    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;https://cdn.datatables.net/fixedcolumns/3.2.4/css/fixedColumns.bootstrap4.min.css&quot;&gt;</span>
+  431 <span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  432 
+  433     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;KeysNavigation&quot;</span><span class="p">]:</span>
+  434         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+  435 <span class="s2">    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;https://cdn.datatables.net/keytable/2.3.2/css/keyTable.bootstrap4.min.css&quot;&gt;</span>
+  436 <span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  437 
+  438     <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+  439 
+  440 <span class="s2">    &lt;script type=&quot;text/javascript&quot; language=&quot;javascript&quot; src=&quot;https://code.jquery.com/jquery-1.12.4.js&quot;&gt;&lt;/script&gt;</span>
+  441 <span class="s2">    &lt;script type=&quot;text/javascript&quot; language=&quot;javascript&quot; src=&quot;https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js&quot;&gt;&lt;/script&gt;</span>
+  442 <span class="s2">    &lt;script type=&quot;text/javascript&quot; language=&quot;javascript&quot; src=&quot;https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap4.min.js&quot;&gt;&lt;/script&gt;</span>
+  443 
+  444 <span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  445 
+  446     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Popover&quot;</span><span class="p">]:</span>
+  447         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+  448 <span class="s2">    &lt;script type=&quot;text/javascript&quot; language=&quot;javascript&quot; src=&quot;https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js&quot;&gt;&lt;/script&gt;</span>
+  449 <span class="s2">    &lt;script type=&quot;text/javascript&quot; language=&quot;javascript&quot; src=&quot;https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js&quot;&gt;&lt;/script&gt;</span>
+  450 
+  451 <span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  452 
+  453     <span class="k">if</span> <span class="n">DisplayButtons</span><span class="p">:</span>
+  454         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+  455 <span class="s2">    &lt;script type=&quot;text/javascript&quot; language=&quot;javascript&quot; src=&quot;https://cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js&quot;&gt;&lt;/script&gt;</span>
+  456 <span class="s2">    &lt;script type=&quot;text/javascript&quot; language=&quot;javascript&quot; src=&quot;https://cdn.datatables.net/buttons/1.5.1/js/buttons.bootstrap4.min.js&quot;&gt;&lt;/script&gt;</span>
+  457 <span class="s2">    &lt;script type=&quot;text/javascript&quot; language=&quot;javascript&quot; src=&quot;https://cdn.datatables.net/buttons/1.5.1/js/buttons.colVis.min.js&quot;&gt;&lt;/script&gt;</span>
+  458 
+  459 <span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  460 
+  461     <span class="k">if</span> <span class="n">FreezeCols</span><span class="p">:</span>
+  462         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+  463 <span class="s2">    &lt;script type=&quot;text/javascript&quot; language=&quot;javascript&quot; src=&quot;https://cdn.datatables.net/fixedcolumns/3.2.4/js/dataTables.fixedColumns.min.js&quot;&gt;&lt;/script&gt;</span>
+  464 <span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  465 
+  466     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;KeysNavigation&quot;</span><span class="p">]:</span>
+  467         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+  468 <span class="s2">    &lt;script type=&quot;text/javascript&quot; language=&quot;javascript&quot; src=&quot;https://cdn.datatables.net/keytable/2.3.2/js/dataTables.keyTable.min.js&quot;&gt;&lt;/script&gt;</span>
+  469 <span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  470 
+  471     <span class="c1"># Intialize table using Bootstrap, DataTables and JQuery frameworks...</span>
+  472     <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+  473 
+  474 <span class="s2">    &lt;script type=&quot;text/javascript&quot; class=&quot;init&quot;&gt;</span>
+  475 
+  476 <span class="s2">$(document).ready(function() {</span>
+  477 <span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  478 
+  479     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Popover&quot;</span><span class="p">]:</span>
+  480         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+  481 <span class="s2">    $(&#39;.MolPopover&#39;).popover();</span>
+  482 
+  483 <span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  484 
+  485     <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+  486         <span class="sd">&quot;&quot;&quot;\</span>
+  487 <span class="sd">    var MolsTable = $(&#39;#MolsTable&#39;).DataTable( {</span>
+  488 <span class="sd">        &quot;columnDefs&quot;: [</span>
+  489 <span class="sd">            {</span>
+  490 <span class="sd">                &quot;orderable&quot;: false,</span>
+  491 <span class="sd">                &quot;searchable&quot;: false,</span>
+  492 <span class="sd">                &quot;targets&quot;: [%s]</span>
+  493 <span class="sd">            },</span>
+  494 <span class="sd">&quot;&quot;&quot;</span>
+  495         <span class="o">%</span> <span class="p">(</span><span class="n">ColIndices</span><span class="p">)</span>
+  496     <span class="p">)</span>
+  497 
+  498     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ColVisibility&quot;</span><span class="p">]:</span>
+  499         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+  500             <span class="sd">&quot;&quot;&quot;\</span>
+  501 <span class="sd">            {</span>
+  502 <span class="sd">                &quot;className&quot;: &quot;noColVisCtrl&quot;,</span>
+  503 <span class="sd">                &quot;targets&quot;: [%s]</span>
+  504 <span class="sd">            }</span>
+  505 <span class="sd">&quot;&quot;&quot;</span>
+  506             <span class="o">%</span> <span class="p">(</span><span class="n">ColVisibilityExcludeColIndices</span><span class="p">)</span>
+  507         <span class="p">)</span>
+  508 
+  509     <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+  510 <span class="s2">        ],</span>
+  511 <span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  512 
+  513     <span class="c1"># Set up dom for displaying button and other options...</span>
+  514     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ColVisibility&quot;</span><span class="p">]:</span>
+  515         <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Paging&quot;</span><span class="p">]:</span>
+  516             <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+  517 <span class="s2">        &quot;dom&quot;:  &quot;&lt;&#39;row&#39;&lt;&#39;col-sm-6&#39;l&gt;&lt;&#39;col-sm-6&#39;&lt;&#39;float-right&#39;B&gt;&gt;&gt;&quot; +</span>
+  518 <span class="s2">            &quot;&lt;&#39;row&#39;&lt;&#39;col-sm-12&#39;tr&gt;&gt;&quot; +</span>
+  519 <span class="s2">            &quot;&lt;&#39;row&#39;&lt;&#39;col-sm-5&#39;i&gt;&lt;&#39;col-sm-7&#39;p&gt;&gt;&quot;,</span>
+  520 <span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  521         <span class="k">else</span><span class="p">:</span>
+  522             <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+  523 <span class="s2">        &quot;dom&quot;:  &quot;&lt;&#39;row&#39;&lt;&#39;col&#39;&lt;&#39;float-right&#39;B&gt;&gt;&gt;&quot; +</span>
+  524 <span class="s2">            &quot;&lt;&#39;row&#39;&lt;&#39;col-sm-12&#39;tr&gt;&gt;&quot; +</span>
+  525 <span class="s2">            &quot;&lt;&#39;row&#39;&lt;&#39;col-sm-5&#39;i&gt;&lt;&#39;col-sm-7&#39;p&gt;&gt;&quot;,</span>
+  526 <span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  527     <span class="k">else</span><span class="p">:</span>
+  528         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+  529 <span class="s2">        &quot;dom&quot;:  &quot;&lt;&#39;row&#39;&lt;&#39;col&#39;l&gt;&gt;&quot; +</span>
+  530 <span class="s2">            &quot;&lt;&#39;row&#39;&lt;&#39;col-sm-12&#39;tr&gt;&gt;&quot; +</span>
+  531 <span class="s2">            &quot;&lt;&#39;row&#39;&lt;&#39;col-sm-5&#39;i&gt;&lt;&#39;col-sm-7&#39;p&gt;&gt;&quot;,</span>
+  532 <span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  533 
+  534     <span class="c1">#</span>
+  535     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ColVisibility&quot;</span><span class="p">]:</span>
+  536         <span class="c1"># Set up buttons...</span>
+  537         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+  538 <span class="s2">        &quot;buttons&quot;: [</span>
+  539 <span class="s2">            {</span>
+  540 <span class="s2">                &quot;extend&quot;: &quot;colvis&quot;,</span>
+  541 <span class="s2">                &quot;text&quot;: &quot;Column visibility&quot;,</span>
+  542 <span class="s2">                &quot;className&quot;: &quot;btn btn-outline-light text-dark&quot;,</span>
+  543 <span class="s2">                &quot;columns&quot;: &quot;:not(.noColVisCtrl)&quot;,</span>
+  544 <span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  545         <span class="k">if</span> <span class="ow">not</span> <span class="n">DataColVisibilityExclude</span><span class="p">:</span>
+  546             <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+  547 <span class="s2">                &quot;prefixButtons&quot;: [ &quot;colvisRestore&quot; ],</span>
+  548 <span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  549 
+  550         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+  551 <span class="s2">                &quot;columnText&quot;: function ( dt, colIndex, colLabel ) {</span>
+  552 <span class="s2">                    return &quot;Column &quot; + (colIndex + 1);</span>
+  553 <span class="s2">                },</span>
+  554 <span class="s2">            }</span>
+  555 <span class="s2">        ],</span>
+  556 <span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  557 
+  558     <span class="c1"># Write out rest of the variables for DataTables...</span>
+  559     <span class="k">if</span> <span class="n">FreezeCols</span><span class="p">:</span>
+  560         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+  561             <span class="sd">&quot;&quot;&quot;\</span>
+  562 <span class="sd">        &quot;fixedColumns&quot;: {</span>
+  563 <span class="sd">            &quot;leftColumns&quot;: %s</span>
+  564 <span class="sd">        },</span>
+  565 <span class="sd">&quot;&quot;&quot;</span>
+  566             <span class="o">%</span> <span class="p">(</span><span class="n">FreezeLeftColumns</span><span class="p">)</span>
+  567         <span class="p">)</span>
+  568 
+  569     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;KeysNavigation&quot;</span><span class="p">]:</span>
+  570         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+  571 <span class="s2">        &quot;keys&quot;: true,</span>
+  572 <span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  573 
+  574     <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+  575         <span class="sd">&quot;&quot;&quot;\</span>
+  576 <span class="sd">        &quot;pageLength&quot;: %s,</span>
+  577 <span class="sd">        &quot;lengthMenu&quot;: [ [5, 10, 15, 25, 50, 100, 500, 1000, -1], [5, 10, 15, 25, 50, 100, 500, 1000, &quot;All&quot;] ],</span>
+  578 <span class="sd">        &quot;paging&quot;: %s,</span>
+  579 <span class="sd">        &quot;pagingType&quot;: %s,</span>
+  580 <span class="sd">        &quot;scrollX&quot;: %s,</span>
+  581 <span class="sd">        &quot;scrollY&quot;: %s,</span>
+  582 <span class="sd">        &quot;scrollCollapse&quot;: true,</span>
+  583 <span class="sd">        &quot;order&quot;: [],</span>
+  584 <span class="sd">    } );</span>
+  585 <span class="sd">&quot;&quot;&quot;</span>
+  586         <span class="o">%</span> <span class="p">(</span><span class="n">PageLength</span><span class="p">,</span> <span class="n">Paging</span><span class="p">,</span> <span class="n">PagingType</span><span class="p">,</span> <span class="n">ScrollX</span><span class="p">,</span> <span class="n">ScrollY</span><span class="p">)</span>
+  587     <span class="p">)</span>
+  588 
+  589     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;CounterCol&quot;</span><span class="p">]:</span>
+  590         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+  591 <span class="s2">    MolsTable.on( &#39;order.dt search.dt&#39;, function () {</span>
+  592 <span class="s2">        MolsTable.column(0, {search:&#39;applied&#39;, order:&#39;applied&#39;}).nodes().each( function (cell, rowIndex) {</span>
+  593 <span class="s2">            cell.innerHTML = rowIndex + 1;</span>
+  594 <span class="s2">        } );</span>
+  595 <span class="s2">    } ).draw();</span>
+  596 <span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  597 
+  598     <span class="c1"># End of Javacscript code...</span>
+  599     <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+  600 <span class="s2">} );</span>
+  601 
+  602 <span class="s2">    &lt;/script&gt;</span>
+  603 <span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  604 
+  605     <span class="c1"># Finish up HTML header...</span>
+  606     <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+  607 <span class="s2">  </span>
+  608 <span class="s2">&lt;/head&gt;</span>
+  609 <span class="s2">&lt;body&gt;</span>
+  610 <span class="s2">  &lt;div class=&quot;container-fluid&quot;&gt;</span>
+  611 <span class="s2">    &lt;br/&gt;</span>
+  612 <span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  613 
+  614 
+  615 <span class="k">def</span> <span class="nf">WriteHTMLPageEnd</span><span class="p">(</span><span class="n">Writer</span><span class="p">):</span>
+  616     <span class="sd">&quot;&quot;&quot;Write out HTML page end.&quot;&quot;&quot;</span>
+  617 
+  618     <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+  619 <span class="s2">  &lt;/div&gt;</span>
+  620 <span class="s2">&lt;/body&gt;</span>
+  621 <span class="s2">&lt;/html&gt;</span>
+  622 <span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  623 
+  624 
+  625 <span class="k">def</span> <span class="nf">WriteHTMLPageTitle</span><span class="p">(</span><span class="n">Writer</span><span class="p">):</span>
+  626     <span class="sd">&quot;&quot;&quot;Write out HTML page title.&quot;&quot;&quot;</span>
+  627 
+  628     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Header&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  629         <span class="k">return</span>
+  630 
+  631     <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+  632         <span class="sd">&quot;&quot;&quot;    &lt;%s class=&quot;text-center&quot;&gt;%s&lt;/%s&gt;\n&quot;&quot;&quot;</span>
+  633         <span class="o">%</span> <span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;HeaderStyle&quot;</span><span class="p">],</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Header&quot;</span><span class="p">],</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;HeaderStyle&quot;</span><span class="p">])</span>
+  634     <span class="p">)</span>
+  635 
+  636 
+  637 <span class="k">def</span> <span class="nf">WriteHTMLPageFooter</span><span class="p">(</span><span class="n">Writer</span><span class="p">):</span>
+  638     <span class="sd">&quot;&quot;&quot;Write out HTML page footer.&quot;&quot;&quot;</span>
+  639 
+  640     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Footer&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  641         <span class="k">return</span>
+  642 
+  643     <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;    &lt;br/&gt;</span><span class="se">\n</span><span class="s2">    &lt;p class=&quot;</span><span class="si">%s</span><span class="s2">&quot;&gt;</span><span class="si">%s</span><span class="s2">&lt;/p&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;FooterClass&quot;</span><span class="p">],</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Footer&quot;</span><span class="p">]))</span>
+  644 
+  645 
+  646 <span class="k">def</span> <span class="nf">WriteHTMLTableHeader</span><span class="p">(</span><span class="n">Writer</span><span class="p">):</span>
+  647     <span class="sd">&quot;&quot;&quot;Write out HTML table header.&quot;&quot;&quot;</span>
+  648 
+  649     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;TableStyle&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  650         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\n</span><span class="s2">    &lt;table id=&quot;MolsTable&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot;&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  651     <span class="k">else</span><span class="p">:</span>
+  652         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+  653             <span class="sd">&quot;&quot;&quot;    &lt;table id=&quot;MolsTable&quot; class=&quot;%s&quot; cellspacing=&quot;0&quot; width=&quot;100%s&quot;&gt;\n&quot;&quot;&quot;</span>
+  654             <span class="o">%</span> <span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;TableStyle&quot;</span><span class="p">],</span> <span class="s2">&quot;%&quot;</span><span class="p">)</span>
+  655         <span class="p">)</span>
+  656 
+  657 
+  658 <span class="k">def</span> <span class="nf">WriteHTMLTableEnd</span><span class="p">(</span><span class="n">Writer</span><span class="p">):</span>
+  659     <span class="sd">&quot;&quot;&quot;Write out HTML table end.&quot;&quot;&quot;</span>
+  660 
+  661     <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;    &lt;/table&gt;</span><span class="se">\n\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+  662 
+  663 
+  664 <span class="k">def</span> <span class="nf">GetColCount</span><span class="p">(</span><span class="n">MolCount</span><span class="p">):</span>
+  665     <span class="sd">&quot;&quot;&quot;Get tabke column count.&quot;&quot;&quot;</span>
+  666 
+  667     <span class="n">ColCount</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;NumOfMolsPerRow&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;NumOfMolsPerRow&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">MolCount</span> <span class="k">else</span> <span class="n">MolCount</span>
+  668 
+  669     <span class="k">return</span> <span class="n">ColCount</span>
+  670 
+  671 
+  672 <span class="k">def</span> <span class="nf">SetupAtomListsToHighlight</span><span class="p">(</span><span class="n">ValidMols</span><span class="p">):</span>
+  673     <span class="sd">&quot;&quot;&quot;Set up atom lists to highlight using specified SMARTS pattern.&quot;&quot;&quot;</span>
+  674 
+  675     <span class="n">AtomListsToHighlight</span> <span class="o">=</span> <span class="kc">None</span>
+  676     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;HighlightSMARTSPattern&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  677         <span class="k">return</span> <span class="n">AtomListsToHighlight</span>
+  678 
+  679     <span class="n">PatternMol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmarts</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;HighlightSMARTSPattern&quot;</span><span class="p">])</span>
+  680     <span class="n">AtomListsToHighlight</span> <span class="o">=</span> <span class="p">[]</span>
+  681     <span class="k">for</span> <span class="n">ValidMol</span> <span class="ow">in</span> <span class="n">ValidMols</span><span class="p">:</span>
+  682         <span class="c1"># Get matched atom lists and flatten it...</span>
+  683         <span class="n">MatchedAtomsLists</span> <span class="o">=</span> <span class="n">ValidMol</span><span class="o">.</span><span class="n">GetSubstructMatches</span><span class="p">(</span><span class="n">PatternMol</span><span class="p">)</span>
+  684         <span class="n">MatchedAtoms</span> <span class="o">=</span> <span class="p">[</span><span class="n">Atom</span> <span class="k">for</span> <span class="n">AtomsList</span> <span class="ow">in</span> <span class="n">MatchedAtomsLists</span> <span class="k">for</span> <span class="n">Atom</span> <span class="ow">in</span> <span class="n">AtomsList</span><span class="p">]</span>
+  685         <span class="n">AtomListsToHighlight</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MatchedAtoms</span><span class="p">)</span>
+  686 
+  687     <span class="k">return</span> <span class="n">AtomListsToHighlight</span>
+  688 
+  689 
+  690 <span class="k">def</span> <span class="nf">PerformAlignment</span><span class="p">(</span><span class="n">ValidMols</span><span class="p">):</span>
+  691     <span class="sd">&quot;&quot;&quot;Perform alignment to a common template specified by a SMARTS pattern.&quot;&quot;&quot;</span>
+  692 
+  693     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AlignmentSMARTSPattern&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  694         <span class="k">return</span>
+  695 
+  696     <span class="n">PatternMol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmarts</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AlignmentSMARTSPattern&quot;</span><span class="p">])</span>
+  697     <span class="n">AllChem</span><span class="o">.</span><span class="n">Compute2DCoords</span><span class="p">(</span><span class="n">PatternMol</span><span class="p">)</span>
+  698 
+  699     <span class="n">MatchedValidMols</span> <span class="o">=</span> <span class="p">[</span><span class="n">ValidMol</span> <span class="k">for</span> <span class="n">ValidMol</span> <span class="ow">in</span> <span class="n">ValidMols</span> <span class="k">if</span> <span class="n">ValidMol</span><span class="o">.</span><span class="n">HasSubstructMatch</span><span class="p">(</span><span class="n">PatternMol</span><span class="p">)]</span>
+  700     <span class="k">for</span> <span class="n">ValidMol</span> <span class="ow">in</span> <span class="n">MatchedValidMols</span><span class="p">:</span>
+  701         <span class="n">AllChem</span><span class="o">.</span><span class="n">GenerateDepictionMatching2DStructure</span><span class="p">(</span><span class="n">ValidMol</span><span class="p">,</span> <span class="n">PatternMol</span><span class="p">)</span>
+  702 
+  703 
+  704 <span class="k">def</span> <span class="nf">GetMolPopoverTag</span><span class="p">(</span><span class="n">Mol</span><span class="p">):</span>
+  705     <span class="sd">&quot;&quot;&quot;Set up a popover window containing any additional information about molecule.&quot;&quot;&quot;</span>
+  706 
+  707     <span class="k">if</span> <span class="ow">not</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Popover&quot;</span><span class="p">]:</span>
+  708         <span class="k">return</span> <span class="kc">None</span>
+  709 
+  710     <span class="c1"># Set up data label and values...</span>
+  711     <span class="n">AvailableDataLabels</span> <span class="o">=</span> <span class="n">Mol</span><span class="o">.</span><span class="n">GetPropNames</span><span class="p">(</span><span class="n">includePrivate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">includeComputed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+  712 
+  713     <span class="n">DataContentLines</span> <span class="o">=</span> <span class="p">[]</span>
+  714     <span class="n">MaxDataCharWidth</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;PopoverTextWidth&quot;</span><span class="p">]</span>
+  715     <span class="n">MaxDataDisplayCount</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;PopoverDataCount&quot;</span><span class="p">]</span>
+  716 
+  717     <span class="n">DataDisplayCount</span> <span class="o">=</span> <span class="mi">0</span>
+  718     <span class="n">SkippedDataDisplay</span> <span class="o">=</span> <span class="kc">False</span>
+  719     <span class="k">for</span> <span class="n">DataLabel</span> <span class="ow">in</span> <span class="n">AvailableDataLabels</span><span class="p">:</span>
+  720         <span class="n">DataDisplayCount</span> <span class="o">+=</span> <span class="mi">1</span>
+  721         <span class="k">if</span> <span class="n">DataDisplayCount</span> <span class="o">&gt;</span> <span class="n">MaxDataDisplayCount</span><span class="p">:</span>
+  722             <span class="n">SkippedDataDisplay</span> <span class="o">=</span> <span class="kc">True</span>
+  723             <span class="k">break</span>
+  724 
+  725         <span class="n">DataValue</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">Mol</span><span class="o">.</span><span class="n">GetProp</span><span class="p">(</span><span class="n">DataLabel</span><span class="p">)</span>
+  726         <span class="n">DataValue</span> <span class="o">=</span> <span class="n">DataValue</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+  727         <span class="k">if</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">IsEmpty</span><span class="p">(</span><span class="n">DataValue</span><span class="p">):</span>
+  728             <span class="k">continue</span>
+  729 
+  730         <span class="c1"># Change any new lines to ;</span>
+  731         <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;(</span><span class="se">\r\n</span><span class="s2">|</span><span class="se">\r</span><span class="s2">|</span><span class="se">\n</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">DataValue</span><span class="p">):</span>
+  732             <span class="n">DataValue</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;(</span><span class="se">\r\n</span><span class="s2">|</span><span class="se">\r</span><span class="s2">|</span><span class="se">\n</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="s2">&quot;; &quot;</span><span class="p">,</span> <span class="n">DataValue</span><span class="p">)</span>
+  733 
+  734         <span class="n">DataValue</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">TruncateText</span><span class="p">(</span><span class="n">DataValue</span><span class="p">,</span> <span class="n">MaxDataCharWidth</span><span class="p">,</span> <span class="s2">&quot;...&quot;</span><span class="p">)</span>
+  735         <span class="n">DataValue</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ReplaceHTMLEntitiesInText</span><span class="p">(</span><span class="n">DataValue</span><span class="p">)</span>
+  736 
+  737         <span class="n">DataContent</span> <span class="o">=</span> <span class="s2">&quot;&lt;b&gt;</span><span class="si">%s</span><span class="s2">&lt;/b&gt;: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">DataLabel</span><span class="p">,</span> <span class="n">DataValue</span><span class="p">)</span>
+  738         <span class="n">DataContentLines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">DataContent</span><span class="p">)</span>
+  739 
+  740     <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">DataContentLines</span><span class="p">):</span>
+  741         <span class="k">return</span> <span class="kc">None</span>
+  742 
+  743     <span class="k">if</span> <span class="n">SkippedDataDisplay</span><span class="p">:</span>
+  744         <span class="n">DataContent</span> <span class="o">=</span> <span class="s2">&quot;&lt;b&gt;... ... ...&lt;/b&gt;&quot;</span>
+  745         <span class="n">DataContentLines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">DataContent</span><span class="p">)</span>
+  746 
+  747         <span class="n">DataContent</span> <span class="o">=</span> <span class="s2">&quot;Showing 1 to </span><span class="si">%s</span><span class="s2"> of </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">MaxDataDisplayCount</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">AvailableDataLabels</span><span class="p">))</span>
+  748         <span class="n">DataContentLines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">DataContent</span><span class="p">)</span>
+  749     <span class="k">else</span><span class="p">:</span>
+  750         <span class="n">DataContent</span> <span class="o">=</span> <span class="s2">&quot;Showing 1 to </span><span class="si">%s</span><span class="s2"> of </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">DataDisplayCount</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">AvailableDataLabels</span><span class="p">))</span>
+  751         <span class="n">DataContentLines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">DataContent</span><span class="p">)</span>
+  752 
+  753     <span class="n">DataContent</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">JoinWords</span><span class="p">(</span><span class="n">DataContentLines</span><span class="p">,</span> <span class="s2">&quot;&lt;br/&gt;&quot;</span><span class="p">)</span>
+  754     <span class="n">PopoverTag</span> <span class="o">=</span> <span class="p">(</span>
+  755         <span class="sd">&quot;&quot;&quot;class=&quot;MolPopover&quot; data-toggle=&quot;popover&quot; data-html=&quot;true&quot; data-trigger=&quot;click&quot; data-placement=&quot;right&quot; title=&quot;&lt;span class=&#39;small&#39;&gt;&lt;b&gt;Additional Information&lt;/b&gt;&lt;/span&gt;&quot; data-content=&quot;&lt;span class=&#39;small&#39;&gt;%s&lt;/span&gt;&quot; &quot;&quot;&quot;</span>
+  756         <span class="o">%</span> <span class="n">DataContent</span>
+  757     <span class="p">)</span>
+  758 
+  759     <span class="k">return</span> <span class="n">PopoverTag</span>
+  760 
+  761 
+  762 <span class="k">def</span> <span class="nf">ProcessOptions</span><span class="p">():</span>
+  763     <span class="sd">&quot;&quot;&quot;Process and validate command line arguments and options.&quot;&quot;&quot;</span>
+  764 
+  765     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Processing options...&quot;</span><span class="p">)</span>
+  766 
+  767     <span class="c1"># Validate options...</span>
+  768     <span class="n">ValidateOptions</span><span class="p">()</span>
+  769 
+  770     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Infile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">]</span>
+  771     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Outfile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfile&quot;</span><span class="p">]</span>
+  772     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Overwrite&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--overwrite&quot;</span><span class="p">]</span>
+  773 
+  774     <span class="c1"># No need for any RDKit specific --outfileParams....</span>
+  775     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfileParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ProcessOptionInfileParameters</span><span class="p">(</span>
+  776         <span class="s2">&quot;--infileParams&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infileParams&quot;</span><span class="p">],</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Infile&quot;</span><span class="p">]</span>
+  777     <span class="p">)</span>
+  778 
+  779     <span class="n">AlignmentSMARTSPattern</span> <span class="o">=</span> <span class="kc">None</span>
+  780     <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^None$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--alignmentSMARTS&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  781         <span class="n">AlignmentSMARTSPattern</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--alignmentSMARTS&quot;</span><span class="p">]</span>
+  782     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AlignmentSMARTSPattern&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">AlignmentSMARTSPattern</span>
+  783 
+  784     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AtomLabelFontSize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--atomLabelFontSize&quot;</span><span class="p">]</span>
+  785     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;BondLineWidth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--bondLineWidth&quot;</span><span class="p">]</span>
+  786 
+  787     <span class="n">Compute2DCoords</span> <span class="o">=</span> <span class="kc">True</span>
+  788     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^yes$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--compute2DCoords&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  789         <span class="n">Compute2DCoords</span> <span class="o">=</span> <span class="kc">True</span>
+  790     <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^no$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--compute2DCoords&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  791         <span class="n">Compute2DCoords</span> <span class="o">=</span> <span class="kc">False</span>
+  792     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Compute2DCoords&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Compute2DCoords</span>
+  793 
+  794     <span class="n">CounterCol</span> <span class="o">=</span> <span class="kc">True</span>
+  795     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^no$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--counterCol&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  796         <span class="n">CounterCol</span> <span class="o">=</span> <span class="kc">False</span>
+  797     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;CounterCol&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">CounterCol</span>
+  798 
+  799     <span class="n">ColVisibility</span> <span class="o">=</span> <span class="kc">True</span>
+  800     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^no$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--colVisibility&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  801         <span class="n">ColVisibility</span> <span class="o">=</span> <span class="kc">False</span>
+  802     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ColVisibility&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColVisibility</span>
+  803 
+  804     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;FontBold&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+  805     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^no$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--fontBold&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  806         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;FontBold&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+  807 
+  808     <span class="n">Footer</span> <span class="o">=</span> <span class="kc">None</span>
+  809     <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^None$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--footer&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  810         <span class="n">Footer</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--footer&quot;</span><span class="p">]</span>
+  811     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Footer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Footer</span>
+  812 
+  813     <span class="n">FooterClass</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--footerClass&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+  814     <span class="k">if</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">IsEmpty</span><span class="p">(</span><span class="n">FooterClass</span><span class="p">):</span>
+  815         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span><span class="s1">&#39;The value specified using option &quot;--footerClass&quot; is empty.&#39;</span><span class="p">)</span>
+  816     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;FooterClass&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">FooterClass</span>
+  817 
+  818     <span class="n">Header</span> <span class="o">=</span> <span class="kc">None</span>
+  819     <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^None$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--header&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  820         <span class="n">Header</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--header&quot;</span><span class="p">]</span>
+  821     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Header&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Header</span>
+  822 
+  823     <span class="n">HeaderStyle</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--headerStyle&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+  824     <span class="k">if</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">IsEmpty</span><span class="p">(</span><span class="n">HeaderStyle</span><span class="p">):</span>
+  825         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span><span class="s1">&#39;The value specified using option &quot;--headerStyle&quot; is empty.&#39;</span><span class="p">)</span>
+  826     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;HeaderStyle&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">HeaderStyle</span>
+  827 
+  828     <span class="n">HighlightSMARTSPattern</span> <span class="o">=</span> <span class="kc">None</span>
+  829     <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^None$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--highlightSMARTS&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  830         <span class="n">HighlightSMARTSPattern</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--highlightSMARTS&quot;</span><span class="p">]</span>
+  831     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;HighlightSMARTSPattern&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">HighlightSMARTSPattern</span>
+  832 
+  833     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Kekulize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+  834     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^no$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--kekulize&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  835         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Kekulize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+  836 
+  837     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;KeysNavigation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+  838     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^no$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--keysNavigation&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  839         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;KeysNavigation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+  840 
+  841     <span class="n">SizeValues</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--molImageSize&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+  842     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MolImageWidth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">SizeValues</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+  843     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MolImageHeight&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">SizeValues</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+  844 
+  845     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MolImageEncoded&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+  846     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^no$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--molImageEncoded&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  847         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MolImageEncoded&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+  848 
+  849     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;NumOfMolsPerRow&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--numOfMolsPerRow&quot;</span><span class="p">])</span>
+  850 
+  851     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Paging&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+  852     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^no$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--paging&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  853         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Paging&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+  854 
+  855     <span class="n">PagingType</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--pagingType&quot;</span><span class="p">]</span>
+  856     <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^(numbers|simple|simple_numbers|full|full_numbers|simple_number)$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--pagingType&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  857         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintWarning</span><span class="p">(</span>
+  858             <span class="s1">&#39;The paging type name, </span><span class="si">%s</span><span class="s1">, specified using option &quot;--pagingType&quot; appears to be a unknown type...&#39;</span>
+  859             <span class="o">%</span> <span class="p">(</span><span class="n">PagingType</span><span class="p">)</span>
+  860         <span class="p">)</span>
+  861     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;PagingType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PagingType</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+  862 
+  863     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;PageLength&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--pageLength&quot;</span><span class="p">])</span>
+  864 
+  865     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Popover&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+  866     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^no$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--popover&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  867         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Popover&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+  868     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;PopoverDataCount&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--popoverDataCount&quot;</span><span class="p">])</span>
+  869     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;PopoverTextWidth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--popoverTextWidth&quot;</span><span class="p">])</span>
+  870 
+  871     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ShowMolName&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+  872     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^no$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--showMolName&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  873         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ShowMolName&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+  874 
+  875     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ScrollX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+  876     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^no$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--scrollX&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  877         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ScrollX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+  878 
+  879     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ScrollY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+  880     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^no$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--scrollY&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  881         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ScrollY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+  882 
+  883     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ScrollYSize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--scrollYSize&quot;</span><span class="p">]</span>
+  884     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;vh$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--scrollYSize&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  885         <span class="n">ScrollYSize</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;vh$&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--scrollYSize&quot;</span><span class="p">]))</span>
+  886         <span class="k">if</span> <span class="n">ScrollYSize</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+  887             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+  888                 <span class="s1">&#39;The value specified, </span><span class="si">%s</span><span class="s1">, for option &quot;--scrollYSize&quot; is not valid. Supported value: &gt; 0 followed by &quot;vh&quot;&#39;</span>
+  889                 <span class="o">%</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--scrollYSize&quot;</span><span class="p">]</span>
+  890             <span class="p">)</span>
+  891 
+  892     <span class="n">TableStyle</span> <span class="o">=</span> <span class="kc">None</span>
+  893     <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^None$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--tableStyle&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  894         <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^All$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--tableStyle&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  895             <span class="n">TableStyle</span> <span class="o">=</span> <span class="s2">&quot;table table-striped table-bordered table-hover table-dark&quot;</span>
+  896         <span class="k">else</span><span class="p">:</span>
+  897             <span class="n">TableStyle</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--tableStyle&quot;</span><span class="p">])</span>
+  898             <span class="k">for</span> <span class="n">Style</span> <span class="ow">in</span> <span class="p">[</span><span class="n">Style</span> <span class="k">for</span> <span class="n">Style</span> <span class="ow">in</span> <span class="n">TableStyle</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]:</span>
+  899                 <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^(table|table-striped|table-bordered|table-hover|table-dark|table-sm)$&quot;</span><span class="p">,</span> <span class="n">Style</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  900                     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintWarning</span><span class="p">(</span>
+  901                         <span class="s1">&#39;The table style name, </span><span class="si">%s</span><span class="s1">, specified using option &quot;-t, --tableStyle&quot; appears to be a unknown style...&#39;</span>
+  902                         <span class="o">%</span> <span class="p">(</span><span class="n">Style</span><span class="p">)</span>
+  903                     <span class="p">)</span>
+  904             <span class="n">TableStyle</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">TableStyle</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+  905     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;TableStyle&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">TableStyle</span>
+  906 
+  907     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;TableFooter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+  908     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^no$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--tableFooter&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  909         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;TableFooter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+  910 
+  911     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;TableHeader&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+  912     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^no$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--tableHeader&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  913         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;TableHeader&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+  914 
+  915     <span class="n">TableHeaderStyle</span> <span class="o">=</span> <span class="kc">None</span>
+  916     <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^None$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--tableHeaderStyle&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  917         <span class="n">TableHeaderStyle</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--tableHeaderStyle&quot;</span><span class="p">]</span>
+  918         <span class="n">TableHeaderStyle</span> <span class="o">=</span> <span class="n">TableHeaderStyle</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+  919         <span class="n">CheckOptionTableClassColorValues</span><span class="p">(</span><span class="s2">&quot;--tableHeaderStyle&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">TableHeaderStyle</span><span class="p">])</span>
+  920     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;TableHeaderStyle&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">TableHeaderStyle</span>
+  921 
+  922 
+  923 <span class="k">def</span> <span class="nf">CheckOptionTableClassColorValues</span><span class="p">(</span><span class="n">OptionName</span><span class="p">,</span> <span class="n">ColorsList</span><span class="p">):</span>
+  924     <span class="sd">&quot;&quot;&quot;Check names of table color classes and issue a warning for unknown names.&quot;&quot;&quot;</span>
+  925 
+  926     <span class="n">TableClassColors</span> <span class="o">=</span> <span class="p">[</span>
+  927         <span class="s2">&quot;thead-dark&quot;</span><span class="p">,</span>
+  928         <span class="s2">&quot;thead-light&quot;</span><span class="p">,</span>
+  929         <span class="s2">&quot;table-primary&quot;</span><span class="p">,</span>
+  930         <span class="s2">&quot;table-success&quot;</span><span class="p">,</span>
+  931         <span class="s2">&quot;table-danger&quot;</span><span class="p">,</span>
+  932         <span class="s2">&quot;table-info&quot;</span><span class="p">,</span>
+  933         <span class="s2">&quot;table-warning&quot;</span><span class="p">,</span>
+  934         <span class="s2">&quot;table-active&quot;</span><span class="p">,</span>
+  935         <span class="s2">&quot;table-secondary&quot;</span><span class="p">,</span>
+  936         <span class="s2">&quot;table-light&quot;</span><span class="p">,</span>
+  937         <span class="s2">&quot;table-dark&quot;</span><span class="p">,</span>
+  938         <span class="s2">&quot;bg-primary&quot;</span><span class="p">,</span>
+  939         <span class="s2">&quot;bg-success&quot;</span><span class="p">,</span>
+  940         <span class="s2">&quot;bg-danger&quot;</span><span class="p">,</span>
+  941         <span class="s2">&quot;bg-info&quot;</span><span class="p">,</span>
+  942         <span class="s2">&quot;bg-warning&quot;</span><span class="p">,</span>
+  943         <span class="s2">&quot;bg-secondary&quot;</span><span class="p">,</span>
+  944         <span class="s2">&quot;bg-dark&quot;</span><span class="p">,</span>
+  945         <span class="s2">&quot;bg-light&quot;</span><span class="p">,</span>
+  946     <span class="p">]</span>
+  947 
+  948     <span class="k">for</span> <span class="n">Color</span> <span class="ow">in</span> <span class="n">ColorsList</span><span class="p">:</span>
+  949         <span class="k">if</span> <span class="n">Color</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">TableClassColors</span><span class="p">:</span>
+  950             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintWarning</span><span class="p">(</span>
+  951                 <span class="s1">&#39;The color class name, </span><span class="si">%s</span><span class="s1">, specified using option &quot;</span><span class="si">%s</span><span class="s1">&quot; appears to be a unknown name...&#39;</span>
+  952                 <span class="o">%</span> <span class="p">(</span><span class="n">Color</span><span class="p">,</span> <span class="n">OptionName</span><span class="p">)</span>
+  953             <span class="p">)</span>
+  954 
+  955 
+  956 <span class="k">def</span> <span class="nf">RetrieveOptions</span><span class="p">():</span>
+  957     <span class="sd">&quot;&quot;&quot;Retrieve command line arguments and options.&quot;&quot;&quot;</span>
+  958 
+  959     <span class="c1"># Get options...</span>
+  960     <span class="k">global</span> <span class="n">Options</span>
+  961     <span class="n">Options</span> <span class="o">=</span> <span class="n">docopt</span><span class="p">(</span><span class="n">_docoptUsage_</span><span class="p">)</span>
+  962 
+  963     <span class="c1"># Set current working directory to the specified directory...</span>
+  964     <span class="n">WorkingDir</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--workingdir&quot;</span><span class="p">]</span>
+  965     <span class="k">if</span> <span class="n">WorkingDir</span><span class="p">:</span>
+  966         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">WorkingDir</span><span class="p">)</span>
+  967 
+  968     <span class="c1"># Handle examples option...</span>
+  969     <span class="k">if</span> <span class="s2">&quot;--examples&quot;</span> <span class="ow">in</span> <span class="n">Options</span> <span class="ow">and</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--examples&quot;</span><span class="p">]:</span>
+  970         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetExamplesTextFromDocOptText</span><span class="p">(</span><span class="n">_docoptUsage_</span><span class="p">))</span>
+  971         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+  972 
+  973 
+  974 <span class="k">def</span> <span class="nf">ValidateOptions</span><span class="p">():</span>
+  975     <span class="sd">&quot;&quot;&quot;Validate option values.&quot;&quot;&quot;</span>
+  976 
+  977     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFilePath</span><span class="p">(</span><span class="s2">&quot;-i, --infile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">])</span>
+  978     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFileExt</span><span class="p">(</span><span class="s2">&quot;-i, --infile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">],</span> <span class="s2">&quot;sdf sd mol smi csv tsv txt&quot;</span><span class="p">)</span>
+  979 
+  980     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionsOutputFileOverwrite</span><span class="p">(</span>
+  981         <span class="s2">&quot;-o, --outfile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfile&quot;</span><span class="p">],</span> <span class="s2">&quot;--overwrite&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--overwrite&quot;</span><span class="p">]</span>
+  982     <span class="p">)</span>
+  983     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionsDistinctFileNames</span><span class="p">(</span>
+  984         <span class="s2">&quot;-i, --infile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">],</span> <span class="s2">&quot;-o, --outfile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfile&quot;</span><span class="p">]</span>
+  985     <span class="p">)</span>
+  986 
+  987     <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^None$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--alignmentSMARTS&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  988         <span class="n">PatternMol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmarts</span><span class="p">(</span><span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--alignmentSMARTS&quot;</span><span class="p">])</span>
+  989         <span class="k">if</span> <span class="n">PatternMol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  990             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+  991                 <span class="s1">&#39;The value specified, </span><span class="si">%s</span><span class="s1">, using option &quot;--alignmentSMARTS&quot; is not a valid SMARTS: Failed to create pattern molecule&#39;</span>
+  992                 <span class="o">%</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--alignmentSMARTS&quot;</span><span class="p">]</span>
+  993             <span class="p">)</span>
+  994 
+  995     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionIntegerValue</span><span class="p">(</span><span class="s2">&quot;--atomLabelFontSize&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--atomLabelFontSize&quot;</span><span class="p">],</span> <span class="p">{</span><span class="s2">&quot;&gt;&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+  996     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFloatValue</span><span class="p">(</span><span class="s2">&quot;-b, --bondLineWidth&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--bondLineWidth&quot;</span><span class="p">],</span> <span class="p">{</span><span class="s2">&quot;&gt;&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">})</span>
+  997 
+  998     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--compute2DCoords&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--compute2DCoords&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no auto&quot;</span><span class="p">)</span>
+  999 
+ 1000     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--counterCol&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--counterCol&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no&quot;</span><span class="p">)</span>
+ 1001     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--colVisibility&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--colVisibility&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no&quot;</span><span class="p">)</span>
+ 1002 
+ 1003     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--f, -fontBold&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--fontBold&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no&quot;</span><span class="p">)</span>
+ 1004 
+ 1005     <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^None$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--highlightSMARTS&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 1006         <span class="n">PatternMol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmarts</span><span class="p">(</span><span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--highlightSMARTS&quot;</span><span class="p">])</span>
+ 1007         <span class="k">if</span> <span class="n">PatternMol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+ 1008             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 1009                 <span class="s1">&#39;The value specified, </span><span class="si">%s</span><span class="s1">, using option &quot;--highlightSMARTS&quot; is not a valid SMARTS: Failed to create pattern molecule&#39;</span>
+ 1010                 <span class="o">%</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--highlightSMARTS&quot;</span><span class="p">]</span>
+ 1011             <span class="p">)</span>
+ 1012 
+ 1013     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--kekulize&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--kekulize&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no&quot;</span><span class="p">)</span>
+ 1014 
+ 1015     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;-k, --keysNavigation&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--keysNavigation&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no&quot;</span><span class="p">)</span>
+ 1016 
+ 1017     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionNumberValues</span><span class="p">(</span><span class="s2">&quot;-m, --molImageSize&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--molImageSize&quot;</span><span class="p">],</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;integer&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;&gt;&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+ 1018     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--molImageEncoded&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--molImageEncoded&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no&quot;</span><span class="p">)</span>
+ 1019 
+ 1020     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionIntegerValue</span><span class="p">(</span><span class="s2">&quot;--numOfMolsPerRow&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--numOfMolsPerRow&quot;</span><span class="p">],</span> <span class="p">{</span><span class="s2">&quot;&gt;&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+ 1021 
+ 1022     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;-p, --paging&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--paging&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no&quot;</span><span class="p">)</span>
+ 1023     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionIntegerValue</span><span class="p">(</span><span class="s2">&quot;--pageLength&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--pageLength&quot;</span><span class="p">],</span> <span class="p">{</span><span class="s2">&quot;&gt;&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+ 1024 
+ 1025     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--popover&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--popover&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no&quot;</span><span class="p">)</span>
+ 1026     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionIntegerValue</span><span class="p">(</span><span class="s2">&quot;--popoverDataCount&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--popoverDataCount&quot;</span><span class="p">],</span> <span class="p">{</span><span class="s2">&quot;&gt;&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+ 1027     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionIntegerValue</span><span class="p">(</span><span class="s2">&quot;--popoverTextWidth&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--popoverTextWidth&quot;</span><span class="p">],</span> <span class="p">{</span><span class="s2">&quot;&gt;&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+ 1028 
+ 1029     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--showMolName&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--showMolName&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no&quot;</span><span class="p">)</span>
+ 1030 
+ 1031     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--scrollX&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--scrollX&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no&quot;</span><span class="p">)</span>
+ 1032     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--scrollY&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--scrollY&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no&quot;</span><span class="p">)</span>
+ 1033     <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;vh$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--scrollYSize&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 1034         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionIntegerValue</span><span class="p">(</span><span class="s2">&quot;--scrollYSize&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--scrollYSize&quot;</span><span class="p">],</span> <span class="p">{</span><span class="s2">&quot;&gt;&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+ 1035 
+ 1036     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--tableFooter&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--tableFooter&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no&quot;</span><span class="p">)</span>
+ 1037     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--tableHeader&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--tableHeader&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no&quot;</span><span class="p">)</span>
+ 1038 
+ 1039 
+ 1040 <span class="c1"># Setup a usage string for docopt...</span>
+ 1041 <span class="n">_docoptUsage_</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+ 1042 <span class="s2">RDKitDrawMolecules.py - Draw molecules and generate an image or HTML file</span>
+ 1043 
+ 1044 <span class="s2">Usage:</span>
+ 1045 <span class="s2">    RDKitDrawMolecules.py [--alignmentSMARTS &lt;SMARTS&gt;] [--atomLabelFontSize &lt;number&gt;]</span>
+ 1046 <span class="s2">                             [--bondLineWidth &lt;number&gt;] [--compute2DCoords &lt;yes | no&gt;] [--counterCol &lt;yes or no&gt;]</span>
+ 1047 <span class="s2">                             [--colVisibility &lt;yes or no&gt;] [--fontBold &lt;yes or no&gt;] [--footer &lt;text&gt;] [--footerClass &lt;text&gt;] </span>
+ 1048 <span class="s2">                             [--header &lt;text&gt;] [--headerStyle &lt;text&gt;] [--highlightSMARTS &lt;SMARTS&gt;]</span>
+ 1049 <span class="s2">                             [--infileParams &lt;Name,Value,...&gt;] [--kekulize &lt;yes or no&gt;] [--keysNavigation &lt;yes or no&gt;]</span>
+ 1050 <span class="s2">                             [--molImageSize &lt;width,height&gt;] [--molImageEncoded &lt;yes or no&gt; ]</span>
+ 1051 <span class="s2">                             [--numOfMolsPerRow &lt;number&gt;] [--overwrite] [--paging &lt;yes or no&gt;]</span>
+ 1052 <span class="s2">                             [--pagingType &lt;numbers, simple, ...&gt;] [--pageLength &lt;number&gt;]</span>
+ 1053 <span class="s2">                             [--popover &lt;yes or no&gt;] [--popoverDataCount &lt;number&gt;] [--popoverTextWidth &lt;number&gt;]</span>
+ 1054 <span class="s2">                             [--showMolName &lt;yes or no&gt;] [--scrollX &lt;yes or no&gt;] [--scrollY &lt;yes or no&gt;]</span>
+ 1055 <span class="s2">                             [--scrollYSize &lt;number&gt;] [--tableFooter &lt;yes or no&gt;] [--tableHeader &lt;yes or no&gt;]</span>
+ 1056 <span class="s2">                             [--tableHeaderStyle &lt;thead-dark,thead-light,...&gt;]</span>
+ 1057 <span class="s2">                             [--tableStyle &lt;table,table-striped,...&gt;] [-w &lt;dir&gt;] -i &lt;infile&gt; -o &lt;outfile&gt;</span>
+ 1058 <span class="s2">    RDKitDrawMolecules.py -h | --help | -e | --examples</span>
+ 1059 
+ 1060 <span class="s2">Description:</span>
+ 1061 <span class="s2">    Draw molecules in a grid and write them out as an image file or a HTML table file. The</span>
+ 1062 <span class="s2">    SVG image or HTML table file appears to be the best among all the available image file</span>
+ 1063 <span class="s2">    options, as rendered in a browser. The Python modules aggdraw/cairo are required to</span>
+ 1064 <span class="s2">    generate high quality PNG images.</span>
+ 1065 <span class="s2">    </span>
+ 1066 <span class="s2">    The drawing of the molecules are embedded in HTML table columns as in line SVG</span>
+ 1067 <span class="s2">    images. The HTML table is an interactive table and requires internet access for viewing</span>
+ 1068 <span class="s2">    in a browser. It employs he following frameworks: JQuery, Bootstrap, and DataTable.</span>
+ 1069 <span class="s2">    </span>
+ 1070 <span class="s2">    The options &#39;--atomLabelFontSize&#39; and &#39;--bondLineWidth&#39; don&#39;t appear to work</span>
+ 1071 <span class="s2">    during the generation of a SVG image. In addition, these may not work for other</span>
+ 1072 <span class="s2">    image types in the latest version of RDKIT.</span>
+ 1073 
+ 1074 <span class="s2">    The supported input file formats are: Mol (.mol), SD (.sdf, .sd), SMILES (.smi,</span>
+ 1075 <span class="s2">    .txt, .csv, .tsv)</span>
+ 1076 
+ 1077 <span class="s2">    The output image file can be saved in any format supported by the Python Image</span>
+ 1078 <span class="s2">    Library (PIL). The image format is automatically detected from the output file extension.</span>
+ 1079 
+ 1080 <span class="s2">    Some of the most common output image file formats are: GIF (.gif), JPEG (.jpg),</span>
+ 1081 <span class="s2">    PNG (.png), SVG (.svg), TIFF (.tif). In addition, a HTML (.html) file format</span>
+ 1082 <span class="s2">    containing a table is supported.</span>
+ 1083 
+ 1084 <span class="s2">Options:</span>
+ 1085 <span class="s2">    -a, --alignmentSMARTS &lt;SMARTS&gt;  [default: none]</span>
+ 1086 <span class="s2">        SMARTS pattern for aligning molecules to a common template.</span>
+ 1087 <span class="s2">    --atomLabelFontSize &lt;number&gt;  [default: 12]</span>
+ 1088 <span class="s2">        Font size for drawing atom labels. This option is ignored during the generation of</span>
+ 1089 <span class="s2">        a SVG and HTML output file. This option may not work in the latest version of RDKit.</span>
+ 1090 <span class="s2">    -b, --bondLineWidth &lt;number&gt;  [default: 1.2]</span>
+ 1091 <span class="s2">        Line width for drawing bonds. This option is ignored during the generation of a SVG</span>
+ 1092 <span class="s2">        and HTML output file. This option may not work in the latest version of RDKit.</span>
+ 1093 <span class="s2">    -c, --compute2DCoords &lt;yes or no&gt;  [default: auto]</span>
+ 1094 <span class="s2">        Compute 2D coordinates of molecules before drawing. Default: yes for all file</span>
+ 1095 <span class="s2">        formats.</span>
+ 1096 <span class="s2">    --counterCol &lt;yes or no&gt;  [default: yes]</span>
+ 1097 <span class="s2">        Show a counter column as the first column in the table. It contains the position</span>
+ 1098 <span class="s2">        for each row in the HTML table. This option is only used during the generation of</span>
+ 1099 <span class="s2">        a HTML table file.</span>
+ 1100 <span class="s2">    --colVisibility &lt;yes or no&gt;  [default: yes]</span>
+ 1101 <span class="s2">        Show a dropdown button to toggle visibility of columns in the table. This option is</span>
+ 1102 <span class="s2">        only used during the generation of a HTML table file.</span>
+ 1103 <span class="s2">    -e, --examples</span>
+ 1104 <span class="s2">        Print examples.</span>
+ 1105 <span class="s2">    -f --fontBold &lt;yes or no&gt;  [default: yes]</span>
+ 1106 <span class="s2">        Make all text fonts bold during the generation of  a SVG and HTML output file. This</span>
+ 1107 <span class="s2">        option is ignored for all other output files. This option may not work in the latest</span>
+ 1108 <span class="s2">        version of RDKit.</span>
+ 1109 <span class="s2">    --footer &lt;text&gt;  [default: none]</span>
+ 1110 <span class="s2">        Footer text to insert at the bottom of the HTML page after the table. This option is</span>
+ 1111 <span class="s2">        only used during the generation of a HTML table file.</span>
+ 1112 <span class="s2">    --footerClass &lt;text&gt;  [default: small text-center text-muted]</span>
+ 1113 <span class="s2">        Footer class style to use with &lt;p&gt; tag. This option is only used during the</span>
+ 1114 <span class="s2">        generation of a HTML table file.</span>
+ 1115 <span class="s2">    -h, --help</span>
+ 1116 <span class="s2">        Print this help message.</span>
+ 1117 <span class="s2">    --header &lt;text&gt;  [default: none]</span>
+ 1118 <span class="s2">        Header text to insert at the top of the HTML page before the table. This option is</span>
+ 1119 <span class="s2">        only used during the generation of a HTML table file.</span>
+ 1120 <span class="s2">    --headerStyle &lt;text&gt;  [default: h5]</span>
+ 1121 <span class="s2">        Header style to use. Possible values: h1 to h6. This option is only used during the</span>
+ 1122 <span class="s2">        generation of a HTML table file.</span>
+ 1123 <span class="s2">    --highlightSMARTS &lt;SMARTS&gt;  [default: none]</span>
+ 1124 <span class="s2">        SMARTS pattern for highlighting atoms and bonds in molecules. All matched</span>
+ 1125 <span class="s2">        substructures are highlighted.</span>
+ 1126 <span class="s2">    -i, --infile &lt;infile&gt;</span>
+ 1127 <span class="s2">        Input file name.</span>
+ 1128 <span class="s2">    --infileParams &lt;Name,Value,...&gt;  [default: auto]</span>
+ 1129 <span class="s2">        A comma delimited list of parameter name and value pairs for reading</span>
+ 1130 <span class="s2">        molecules from files. The supported parameter names for different file</span>
+ 1131 <span class="s2">        formats, along with their default values, are shown below:</span>
+ 1132 <span class="s2">            </span>
+ 1133 <span class="s2">            SD, MOL: removeHydrogens,yes,sanitize,yes,strictParsing,yes</span>
+ 1134 <span class="s2">            SMILES: smilesColumn,1,smilesNameColumn,2,smilesDelimiter,space,</span>
+ 1135 <span class="s2">                smilesTitleLine,auto,sanitize,yes</span>
+ 1136 <span class="s2">            </span>
+ 1137 <span class="s2">        Possible values for smilesDelimiter: space, comma or tab.</span>
+ 1138 <span class="s2">    -k, --kekulize &lt;yes or no&gt;  [default: yes]</span>
+ 1139 <span class="s2">        Perform kekulization on molecules. This option is ignored during the generation of</span>
+ 1140 <span class="s2">        a SVG and HTML output file.</span>
+ 1141 <span class="s2">    --keysNavigation &lt;yes or no&gt;  [default: yes]</span>
+ 1142 <span class="s2">        Provide Excel like keyboard cell navigation for the table. This option is only used</span>
+ 1143 <span class="s2">        during the generation of a HTML table file.</span>
+ 1144 <span class="s2">    -m, --molImageSize &lt;width,height&gt;  [default: 250,200]</span>
+ 1145 <span class="s2">        Image size of a molecule in pixels.</span>
+ 1146 <span class="s2">    --molImageEncoded &lt;yes or no&gt;  [default: yes]</span>
+ 1147 <span class="s2">        Base64 encode SVG image of a molecule for inline embedding in a HTML page.</span>
+ 1148 <span class="s2">        The inline SVG image may fail to display in browsers without encoding.</span>
+ 1149 <span class="s2">    -n, --numOfMolsPerRow &lt;number&gt;  [default: 4]</span>
+ 1150 <span class="s2">        Number of molecules to draw in a row.</span>
+ 1151 <span class="s2">    -o, --outfile &lt;outfile&gt;</span>
+ 1152 <span class="s2">        Output file name.</span>
+ 1153 <span class="s2">    --overwrite</span>
+ 1154 <span class="s2">        Overwrite existing files.</span>
+ 1155 <span class="s2">    -p, --paging &lt;yes or no&gt;  [default: yes]</span>
+ 1156 <span class="s2">        Provide page navigation for browsing data in the table. This option is only used</span>
+ 1157 <span class="s2">        during the generation of a HTML table file.</span>
+ 1158 <span class="s2">    --pagingType &lt;numbers, simple, ...&gt;  [default: full_numbers]</span>
+ 1159 <span class="s2">        Type of page navigation. Possible values: numbers, simple, simple_numbers,</span>
+ 1160 <span class="s2">        full, full_numbers, or first_last_numbers.</span>
+ 1161 <span class="s2">            </span>
+ 1162 <span class="s2">            numbers - Page number buttons only</span>
+ 1163 <span class="s2">            simple - &#39;Previous&#39; and &#39;Next&#39; buttons only</span>
+ 1164 <span class="s2">            simple_numbers - &#39;Previous&#39; and &#39;Next&#39; buttons, plus page numbers</span>
+ 1165 <span class="s2">            full - &#39;First&#39;, &#39;Previous&#39;, &#39;Next&#39; and &#39;Last&#39; buttons</span>
+ 1166 <span class="s2">            full_numbers - &#39;First&#39;, &#39;Previous&#39;, &#39;Next&#39; and &#39;Last&#39; buttons, plus</span>
+ 1167 <span class="s2">                page numbers</span>
+ 1168 <span class="s2">            first_last_numbers - &#39;First&#39; and &#39;Last&#39; buttons, plus page numbers</span>
+ 1169 <span class="s2">            </span>
+ 1170 <span class="s2">        This option is only used during the generation of a HTML table file.</span>
+ 1171 <span class="s2">    --pageLength &lt;number&gt;  [default: 5]</span>
+ 1172 <span class="s2">        Number of rows to show per page. This option is only used during the</span>
+ 1173 <span class="s2">        generation of a HTML table file.</span>
+ 1174 <span class="s2">    --popover &lt;yes or no&gt;  [default: yes]</span>
+ 1175 <span class="s2">        Display a popover window containing additional information about the</span>
+ 1176 <span class="s2">        molecule. The popover is opened after a click on the drawing of a</span>
+ 1177 <span class="s2">        molecule. A subsequent click on the same drawing closes the popover.</span>
+ 1178 <span class="s2">        This option is only used during the generation of a HTML table file.</span>
+ 1179 <span class="s2">    --popoverDataCount &lt;number&gt;  [default: 25]</span>
+ 1180 <span class="s2">        Maximum number of data fields to show in a popover window. This option is</span>
+ 1181 <span class="s2">        only used during the generation of a HTML table file.</span>
+ 1182 <span class="s2">    --popoverTextWidth &lt;number&gt;  [default: 50]</span>
+ 1183 <span class="s2">        Maximum width in characters for text display in a popover window before</span>
+ 1184 <span class="s2">        truncating the text. This option is only used during the generation of a HTML</span>
+ 1185 <span class="s2">        table file.</span>
+ 1186 <span class="s2">    -s, --showMolName &lt;yes or no&gt;  [default: yes]</span>
+ 1187 <span class="s2">        Show molecule names under the images.This option is only used during the</span>
+ 1188 <span class="s2">        generation of a HTML table file.</span>
+ 1189 <span class="s2">    --scrollX &lt;yes or no&gt;  [default: yes]</span>
+ 1190 <span class="s2">        Provide horizontal scroll bar in the table as needed.This option is only used</span>
+ 1191 <span class="s2">        during the generation of a HTML table file.</span>
+ 1192 <span class="s2">    --scrollY &lt;yes or no&gt;  [default: yes]</span>
+ 1193 <span class="s2">        Provide vertical scroll bar in the table as needed.This option is only used during</span>
+ 1194 <span class="s2">        the generation of a HTML table file.</span>
+ 1195 <span class="s2">    --scrollYSize &lt;number&gt;  [default: 75vh]</span>
+ 1196 <span class="s2">        Maximum height of table viewport either in pixels or percentage of the browser</span>
+ 1197 <span class="s2">        window height before providing a vertical scroll bar. Default: 75</span><span class="si">% o</span><span class="s2">f the height of</span>
+ 1198 <span class="s2">        browser window.This option is only used during the generation of a HTML table file.</span>
+ 1199 <span class="s2">    -t, --tableStyle &lt;table,table-striped,...&gt;  [default: table,table-hover,table-sm]</span>
+ 1200 <span class="s2">        Style of table. Possible values: table, table-striped, table-bordered,</span>
+ 1201 <span class="s2">        table-hover, table-dark, table-sm, none, or All. Default: &#39;table,table-hover&#39;. A</span>
+ 1202 <span class="s2">        comma delimited list of any valid Bootstrap table styles is also supported</span>
+ 1203 <span class="s2">        </span>
+ 1204 <span class="s2">        This option is only used during the generation of a HTML table file.</span>
+ 1205 <span class="s2">    --tableFooter &lt;yes or no&gt;  [default: yes]</span>
+ 1206 <span class="s2">        Show Excel style column headers at the end of  the table. This option is only</span>
+ 1207 <span class="s2">        used during the generation of a HTML table file.</span>
+ 1208 <span class="s2">    --tableHeader &lt;yes or no&gt;  [default: yes]</span>
+ 1209 <span class="s2">        Show Excel style column headers in the table. This option is only used</span>
+ 1210 <span class="s2">        during the generation of a HTML table file.</span>
+ 1211 <span class="s2">    --tableHeaderStyle &lt;thead-dark,thead-light,...&gt;  [default: thead-dark]</span>
+ 1212 <span class="s2">        Style of table header. Possible values: thead-dark, thead-light, or none.</span>
+ 1213 <span class="s2">        The names of the following contextual color classes are also supported:</span>
+ 1214 <span class="s2">        table-primary (Blue), table-success (Green), table-danger (Red), table-info</span>
+ 1215 <span class="s2">        (Light blue), table-warning (Orange), table-active (Grey), table-light (Light</span>
+ 1216 <span class="s2">        grey), and  table-dark (Dark grey).</span>
+ 1217 <span class="s2">        </span>
+ 1218 <span class="s2">        This option is only used during the generation of a HTML table file.</span>
+ 1219 <span class="s2">    -w, --workingdir &lt;dir&gt;</span>
+ 1220 <span class="s2">        Location of working directory which defaults to the current directory.</span>
+ 1221 
+ 1222 <span class="s2">Examples:</span>
+ 1223 <span class="s2">    To automatically compute 2D coordinates for molecules in a SMILES file and</span>
+ 1224 <span class="s2">    generate a SVG image file containing 4 molecules per row in a grid with cell</span>
+ 1225 <span class="s2">    size of 250 x 200 pixels, type:</span>
+ 1226 
+ 1227 <span class="s2">        % RDKitDrawMolecules.py -i Sample.smi -o SampleOut.svg</span>
+ 1228 
+ 1229 <span class="s2">    To automatically compute 2D coordinates for molecules in a SMILES file and</span>
+ 1230 <span class="s2">    generate a SVG image file containing 2 molecules per row in a grid with cell</span>
+ 1231 <span class="s2">    size of 400 x 300 pixels and without any keulization along with highlighting</span>
+ 1232 <span class="s2">    a specific set of atoms and bonds indicated by a SMARTS pattern, type:</span>
+ 1233 
+ 1234 <span class="s2">        % RDKitDrawMolecules.py -n 2 -m &quot;400,300&quot; -k no --fontBold no</span>
+ 1235 <span class="s2">          --highlightSMARTS  &#39;c1ccccc1&#39; -i Sample.smi -o SampleOut.svg</span>
+ 1236 
+ 1237 <span class="s2">    To generate a PNG image file for molecules in a SD file using existing 2D</span>
+ 1238 <span class="s2">    coordinates, type</span>
+ 1239 
+ 1240 <span class="s2">        % RDKitDrawMolecules.py --compute2DCoords no -i Sample.sdf</span>
+ 1241 <span class="s2">          -o SampleOut.png</span>
+ 1242 
+ 1243 <span class="s2">    To automatically compute 2D coordinates for molecules in a SD file and</span>
+ 1244 <span class="s2">    generate a HTML file containing 4 molecules per row in a table, along with</span>
+ 1245 <span class="s2">    all the bells and whistles to interact with the table, type:</span>
+ 1246 
+ 1247 <span class="s2">        % RDKitDrawMolecules.py -i Sample.sdf -o SampleOut.html</span>
+ 1248 
+ 1249 <span class="s2">    To automatically compute 2D coordinates for molecules in a SD file and</span>
+ 1250 <span class="s2">    generate a HTML file containing 4 molecules per row in a table without</span>
+ 1251 <span class="s2">    any bells and whistles to interact with the table, type:</span>
+ 1252 
+ 1253 <span class="s2">        % RDKitDrawMolecules.py --counterCol no --colVisibility no</span>
+ 1254 <span class="s2">          --keysNavigation no --paging  no --popover no --scrollX no</span>
+ 1255 <span class="s2">          --scrollY no --tableFooter no --tableHeader  no -i Sample.sdf</span>
+ 1256 <span class="s2">          -o SampleOut.html</span>
+ 1257 
+ 1258 <span class="s2">    To automatically compute 2D coordinates for molecules in a CSV SMILES file</span>
+ 1259 <span class="s2">    with column headers, SMILES strings in column 1, and name in column 2 and</span>
+ 1260 <span class="s2">    generate a PDF image file, type:</span>
+ 1261 
+ 1262 <span class="s2">        % RDKitDrawMolecules.py --infileParams &quot;smilesDelimiter,comma,</span>
+ 1263 <span class="s2">          smilesTitleLine,yes,smilesColumn,1,smilesNameColumn,2&quot;</span>
+ 1264 <span class="s2">          -i SampleSMILES.csv -o SampleOut.pdf</span>
+ 1265 
+ 1266 <span class="s2">Author:</span>
+ 1267 <span class="s2">    Manish Sud(msud@san.rr.com)</span>
+ 1268 
+ 1269 <span class="s2">See also:</span>
+ 1270 <span class="s2">    RDKitConvertFileFormat.py, RDKitDrawMoleculesAndDataTable.py, RDKitRemoveDuplicateMolecules.py,</span>
+ 1271 <span class="s2">    RDKitSearchFunctionalGroups.py, RDKitSearchSMARTS.py</span>
+ 1272 
+ 1273 <span class="s2">Copyright:</span>
+ 1274 <span class="s2">    Copyright (C) 2026 Manish Sud. All rights reserved.</span>
+ 1275 
+ 1276 <span class="s2">    The functionality available in this script is implemented using RDKit, an</span>
+ 1277 <span class="s2">    open source toolkit for cheminformatics developed by Greg Landrum.</span>
+ 1278 
+ 1279 <span class="s2">    This file is part of MayaChemTools.</span>
+ 1280 
+ 1281 <span class="s2">    MayaChemTools is free software; you can redistribute it and/or modify it under</span>
+ 1282 <span class="s2">    the terms of the GNU Lesser General Public License as published by the Free</span>
+ 1283 <span class="s2">    Software Foundation; either version 3 of the License, or (at your option) any</span>
+ 1284 <span class="s2">    later version.</span>
+ 1285 
+ 1286 <span class="s2">&quot;&quot;&quot;</span>
+ 1287 
+ 1288 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+ 1289     <span class="n">main</span><span class="p">()</span>
+</pre>
+<br />
+<center>
+<img src="../../../images/h2o2.png">
+</center>
+</body>
+</html>

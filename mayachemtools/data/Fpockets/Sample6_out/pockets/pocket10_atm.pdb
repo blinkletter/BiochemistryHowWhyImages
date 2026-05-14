@@ -1,0 +1,40 @@
+HEADER
+HEADER This is a pdb format file writen by the programm fpocket.                 
+HEADER It represents the atoms contacted by the voronoi vertices of the pocket.  
+HEADER                                                                           
+HEADER Information about the pocket    10:
+HEADER 0  - Pocket Score                      : 0.0373
+HEADER 1  - Drug Score                        : 0.0002
+HEADER 2  - Number of alpha spheres           :    17
+HEADER 3  - Mean alpha-sphere radius          : 3.9345
+HEADER 4  - Mean alpha-sphere Solvent Acc.    : 0.5632
+HEADER 5  - Mean B-factor of pocket residues  : 0.4589
+HEADER 6  - Hydrophobicity Score              : 28.2857
+HEADER 7  - Polarity Score                    :     4
+HEADER 8  - Amino Acid based volume Score     : 4.2857
+HEADER 9  - Pocket volume (Monte Carlo)       : 363.6482
+HEADER 10  -Pocket volume (convex hull)       : 10.5536
+HEADER 11 - Charge Score                      :     1
+HEADER 12 - Local hydrophobic density Score   : 0.0000
+HEADER 13 - Number of apolar alpha sphere     :     0
+HEADER 14 - Proportion of apolar alpha sphere : 0.0000
+ATOM   1019   CZ ARG A 137      -6.997  -6.515 -36.195  0.00  0.00           C 0
+ATOM   1014    O ARG A 137     -10.006  -4.218 -31.530  0.59  4.29           O 0
+ATOM   1018   NE ARG A 137      -7.467  -5.277 -36.242  0.00  0.00           N 0
+ATOM   1021  NH2 ARG A 137      -7.442  -7.434 -37.036  0.00  0.00           N 0
+ATOM   1016   CG ARG A 137      -7.845  -4.118 -34.070  0.00  0.00           C 0
+ATOM   1002    O ILE A 135      -8.027  -7.464 -29.586  0.00  0.00           O 0
+ATOM   1020  NH1 ARG A 137      -6.073  -6.852 -35.301  0.50  7.66           N 0
+HETATM 1033    N SEP A 139     -13.003  -2.372 -33.916  0.50  3.28           N 0
+HETATM 1035   CB SEP A 139     -14.904  -2.982 -35.372  0.00  0.00           C 0
+HETATM 1034   CA SEP A 139     -13.572  -2.245 -35.255  0.00  0.00           C 0
+ATOM   1025    O PHE A 138     -11.083  -1.254 -34.444  0.72  2.14           O 0
+ATOM   2032    O HIS A 260      -9.514  -1.664 -42.979  0.00  0.00           O 0
+ATOM   2035  ND1 HIS A 260      -7.950  -2.609 -39.837  0.52  4.37           N 0
+ATOM   1048   CG GLU A 140     -12.681   1.083 -39.171  0.00  0.00           C 0
+ATOM   1043    N GLU A 140     -13.900  -0.446 -36.881  0.00  0.00           N 0
+ATOM   1051  OE2 GLU A 140     -11.418   1.035 -41.160  0.00  0.00           O 0
+ATOM   2037  CE1 HIS A 260      -7.199  -2.398 -38.763  0.00  0.00           C 0
+ATOM   1810    O ALA A 232      -7.668  -0.777 -35.979  0.64  1.07           O 0
+TER
+END

@@ -1,0 +1,389 @@
+<html>
+<head>
+<title>MayaChemTools:Documentation:RDKitPerformSynthonSpaceSearch.py</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../../css/MayaChemTools.css">
+</head>
+<body leftmargin="20" rightmargin="20" topmargin="10" bottommargin="10">
+<br/>
+<center>
+<a href="http://www.mayachemtools.org" title="MayaChemTools Home"><img src="../../../images/MayaChemToolsLogo.gif" border="0" alt="MayaChemTools"></a>
+</center>
+<br/>
+<div class="TopSubNav">
+  <ul style="padding-left: 50px;">
+    <li><a href="../../../scripts/html/index.html" title="MayaChemTools Scripts Documentation">All</a></li>
+    <li><a href="../../../scripts/html/Standalone/index.html" title="MayaChemTools Standalone Scripts Documentation">Standalone</a></li>
+    <li id="current"><a href="../../../scripts/html/RDKit/index.html" title="MayaChemTools RDKit Scripts Documentation">RDKit</a></li>
+    <li><a href="../../../scripts/html/PyMOL/index.html" title="MayaChemTools PyMOL Scripts Documentation">PyMOL</a></li>
+    <li><a href="../../../scripts/html/OpenMM/index.html" title="MayaChemTools OpenMM Scripts Documentation">OpenMM</a></li>
+    <li><a href="../../../scripts/html/OpenFE/index.html" title="MayaChemTools OpenFE Scripts Documentation">OpenFE</a></li>
+    <li><a href="../../../scripts/html/Psi4/index.html" title="MayaChemTools Psi4 Scripts Documentation">Psi4</a></li>
+    <li><a href="../../../scripts/html/Misc/index.html" title="MayaChemTools Misc Scripts Documentation">Misc</a></li>
+</ul>
+</div>
+<div class="DocNav">
+<table width="100%" border=0 cellpadding=0 cellspacing=2>
+<tr align="left" valign="top"><td width="33%" align="left"><a href="./RDKitPerformRGroupDecomposition.html" title="RDKitPerformRGroupDecomposition.html">Previous</a>&nbsp;&nbsp;<a href="./index.html" title="Table of Contents">TOC</a>&nbsp;&nbsp;<a href="./RDKitPerformTorsionScan.html" title="RDKitPerformTorsionScan.html">Next</a></td><td width="34%" align="middle"><strong>RDKitPerformSynthonSpaceSearch.py</strong></td><td width="33%" align="right"><a href="./../code/RDKitPerformSynthonSpaceSearch.html" title="View source code">Code</a>&nbsp;|&nbsp;<a href="./../../pdf/RDKitPerformSynthonSpaceSearch.pdf" title="PDF US Letter Size">PDF</a>&nbsp;|&nbsp;<a href="./../../pdfa4/RDKitPerformSynthonSpaceSearch.pdf" title="PDF A4 Size">PDFA4</a></td></tr>
+</table>
+</div>
+<h1 id="NAME">NAME</h2>
+<p>RDKitPerformSynthonSpaceSearch.py - Perform a synthon space search</p>
+<h1 id="SYNOPSIS">SYNOPSIS</h2>
+<p>RDKitPerformSynthonSpaceSearch.py [<b>--fingerprints</b> &lt;Morgan, PathLength...&gt;] [<b>--fingerprintsParams</b> &lt;Name,Value,...&gt;] [<b>--mode</b> &lt;SubstructureSearch...&gt;] [ <b>--outfileParams</b> &lt;Name,Value,...&gt;] [<b>--outfileMode</b> &lt;SingleFile or MultipleFiles&gt;] [<b>--overwrite</b>] [<b>--queryPattern</b> &lt;SMARTS&gt;] [<b>--queryFileParams</b> &lt;Name,Value,...&gt;] [<b>--queryFile</b> &lt;filename&gt;] [<b>--rascalSearchParams</b> &lt;Name,Value,...&gt;] [<b>--substructureMatchParams</b> &lt;Name,Value,...&gt;] [<b>--synthonSearchParams</b> &lt;Name,Value,...&gt;] [<b>-w</b> &lt;dir&gt;] <b>-i</b> &lt;infile&gt; <b>-o</b> &lt;outfile&gt;</p>
+<p>RDKitPerformSynthonSpaceSearch.py <b>-l</b> | <b><b>--list</b></b> <b>-i</b> &lt;infile&gt;</p>
+<p>RDKitPerformSynthonSpaceSearch.py <b>-h</b> | <b>--help</b> | <b>-e</b> | <b>--examples</b></p>
+<h1 id="DESCRIPTION">DESCRIPTION</h2>
+<p>Perform a similarity or substructure search, using query molecules or SMARTS patterns, against a synthon space [ Ref 174 ] in an input file, and write out the hit molecules to output file(s). You may optionally count the hits without building and writing them out.</p>
+<p>In addition, you may enumerate a combinatorial library corresponding to a synthon space, generate fingerprints for a synthon space, or list information about a synthon space.</p>
+<p>You must provide a valid synthon space text or binary database file supported by RDKit module rdSynthonSpaceSearch.</p>
+<p>You may perform similarity search using fingerprints or employ RASCAL (RApid Similarity CALculations using Maximum Edge Subgrahps) methodology [ Ref 175 ].</p>
+<p>A number of fingerprints are available for performing similarity search. The similarity metric, however, is calculated using Tanimoto similarity on hashed fingerprints.</p>
+<p>The RASCAL similarity between two molecuels is calculated based on MCES (Maximum Common Edge Subgraphs) and corresponds to Johnson similarity.</p>
+<p>The supported input file formats are: CSV/TXT synthon space (.csv, .txt) or binary synthon space (.spc).</p>
+<p>The supported outfile formats, for different &#39;--mode&#39; values, are shown below:</p>
+    <div class="OptionsBox"> BinaryDBFileGeneration: Binary database file (.spc)
+<br/>    FingerprintsGeneration: Binary database file (.spc)
+<br/>    LibraryEnumeration: SMILES (.smi)
+<br/>    SimilaritySearch or SubstructureSearch: SD (.sdf, .sd), SMILES (.smi),
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        CSV/TSV (.csv or .tsv)
+<br/>    </div>
+<p>Possible output files:</p>
+    <div class="OptionsBox">&lt;OutfileRoot&gt;.&lt;sdf,sd,smi,csv,tsv&gt;
+     
+<br/>    &lt;OutfileRoot&gt;_Mol&lt;Num&gt;.&lt;sdf,sd,smi,csv,tsv&gt;
+<br/>    &lt;OutfileRoot&gt;_Pattern&lt;Num&gt;.&lt;sdf,sd,smi,csv,tsv&gt;
+     
+     &lt;OutfileRoot&gt;_HitCount.csv
+     </div>
+<p>The &lt;OutfileRoot&gt;_HitCount.csv contains aditional information regarding hit counts and is writter out for both similarity and substructure search.</p>
+<h1 id="OPTIONS">OPTIONS</h2>
+<dl>
+<dt id="f---fingerprints-Morgan-PathLength...-default:-Morgan"><b>-f, --fingerprints</b> &lt;Morgan, PathLength...&gt; [default: Morgan]</dt>
+<dd>
+<p>Fingerprints to use for performing synthon space similarity search. Supported values: AtomPairs, Morgan, MorganFeatures, PathLength, TopologicalTorsions. The PathLength fingerprints are Daylight like fingerprints. The Morgan and MorganFeature fingerprints are circular fingerprints, corresponding Scitegic&#39;s Extended Connectivity Fingerprints (ECFP) and Features Connectivity Fingerprints (FCFP). The values of default parameters for generating fingerprints can be modified using &#39;--fingerprintsParams&#39; option.</p>
+</dd>
+<dt id="fingerprintsParams-Name-Value-...-default:-auto"><b>--fingerprintsParams</b> &lt;Name,Value,...&gt; [default: auto]</dt>
+<dd>
+<p>Parameter values to use for generating fingerprints. The default values are dependent on the value of &#39;-f, --fingerprints&#39; option. In general, it is a comma delimited list of parameter name and value pairs for the name of fingerprints specified using &#39;-f, --fingerprints&#39; option. The supported parameter names along with their default values for valid fingerprints names are shown below:</p>
+    <div class="OptionsBox"> AtomPairs: minLength,1 ,maxLength,useChirality,No,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        use2D, yes, fpSize, 2048
+<br/>    Morgan: radius,2, useChirality,No, useBondTypes, yes,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        useRingMembership, yes, fpSize, 2048
+<br/>    MorganFeatures: radius,2, useChirality,No, useBondTypes, yes,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        useRingMembership, yes, fpSize, 2048
+<br/>    PathLength: minPath,1, maxPath,7, useExplicitHs, yes,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        useBranchedPaths, yes,useBondOrder,yes, fpSize, 2048,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        bitsPerHash,2
+<br/>    TopologicalTorsions: useChirality,No, fpSize, 2048
+<br/>    </div>
+<p>A brief description of parameters, taken from RDKit documentation, is provided below:</p>
+    <div class="OptionsBox"> AtomPairs:
+<br/>    
+<br/>    minLength: Minimum distance between atoms.
+<br/>    maxLength: Maximum distance between atoms.
+<br/>    useChirality: Use chirality for atom invariants.
+<br/>    use2D: Use topological distance matrix.
+<br/>    fpSize: Size of the fingerpints bit vector.
+<br/>    
+<br/>    Morgan and MorganFeatures:
+<br/>    
+<br/>    radius: Neighborhood radius.
+<br/>    useChirality: Use chirality to generate fingerprints.
+<br/>    useBondTypes: Use bond type for the bond invariants.
+<br/>    useRingMembership: Use ring membership.
+<br/>    fpSize: Size of the fingerpints bit vector.
+<br/>    
+<br/>    PathLength:
+<br/>    
+<br/>    minPath: Minimum bond path length.
+<br/>    maxPath: Maximum bond path length.
+<br/>    useExplicitHs: Use explicit hydrogens.
+<br/>    useBranchedPaths: Use branched paths along with linear paths.
+<br/>    useBondOrder: Us bond order in the path hashes.
+<br/>    fpSize: Size of the fingerpints bit vector.
+<br/>    bitsPerHash: Number of bits set per path.
+<br/>    
+<br/>    TopologicalTorsions
+<br/>    
+<br/>    useChirality: Use chirality to generate fingerprints.
+<br/>    fpSize: Size of the fingerpints bit vector.
+<br/>    </div>
+</dd>
+<dt id="e---examples"><b>-e, --examples</b></dt>
+<dd>
+<p>Print examples.</p>
+</dd>
+<dt id="h---help"><b>-h, --help</b></dt>
+<dd>
+<p>Print this help message.</p>
+</dd>
+<dt id="i---infile-infile"><b>-i, --infile</b> &lt;infile&gt;</dt>
+<dd>
+<p>Synthon space Input file name.</p>
+</dd>
+<dt id="l---list"><b>-l, --list</b></dt>
+<dd>
+<p>List information about synthon space.</p>
+</dd>
+<dt id="m---mode-SubstructureSearch...-default:-SimilaritySearch"><b>-m, --mode</b> &lt;SubstructureSearch...&gt; [default: SimilaritySearch]</dt>
+<dd>
+<p>Perform similarity or substructure search, enumerate synthon space, or list information about a synthon space. The supported values along with a brief explanation of the expected behavior are shown below:</p>
+    <div class="OptionsBox"> BinaryDBFileGeneration: Write out a binary database file for a
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        synthon space.
+<br/>    FingerprintsGeneration: Generate fingerints for a synthon space and
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        write out a binary database file along with fingerprints.
+<br/>    LibraryEnumeration: Enumerate a combinatorial library for a synthon
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        space and write out a SMILES file.
+<br/>    RASCALSimilaritySearch: Perform a RASCAL (RApid Similarity
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        CALculations using Maximum Edge Subgrahps) similarity search.
+<br/>    SimilaritySearch: Perform a similarity search using fingerprints.
+<br/>    SubstructureSearch: Perform a substructure search using specified
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        SMARTS patterns.
+<br/>    </div>
+</dd>
+<dt id="o---outfile-outfile"><b>-o, --outfile</b> &lt;outfile&gt;</dt>
+<dd>
+<p>Output file name. The &lt;OutfileRoot&gt; and &lt;OutfileExt&gt; are used to generate file names during &#39;MultipleFiles&#39; value for &#39;--outfileMode&#39; option.</p>
+</dd>
+<dt id="outfileMode-SingleFile-or-MultipleFiles-default:-SingleFile"><b>--outfileMode</b> &lt;SingleFile or MultipleFiles&gt; [default: SingleFile]</dt>
+<dd>
+<p>Write out a single file containing hit molecules for substructure or similarity search or generate an individual file for each query pattern or molecule. Possible values: SingleFile or MultipleFiles. The query pattern number or molecule name is written to output file(s). The query pattern or molecule number is also appended to output file names during the generation of multiple output files.</p>
+</dd>
+<dt id="outfileParams-Name-Value-...-default:-auto"><b>--outfileParams</b> &lt;Name,Value,...&gt; [default: auto]</dt>
+<dd>
+<p>A comma delimited list of parameter name and value pairs for writing molecules to files during similarity and substructue search. The supported parameter names for different file formats, along with their default values, are shown below:</p>
+    <div class="OptionsBox"> SD: compute2DCoords,auto,kekulize,yes,forceV3000,no
+<br/>    SMILES: smilesKekulize,no,smilesDelimiter,space, smilesIsomeric,yes,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        smilesTitleLine,yes
+<br/>    </div>
+<p>Default value for compute2DCoords: yes for SMILES input file; no for all other file types. The kekulize and smilesIsomeric parameters are also used during generation of SMILES strings for CSV/TSV files.</p>
+</dd>
+<dt id="queryPattern-SMARTS-SMARTS-...-default:-none"><b>--queryPattern</b> &lt;SMARTS SMARTS ...&gt; [default: none]</dt>
+<dd>
+<p>A space delimited list of SMARTS patterns for performing substructure search. This is required for &#39;SubstructureSearch&#39; value of &#39;--mode&#39; option.</p>
+</dd>
+<dt id="queryFile-filename-default:-none"><b>--queryFile</b> &lt;filename&gt; [default: none]</dt>
+<dd>
+<p>Input file containing query molecules for performing similarity search. This is required for &#39;SimilaritySearch&#39; value of &#39;--mode&#39; option.</p>
+</dd>
+<dt id="queryFileParams-Name-Value-...-default:-auto"><b>--queryFileParams</b> &lt;Name,Value,...&gt; [default: auto]</dt>
+<dd>
+<p>A comma delimited list of parameter name and value pairs for reading molecules from query files during similarity search. The supported parameter names for different file formats, along with their default values, are shown below:</p>
+    <div class="OptionsBox"> SD, MOL: removeHydrogens,yes,sanitize,yes,strictParsing,yes
+<br/>    SMILES: smilesColumn,1,smilesNameColumn,2,smilesDelimiter,space,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        smilesTitleLine,auto,sanitize,yes
+<br/>    </div>
+<p>Possible values for smilesDelimiter: space, comma or tab.</p>
+</dd>
+<dt id="rascalSearchParams-Name-Value-...-default:-auto"><b>--rascalSearchParams</b> &lt;Name,Value,...&gt; [default: auto]</dt>
+<dd>
+<p>Parameter values to use for RASCAL similarity search.</p>
+<p>The default values are automatically updated to match RDKit default values. The supported parameter names along with their default values are are shown below:</p>
+    <div class="OptionsBox"> allBestMCESs, no, completeAromaticRings, yes,
+<br/>    completeSmallestRings, no, exactConnectionsMatch, no, 
+<br/>    ignoreAtomAromaticity, yes, ignoreBondOrders, no,
+<br/>    maxBondMatchPairs, 1000, maxFragSeparation, -1, minCliqueSize, 0,
+<br/>    minFragSize, -1, returnEmptyMCES, false, ringMatchesRingOnly, false,
+<br/>    similarityThreshold, 0.7, singleLargestFrag, no,
+<br/>    timeout, 60
+<br/>    </div>
+<p>A brief description of parameters, taken from RDKit documentation, is provided below:</p>
+    <div class="OptionsBox"> allBestMCESs: Find all Maximum Common Edge Subgraphs (MCES).
+<br/>    completeAromaticRings: Use only complete aromatic rings.
+<br/>    completeSmallestRings: Only complete rings present in both
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        molecules.
+<br/>    exactConnectionsMatch: Match atoms only when they have the same
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        number of explicit connections.
+<br/>    ignoreAtomAromaticity: Ignore aromaticity during atom matching.
+<br/>    ignoreBondOrders: Ignore bond orders during atom matching.
+<br/>    maxBondMatchPairs: Maximum number of matching bond pairs.
+<br/>    maxFragSeparation: Maximum bond distance that bonds can match.
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        value of -1 implies no maximum.
+<br/>    minCliqueSize: A value of &gt; 0 overrides the similarityThreshold.
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        This refers to the minimum number of bonds in the MCES.
+<br/>    minFragSize: Minimum number of atoms in a fragment. A value of -1
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        implies no minimum.
+<br/>    returnEmptyMCES: Return empty MCES results.
+<br/>    ringMatchesRingOnly: Match ring bonds to only ring bonds.
+<br/>    similarityThreshold: Similarity threshold for matching and
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        evaluating MCES.
+<br/>    singleLargestFrag: Find only a single fragment for the MCES. By
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        default, multiple fragments are generated as necessary.
+<br/>    timeout: Max run time in seconds. A value of -1 implies no max.
+<br/>    </div>
+</dd>
+<dt id="substructureMatchParams-Name-Value-...-default:-auto"><b>--substructureMatchParams</b> &lt;Name,Value,...&gt; [default: auto]</dt>
+<dd>
+<p>Parameter values to use for substructure match during synthon substructure search.</p>
+<p>The default values are automatically updated to match RDKit default values. The supported parameter names along with their default values are are shown below:</p>
+    <div class="OptionsBox"> aromaticMatchesConjugated, no, maxMatches, 1000,
+<br/>    maxRecursiveMatches, 1000, recursionPossible, yes,
+<br/>    specifiedStereoQueryMatchesUnspecified, no,  uniquify, yes,
+<br/>    useChirality, no, useEnhancedStereo, no, useGenericMatchers, no,
+<br/>    </div>
+<p>A brief description of parameters, taken from RDKit documentation, is provided below:</p>
+    <div class="OptionsBox"> aromaticMatchesConjugated: Match aromatic and conjugated bonds.
+<br/>    maxMatches: Maximum number of matches.
+<br/>    maxRecursiveMatches: Maximum number of recursive matches.
+<br/>    recursionPossible: Allow recursive queries.
+<br/>    specifiedStereoQueryMatchesUnspecified: Match query atoms and bonds
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        with specified stereochemistry to atoms and bonds with unspecified
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        stereochemistry.
+<br/>    uniquify: Uniquify match results using atom indices.
+<br/>    useChirality: Use chirality to match atom and bonds.
+<br/>    useEnhancedStereo: Use enhanced stereochemistry during the use
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        of chirality.
+<br/>    useGenericMatchers: Use generic groups as a post-filtering step.
+<br/>    </div>
+</dd>
+<dt id="synthonSearchParams-Name-Value-...-default:-auto"><b>--synthonSearchParams</b> &lt;Name,Value,...&gt; [default: auto]</dt>
+<dd>
+<p>Parameter values to use for performing synthon substructure and similarity search.</p>
+<p>The default values are automatically updated to match RDKit default values. The supported parameter names along with their default values are are shown below:</p>
+    <div class="OptionsBox"> approxSimilarityAdjuster, 0.1, [ Default value for Morgan FPs ]
+<br/>    buildHits, yes, fragSimilarityAdjuster, 0.1, hitStart, 0,
+<br/>    maxHits, 1000, [ A value of -1 retrives all hits ]
+<br/>    maxNumFrags, 100000,
+<br/>    numThreads, 1 [ 0: Use maximum number of threads supported by the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        hardware; Negative value: Added to the maxiumum number of
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        threads supported by the hardware ]
+<br/>    randomSample, no,
+<br/>    randomSeed, -1 [  Default value implies use random seed ]
+<br/>    similarityCutoff, 0.5, [ Default for Morgan FPs. Ignored during RASCAL
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        similarity search; instead, RASCAL parameter similarityThreshold is
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        used.  ]
+<br/>    timeOut, 600 [ Unit: sec. The RASCAL searches take longer and may
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        need a higher value for timeOut. For example: 3600 ]
+<br/>    </div>
+<p>A brief description of parameters, taken from RDKit documentation, is provided below:</p>
+    <div class="OptionsBox"> approxSimilarityAdjuster: Value used for reducing similarity cutoff
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        during approximate similarity check for fingerprint search. A
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        lower value leads to faster run times at the risk of missing
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        some hits.
+<br/>    buildHits: A no value implies to report the maximum number of hits a
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        search could generate without returning any hits.
+<br/>    fragSimilarityAdjuster: Value used for reducing fragment matching
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        similarity cutoff to accommodate low bit densities for fragments.
+<br/>    hitStart: Return hits starting from the specified sequence number
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        to support retrieval of hits in batches.
+<br/>    maxHits: Maximum number of hits to return. A value of -1 implies
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        retrieve all hits.
+<br/>    maxNumFrags: Maximum number of fragments for breaking a query. 
+<br/>    numThreads: Number of threads to use for search. A value of 0 
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        implies the use of all available hardware threads. A negative
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        value is added to the number of available hardware threads to
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        calculate number of threads to use.
+<br/>    randomSample: Return a random sample of hits up to maxHits.
+<br/>    randomSeed: Random number seed to use during search. A value of -1
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        implies the use of a random seed.
+<br/>    similarityCutoff: Similarity cutoff for returning hits by fingerprint
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        similarity search. A default value of 0.5 is set for Morgan
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        fingeprints.
+<br/>    timeOut: Time limit for search, in seconds. A valus of  0 implies
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        no timeout.
+<br/>    </div>
+</dd>
+<dt id="overwrite"><b>--overwrite</b></dt>
+<dd>
+<p>Overwrite existing files.</p>
+</dd>
+<dt id="w---workingdir-dir"><b>-w, --workingdir</b> &lt;dir&gt;</dt>
+<dd>
+<p>Location of working directory which defaults to the current directory.</p>
+</dd>
+</dl>
+<h1 id="EXAMPLES">EXAMPLES</h2>
+<p>To list information about a synthon space in a text file, type:</p>
+<div class="ExampleBox">% RDKitPerformSynthonSpaceSearch.py --list -i SampleSynthonSpace.csv</div>
+<p>To generate a binary database file for a synthon space in a text file, type:</p>
+<div class="ExampleBox">% RDKitPerformSynthonSpaceSearch.py -m BinaryDBFileGeneration
+  -i SampleSynthonSpace.csv -o SampleSynthonSpace.spc</div>
+<p>To enumerate a combnatorial library for a synthon space in a text file and write out a SMILES file, type:</p>
+<div class="ExampleBox">% RDKitPerformSynthonSpaceSearch.py -m LibraryEnumeration
+  -i SampleSynthonSpace.csv -o SampleSynthonSpace_Library.smi</div>
+<p>To generate Morgan fingerprints for a synthon space in a text file, employing radius of 2 and bit vector size of 2048, and write out a binary database file, type:</p>
+<div class="ExampleBox">% RDKitPerformSynthonSpaceSearch.py -m FingerprintsGeneration
+  -i SampleSynthonSpace.csv -o SampleSynthonSpace_MorganFPs.spc</div>
+<p>To perform a similarity search using Morgan fingerprints for query molecules in an input file, against a binary data base file synthon space containing Morgan fingerprints, employing radius 2 and bit vector size of 2048, finding a maximum of 1000 hits for each query molecule, and write out a single output file containing hit molecules, type:</p>
+<div class="ExampleBox">% RDKitPerformSynthonSpaceSearch.py -m SimilaritySearch
+  -i SampleSynthonSpace_MorganFPs.spc
+  --queryFile SampleSynthonSpaceQuery.sdf
+  -o SampleSynthonSpace_SimilaritySearchResultsMorganFPs.sdf</div>
+<p>or only count hits without building hits and writing them to an output file:</p>
+<div class="ExampleBox">% RDKitPerformSynthonSpaceSearch.py -m SimilaritySearch
+  -i SampleSynthonSpace_MorganFPs.spc
+  --queryFile SampleSynthonSpaceQuery.sdf
+  -o SampleSynthonSpace_SimilaritySearchResultsMorganFPs.sdf
+  --synthonSearchParams &quot;buildHits,No&quot;</div>
+<p>To run previous example for writing individual output files for each query molecule, type:</p>
+<div class="ExampleBox">% RDKitPerformSynthonSpaceSearch.py -m SimilaritySearch
+  -i SampleSynthonSpace_MorganFPs.spc
+  --queryFile SampleSynthonSpaceQuery.sdf
+  -o SampleSynthonSpace_SimilaritySearchResultsMorganFPs.sdf
+  --outfileMode MultipleFiles</div>
+<p>To run previous example for retrieving all possible hits for query molecules and write out individual output files for each query molecules, type:</p>
+<div class="ExampleBox">% RDKitPerformSynthonSpaceSearch.py -m SimilaritySearch
+  -i SampleSynthonSpace_MorganFPs.spc
+  --queryFile SampleSynthonSpaceQuery.sdf
+  -o SampleSynthonSpace_SimilaritySearchResultsMorganFPs.sdf
+  --outfileMode MultipleFiles
+  --synthonSearchParams &quot;maxHits,-1&quot;</div>
+<p>To run the previous example using multi-threading employing all available threads on your machine, retrieve maximum of 1000 hits for each query molecule and generate various output files, type:</p>
+<div class="ExampleBox">% RDKitPerformSynthonSpaceSearch.py -m SimilaritySearch
+  -i SampleSynthonSpace_MorganFPs.spc
+  --queryFile SampleSynthonSpaceQuery.smi
+  -o SampleSynthonSpace_SimilaritySearchResultsMorganFPs.smi
+  --outfileMode MultipleFiles
+  --synthonSearchParams &quot;maxHits, 1000, numThreads, 0&quot;</div>
+<p>To run the previous example using multi-threading employing all but one available threads on your machine, type:</p>
+<div class="ExampleBox">% RDKitPerformSynthonSpaceSearch.py -m SimilaritySearch
+  -i SampleSynthonSpace_MorganFPs.spc
+  --queryFile SampleSynthonSpaceQuery.smi
+  -o SampleSynthonSpace_SimilaritySearchResultsMorganFPs.smi
+  --outfileMode MultipleFiles
+  --synthonSearchParams &quot;maxHits, 1000, numThreads, -1&quot;</div>
+<p>To perform a substructure search using query pattern SMARTS against a synthon space file, finding a maximum of 1000 hits for each query pattern and write out a single output file containing hit molecules, type:</p>
+<div class="ExampleBox">% RDKitPerformSynthonSpaceSearch.py -m SubstructureSearch
+  -i SampleSynthonSpace.spc
+  --queryPattern &quot;c12ccc(C)cc1[nH]nc2C(=O)NCc1cncs1&quot;
+  -o SampleSynthonSpace_SubstructureSearchResults.sdf
+% RDKitPerformSynthonSpaceSearch.py -m SubstructureSearch
+  -i SampleSynthonSpace.csv
+  --queryPattern &#39;c1c[n,s,o][n,s,o,c]c1C(=O)[$(N1CCCCC1),$(N1CCCC1)]&#39;
+  -o SampleSynthonSpace_SubstructureSearchResults.sdf</div>
+<p>To run previous example for retrieving for writing out individual output files for each query molecules, type:</p>
+<div class="ExampleBox">% RDKitPerformSynthonSpaceSearch.py -m SubstructureSearch
+  -i SampleSynthonSpace.spc
+  --queryPattern &quot;CCN(C(=O)c1cc2cc(OC)ccc2nc1C)C1CCCN(C(=O)OC(C)(C)C)C1 
+  C=CCc1c(N[C@H](C)c2cccc(C)c2)ncnc1N(C)CCCC(=O)OC&quot;
+  -o SampleSynthonSpace_SubstructureSearchResults.sdf
+  --outfileMode MultipleFiles</div>
+<p>To perform RASCAL similarity search for query molecules in an input file, against a binary data base file synthon space, finding a maximum of 1000 hits for each query molecule, using multi-threadsing employing all available CPUs, timing out after 3600 seconds, and write out a single output file containing hit molecules, type:</p>
+<div class="ExampleBox">% RDKitPerformSynthonSpaceSearch.py -m RASCALSimilaritySearch
+  -i SampleSynthonSpace.spc
+  --queryFile SampleSynthonSpaceQuery.sdf
+  -o SampleSynthonSpace_RASCALSimilaritySearchResults.sdf
+  --synthonSearchParams &quot;maxHits, 1000, numThreads, 0, timeOut, 3600&quot;</div>
+<h1 id="AUTHOR">AUTHOR</h2>
+<p><a href="mailto:msud@san.rr.com">Manish Sud</a></p>
+<h1 id="ACKNOWLEDGMENT">ACKNOWLEDGMENT</h2>
+<p>Dave Cosgrove</p>
+<h1 id="SEE-ALSO">SEE ALSO</h2>
+<p><a href="./RDKitConvertFileFormat.html">RDKitConvertFileFormat.py</a>, <a href="./RDKitPickDiverseMolecules.html">RDKitPickDiverseMolecules.py</a>, <a href="./RDKitSearchFunctionalGroups.html">RDKitSearchFunctionalGroups.py</a>, <a href="./RDKitSearchSMARTS.html">RDKitSearchSMARTS.py</a></p>
+<h1 id="COPYRIGHT">COPYRIGHT</h2>
+<p>Copyright (C) 2026 Manish Sud. All rights reserved.</p>
+<p>The functionality available in this script is implemented using RDKit, an open source toolkit for cheminformatics developed by Greg Landrum.</p>
+<p>This file is part of MayaChemTools.</p>
+<p>MayaChemTools is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.</p>
+<p>&nbsp</p><p>&nbsp</p><div class="DocNav">
+<table width="100%" border=0 cellpadding=0 cellspacing=2>
+<tr align="left" valign="top"><td width="33%" align="left"><a href="./RDKitPerformRGroupDecomposition.html" title="RDKitPerformRGroupDecomposition.html">Previous</a>&nbsp;&nbsp;<a href="./index.html" title="Table of Contents">TOC</a>&nbsp;&nbsp;<a href="./RDKitPerformTorsionScan.html" title="RDKitPerformTorsionScan.html">Next</a></td><td width="34%" align="middle"><strong>February 8, 2026</strong></td><td width="33%" align="right"><strong>RDKitPerformSynthonSpaceSearch.py</strong></td></tr>
+</table>
+</div>
+<br />
+<center>
+<img src="../../../images/h2o2.png">
+</center>
+</body>
+</html>

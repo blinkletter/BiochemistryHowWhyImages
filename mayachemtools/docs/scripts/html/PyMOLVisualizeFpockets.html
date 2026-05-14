@@ -1,0 +1,268 @@
+<html>
+<head>
+<title>MayaChemTools:Documentation:PyMOLVisualizeFpockets.py</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../css/MayaChemTools.css">
+</head>
+<body leftmargin="20" rightmargin="20" topmargin="10" bottommargin="10">
+<br/>
+<center>
+<a href="http://www.mayachemtools.org" title="MayaChemTools Home"><img src="../../images/MayaChemToolsLogo.gif" border="0" alt="MayaChemTools"></a>
+</center>
+<br/>
+<div class="TopSubNav">
+  <ul style="padding-left: 50px;">
+    <li id="current"><a href="../../scripts/html/index.html" title="MayaChemTools Scripts Documentation">All</a></li>
+    <li><a href="../../scripts/html/Standalone/index.html" title="MayaChemTools Standalone Scripts Documentation">Standalone</a></li>
+    <li><a href="../../scripts/html/RDKit/index.html" title="MayaChemTools RDKit Scripts Documentation">RDKit</a></li>
+    <li><a href="../../scripts/html/PyMOL/index.html" title="MayaChemTools PyMOL Scripts Documentation">PyMOL</a></li>
+    <li><a href="../../scripts/html/OpenMM/index.html" title="MayaChemTools OpenMM Scripts Documentation">OpenMM</a></li>
+    <li><a href="../../scripts/html/OpenFE/index.html" title="MayaChemTools OpenFE Scripts Documentation">OpenFE</a></li>
+    <li><a href="../../scripts/html/Psi4/index.html" title="MayaChemTools Psi4 Scripts Documentation">Psi4</a></li>
+    <li><a href="../../scripts/html/Misc/index.html" title="MayaChemTools Misc Scripts Documentation">Misc</a></li>
+</ul>
+</div>
+<div class="DocNav">
+<table width="100%" border=0 cellpadding=0 cellspacing=2>
+<tr align="left" valign="top"><td width="33%" align="left"><a href="./PyMOLVisualizeElectronDensity.html" title="PyMOLVisualizeElectronDensity.html">Previous</a>&nbsp;&nbsp;<a href="./index.html" title="Table of Contents">TOC</a>&nbsp;&nbsp;<a href="./PyMOLVisualizeInterfaces.html" title="PyMOLVisualizeInterfaces.html">Next</a></td><td width="34%" align="middle"><strong>PyMOLVisualizeFpockets.py</strong></td><td width="33%" align="right"><a href="././code/PyMOLVisualizeFpockets.html" title="View source code">Code</a>&nbsp;|&nbsp;<a href="./../pdf/PyMOLVisualizeFpockets.pdf" title="PDF US Letter Size">PDF</a>&nbsp;|&nbsp;<a href="./../pdfa4/PyMOLVisualizeFpockets.pdf" title="PDF A4 Size">PDFA4</a></td></tr>
+</table>
+</div>
+<h1 id="NAME">NAME</h2>
+<p>PyMOLVisualizeFpockets.py - Visualize fpockets for macromolecules.</p>
+<h1 id="SYNOPSIS">SYNOPSIS</h2>
+<p>PyMOLVisualizeFpockets.py [<b>--align</b> &lt;yes or no&gt;] [<b>--alignMethod</b> &lt;align, cealign, super&gt;] [<b>--alignMode</b> &lt;FirstChain or Complex&gt;] [<b>--alignRefFile</b> &lt;filename&gt;] [<b>--chainIDs</b> &lt;First, All or ID1,ID2...&gt;] [<b>--fpocketMode</b> &lt;All, TopN, or Specify&gt;] [<b>--fpocketIDs</b> &lt;Value or Value1,Value2...&gt;] [<b>--fpocketPropertiesAppend</b> &lt;yes or no&gt;] [<b>--labelFontID</b> &lt;number&gt;] [<b>--outfilesDir</b> &lt;outfilesDir&gt;] [<b>--pocketColorByPocketNum</b> &lt;yes or no&gt;] [<b>--pocketLabel</b> &lt;yes or no&gt;] [<b>--pocketLabelType</b> &lt;OneLetter or ThreeLetter&gt;] [<b>--pocketSurface</b> &lt;yes or no&gt;] [<b>--sphereScale</b> &lt;number&gt;] [<b>--sphereTransparency</b> &lt;number&gt;] [<b>--surfaceChain</b> &lt;yes or no&gt;] [<b>--surfaceAtomTypesColors</b> &lt;ColorType,ColorSpec,...&gt;] [<b>--surfaceColor</b> &lt;ColorName&gt;] [<b>--surfaceColorPalette</b> &lt;RedToWhite or WhiteToGreen&gt;] [<b>--surfaceTransparency</b> &lt;number&gt;] [<b>--overwrite</b>] [<b>-w</b> &lt;dir&gt;] <b>-i</b> &lt;infile1,infile2,infile3...&gt; <b>-o</b> &lt;outfile&gt;</p>
+<p>PyMOLVisualizeFpockets.py <b>-h</b> | <b>--help</b> | <b>-e</b> | <b>--examples</b></p>
+<h1 id="DESCRIPTION">DESCRIPTION</h2>
+<p>Generate a PyMOL visualization file for visualizing pockets in macromolecules detected by an open source package named Fpocket [ Ref 166 ].</p>
+<p>The results of Fpocket calculations must be available in the current directory for all input files. A complete set of expected results is shown below:</p>
+    <div class="OptionsBox">Dir: &lt;PDBFileRoot&gt;_out
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &lt;PDBFileRoot&gt;_out.pdb
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            ... .. ...
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Dir: pockets
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            &lt;PDBFileRoot&gt;&lt;PocketID&gt;_atm.pdb
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            ... .. ...</div>
+<p>The supported input file format is: PDB (.pdb)</p>
+<p>The supported output file formats is: PyMOL script file (.pml)</p>
+<p>The following directory and files are created for the visualization of pockets detected by Fpocket:</p>
+    <div class="OptionsBox">Dir: &lt;OutFileRoot&gt;_out_PyMOL or &lt;OutfilesDir&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &lt;OutfileRoot&gt;.pml 
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &lt;PDBFileRoot&gt;.pdb
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &lt;PDBFileRoot&gt;_out.pdb</div>
+<p>You may visualize pockets in PyMOL by loading &lt;OutfileRoot&gt;.pml from &lt;OutfileRoot&gt;_out_PyMOL or &lt;OutfilesDir&gt; directory.</p>
+<p>A variety of PyMOL groups and objects may be created for visualization of fpockets in macromolecules. These groups and objects correspond to complexes, chains, fpockets, and surfaces. A complete hierarchy of all possible PyMOL groups and objects is shown below:</p>
+    <div class="OptionsBox">&lt;PDBFileRoot&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        .Complex
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            .Initial_PDB
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            .Fpocket_PDB
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        .Chain&lt;ID&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            .Complex
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                .Complex
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            .Chain
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                .Chain
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                .Surface
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                    .Surface
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                    .Hydrophobicity
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                    .Hydrophobicity_Charge
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            .FPocket&lt;ID&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                .FPocket
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                .Residues
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                .Surface
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                    .Surface
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                    .Hydrophobicity
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                    .Hydrophobicity_Charge
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        .Chain&lt;ID&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                ... ... ...
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            .FPocket&lt;ID&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                ... ... ...
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            .FPocket&lt;ID&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                ... ... ...
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        .Chain&lt;ID&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            ... ... ...
+<br/>    &lt;PDBFileRoot&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        .Complex
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            ... ... ...
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        .Chain&lt;ID&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            ... ... ...
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            .FPocket&lt;ID&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                ... ... ...
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            .FPocket&lt;ID&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                ... ... ...
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        .Chain&lt;ID&gt;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            ... ... ...</div>
+<h1 id="OPTIONS">OPTIONS</h2>
+<dl>
+<dt id="a---align-yes-or-no-default:-no"><b>-a, --align</b> &lt;yes or no&gt; [default: no]</dt>
+<dd>
+<p>Align input files to a reference file before visualization.</p>
+</dd>
+<dt id="alignMethod-align-cealign-super-default:-super"><b>--alignMethod</b> &lt;align, cealign, super&gt; [default: super]</dt>
+<dd>
+<p>Alignment methodology to use for aligning input files to a reference file.</p>
+</dd>
+<dt id="alignMode-FirstChain-or-Complex-default:-FirstChain"><b>--alignMode</b> &lt;FirstChain or Complex&gt; [default: FirstChain]</dt>
+<dd>
+<p>Portion of input and reference files to use for spatial alignment of input files against reference file. Possible values: FirstChain or Complex.</p>
+<p>The FirstChain mode allows alignment of the first chain in each input file to the first chain in the reference file along with moving the rest of the complex to coordinate space of the reference file. The complete complex in each input file is aligned to the complete complex in reference file for the Complex mode.</p>
+</dd>
+<dt id="alignRefFile-filename-default:-FirstInputFile"><b>--alignRefFile</b> &lt;filename&gt; [default: FirstInputFile]</dt>
+<dd>
+<p>Reference input file name. The default is to use the first input file name specified using &#39;-i, --infiles&#39; option.</p>
+</dd>
+<dt id="c---chainIDs-First-All-or-ID1-ID2...-default:-First"><b>-c, --chainIDs</b> &lt;First, All or ID1,ID2...&gt; [default: First]</dt>
+<dd>
+<p>List of chain IDs to use for visualizing fpockets in macromolecules. Possible values: First, All, or a comma delimited list of chain IDs. The default is to use the chain ID for the first chain in each input file.</p>
+</dd>
+<dt id="e---examples"><b>-e, --examples</b></dt>
+<dd>
+<p>Print examples.</p>
+</dd>
+<dt id="f---fpocketMode-All-TopN-or-Specify-default:-All"><b>-f, --fpocketMode</b> &lt;All, TopN, or Specify&gt; [default: All]</dt>
+<dd>
+<p>Fpockets specification mode for visualizing fpockets across chains in macromolecules. Possible values: All, TopN, or specify. By default, all available fpockets are visualized across specified chains.</p>
+<p>The fpocket IDs must be specified using &#39;--fpocketIDs&#39; option for &#39;TopN&#39; and &#39;Specifiy&#39; value of &#39;--fpocketMode &#39;.</p>
+</dd>
+<dt id="fpocketIDs-Value-or-Value1-Value2"><b>--fpocketIDs</b> &lt;Value or Value1,Value2...&gt;</dt>
+<dd>
+<p>List of Fpocket IDs for visualizing fpockets across chains. This value is dependent on the value of &#39;--fpocketMode&#39;. The possible values are either a number or a comma delimited list of number for &#39;TopN&#39; and &#39;Specify&#39; value &#39;--fpocketMode&#39; option. For example:</p>
+<p>This option is ignored during &#39;All&#39; value of &#39;--fpocketMode&#39; option.</p>
+</dd>
+<dt id="fpocketPropertiesAppend-yes-or-no-default:-yes"><b>--fpocketPropertiesAppend</b> &lt;yes or no&gt; [default: yes]</dt>
+<dd>
+<p>Append fpocket properties to names of PyMOL fpocket groups and objects. The following properties are appended to the names of PyMOL groups using their abbreviations and values: PocketScore - S; DrugScore - D; PocketVolume - V; HydrophobicityScore - H; PolarityScore - P. For example:</p>
+    <div class="OptionsBox">Fpocket1_S0p50_D0p00_V638p81_Hneg6p67_P11p00.Fpocket</div>
+</dd>
+<dt id="h---help"><b>-h, --help</b></dt>
+<dd>
+<p>Print this help message.</p>
+</dd>
+<dt id="i---infiles-infile1-infile2-infile3"><b>-i, --infiles</b> &lt;infile1,infile2,infile3...&gt;</dt>
+<dd>
+<p>Input PDB file names. The current directory must contain the results from Fpocket calculations for all the input PDB files.</p>
+</dd>
+<dt id="labelFontID-number-default:-7"><b>--labelFontID</b> &lt;number&gt; [default: 7]</dt>
+<dd>
+<p>Font ID for drawing labels. Default: 7 (Sans Bold). Valid values: 5 to 16. The specified value must be a valid PyMOL font ID. No validation is performed. The complete lists of valid font IDs is available at: pymolwiki.org/index.php/Label_font_id. Examples: 5 - Sans; 7 - Sans Bold; 9 - Serif; 10 - Serif Bold.</p>
+</dd>
+<dt id="o---outfile-outfile"><b>-o, --outfile</b> &lt;outfile&gt;</dt>
+<dd>
+<p>PML output file name for visualizing fpockets. The PML outfile is created in a new output directory named &lt;OutfileRoot&gt;_out_PyMOL. In addition, the output directory contains all appropriate PDB files generated by Fpocket for visualization of fpockets in PyMOL.</p>
+</dd>
+<dt id="outfilesDir-outfilesDir-default:-auto"><b>--outfilesDir</b> &lt;outfilesDir&gt; [default: auto]</dt>
+<dd>
+<p>Output files directory name. Default: &lt;OutfileRoot&gt;_out_PyMOL.</p>
+</dd>
+<dt id="pocketColorByPocketNum-yes-or-no-default:-yes"><b>--pocketColorByPocketNum</b> &lt;yes or no&gt; [default: yes]</dt>
+<dd>
+<p>Color fpocket residues and residue labels by pocket number. Otherwise, the pocket residues are colored by element names using default PyMOL color scheme. No color is set for residue labels.</p>
+</dd>
+<dt id="pocketLabel-yes-or-no-default:-yes"><b>--pocketLabel</b> &lt;yes or no&gt; [default: yes]</dt>
+<dd>
+<p>Display residue labels on fpocket residues. The residue number is always appended to residue label. You may specify a one or thee letter residue labels using &#39;--pocketLabelType&#39; option.</p>
+</dd>
+<dt id="pocketLabelType-OneLetter-or-ThreeLetter-default:-OneLetter"><b>--pocketLabelType</b> &lt;OneLetter or ThreeLetter&gt; [default: OneLetter]</dt>
+<dd>
+<p>Display one or three letter residue labels on fpocket residues</p>
+</dd>
+<dt id="pocketSurface-yes-or-no-default:-yes"><b>--pocketSurface</b> &lt;yes or no&gt; [default: yes]</dt>
+<dd>
+<p>Surfaces around fpocket residues colored by hydrophobicity alone and both hydrophobicity and charge. The hydrophobicity surface is colored at residue level using Eisenberg hydrophobicity scale for residues and color gradient specified by &#39;--surfaceColorPalette&#39; option. The hydrophobicity and charge surface is colored at atom level using colors specified for groups of atoms by &#39;--surfaceAtomTypesColors&#39; option. This scheme allows simultaneous mapping of hyrophobicity and charge values on the surfaces.</p>
+<p>In addition, generic surfaces colored by &#39;--surfaceColor&#39; are always created for pockets.</p>
+</dd>
+<dt id="sphereScale-number-default:-0.4"><b>--sphereScale</b> &lt;number&gt; [default: 0.4]</dt>
+<dd>
+<p>Scaling factor for spheres used to display fpocket alpha spheres.</p>
+</dd>
+<dt id="sphereTransparency-number-default:-0.25"><b>--sphereTransparency</b> &lt;number&gt; [default: 0.25]</dt>
+<dd>
+<p>Transparency for spheres used to display fpocket alpha spheres.</p>
+</dd>
+<dt id="surfaceChain-yes-or-no-default:-yes"><b>--surfaceChain</b> &lt;yes or no&gt; [default: yes]</dt>
+<dd>
+<p>Surfaces around individual chain colored by hydrophobicity alone and both hydrophobicity and charge. The hydrophobicity surface is colored at residue level using Eisenberg hydrophobicity scale for residues and color gradient specified by &#39;--surfaceColorPalette&#39; option. The hydrophobicity and charge surface is colored at atom level using colors specified for groups of atoms by &#39;--surfaceAtomTypesColors&#39; option. This scheme allows simultaneous mapping of hyrophobicity and charge values on the surfaces.</p>
+<p>In addition, generic surfaces colored by &#39;--surfaceColor&#39; are always created for chains.</p>
+</dd>
+<dt id="surfaceAtomTypesColors-ColorType-ColorSpec-...-default:-auto"><b>--surfaceAtomTypesColors</b> &lt;ColorType,ColorSpec,...&gt; [default: auto]</dt>
+<dd>
+<p>Atom colors for generating surfaces colored by hyrophobicity and charge around chains and pockets in proteins. It&#39;s a pairwise comma delimited list of atom color type and color specification for groups of atoms.</p>
+<p>The default values for color types along wth color specifications are shown below:</p>
+    <div class="OptionsBox"> HydrophobicAtomsColor, yellow,
+<br/>    NegativelyChargedAtomsColor, red,
+<br/>    PositivelyChargedAtomsColor, blue,
+<br/>    OtherAtomsColor, gray90
+<br/>    </div>
+<p>The color names must be valid PyMOL names.</p>
+<p>The color values may also be specified as space delimited RGB triplets:</p>
+    <div class="OptionsBox"> HydrophobicAtomsColor, 0.95 0.78 0.0,
+<br/>    NegativelyChargedAtomsColor, 1.0 0.4 0.4,
+<br/>    PositivelyChargedAtomsColor, 0.2 0.5 0.8,
+<br/>    OtherAtomsColor, 0.95 0.95 0.95
+<br/>    </div>
+</dd>
+<dt id="surfaceColor-ColorName-default:-lightblue"><b>--surfaceColor</b> &lt;ColorName&gt; [default: lightblue]</dt>
+<dd>
+<p>Color name for surfaces around chains and pockets. This color is not used for surfaces colored by hydrophobicity and charge. The color name must be a valid PyMOL name.</p>
+</dd>
+<dt id="surfaceColorPalette-RedToWhite-or-WhiteToGreen-default:-RedToWhite"><b>--surfaceColorPalette</b> &lt;RedToWhite or WhiteToGreen&gt; [default: RedToWhite]</dt>
+<dd>
+<p>Color palette for hydrophobic surfaces around chains and pockets in proteins. Possible values: RedToWhite or WhiteToGreen from most hydrophobic amino acid to least hydrophobic. The colors values for amino acids are taken from color_h script available as part of the Script Library at PyMOL Wiki.</p>
+</dd>
+<dt id="surfaceTransparency-number-default:-0.25"><b>--surfaceTransparency</b> &lt;number&gt; [default: 0.25]</dt>
+<dd>
+<p>Surface transparency for molecular surfaces.</p>
+</dd>
+<dt id="overwrite"><b>--overwrite</b></dt>
+<dd>
+<p>Overwrite existing files.</p>
+</dd>
+<dt id="w---workingdir-dir"><b>-w, --workingdir</b> &lt;dir&gt;</dt>
+<dd>
+<p>Location of working directory which defaults to the current directory.</p>
+</dd>
+</dl>
+<h1 id="EXAMPLES">EXAMPLES</h2>
+<p>To visualize all fpockets available in a directory &lt;PDBRoot&gt;_out for the first chain, along pocket residues and surfaces, in a PDB file, and generate a PML file in a new directory &lt;PDBRoot&gt;_out_pymol, type:</p>
+<div class="ExampleBox">% PyMOLVisualizeFpockets.py -i Sample5.pdb -o Sample5.pml</div>
+<p>To rerun the first example without displaying pocket residue labels, coloring pockets by element type, and write out a PML file, type:</p>
+<div class="ExampleBox">% PyMOLVisualizeFpockets.py --pocketColorByPocketNum no
+  --pocketLabel no -i Sample5.pdb -o Sample5.pml</div>
+<p>To rerun the first example to visualize only top 5 fpockets and write out a PML file, type:</p>
+<div class="ExampleBox">% PyMOLVisualizeFpockets.py -f TopN --fpocketIDs 5 -i Sample5.pdb
+  -o Sample5.pml</div>
+<p>To rerun the first example to visualize a specific set of fpockets and write out a PML file, type:</p>
+<div class="ExampleBox"> % PyMOLVisualizeFpockets.py -f Specify --fpocketIDs &quot;1,2,3&quot; -i Sample5.pdb
+   -o Sample5.pml
+To rerun the first example to visualize all fpockets across all chains and write
+out a PML file, type:
+ % PyMOLVisualizeFpockets.py -c All -f All -i Sample5.pdb -o Sample5.pml</div>
+<p>To rerun the first example without displaying hydrophobic and charge surfaces around chain and pockets and and write out a PML file, type:</p>
+<div class="ExampleBox">% PyMOLVisualizeFpockets.py --surfaceChain no  --pocketSurface no
+  -i Sample5.pdb -o Sample5.pml</div>
+<p>To visualize top 5 fpockets available in a directories &lt;PDBRoot&gt;_out for the first chain, along pocket residues and surfaces, in PDB files, aligning first fchain in each input file to the first chain in first input file, and generate a PML file in a new directory &lt;PDBRoot&gt;_out_pymol, type:</p>
+<div class="ExampleBox">% PyMOLVisualizeFpockets.py -f TopN --fpocketIDs 5 --align yes
+  -i &quot;Sample5.pdb,Sample6.pdb&quot; -o Sample5Aligned.pml</div>
+<p>To visualize top 5 fpockets available in a directories &lt;PDBRoot&gt;_out for the first chain, along pocket residues and surfaces, in PDB files, aligning first chain in each input file to the first chain in first chain in a specified PDB file using a specified alignment method,, and generate a PML file in a new directory &lt;PDBRoot&gt;_out_pymol, type:</p>
+<div class="ExampleBox">% PyMOLVisualizeFpockets.py -f TopN --fpocketIDs 5 --align yes
+  --alignMode FirstChain --alignRefFile Sample6.pdb --alignMethod super 
+  -i &quot;Sample5.pdb,Sample6.pdb&quot; -o Sample5Aligned.pml</div>
+<h1 id="AUTHOR">AUTHOR</h2>
+<p>Manish Sud</p>
+<h1 id="COLLABORATORS">COLLABORATORS</h2>
+<p>Joann Prescott-Roy and Pat Walters</p>
+<h1 id="SEE-ALSO">SEE ALSO</h2>
+<p><a href="./DownloadPDBFiles.html">DownloadPDBFiles.pl</a>, <a href="./PyMOLVisualizeCavities.html">PyMOLVisualizeCavities.py</a>, <a href="./PyMOLVisualizeCryoEMDensity.html">PyMOLVisualizeCryoEMDensity.py</a>, <a href="./PyMOLVisualizeElectronDensity.html">PyMOLVisualizeElectronDensity.py</a>, <a href="./PyMOLVisualizeInterfaces.html">PyMOLVisualizeInterfaces.py</a>, <a href="./PyMOLVisualizeMacromolecules.html">PyMOLVisualizeMacromolecules.py</a>, <a href="./PyMOLVisualizeSurfaceAndBuriedResidues.html">PyMOLVisualizeSurfaceAndBuriedResidues.py</a></p>
+<h1 id="COPYRIGHT">COPYRIGHT</h2>
+<p>Copyright (C) 2026 Manish Sud. All rights reserved.</p>
+<p>The functionality available in this script is implemented using PyMOL, a molecular visualization system on an open source foundation originally developed by Warren DeLano.</p>
+<p>This file is part of MayaChemTools.</p>
+<p>MayaChemTools is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.</p>
+<p>&nbsp</p><p>&nbsp</p><div class="DocNav">
+<table width="100%" border=0 cellpadding=0 cellspacing=2>
+<tr align="left" valign="top"><td width="33%" align="left"><a href="./PyMOLVisualizeElectronDensity.html" title="PyMOLVisualizeElectronDensity.html">Previous</a>&nbsp;&nbsp;<a href="./index.html" title="Table of Contents">TOC</a>&nbsp;&nbsp;<a href="./PyMOLVisualizeInterfaces.html" title="PyMOLVisualizeInterfaces.html">Next</a></td><td width="34%" align="middle"><strong>February 8, 2026</strong></td><td width="33%" align="right"><strong>PyMOLVisualizeFpockets.py</strong></td></tr>
+</table>
+</div>
+<br />
+<center>
+<img src="../../images/h2o2.png">
+</center>
+</body>
+</html>

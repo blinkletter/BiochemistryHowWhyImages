@@ -1,0 +1,1072 @@
+<html>
+<head>
+<title>MayaChemTools:Code:OpenMMPerformMinimization.py</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../../css/MayaChemToolsPythonCode.css">
+</head>
+<body leftmargin="20" rightmargin="20" topmargin="10" bottommargin="10">
+<br/>
+<center>
+<a href="http://www.mayachemtools.org" title="MayaChemTools Home"><img src="../../../images/MayaChemToolsLogo.gif" border="0" alt="MayaChemTools"></a>
+</center>
+<br/>
+<pre>
+    1 <span class="ch">#!/bin/env python</span>
+    2 <span class="c1">#</span>
+    3 <span class="c1"># File: OpenMMPerformMinimization.py</span>
+    4 <span class="c1"># Author: Manish Sud &lt;msud@san.rr.com&gt;</span>
+    5 <span class="c1">#</span>
+    6 <span class="c1"># Copyright (C) 2026 Manish Sud. All rights reserved.</span>
+    7 <span class="c1">#</span>
+    8 <span class="c1"># The functionality available in this script is implemented using OpenMM, an</span>
+    9 <span class="c1"># open source molecuar simulation package.</span>
+   10 <span class="c1">#</span>
+   11 <span class="c1"># This file is part of MayaChemTools.</span>
+   12 <span class="c1">#</span>
+   13 <span class="c1"># MayaChemTools is free software; you can redistribute it and/or modify it under</span>
+   14 <span class="c1"># the terms of the GNU Lesser General Public License as published by the Free</span>
+   15 <span class="c1"># Software Foundation; either version 3 of the License, or (at your option) any</span>
+   16 <span class="c1"># later version.</span>
+   17 <span class="c1">#</span>
+   18 <span class="c1"># MayaChemTools is distributed in the hope that it will be useful, but without</span>
+   19 <span class="c1"># any warranty; without even the implied warranty of merchantability of fitness</span>
+   20 <span class="c1"># for a particular purpose.  See the GNU Lesser General Public License for more</span>
+   21 <span class="c1"># details.</span>
+   22 <span class="c1">#</span>
+   23 <span class="c1"># You should have received a copy of the GNU Lesser General Public License</span>
+   24 <span class="c1"># along with MayaChemTools; if not, see &lt;http://www.gnu.org/licenses/&gt; or</span>
+   25 <span class="c1"># write to the Free Software Foundation Inc., 59 Temple Place, Suite 330,</span>
+   26 <span class="c1"># Boston, MA, 02111-1307, USA.</span>
+   27 <span class="c1">#</span>
+   28 
+   29 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+   30 
+   31 <span class="kn">import</span> <span class="nn">os</span>
+   32 <span class="kn">import</span> <span class="nn">sys</span>
+   33 <span class="kn">import</span> <span class="nn">time</span>
+   34 <span class="kn">import</span> <span class="nn">re</span>
+   35 
+   36 <span class="c1"># OpenMM imports...</span>
+   37 <span class="k">try</span><span class="p">:</span>
+   38     <span class="kn">import</span> <span class="nn">openmm</span> <span class="k">as</span> <span class="nn">mm</span>
+   39     <span class="kn">import</span> <span class="nn">openmm.app</span>
+   40 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ErrMsg</span><span class="p">:</span>
+   41     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Failed to import OpenMM related module/package: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ErrMsg</span><span class="p">)</span>
+   42     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Check/update your OpenMM environment and try again.</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+   43     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+   44 
+   45 <span class="c1"># MayaChemTools imports...</span>
+   46 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;lib&quot;</span><span class="p">,</span> <span class="s2">&quot;Python&quot;</span><span class="p">))</span>
+   47 <span class="k">try</span><span class="p">:</span>
+   48     <span class="kn">from</span> <span class="nn">docopt</span> <span class="kn">import</span> <span class="n">docopt</span>
+   49     <span class="kn">import</span> <span class="nn">MiscUtil</span>
+   50     <span class="kn">import</span> <span class="nn">OpenMMUtil</span>
+   51 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ErrMsg</span><span class="p">:</span>
+   52     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Failed to import MayaChemTools module/package: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ErrMsg</span><span class="p">)</span>
+   53     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Check/update your MayaChemTools environment and try again.</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+   54     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+   55 
+   56 <span class="n">ScriptName</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+   57 <span class="n">Options</span> <span class="o">=</span> <span class="p">{}</span>
+   58 <span class="n">OptionsInfo</span> <span class="o">=</span> <span class="p">{}</span>
+   59 
+   60 
+   61 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+   62     <span class="sd">&quot;&quot;&quot;Start execution of the script.&quot;&quot;&quot;</span>
+   63 
+   64     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span>
+   65         <span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2"> (OpenMM v</span><span class="si">%s</span><span class="s2">; MayaChemTools v</span><span class="si">%s</span><span class="s2">; </span><span class="si">%s</span><span class="s2">): Starting...</span><span class="se">\n</span><span class="s2">&quot;</span>
+   66         <span class="o">%</span> <span class="p">(</span><span class="n">ScriptName</span><span class="p">,</span> <span class="n">mm</span><span class="o">.</span><span class="n">Platform</span><span class="o">.</span><span class="n">getOpenMMVersion</span><span class="p">(),</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetMayaChemToolsVersion</span><span class="p">(),</span> <span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">())</span>
+   67     <span class="p">)</span>
+   68 
+   69     <span class="p">(</span><span class="n">WallClockTime</span><span class="p">,</span> <span class="n">ProcessorTime</span><span class="p">)</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetWallClockAndProcessorTime</span><span class="p">()</span>
+   70 
+   71     <span class="c1"># Retrieve command line arguments and options...</span>
+   72     <span class="n">RetrieveOptions</span><span class="p">()</span>
+   73 
+   74     <span class="c1"># Process and validate command line arguments and options...</span>
+   75     <span class="n">ProcessOptions</span><span class="p">()</span>
+   76 
+   77     <span class="c1"># Perform actions required by the script...</span>
+   78     <span class="n">PerformMinimization</span><span class="p">()</span>
+   79 
+   80     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2">: Done...</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ScriptName</span><span class="p">)</span>
+   81     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Total time: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetFormattedElapsedTime</span><span class="p">(</span><span class="n">WallClockTime</span><span class="p">,</span> <span class="n">ProcessorTime</span><span class="p">))</span>
+   82 
+   83 
+   84 <span class="k">def</span> <span class="nf">PerformMinimization</span><span class="p">():</span>
+   85     <span class="sd">&quot;&quot;&quot;Perform minimization.&quot;&quot;&quot;</span>
+   86 
+   87     <span class="c1"># Prepare system for simulation...</span>
+   88     <span class="n">System</span><span class="p">,</span> <span class="n">Topology</span><span class="p">,</span> <span class="n">Positions</span> <span class="o">=</span> <span class="n">PrepareSystem</span><span class="p">()</span>
+   89 
+   90     <span class="c1"># Freeze and restraint atoms...</span>
+   91     <span class="n">FreezeRestraintAtoms</span><span class="p">(</span><span class="n">System</span><span class="p">,</span> <span class="n">Topology</span><span class="p">,</span> <span class="n">Positions</span><span class="p">)</span>
+   92 
+   93     <span class="c1"># Setup integrator...</span>
+   94     <span class="n">Integrator</span> <span class="o">=</span> <span class="n">SetupIntegrator</span><span class="p">()</span>
+   95 
+   96     <span class="c1"># Setup simulation...</span>
+   97     <span class="n">Simulation</span> <span class="o">=</span> <span class="n">SetupSimulation</span><span class="p">(</span><span class="n">System</span><span class="p">,</span> <span class="n">Integrator</span><span class="p">,</span> <span class="n">Topology</span><span class="p">,</span> <span class="n">Positions</span><span class="p">)</span>
+   98 
+   99     <span class="c1"># Perform energy minimization...</span>
+  100     <span class="n">PerformEnergyMinimization</span><span class="p">(</span><span class="n">Simulation</span><span class="p">)</span>
+  101 
+  102 
+  103 <span class="k">def</span> <span class="nf">PrepareSystem</span><span class="p">():</span>
+  104     <span class="sd">&quot;&quot;&quot;Prepare system for simulation.&quot;&quot;&quot;</span>
+  105 
+  106     <span class="n">System</span><span class="p">,</span> <span class="n">Topology</span><span class="p">,</span> <span class="n">Positions</span> <span class="o">=</span> <span class="n">OpenMMUtil</span><span class="o">.</span><span class="n">InitializeSystem</span><span class="p">(</span>
+  107         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Infile&quot;</span><span class="p">],</span>
+  108         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ForcefieldParams&quot;</span><span class="p">],</span>
+  109         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;SystemParams&quot;</span><span class="p">],</span>
+  110         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;WaterBox&quot;</span><span class="p">],</span>
+  111         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;WaterBoxParams&quot;</span><span class="p">],</span>
+  112         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;SmallMolFile&quot;</span><span class="p">],</span>
+  113         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;SmallMolID&quot;</span><span class="p">],</span>
+  114     <span class="p">)</span>
+  115 
+  116     <span class="c1"># Write out a PDB file for the system...</span>
+  117     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Writing PDB file </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InitialPDBOutfile&quot;</span><span class="p">])</span>
+  118     <span class="n">OpenMMUtil</span><span class="o">.</span><span class="n">WritePDBFile</span><span class="p">(</span>
+  119         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InitialPDBOutfile&quot;</span><span class="p">],</span> <span class="n">Topology</span><span class="p">,</span> <span class="n">Positions</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutputParams&quot;</span><span class="p">][</span><span class="s2">&quot;PDBOutKeepIDs&quot;</span><span class="p">]</span>
+  120     <span class="p">)</span>
+  121 
+  122     <span class="k">return</span> <span class="p">(</span><span class="n">System</span><span class="p">,</span> <span class="n">Topology</span><span class="p">,</span> <span class="n">Positions</span><span class="p">)</span>
+  123 
+  124 
+  125 <span class="k">def</span> <span class="nf">SetupIntegrator</span><span class="p">():</span>
+  126     <span class="sd">&quot;&quot;&quot;Setup integrator.&quot;&quot;&quot;</span>
+  127 
+  128     <span class="n">Integrator</span> <span class="o">=</span> <span class="n">OpenMMUtil</span><span class="o">.</span><span class="n">InitializeIntegrator</span><span class="p">(</span>
+  129         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;IntegratorParams&quot;</span><span class="p">],</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;SystemParams&quot;</span><span class="p">][</span><span class="s2">&quot;ConstraintErrorTolerance&quot;</span><span class="p">]</span>
+  130     <span class="p">)</span>
+  131 
+  132     <span class="k">return</span> <span class="n">Integrator</span>
+  133 
+  134 
+  135 <span class="k">def</span> <span class="nf">SetupSimulation</span><span class="p">(</span><span class="n">System</span><span class="p">,</span> <span class="n">Integrator</span><span class="p">,</span> <span class="n">Topology</span><span class="p">,</span> <span class="n">Positions</span><span class="p">):</span>
+  136     <span class="sd">&quot;&quot;&quot;Setup simulation.&quot;&quot;&quot;</span>
+  137 
+  138     <span class="n">Simulation</span> <span class="o">=</span> <span class="n">OpenMMUtil</span><span class="o">.</span><span class="n">InitializeSimulation</span><span class="p">(</span><span class="n">System</span><span class="p">,</span> <span class="n">Integrator</span><span class="p">,</span> <span class="n">Topology</span><span class="p">,</span> <span class="n">Positions</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;PlatformParams&quot;</span><span class="p">])</span>
+  139 
+  140     <span class="k">return</span> <span class="n">Simulation</span>
+  141 
+  142 
+  143 <span class="k">def</span> <span class="nf">PerformEnergyMinimization</span><span class="p">(</span><span class="n">Simulation</span><span class="p">):</span>
+  144     <span class="sd">&quot;&quot;&quot;Perform energy minimization.&quot;&quot;&quot;</span>
+  145 
+  146     <span class="n">SimulationParams</span> <span class="o">=</span> <span class="n">OpenMMUtil</span><span class="o">.</span><span class="n">SetupSimulationParameters</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;SimulationParams&quot;</span><span class="p">])</span>
+  147 
+  148     <span class="n">OutputParams</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutputParams&quot;</span><span class="p">]</span>
+  149 
+  150     <span class="c1"># Setup a local minimization reporter...</span>
+  151     <span class="n">MinimizeReporter</span> <span class="o">=</span> <span class="kc">None</span>
+  152     <span class="k">if</span> <span class="n">OutputParams</span><span class="p">[</span><span class="s2">&quot;MinimizationDataStdout&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">OutputParams</span><span class="p">[</span><span class="s2">&quot;MinimizationDataLog&quot;</span><span class="p">]:</span>
+  153         <span class="n">MinimizeReporter</span> <span class="o">=</span> <span class="n">LocalMinimizationReporter</span><span class="p">()</span>
+  154 
+  155     <span class="k">if</span> <span class="n">MinimizeReporter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+  156         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Adding minimization reporters...&quot;</span><span class="p">)</span>
+  157         <span class="k">if</span> <span class="n">OutputParams</span><span class="p">[</span><span class="s2">&quot;MinimizationDataLog&quot;</span><span class="p">]:</span>
+  158             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span>
+  159                 <span class="s2">&quot;Adding data log minimization reporter (Steps: </span><span class="si">%s</span><span class="s2">; File: </span><span class="si">%s</span><span class="s2">)...&quot;</span>
+  160                 <span class="o">%</span> <span class="p">(</span><span class="n">OutputParams</span><span class="p">[</span><span class="s2">&quot;MinimizationDataSteps&quot;</span><span class="p">],</span> <span class="n">OutputParams</span><span class="p">[</span><span class="s2">&quot;MinimizationDataLogFile&quot;</span><span class="p">])</span>
+  161             <span class="p">)</span>
+  162         <span class="k">if</span> <span class="n">OutputParams</span><span class="p">[</span><span class="s2">&quot;MinimizationDataStdout&quot;</span><span class="p">]:</span>
+  163             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span>
+  164                 <span class="s2">&quot;Adding data stdout minimization reporter (Steps: </span><span class="si">%s</span><span class="s2">)...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">OutputParams</span><span class="p">[</span><span class="s2">&quot;MinimizationDataSteps&quot;</span><span class="p">])</span>
+  165             <span class="p">)</span>
+  166     <span class="k">else</span><span class="p">:</span>
+  167         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Skipping addition of minimization reporters...&quot;</span><span class="p">)</span>
+  168 
+  169     <span class="n">MaxSteps</span> <span class="o">=</span> <span class="n">SimulationParams</span><span class="p">[</span><span class="s2">&quot;MinimizationMaxSteps&quot;</span><span class="p">]</span>
+  170 
+  171     <span class="n">MaxStepsMsg</span> <span class="o">=</span> <span class="s2">&quot;MaxSteps: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s2">&quot;UntilConverged&quot;</span> <span class="k">if</span> <span class="n">MaxSteps</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">MaxSteps</span><span class="p">)</span>
+  172     <span class="n">ToleranceMsg</span> <span class="o">=</span> <span class="s2">&quot;Tolerance: </span><span class="si">%.2f</span><span class="s2"> kcal/mol/A (</span><span class="si">%.2f</span><span class="s2"> kjoules/mol/nm)&quot;</span> <span class="o">%</span> <span class="p">(</span>
+  173         <span class="n">SimulationParams</span><span class="p">[</span><span class="s2">&quot;MinimizationToleranceInKcal&quot;</span><span class="p">],</span>
+  174         <span class="n">SimulationParams</span><span class="p">[</span><span class="s2">&quot;MinimizationToleranceInJoules&quot;</span><span class="p">],</span>
+  175     <span class="p">)</span>
+  176 
+  177     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Performing energy minimization (</span><span class="si">%s</span><span class="s2">; </span><span class="si">%s</span><span class="s2">)...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">MaxStepsMsg</span><span class="p">,</span> <span class="n">ToleranceMsg</span><span class="p">))</span>
+  178 
+  179     <span class="k">if</span> <span class="n">OutputParams</span><span class="p">[</span><span class="s2">&quot;MinimizationDataStdout&quot;</span><span class="p">]:</span>
+  180         <span class="n">HeaderLine</span> <span class="o">=</span> <span class="n">SetupMinimizationDataOutHeaderLine</span><span class="p">()</span>
+  181         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">HeaderLine</span><span class="p">)</span>
+  182 
+  183     <span class="n">Simulation</span><span class="o">.</span><span class="n">minimizeEnergy</span><span class="p">(</span>
+  184         <span class="n">tolerance</span><span class="o">=</span><span class="n">SimulationParams</span><span class="p">[</span><span class="s2">&quot;MinimizationTolerance&quot;</span><span class="p">],</span> <span class="n">maxIterations</span><span class="o">=</span><span class="n">MaxSteps</span><span class="p">,</span> <span class="n">reporter</span><span class="o">=</span><span class="n">MinimizeReporter</span>
+  185     <span class="p">)</span>
+  186 
+  187     <span class="k">if</span> <span class="n">OutputParams</span><span class="p">[</span><span class="s2">&quot;MinimizationDataLog&quot;</span><span class="p">]:</span>
+  188         <span class="n">WriteMinimizationDataLogFile</span><span class="p">(</span><span class="n">MinimizeReporter</span><span class="o">.</span><span class="n">DataOutValues</span><span class="p">)</span>
+  189 
+  190     <span class="c1"># Write out minimized structure...</span>
+  191     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Writing PDB file </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MinimizedPDBOutfile&quot;</span><span class="p">])</span>
+  192     <span class="n">OpenMMUtil</span><span class="o">.</span><span class="n">WriteSimulationStatePDBFile</span><span class="p">(</span>
+  193         <span class="n">Simulation</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MinimizedPDBOutfile&quot;</span><span class="p">],</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutputParams&quot;</span><span class="p">][</span><span class="s2">&quot;PDBOutKeepIDs&quot;</span><span class="p">]</span>
+  194     <span class="p">)</span>
+  195 
+  196 
+  197 <span class="k">class</span> <span class="nc">LocalMinimizationReporter</span><span class="p">(</span><span class="n">mm</span><span class="o">.</span><span class="n">MinimizationReporter</span><span class="p">):</span>
+  198     <span class="sd">&quot;&quot;&quot;Setup a local minimization reporter.&quot;&quot;&quot;</span>
+  199 
+  200     <span class="p">(</span><span class="n">DataSteps</span><span class="p">,</span> <span class="n">DataOutTypeList</span><span class="p">,</span> <span class="n">DataOutDelimiter</span><span class="p">,</span> <span class="n">StdoutStatus</span><span class="p">)</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span>
+  201 
+  202     <span class="n">DataOutValues</span> <span class="o">=</span> <span class="p">[]</span>
+  203     <span class="n">First</span> <span class="o">=</span> <span class="kc">True</span>
+  204 
+  205     <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Iteration</span><span class="p">,</span> <span class="n">PositonsList</span><span class="p">,</span> <span class="n">GradientsList</span><span class="p">,</span> <span class="n">DataStatisticsMap</span><span class="p">):</span>
+  206         <span class="sd">&quot;&quot;&quot;Report and track minimization.&quot;&quot;&quot;</span>
+  207 
+  208         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">First</span><span class="p">:</span>
+  209             <span class="c1"># Initialize...</span>
+  210             <span class="bp">self</span><span class="o">.</span><span class="n">DataSteps</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutputParams&quot;</span><span class="p">][</span><span class="s2">&quot;MinimizationDataSteps&quot;</span><span class="p">]</span>
+  211             <span class="bp">self</span><span class="o">.</span><span class="n">DataOutTypeList</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutputParams&quot;</span><span class="p">][</span><span class="s2">&quot;MinimizationDataOutTypeOpenMMNameList&quot;</span><span class="p">]</span>
+  212             <span class="bp">self</span><span class="o">.</span><span class="n">DataOutDelimiter</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutputParams&quot;</span><span class="p">][</span><span class="s2">&quot;DataOutDelimiter&quot;</span><span class="p">]</span>
+  213             <span class="bp">self</span><span class="o">.</span><span class="n">StdoutStatus</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutputParams&quot;</span><span class="p">][</span><span class="s2">&quot;MinimizationDataStdout&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="kc">False</span>
+  214 
+  215             <span class="bp">self</span><span class="o">.</span><span class="n">First</span> <span class="o">=</span> <span class="kc">False</span>
+  216 
+  217         <span class="k">if</span> <span class="n">Iteration</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">DataSteps</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+  218             <span class="c1"># Setup data values...</span>
+  219             <span class="n">DataValues</span> <span class="o">=</span> <span class="p">[]</span>
+  220             <span class="n">DataValues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">Iteration</span><span class="p">)</span>
+  221             <span class="k">for</span> <span class="n">DataType</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">DataOutTypeList</span><span class="p">:</span>
+  222                 <span class="n">DataValue</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%.4f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">DataStatisticsMap</span><span class="p">[</span><span class="n">DataType</span><span class="p">]</span>
+  223                 <span class="n">DataValues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">DataValue</span><span class="p">)</span>
+  224 
+  225             <span class="c1"># Track data...</span>
+  226             <span class="bp">self</span><span class="o">.</span><span class="n">DataOutValues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">DataValues</span><span class="p">)</span>
+  227 
+  228             <span class="c1"># Print data values...</span>
+  229             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">StdoutStatus</span><span class="p">:</span>
+  230                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">DataOutDelimiter</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DataValues</span><span class="p">))</span>
+  231 
+  232         <span class="c1"># This method must return a bool. You may return true for early termination.</span>
+  233         <span class="k">return</span> <span class="kc">False</span>
+  234 
+  235 
+  236 <span class="k">def</span> <span class="nf">WriteMinimizationDataLogFile</span><span class="p">(</span><span class="n">DataOutValues</span><span class="p">):</span>
+  237     <span class="sd">&quot;&quot;&quot;Write minimization data log file.&quot;&quot;&quot;</span>
+  238 
+  239     <span class="n">OutputParams</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutputParams&quot;</span><span class="p">]</span>
+  240 
+  241     <span class="n">Outfile</span> <span class="o">=</span> <span class="n">OutputParams</span><span class="p">[</span><span class="s2">&quot;MinimizationDataLogFile&quot;</span><span class="p">]</span>
+  242     <span class="n">OutDelimiter</span> <span class="o">=</span> <span class="n">OutputParams</span><span class="p">[</span><span class="s2">&quot;DataOutDelimiter&quot;</span><span class="p">]</span>
+  243 
+  244     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Writing minimization log file </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="n">Outfile</span><span class="p">)</span>
+  245     <span class="n">OutFH</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">Outfile</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+  246 
+  247     <span class="n">HeaderLine</span> <span class="o">=</span> <span class="n">SetupMinimizationDataOutHeaderLine</span><span class="p">()</span>
+  248     <span class="n">OutFH</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">HeaderLine</span><span class="p">)</span>
+  249 
+  250     <span class="k">for</span> <span class="n">LineWords</span> <span class="ow">in</span> <span class="n">DataOutValues</span><span class="p">:</span>
+  251         <span class="n">Line</span> <span class="o">=</span> <span class="n">OutDelimiter</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">LineWords</span><span class="p">)</span>
+  252         <span class="n">OutFH</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">Line</span><span class="p">)</span>
+  253 
+  254     <span class="n">OutFH</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+  255 
+  256 
+  257 <span class="k">def</span> <span class="nf">SetupMinimizationDataOutHeaderLine</span><span class="p">():</span>
+  258     <span class="sd">&quot;&quot;&quot;Setup minimization data output header line.&quot;&quot;&quot;</span>
+  259 
+  260     <span class="n">LineWords</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Iteration&quot;</span><span class="p">]</span>
+  261     <span class="k">for</span> <span class="n">Label</span> <span class="ow">in</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutputParams&quot;</span><span class="p">][</span><span class="s2">&quot;MinimizationDataOutTypeList&quot;</span><span class="p">]:</span>
+  262         <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^(SystemEnergy|RestraintEnergy)$&quot;</span><span class="p">,</span> <span class="n">Label</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  263             <span class="n">LineWords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">(kjoules/mol)&quot;</span> <span class="o">%</span> <span class="n">Label</span><span class="p">)</span>
+  264         <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^RestraintStrength$&quot;</span><span class="p">,</span> <span class="n">Label</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  265             <span class="n">LineWords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">(kjoules/mol/nm^2)&quot;</span> <span class="o">%</span> <span class="n">Label</span><span class="p">)</span>
+  266         <span class="k">else</span><span class="p">:</span>
+  267             <span class="n">LineWords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Label</span><span class="p">)</span>
+  268 
+  269     <span class="n">Line</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutputParams&quot;</span><span class="p">][</span><span class="s2">&quot;DataOutDelimiter&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">LineWords</span><span class="p">)</span>
+  270 
+  271     <span class="k">return</span> <span class="n">Line</span>
+  272 
+  273 
+  274 <span class="k">def</span> <span class="nf">FreezeRestraintAtoms</span><span class="p">(</span><span class="n">System</span><span class="p">,</span> <span class="n">Topology</span><span class="p">,</span> <span class="n">Positions</span><span class="p">):</span>
+  275     <span class="sd">&quot;&quot;&quot;Handle freezing and restraining of atoms.&quot;&quot;&quot;</span>
+  276 
+  277     <span class="n">FreezeAtomList</span><span class="p">,</span> <span class="n">RestraintAtomList</span> <span class="o">=</span> <span class="n">OpenMMUtil</span><span class="o">.</span><span class="n">ValidateAndFreezeRestraintAtoms</span><span class="p">(</span>
+  278         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;FreezeAtoms&quot;</span><span class="p">],</span>
+  279         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;FreezeAtomsParams&quot;</span><span class="p">],</span>
+  280         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RestraintAtoms&quot;</span><span class="p">],</span>
+  281         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RestraintAtomsParams&quot;</span><span class="p">],</span>
+  282         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RestraintSpringConstant&quot;</span><span class="p">],</span>
+  283         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;SystemParams&quot;</span><span class="p">],</span>
+  284         <span class="n">System</span><span class="p">,</span>
+  285         <span class="n">Topology</span><span class="p">,</span>
+  286         <span class="n">Positions</span><span class="p">,</span>
+  287     <span class="p">)</span>
+  288 
+  289 
+  290 <span class="k">def</span> <span class="nf">ProcessOutfilePrefixParameter</span><span class="p">():</span>
+  291     <span class="sd">&quot;&quot;&quot;Process outfile prefix paramater.&quot;&quot;&quot;</span>
+  292 
+  293     <span class="n">OutfilePrefix</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfilePrefix&quot;</span><span class="p">]</span>
+  294 
+  295     <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^auto$&quot;</span><span class="p">,</span> <span class="n">OutfilePrefix</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  296         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutfilePrefix&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OutfilePrefix</span>
+  297         <span class="k">return</span>
+  298 
+  299     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;SmallMolFileMode&quot;</span><span class="p">]:</span>
+  300         <span class="n">OutfilePrefix</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">_Complex&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfileRoot&quot;</span><span class="p">],</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;SmallMolFileRoot&quot;</span><span class="p">])</span>
+  301     <span class="k">else</span><span class="p">:</span>
+  302         <span class="n">OutfilePrefix</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfileRoot&quot;</span><span class="p">])</span>
+  303 
+  304     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^yes$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--waterBox&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  305         <span class="n">OutfilePrefix</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_Solvated&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">OutfilePrefix</span><span class="p">)</span>
+  306 
+  307     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutfilePrefix&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OutfilePrefix</span>
+  308 
+  309 
+  310 <span class="k">def</span> <span class="nf">ProcessOutfileNames</span><span class="p">():</span>
+  311     <span class="sd">&quot;&quot;&quot;Process outfile names.&quot;&quot;&quot;</span>
+  312 
+  313     <span class="n">OutputParams</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutputParams&quot;</span><span class="p">]</span>
+  314 
+  315     <span class="n">OutfileParamName</span> <span class="o">=</span> <span class="s2">&quot;MinimizationDataLogFile&quot;</span>
+  316     <span class="n">OutfileParamValue</span> <span class="o">=</span> <span class="n">OutputParams</span><span class="p">[</span><span class="n">OutfileParamName</span><span class="p">]</span>
+  317     <span class="k">if</span> <span class="ow">not</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--overwrite&quot;</span><span class="p">]:</span>
+  318         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">OutfileParamValue</span><span class="p">):</span>
+  319             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+  320                 <span class="s1">&#39;The file specified, </span><span class="si">%s</span><span class="s1">, for parameter name, </span><span class="si">%s</span><span class="s1">, using option &quot;--outfileParams&quot; already exist. Use option &quot;--ov&quot; or &quot;--overwrite&quot; and try again. &#39;</span>
+  321                 <span class="o">%</span> <span class="p">(</span><span class="n">OutfileParamValue</span><span class="p">,</span> <span class="n">OutfileParamName</span><span class="p">)</span>
+  322             <span class="p">)</span>
+  323 
+  324     <span class="n">InitialPDBOutfile</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_Initial.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutfilePrefix&quot;</span><span class="p">],</span> <span class="n">OutputParams</span><span class="p">[</span><span class="s2">&quot;PDBOutfileExt&quot;</span><span class="p">])</span>
+  325     <span class="n">MinimizedPDBOutfile</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_Minimized.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutfilePrefix&quot;</span><span class="p">],</span> <span class="n">OutputParams</span><span class="p">[</span><span class="s2">&quot;PDBOutfileExt&quot;</span><span class="p">])</span>
+  326     <span class="k">for</span> <span class="n">Outfile</span> <span class="ow">in</span> <span class="p">[</span><span class="n">InitialPDBOutfile</span><span class="p">,</span> <span class="n">MinimizedPDBOutfile</span><span class="p">]:</span>
+  327         <span class="k">if</span> <span class="ow">not</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--overwrite&quot;</span><span class="p">]:</span>
+  328             <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">Outfile</span><span class="p">):</span>
+  329                 <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+  330                     <span class="s1">&#39;The file name, </span><span class="si">%s</span><span class="s1">, generated using option &quot;--outfilePrefix&quot; already exist. Use option &quot;--ov&quot; or &quot;--overwrite&quot; and try again. &#39;</span>
+  331                     <span class="o">%</span> <span class="p">(</span><span class="n">Outfile</span><span class="p">)</span>
+  332                 <span class="p">)</span>
+  333     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InitialPDBOutfile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">InitialPDBOutfile</span>
+  334     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MinimizedPDBOutfile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">MinimizedPDBOutfile</span>
+  335 
+  336 
+  337 <span class="k">def</span> <span class="nf">ProcessWaterBoxParameters</span><span class="p">():</span>
+  338     <span class="sd">&quot;&quot;&quot;Process water box parameters.&quot;&quot;&quot;</span>
+  339 
+  340     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;WaterBox&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^yes$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--waterBox&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+  341     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;WaterBoxParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OpenMMUtil</span><span class="o">.</span><span class="n">ProcessOptionOpenMMWaterBoxParameters</span><span class="p">(</span>
+  342         <span class="s2">&quot;--waterBoxParams&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--waterBoxParams&quot;</span><span class="p">]</span>
+  343     <span class="p">)</span>
+  344 
+  345     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;WaterBox&quot;</span><span class="p">]:</span>
+  346         <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ForcefieldParams&quot;</span><span class="p">][</span><span class="s2">&quot;ImplicitWater&quot;</span><span class="p">]:</span>
+  347             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+  348             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintWarning</span><span class="p">(</span>
+  349                 <span class="s1">&#39;The value, </span><span class="si">%s</span><span class="s1">, specified using option &quot;--waterBox&quot; may not be valid for the combination of biopolymer and water forcefields, </span><span class="si">%s</span><span class="s1"> and </span><span class="si">%s</span><span class="s1">, specified using &quot;--forcefieldParams&quot;. You may consider using a valid combination of biopolymer and water forcefields for explicit water during the addition of a water box.&#39;</span>
+  350                 <span class="o">%</span> <span class="p">(</span>
+  351                     <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--waterBox&quot;</span><span class="p">],</span>
+  352                     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ForcefieldParams&quot;</span><span class="p">][</span><span class="s2">&quot;Biopolymer&quot;</span><span class="p">],</span>
+  353                     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ForcefieldParams&quot;</span><span class="p">][</span><span class="s2">&quot;Water&quot;</span><span class="p">],</span>
+  354                 <span class="p">)</span>
+  355             <span class="p">)</span>
+  356 
+  357 
+  358 <span class="k">def</span> <span class="nf">ProcessOptions</span><span class="p">():</span>
+  359     <span class="sd">&quot;&quot;&quot;Process and validate command line arguments and options.&quot;&quot;&quot;</span>
+  360 
+  361     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Processing options...&quot;</span><span class="p">)</span>
+  362 
+  363     <span class="n">ValidateOptions</span><span class="p">()</span>
+  364 
+  365     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Infile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">]</span>
+  366     <span class="n">FileDir</span><span class="p">,</span> <span class="n">FileName</span><span class="p">,</span> <span class="n">FileExt</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ParseFileName</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Infile&quot;</span><span class="p">])</span>
+  367     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfileRoot&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">FileName</span>
+  368 
+  369     <span class="n">SmallMolFile</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--smallMolFile&quot;</span><span class="p">]</span>
+  370     <span class="n">SmallMolID</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--smallMolID&quot;</span><span class="p">]</span>
+  371     <span class="n">SmallMolFileMode</span> <span class="o">=</span> <span class="kc">False</span>
+  372     <span class="n">SmallMolFileRoot</span> <span class="o">=</span> <span class="kc">None</span>
+  373     <span class="k">if</span> <span class="n">SmallMolFile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+  374         <span class="n">FileDir</span><span class="p">,</span> <span class="n">FileName</span><span class="p">,</span> <span class="n">FileExt</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ParseFileName</span><span class="p">(</span><span class="n">SmallMolFile</span><span class="p">)</span>
+  375         <span class="n">SmallMolFileRoot</span> <span class="o">=</span> <span class="n">FileName</span>
+  376         <span class="n">SmallMolFileMode</span> <span class="o">=</span> <span class="kc">True</span>
+  377 
+  378     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;SmallMolFile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SmallMolFile</span>
+  379     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;SmallMolFileRoot&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SmallMolFileRoot</span>
+  380     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;SmallMolFileMode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SmallMolFileMode</span>
+  381     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;SmallMolID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SmallMolID</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+  382 
+  383     <span class="n">ProcessOutfilePrefixParameter</span><span class="p">()</span>
+  384 
+  385     <span class="n">ParamsDefaultInfoOverride</span> <span class="o">=</span> <span class="p">{</span>
+  386         <span class="s2">&quot;MinimizationDataSteps&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+  387         <span class="s2">&quot;MinimizationDataStdout&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+  388         <span class="s2">&quot;MinimizationDataLog&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+  389     <span class="p">}</span>
+  390     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutputParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OpenMMUtil</span><span class="o">.</span><span class="n">ProcessOptionOpenMMOutputParameters</span><span class="p">(</span>
+  391         <span class="s2">&quot;--outputParams&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outputParams&quot;</span><span class="p">],</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutfilePrefix&quot;</span><span class="p">],</span> <span class="n">ParamsDefaultInfoOverride</span>
+  392     <span class="p">)</span>
+  393     <span class="n">ProcessOutfileNames</span><span class="p">()</span>
+  394 
+  395     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ForcefieldParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OpenMMUtil</span><span class="o">.</span><span class="n">ProcessOptionOpenMMForcefieldParameters</span><span class="p">(</span>
+  396         <span class="s2">&quot;--forcefieldParams&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--forcefieldParams&quot;</span><span class="p">]</span>
+  397     <span class="p">)</span>
+  398 
+  399     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;FreezeAtoms&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^yes$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--freezeAtoms&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+  400     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;FreezeAtoms&quot;</span><span class="p">]:</span>
+  401         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;FreezeAtomsParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OpenMMUtil</span><span class="o">.</span><span class="n">ProcessOptionOpenMMAtomsSelectionParameters</span><span class="p">(</span>
+  402             <span class="s2">&quot;--freezeAtomsParams&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--freezeAtomsParams&quot;</span><span class="p">]</span>
+  403         <span class="p">)</span>
+  404     <span class="k">else</span><span class="p">:</span>
+  405         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;FreezeAtomsParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+  406 
+  407     <span class="n">ParamsDefaultInfoOverride</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Name&quot;</span><span class="p">:</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--platform&quot;</span><span class="p">],</span> <span class="s2">&quot;Threads&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+  408     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;PlatformParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OpenMMUtil</span><span class="o">.</span><span class="n">ProcessOptionOpenMMPlatformParameters</span><span class="p">(</span>
+  409         <span class="s2">&quot;--platformParams&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--platformParams&quot;</span><span class="p">],</span> <span class="n">ParamsDefaultInfoOverride</span>
+  410     <span class="p">)</span>
+  411 
+  412     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RestraintAtoms&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^yes$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--restraintAtoms&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+  413     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RestraintAtoms&quot;</span><span class="p">]:</span>
+  414         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RestraintAtomsParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OpenMMUtil</span><span class="o">.</span><span class="n">ProcessOptionOpenMMAtomsSelectionParameters</span><span class="p">(</span>
+  415             <span class="s2">&quot;--restraintAtomsParams&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--restraintAtomsParams&quot;</span><span class="p">]</span>
+  416         <span class="p">)</span>
+  417     <span class="k">else</span><span class="p">:</span>
+  418         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RestraintAtomsParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+  419     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RestraintSpringConstant&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--restraintSpringConstant&quot;</span><span class="p">])</span>
+  420 
+  421     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;SystemParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OpenMMUtil</span><span class="o">.</span><span class="n">ProcessOptionOpenMMSystemParameters</span><span class="p">(</span>
+  422         <span class="s2">&quot;--systemParams&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--systemParams&quot;</span><span class="p">]</span>
+  423     <span class="p">)</span>
+  424 
+  425     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;IntegratorParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OpenMMUtil</span><span class="o">.</span><span class="n">ProcessOptionOpenMMIntegratorParameters</span><span class="p">(</span>
+  426         <span class="s2">&quot;--integratorParams&quot;</span><span class="p">,</span>
+  427         <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--integratorParams&quot;</span><span class="p">],</span>
+  428         <span class="n">HydrogenMassRepartioningStatus</span><span class="o">=</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;SystemParams&quot;</span><span class="p">][</span><span class="s2">&quot;HydrogenMassRepartioning&quot;</span><span class="p">],</span>
+  429     <span class="p">)</span>
+  430 
+  431     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;SimulationParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OpenMMUtil</span><span class="o">.</span><span class="n">ProcessOptionOpenMMSimulationParameters</span><span class="p">(</span>
+  432         <span class="s2">&quot;--simulationParams&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--simulationParams&quot;</span><span class="p">]</span>
+  433     <span class="p">)</span>
+  434 
+  435     <span class="n">ProcessWaterBoxParameters</span><span class="p">()</span>
+  436 
+  437     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Overwrite&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--overwrite&quot;</span><span class="p">]</span>
+  438 
+  439 
+  440 <span class="k">def</span> <span class="nf">RetrieveOptions</span><span class="p">():</span>
+  441     <span class="sd">&quot;&quot;&quot;Retrieve command line arguments and options.&quot;&quot;&quot;</span>
+  442 
+  443     <span class="c1"># Get options...</span>
+  444     <span class="k">global</span> <span class="n">Options</span>
+  445     <span class="n">Options</span> <span class="o">=</span> <span class="n">docopt</span><span class="p">(</span><span class="n">_docoptUsage_</span><span class="p">)</span>
+  446 
+  447     <span class="c1"># Set current working directory to the specified directory...</span>
+  448     <span class="n">WorkingDir</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--workingdir&quot;</span><span class="p">]</span>
+  449     <span class="k">if</span> <span class="n">WorkingDir</span><span class="p">:</span>
+  450         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">WorkingDir</span><span class="p">)</span>
+  451 
+  452     <span class="c1"># Handle examples option...</span>
+  453     <span class="k">if</span> <span class="s2">&quot;--examples&quot;</span> <span class="ow">in</span> <span class="n">Options</span> <span class="ow">and</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--examples&quot;</span><span class="p">]:</span>
+  454         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetExamplesTextFromDocOptText</span><span class="p">(</span><span class="n">_docoptUsage_</span><span class="p">))</span>
+  455         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+  456 
+  457 
+  458 <span class="k">def</span> <span class="nf">ValidateOptions</span><span class="p">():</span>
+  459     <span class="sd">&quot;&quot;&quot;Validate option values.&quot;&quot;&quot;</span>
+  460 
+  461     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFilePath</span><span class="p">(</span><span class="s2">&quot;-i, --infile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">])</span>
+  462     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFileExt</span><span class="p">(</span><span class="s2">&quot;-i, --infile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">],</span> <span class="s2">&quot;pdb cif&quot;</span><span class="p">)</span>
+  463 
+  464     <span class="n">FileDir</span><span class="p">,</span> <span class="n">FileName</span><span class="p">,</span> <span class="n">FileExt</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ParseFileName</span><span class="p">(</span><span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">])</span>
+  465     <span class="n">OutfilePrefix</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfilePrefix&quot;</span><span class="p">]</span>
+  466     <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^auto$&quot;</span><span class="p">,</span> <span class="n">OutfilePrefix</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  467         <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^(</span><span class="si">%s</span><span class="s2">)$&quot;</span> <span class="o">%</span> <span class="n">OutfilePrefix</span><span class="p">,</span> <span class="n">FileName</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  468             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+  469                 <span class="s1">&#39;The value specified, </span><span class="si">%s</span><span class="s1">, for option &quot;--outfilePrefix&quot; is not valid. You must specify a value different from, </span><span class="si">%s</span><span class="s1">, the root of infile name.&#39;</span>
+  470                 <span class="o">%</span> <span class="p">(</span><span class="n">OutfilePrefix</span><span class="p">,</span> <span class="n">FileName</span><span class="p">)</span>
+  471             <span class="p">)</span>
+  472 
+  473     <span class="k">if</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--smallMolFile&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+  474         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFilePath</span><span class="p">(</span><span class="s2">&quot;-l, --smallMolFile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--smallMolFile&quot;</span><span class="p">])</span>
+  475         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFileExt</span><span class="p">(</span><span class="s2">&quot;-l, --smallMolFile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--smallMolFile&quot;</span><span class="p">],</span> <span class="s2">&quot;sd sdf&quot;</span><span class="p">)</span>
+  476 
+  477     <span class="n">SmallMolID</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--smallMolID&quot;</span><span class="p">]</span>
+  478     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">SmallMolID</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+  479         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+  480             <span class="s1">&#39;The value specified, </span><span class="si">%s</span><span class="s1">, for option &quot;--smallMolID&quot; is not valid. You must specify a three letter small molecule ID.&#39;</span>
+  481             <span class="o">%</span> <span class="p">(</span><span class="n">SmallMolID</span><span class="p">)</span>
+  482         <span class="p">)</span>
+  483 
+  484     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--freezeAtoms&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--freezeAtoms&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no&quot;</span><span class="p">)</span>
+  485     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^yes$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--freezeAtoms&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  486         <span class="k">if</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--freezeAtomsParams&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  487             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+  488                 <span class="s1">&#39;No value specified for option &quot;--freezeAtomsParams&quot;. You must specify valid values during, yes, value for &quot;--freezeAtoms&quot; option.&#39;</span>
+  489             <span class="p">)</span>
+  490 
+  491     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;-p, --platform&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--platform&quot;</span><span class="p">],</span> <span class="s2">&quot;CPU CUDA OpenCL Reference&quot;</span><span class="p">)</span>
+  492 
+  493     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--restraintAtoms&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--restraintAtoms&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no&quot;</span><span class="p">)</span>
+  494     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^yes$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--restraintAtoms&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  495         <span class="k">if</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--restraintAtomsParams&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  496             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+  497                 <span class="s1">&#39;No value specified for option &quot;--restraintAtomsParams&quot;. You must specify valid values during, yes, value for &quot;--restraintAtoms&quot; option.&#39;</span>
+  498             <span class="p">)</span>
+  499 
+  500     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFloatValue</span><span class="p">(</span><span class="s2">&quot;--restraintSpringConstant&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--restraintSpringConstant&quot;</span><span class="p">],</span> <span class="p">{</span><span class="s2">&quot;&gt;&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+  501 
+  502     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--waterBox&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--waterBox&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no&quot;</span><span class="p">)</span>
+  503 
+  504 
+  505 <span class="c1"># Setup a usage string for docopt...</span>
+  506 <span class="n">_docoptUsage_</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+  507 <span class="s2">OpenMMPerformMinimization.py - Perform an energy minimization</span>
+  508 
+  509 <span class="s2">Usage:</span>
+  510 <span class="s2">    OpenMMPerformMinimization.py [--forcefieldParams &lt;Name,Value,..&gt;] [--freezeAtoms &lt;yes or no&gt;]</span>
+  511 <span class="s2">                                 [--freezeAtomsParams &lt;Name,Value,..&gt;] [--integratorParams &lt;Name,Value,..&gt;]</span>
+  512 <span class="s2">                                 [--outputParams &lt;Name,Value,..&gt;] [--outfilePrefix &lt;text&gt;]</span>
+  513 <span class="s2">                                 [--overwrite] [--platform &lt;text&gt;] [--platformParams &lt;Name,Value,..&gt;]</span>
+  514 <span class="s2">                                 [--restraintAtoms &lt;yes or no&gt;]</span>
+  515 <span class="s2">                                 [--restraintAtomsParams &lt;Name,Value,..&gt;] [--restraintSpringConstant &lt;number&gt;]</span>
+  516 <span class="s2">                                 [--simulationParams &lt;Name,Value,..&gt;] [--smallMolFile &lt;SmallMolFile&gt;] [--smallMolID &lt;text&gt;]</span>
+  517 <span class="s2">                                 [--systemParams &lt;Name,Value,..&gt;] [--waterBox &lt;yes or no&gt;]</span>
+  518 <span class="s2">                                 [--waterBoxParams &lt;Name,Value,..&gt;] [-w &lt;dir&gt;] -i &lt;infile&gt;</span>
+  519 <span class="s2">    OpenMMPerformMinimization.py -h | --help | -e | --examples</span>
+  520 
+  521 <span class="s2">Description:</span>
+  522 <span class="s2">    Perform energy minimization for a macromolecule or a macromolecule in a</span>
+  523 <span class="s2">    complex with small molecule. You may optionally add a water box and</span>
+  524 <span class="s2">    freeze/restraint atoms to your system before minimization.</span>
+  525 
+  526 <span class="s2">    The input file must contain a macromolecule already prepared for simulation.</span>
+  527 <span class="s2">    The preparation of the macromolecule for a simulation generally involves the</span>
+  528 <span class="s2">    following: identification and replacement non-standard residues; addition of</span>
+  529 <span class="s2">    missing residues; addition of missing heavy atoms; addition of missing</span>
+  530 <span class="s2">    hydrogens; addition of a water box which is optional.</span>
+  531 
+  532 <span class="s2">    In addition, the small molecule input file must contain a molecule already</span>
+  533 <span class="s2">    prepared for simulation. It must contain  appropriate 3D coordinates relative</span>
+  534 <span class="s2">    to the macromolecule along with no missing hydrogens.</span>
+  535 
+  536 <span class="s2">    The supported macromolecule input file formats are:  PDB (.pdb) and</span>
+  537 <span class="s2">    CIF (.cif)</span>
+  538 
+  539 <span class="s2">    The supported small molecule input file format are : SD (.sdf, .sd)</span>
+  540 
+  541 <span class="s2">    Possible outfile prefixes:</span>
+  542 <span class="s2">         </span>
+  543 <span class="s2">        &lt;InfileRoot&gt;</span>
+  544 <span class="s2">        &lt;InfileRoot&gt;_Solvated</span>
+  545 <span class="s2">        &lt;InfileRoot&gt;_&lt;SmallMolFileRoot&gt;_Complex</span>
+  546 <span class="s2">        &lt;InfileRoot&gt;_&lt;SmallMolFileRoot&gt;_Complex_Solvated</span>
+  547 <span class="s2">         </span>
+  548 <span class="s2">    Possible output files:</span>
+  549 <span class="s2">         </span>
+  550 <span class="s2">        &lt;OutfilePrefix&gt;_Initial.&lt;pdb or cif&gt;</span>
+  551 <span class="s2">        &lt;OutfilePrefix&gt;_Minimized.&lt;pdb or cif&gt;</span>
+  552 <span class="s2">        &lt;OutfilePrefix&gt;_Minimization.csv</span>
+  553 <span class="s2">         </span>
+  554 <span class="s2">Options:</span>
+  555 <span class="s2">    -e, --examples</span>
+  556 <span class="s2">        Print examples.</span>
+  557 <span class="s2">    -f, --forcefieldParams &lt;Name,Value,..&gt;  [default: auto]</span>
+  558 <span class="s2">        A comma delimited list of parameter name and value pairs for biopolymer,</span>
+  559 <span class="s2">        water, and small molecule forcefields.</span>
+  560 <span class="s2">        </span>
+  561 <span class="s2">        The supported parameter names along with their default values are</span>
+  562 <span class="s2">        are shown below:</span>
+  563 <span class="s2">            </span>
+  564 <span class="s2">            biopolymer, amber14-all.xml  [ Possible values: Any Valid value ]</span>
+  565 <span class="s2">            smallMolecule, openff-2.2.1  [ Possible values: Any Valid value ]</span>
+  566 <span class="s2">            water, auto  [ Possible values: Any Valid value ]</span>
+  567 <span class="s2">            additional, none [ Possible values: Space delimited list of any</span>
+  568 <span class="s2">                valid value ]</span>
+  569 <span class="s2">            </span>
+  570 <span class="s2">        Possible biopolymer forcefield values:</span>
+  571 <span class="s2">            </span>
+  572 <span class="s2">            amber14-all.xml, amber99sb.xml, amber99sbildn.xml, amber03.xml,</span>
+  573 <span class="s2">            amber10.xml</span>
+  574 <span class="s2">            charmm36.xml, charmm_polar_2019.xml</span>
+  575 <span class="s2">            amoeba2018.xml</span>
+  576 <span class="s2">        </span>
+  577 <span class="s2">        Possible small molecule forcefield values:</span>
+  578 <span class="s2">            </span>
+  579 <span class="s2">            openff-2.2.1, openff-2.0.0, openff-1.3.1, openff-1.2.1,</span>
+  580 <span class="s2">            openff-1.1.1, openff-1.1.0,...</span>
+  581 <span class="s2">            smirnoff99Frosst-1.1.0, smirnoff99Frosst-1.0.9,...</span>
+  582 <span class="s2">            gaff-2.11, gaff-2.1, gaff-1.81, gaff-1.8, gaff-1.4,...</span>
+  583 <span class="s2">        </span>
+  584 <span class="s2">        The default water forcefield valus is dependent on the type of the</span>
+  585 <span class="s2">        biopolymer forcefield as shown below:</span>
+  586 <span class="s2">            </span>
+  587 <span class="s2">            Amber: amber14/tip3pfb.xml</span>
+  588 <span class="s2">            CHARMM: charmm36/water.xml or None for charmm_polar_2019.xml</span>
+  589 <span class="s2">            Amoeba: None (Explicit)</span>
+  590 <span class="s2">            </span>
+  591 <span class="s2">        Possible water forcefield values:</span>
+  592 <span class="s2">            </span>
+  593 <span class="s2">            amber14/tip3p.xml, amber14/tip3pfb.xml, amber14/spce.xml,</span>
+  594 <span class="s2">            amber14/tip4pew.xml, amber14/tip4pfb.xml,</span>
+  595 <span class="s2">            charmm36/water.xml, charmm36/tip3p-pme-b.xml,</span>
+  596 <span class="s2">            charmm36/tip3p-pme-f.xml, charmm36/spce.xml,</span>
+  597 <span class="s2">            charmm36/tip4pew.xml, charmm36/tip4p2005.xml,</span>
+  598 <span class="s2">            charmm36/tip5p.xml, charmm36/tip5pew.xml,</span>
+  599 <span class="s2">            implicit/obc2.xml, implicit/GBn.xml, implicit/GBn2.xml,</span>
+  600 <span class="s2">            amoeba2018_gk.xml (Implict water)</span>
+  601 <span class="s2">            None (Explicit water for amoeba)</span>
+  602 <span class="s2">        </span>
+  603 <span class="s2">        The additional forcefield value is a space delimited list of any valid</span>
+  604 <span class="s2">        forcefield values and is passed on to the OpenMMForcefields</span>
+  605 <span class="s2">        SystemGenerator along with the specified forcefield  values for</span>
+  606 <span class="s2">        biopolymer, water, and mall molecule. Possible additional forcefield</span>
+  607 <span class="s2">        values are:</span>
+  608 <span class="s2">            </span>
+  609 <span class="s2">            amber14/DNA.OL15.xml amber14/RNA.OL3.xml</span>
+  610 <span class="s2">            amber14/lipid17.xml amber14/GLYCAM_06j-1.xml</span>
+  611 <span class="s2">            ... ... ...</span>
+  612 <span class="s2">            </span>
+  613 <span class="s2">        You may specify any valid forcefield names supported by OpenMM. No</span>
+  614 <span class="s2">        explicit validation is performed.</span>
+  615 <span class="s2">    --freezeAtoms &lt;yes or no&gt;  [default: no]</span>
+  616 <span class="s2">        Freeze atoms during energy minimization. The specified atoms are kept</span>
+  617 <span class="s2">        completely fixed by setting their masses to zero. Their positions do not</span>
+  618 <span class="s2">        change during  energy minimization.</span>
+  619 <span class="s2">    --freezeAtomsParams &lt;Name,Value,..&gt;</span>
+  620 <span class="s2">        A comma delimited list of parameter name and value pairs for freezing</span>
+  621 <span class="s2">        atoms during energy minimization. You must specify these parameters for &#39;yes&#39;</span>
+  622 <span class="s2">        value of &#39;--freezeAtoms&#39; option.</span>
+  623 <span class="s2">        </span>
+  624 <span class="s2">        The supported parameter names along with their default values are</span>
+  625 <span class="s2">        are shown below:</span>
+  626 <span class="s2">            </span>
+  627 <span class="s2">            selection, none [ Possible values: CAlphaProtein, Ions, Ligand,</span>
+  628 <span class="s2">                Protein, Residues, or Water ]</span>
+  629 <span class="s2">            selectionSpec, auto [ Possible values: A space delimited list of</span>
+  630 <span class="s2">                residue names ]</span>
+  631 <span class="s2">            negate, no [ Possible values: yes or no ]</span>
+  632 <span class="s2">            </span>
+  633 <span class="s2">        A brief description of parameters is provided below:</span>
+  634 <span class="s2">            </span>
+  635 <span class="s2">            selection: Atom selection to freeze.</span>
+  636 <span class="s2">            selectionSpec: A space delimited list of residue names for</span>
+  637 <span class="s2">                selecting atoms to freeze. You must specify its value during</span>
+  638 <span class="s2">                &#39;Ligand&#39; and &#39;Protein&#39; value for &#39;selection&#39;. The default values</span>
+  639 <span class="s2">                are automatically set for &#39;CAlphaProtein&#39;, &#39;Ions&#39;, &#39;Protein&#39;,</span>
+  640 <span class="s2">                and &#39;Water&#39; values of &#39;selection&#39; as shown below:</span>
+  641 <span class="s2">                </span>
+  642 <span class="s2">                CAlphaProtein: List of stadard protein residues from pdbfixer</span>
+  643 <span class="s2">                    for selecting CAlpha atoms.</span>
+  644 <span class="s2">                Ions: Li Na K Rb Cs Cl Br F I</span>
+  645 <span class="s2">                Water: HOH</span>
+  646 <span class="s2">                Protein: List of standard protein residues from pdbfixer.</span>
+  647 <span class="s2">                </span>
+  648 <span class="s2">            negate: Negate atom selection match to select atoms for freezing.</span>
+  649 <span class="s2">            </span>
+  650 <span class="s2">        In addition, you may specify an explicit space delimited list of residue</span>
+  651 <span class="s2">        names using &#39;selectionSpec&#39; for any &#39;selection&quot;. The specified residue</span>
+  652 <span class="s2">        names are appended to the appropriate default values during the</span>
+  653 <span class="s2">        selection of atoms for freezing.</span>
+  654 <span class="s2">    -h, --help</span>
+  655 <span class="s2">        Print this help message.</span>
+  656 <span class="s2">    -i, --infile &lt;infile&gt;</span>
+  657 <span class="s2">        Input file name containing a macromolecule.</span>
+  658 <span class="s2">    --integratorParams &lt;Name,Value,..&gt;  [default: auto]</span>
+  659 <span class="s2">        A comma delimited list of parameter name and value pairs for integrator</span>
+  660 <span class="s2">        to setup the system for local energy minimization. No MD simulation is</span>
+  661 <span class="s2">        performed.</span>
+  662 <span class="s2">        </span>
+  663 <span class="s2">        The supported parameter names along with their default values are</span>
+  664 <span class="s2">        are shown below:</span>
+  665 <span class="s2">            </span>
+  666 <span class="s2">            temperature, 300.0 [ Units: kelvin ]</span>
+  667 <span class="s2">            </span>
+  668 <span class="s2">    --outfilePrefix &lt;text&gt;  [default: auto]</span>
+  669 <span class="s2">        File prefix for generating the names of output files. The default value</span>
+  670 <span class="s2">        depends on the names of input files for macromolecule and small molecule</span>
+  671 <span class="s2">        along with the type of statistical ensemble and the nature of the solvation.</span>
+  672 <span class="s2">        </span>
+  673 <span class="s2">        The possible values for outfile prefix are shown below:</span>
+  674 <span class="s2">            </span>
+  675 <span class="s2">            &lt;InfileRoot&gt;</span>
+  676 <span class="s2">            &lt;InfileRoot&gt;_Solvated</span>
+  677 <span class="s2">            &lt;InfileRoot&gt;_&lt;SmallMolFileRoot&gt;_Complex</span>
+  678 <span class="s2">            &lt;InfileRoot&gt;_&lt;SmallMolFileRoot&gt;_Complex_Solvated</span>
+  679 <span class="s2">            </span>
+  680 <span class="s2">    --outputParams &lt;Name,Value,..&gt;  [default: auto]</span>
+  681 <span class="s2">        A comma delimited list of parameter name and value pairs for generating</span>
+  682 <span class="s2">       output during energy minimization..</span>
+  683 <span class="s2">        </span>
+  684 <span class="s2">        The supported parameter names along with their default values are</span>
+  685 <span class="s2">        are shown below:</span>
+  686 <span class="s2">            </span>
+  687 <span class="s2">            minimizationDataSteps, 100</span>
+  688 <span class="s2">            minimizationDataStdout, no  [ Possible values: yes or no ]</span>
+  689 <span class="s2">            minimizationDataLog, yes  [ Possible values: yes or no ]</span>
+  690 <span class="s2">            minimizationDataLogFile, auto  [ Default:</span>
+  691 <span class="s2">                &lt;OutfilePrefix&gt;_MinimizationOut.csv ]</span>
+  692 <span class="s2">            minimizationDataOutType, auto [ Possible values: A space delimited</span>
+  693 <span class="s2">                list of valid parameter names.  Default: SystemEnergy</span>
+  694 <span class="s2">                RestraintEnergy MaxConstraintError.</span>
+  695 <span class="s2">                Other valid names: RestraintStrength ]</span>
+  696 <span class="s2">            </span>
+  697 <span class="s2">            pdbOutFormat, PDB  [ Possible values: PDB or CIF ]</span>
+  698 <span class="s2">            pdbOutKeepIDs, yes  [ Possible values: yes or no ]</span>
+  699 <span class="s2">            </span>
+  700 <span class="s2">        A brief description of parameters is provided below:</span>
+  701 <span class="s2">            </span>
+  702 <span class="s2">            minimizationDataSteps: Frequency of writing data to stdout</span>
+  703 <span class="s2">                and log file.</span>
+  704 <span class="s2">            minimizationDataStdout: Write data to stdout.</span>
+  705 <span class="s2">            minimizationDataLog: Write data to log file.</span>
+  706 <span class="s2">            minimizationDataLogFile: Data log fie name.</span>
+  707 <span class="s2">            minimizationDataOutType: Type of data to write to stdout</span>
+  708 <span class="s2">                and log file.</span>
+  709 <span class="s2">            </span>
+  710 <span class="s2">            pdbOutFormat: Format of output PDB files.</span>
+  711 <span class="s2">            pdbOutKeepIDs: Keep existing chain and residue IDs.</span>
+  712 <span class="s2">            </span>
+  713 <span class="s2">    --overwrite</span>
+  714 <span class="s2">        Overwrite existing files.</span>
+  715 <span class="s2">    -p, --platform &lt;text&gt;  [default: CPU]</span>
+  716 <span class="s2">        Platform to use for running MD simulation. Possible values: CPU, CUDA,</span>
+  717 <span class="s2">       OpenCL, or Reference.</span>
+  718 <span class="s2">    --platformParams &lt;Name,Value,..&gt;  [default: auto]</span>
+  719 <span class="s2">        A comma delimited list of parameter name and value pairs to configure</span>
+  720 <span class="s2">        platform for running energy minimization calculations..</span>
+  721 <span class="s2">        </span>
+  722 <span class="s2">        The supported parameter names along with their default values for</span>
+  723 <span class="s2">        different platforms are shown below:</span>
+  724 <span class="s2">            </span>
+  725 <span class="s2">            CPU:</span>
+  726 <span class="s2">            </span>
+  727 <span class="s2">            threads, 1  [ Possible value: &gt;= 0 or auto.  The value of &#39;auto&#39;</span>
+  728 <span class="s2">                or zero implies the use of all available CPUs for threading. ]</span>
+  729 <span class="s2">            </span>
+  730 <span class="s2">            CUDA:</span>
+  731 <span class="s2">            </span>
+  732 <span class="s2">            deviceIndex, auto  [ Possible values: 0, &#39;0 1&#39; etc. ]</span>
+  733 <span class="s2">            deterministicForces, auto [ Possible values: yes or no ]</span>
+  734 <span class="s2">            precision, single  [ Possible values: single, double, or mix ]</span>
+  735 <span class="s2">            tempDirectory, auto [ Possible value: DirName ]</span>
+  736 <span class="s2">            useBlockingSync, auto [ Possible values: yes or no ]</span>
+  737 <span class="s2">            useCpuPme, auto [ Possible values: yes or no ]</span>
+  738 <span class="s2">            </span>
+  739 <span class="s2">            OpenCL:</span>
+  740 <span class="s2">            </span>
+  741 <span class="s2">            deviceIndex, auto  [ Possible values: 0, &#39;0 1&#39; etc. ]</span>
+  742 <span class="s2">            openCLPlatformIndex, auto  [ Possible value: Number]</span>
+  743 <span class="s2">            precision, single  [ Possible values: single, double, or mix ]</span>
+  744 <span class="s2">            useCpuPme, auto [ Possible values: yes or no ]</span>
+  745 <span class="s2">            </span>
+  746 <span class="s2">        A brief description of parameters is provided below:</span>
+  747 <span class="s2">            </span>
+  748 <span class="s2">            CPU:</span>
+  749 <span class="s2">            </span>
+  750 <span class="s2">            threads: Number of threads to use for simulation.</span>
+  751 <span class="s2">            </span>
+  752 <span class="s2">            CUDA:</span>
+  753 <span class="s2">            </span>
+  754 <span class="s2">            deviceIndex: Space delimited list of device indices to use for</span>
+  755 <span class="s2">                calculations.</span>
+  756 <span class="s2">            deterministicForces: Generate reproducible results at the cost of a</span>
+  757 <span class="s2">                small decrease in performance.</span>
+  758 <span class="s2">            precision: Number precision to use for calculations.</span>
+  759 <span class="s2">            tempDirectory: Directory name for storing temporary files.</span>
+  760 <span class="s2">            useBlockingSync: Control run-time synchronization between CPU and</span>
+  761 <span class="s2">                GPU.</span>
+  762 <span class="s2">            useCpuPme: Use CPU-based PME implementation.</span>
+  763 <span class="s2">            </span>
+  764 <span class="s2">            OpenCL:</span>
+  765 <span class="s2">            </span>
+  766 <span class="s2">            deviceIndex: Space delimited list of device indices to use for</span>
+  767 <span class="s2">                simulation.</span>
+  768 <span class="s2">            openCLPlatformIndex: Platform index to use for calculations.</span>
+  769 <span class="s2">            precision: Number precision to use for calculations.</span>
+  770 <span class="s2">            useCpuPme: Use CPU-based PME implementation.</span>
+  771 <span class="s2">            </span>
+  772 <span class="s2">    --restraintAtoms &lt;yes or no&gt;  [default: no]</span>
+  773 <span class="s2">        Restraint atoms during energy minimization. The motion of specified atoms is</span>
+  774 <span class="s2">        restricted by adding a harmonic force that binds them to their starting</span>
+  775 <span class="s2">        positions. The atoms are not completely fixed unlike freezing of atoms.</span>
+  776 <span class="s2">        Their motion, however, is restricted and they are not able to move far away</span>
+  777 <span class="s2">        from their starting positions during energy minimization.</span>
+  778 <span class="s2">    --restraintAtomsParams &lt;Name,Value,..&gt;</span>
+  779 <span class="s2">        A comma delimited list of parameter name and value pairs for restraining</span>
+  780 <span class="s2">        atoms during energy minimization. You must specify these parameters for &#39;yes&#39;</span>
+  781 <span class="s2">        value of &#39;--restraintAtoms&#39; option.</span>
+  782 <span class="s2">        </span>
+  783 <span class="s2">        The supported parameter names along with their default values are</span>
+  784 <span class="s2">        are shown below:</span>
+  785 <span class="s2">            </span>
+  786 <span class="s2">            selection, none [ Possible values: CAlphaProtein, Ions, Ligand,</span>
+  787 <span class="s2">                Protein, Residues, or Water ]</span>
+  788 <span class="s2">            selectionSpec, auto [ Possible values: A space delimited list of</span>
+  789 <span class="s2">                residue names ]</span>
+  790 <span class="s2">            negate, no [ Possible values: yes or no ]</span>
+  791 <span class="s2">            </span>
+  792 <span class="s2">        A brief description of parameters is provided below:</span>
+  793 <span class="s2">            </span>
+  794 <span class="s2">            selection: Atom selection to restraint.</span>
+  795 <span class="s2">            selectionSpec: A space delimited list of residue names for</span>
+  796 <span class="s2">                selecting atoms to restraint. You must specify its value during</span>
+  797 <span class="s2">                &#39;Ligand&#39; and &#39;Protein&#39; value for &#39;selection&#39;. The default values</span>
+  798 <span class="s2">                are automatically set for &#39;CAlphaProtein&#39;, &#39;Ions&#39;, &#39;Protein&#39;,</span>
+  799 <span class="s2">                and &#39;Water&#39; values of &#39;selection&#39; as shown below:</span>
+  800 <span class="s2">                </span>
+  801 <span class="s2">                CAlphaProtein: List of stadard protein residues from pdbfixer</span>
+  802 <span class="s2">                    for selecting CAlpha atoms.</span>
+  803 <span class="s2">                Ions: Li Na K Rb Cs Cl Br F I</span>
+  804 <span class="s2">                Water: HOH</span>
+  805 <span class="s2">                Protein: List of standard protein residues from pdbfixer.</span>
+  806 <span class="s2">                </span>
+  807 <span class="s2">            negate: Negate atom selection match to select atoms for freezing.</span>
+  808 <span class="s2">            </span>
+  809 <span class="s2">        In addition, you may specify an explicit space delimited list of residue</span>
+  810 <span class="s2">        names using &#39;selectionSpec&#39; for any &#39;selection&quot;. The specified residue</span>
+  811 <span class="s2">        names are appended to the appropriate default values during the</span>
+  812 <span class="s2">        selection of atoms for restraining.</span>
+  813 <span class="s2">    --restraintSpringConstant &lt;number&gt;  [default: 2.5]</span>
+  814 <span class="s2">        Restraint spring constant for applying external restraint force to restraint</span>
+  815 <span class="s2">        atoms relative to their initial positions during &#39;yes&#39; value of &#39;--restraintAtoms&#39;</span>
+  816 <span class="s2">        option. Default units: kcal/mol/A**2. The default value, 2.5, corresponds to</span>
+  817 <span class="s2">        1046.0 kjoules/mol/nm**2. The default value is automatically converted into</span>
+  818 <span class="s2">        units of kjoules/mol/nm**2 before its usage.</span>
+  819 <span class="s2">    --simulationParams &lt;Name,Value,..&gt;  [default: auto]</span>
+  820 <span class="s2">        A comma delimited list of parameter name and value pairs for simulation.</span>
+  821 <span class="s2">        </span>
+  822 <span class="s2">        The supported parameter names along with their default values are</span>
+  823 <span class="s2">        are shown below:</span>
+  824 <span class="s2">            </span>
+  825 <span class="s2">            minimizationMaxSteps, auto  [ Possible values: &gt;= 0. The value of</span>
+  826 <span class="s2">                zero implies until the minimization is converged. ]</span>
+  827 <span class="s2">            minimizationTolerance, 0.24  [ Units: kcal/mol/A. The default value</span>
+  828 <span class="s2">                0.24, corresponds to OpenMM default of value of 10.04</span>
+  829 <span class="s2">                kjoules/mol/nm. It is automatically converted into OpenMM</span>
+  830 <span class="s2">                default units before its usage. ]</span>
+  831 <span class="s2">            </span>
+  832 <span class="s2">        A brief description of parameters is provided below:</span>
+  833 <span class="s2">            </span>
+  834 <span class="s2">            minimizationMaxSteps: Maximum number of minimization steps. The</span>
+  835 <span class="s2">                value of zero implies until the minimization is converged.</span>
+  836 <span class="s2">            minimizationTolerance: Energy convergence tolerance during</span>
+  837 <span class="s2">                minimization.</span>
+  838 <span class="s2">            </span>
+  839 <span class="s2">    -s, --smallMolFile &lt;SmallMolFile&gt;</span>
+  840 <span class="s2">        Small molecule input file name. The macromolecue and small molecule are</span>
+  841 <span class="s2">        merged for simulation and the complex is written out to a PDB file.</span>
+  842 <span class="s2">    --smallMolID &lt;text&gt;  [default: LIG]</span>
+  843 <span class="s2">        Three letter small molecule residue ID. The small molecule ID corresponds</span>
+  844 <span class="s2">        to the residue name of the small molecule and is written out to a PDB file</span>
+  845 <span class="s2">        containing the complex.</span>
+  846 <span class="s2">    --systemParams &lt;Name,Value,..&gt;  [default: auto]</span>
+  847 <span class="s2">        A comma delimited list of parameter name and value pairs to configure</span>
+  848 <span class="s2">        a system for energy minimization. No MD simulation is performed.</span>
+  849 <span class="s2">        </span>
+  850 <span class="s2">        The supported parameter names along with their default values are</span>
+  851 <span class="s2">        are shown below:</span>
+  852 <span class="s2">            </span>
+  853 <span class="s2">            constraints, BondsInvolvingHydrogens [ Possible values: None,</span>
+  854 <span class="s2">                WaterOnly, BondsInvolvingHydrogens, AllBonds, or</span>
+  855 <span class="s2">                AnglesInvolvingHydrogens ]</span>
+  856 <span class="s2">            constraintErrorTolerance, 0.000001</span>
+  857 <span class="s2">            ewaldErrorTolerance, 0.0005</span>
+  858 <span class="s2">            </span>
+  859 <span class="s2">            nonbondedMethodPeriodic, PME [ Possible values: NoCutoff,</span>
+  860 <span class="s2">                CutoffNonPeriodic, or PME ]</span>
+  861 <span class="s2">            nonbondedMethodNonPeriodic, NoCutoff [ Possible values:</span>
+  862 <span class="s2">                NoCutoff or CutoffNonPeriodic]</span>
+  863 <span class="s2">            nonbondedCutoff, 1.0 [ Units: nm ]</span>
+  864 <span class="s2">            </span>
+  865 <span class="s2">            hydrogenMassRepartioning, yes [ Possible values: yes or no ]</span>
+  866 <span class="s2">            hydrogenMass, 1.5 [ Units: amu]</span>
+  867 <span class="s2">            </span>
+  868 <span class="s2">            removeCMMotion, yes [ Possible values: yes or no ]</span>
+  869 <span class="s2">            rigidWater, auto [ Possible values: yes or no. Default: &#39;No&#39; for</span>
+  870 <span class="s2">                &#39;None&#39; value of constraints; Otherwise, yes ]</span>
+  871 <span class="s2">            </span>
+  872 <span class="s2">        A brief description of parameters is provided below:</span>
+  873 <span class="s2">            </span>
+  874 <span class="s2">            constraints: Type of system constraints to use for simulation. These</span>
+  875 <span class="s2">                constraints are different from freezing and restraining of any</span>
+  876 <span class="s2">                atoms in the system.</span>
+  877 <span class="s2">            constraintErrorTolerance: Distance tolerance for constraints as a</span>
+  878 <span class="s2">                fraction of the constrained distance.</span>
+  879 <span class="s2">            ewaldErrorTolerance: Ewald error tolerance for a periodic system.</span>
+  880 <span class="s2">            </span>
+  881 <span class="s2">            nonbondedMethodPeriodic: Nonbonded method to use during the</span>
+  882 <span class="s2">                calculation of long range interactions for a periodic system.</span>
+  883 <span class="s2">            nonbondedMethodNonPeriodic: Nonbonded method to use during the</span>
+  884 <span class="s2">                calculation of long range interactions for a non-periodic system.</span>
+  885 <span class="s2">            nonbondedCutoff: Cutoff distance to use for long range interactions</span>
+  886 <span class="s2">                in both perioidic non-periodic systems.</span>
+  887 <span class="s2">            </span>
+  888 <span class="s2">            hydrogenMassRepartioning: Use hydrogen mass repartioning. It</span>
+  889 <span class="s2">                increases the mass of the hydrogen atoms attached to the heavy</span>
+  890 <span class="s2">                atoms and decreasing the mass of the bonded heavy atom to</span>
+  891 <span class="s2">                maintain constant system mass. This allows the use of larger</span>
+  892 <span class="s2">                integration step size (4 fs) during a simulation.</span>
+  893 <span class="s2">            hydrogenMass: Hydrogen mass to use during repartioning.</span>
+  894 <span class="s2">            </span>
+  895 <span class="s2">            removeCMMotion: Remove all center of mass motion at every time step.</span>
+  896 <span class="s2">            rigidWater: Keep water rigid during a simulation. This is determined</span>
+  897 <span class="s2">                automatically based on the value of &#39;constraints&#39; parameter.</span>
+  898 <span class="s2">            </span>
+  899 <span class="s2">    --waterBox &lt;yes or no&gt;  [default: no]</span>
+  900 <span class="s2">        Add water box.</span>
+  901 <span class="s2">    --waterBoxParams &lt;Name,Value,..&gt;  [default: auto]</span>
+  902 <span class="s2">        A comma delimited list of parameter name and value pairs for adding</span>
+  903 <span class="s2">        a water box.</span>
+  904 <span class="s2">        </span>
+  905 <span class="s2">        The supported parameter names along with their default values are</span>
+  906 <span class="s2">        are shown below:</span>
+  907 <span class="s2">            </span>
+  908 <span class="s2">            model, tip3p [ Possible values: tip3p, spce, tip4pew, tip5p or</span>
+  909 <span class="s2">                swm4ndp ]</span>
+  910 <span class="s2">            mode, Padding  [ Possible values: Size or Padding ]</span>
+  911 <span class="s2">            padding, 1.0</span>
+  912 <span class="s2">            size, None  [ Possible value: xsize ysize zsize ]</span>
+  913 <span class="s2">            shape, cube  [ Possible values: cube, dodecahedron, or octahedron ]</span>
+  914 <span class="s2">            ionPositive, Na+ [ Possible values: Li+, Na+, K+, Rb+, or Cs+ ]</span>
+  915 <span class="s2">            ionNegative, Cl- [ Possible values: Cl-, Br-, F-, or I- ]</span>
+  916 <span class="s2">            ionicStrength, 0.0</span>
+  917 <span class="s2">            </span>
+  918 <span class="s2">        A brief description of parameters is provided below:</span>
+  919 <span class="s2">            </span>
+  920 <span class="s2">            model: Water model to use for adding water box. The van der</span>
+  921 <span class="s2">                Waals radii and atomic charges are determined using the</span>
+  922 <span class="s2">                specified water forcefield. You must specify an appropriate</span>
+  923 <span class="s2">                water forcefield. No validation is performed.</span>
+  924 <span class="s2">            mode: Specify the size of the waterbox explicitly or calculate it</span>
+  925 <span class="s2">                automatically for a macromolecule along with adding padding</span>
+  926 <span class="s2">                around ther macromolecule.</span>
+  927 <span class="s2">            padding: Padding around a macromolecule in nanometers for filling</span>
+  928 <span class="s2">                box with water. It must be specified during &#39;Padding&#39; value of</span>
+  929 <span class="s2">                &#39;mode&#39; parameter.</span>
+  930 <span class="s2">            size: A space delimited triplet of values corresponding to water</span>
+  931 <span class="s2">                size in nanometers. It must be specified during &#39;Size&#39; value of</span>
+  932 <span class="s2">                &#39;mode&#39; parameter.</span>
+  933 <span class="s2">            ionPositive: Type of positive ion to add during the addition of a</span>
+  934 <span class="s2">                water box.</span>
+  935 <span class="s2">            ionNegative: Type of negative ion to add during the addition of a</span>
+  936 <span class="s2">                water box.</span>
+  937 <span class="s2">            ionicStrength: Total concentration of both positive and negative</span>
+  938 <span class="s2">                ions to add excluding the ions added to neutralize the system</span>
+  939 <span class="s2">                during the addition of a water box.</span>
+  940 <span class="s2">            </span>
+  941 <span class="s2">    -w, --workingdir &lt;dir&gt;</span>
+  942 <span class="s2">        Location of working directory which defaults to the current directory.</span>
+  943 
+  944 <span class="s2">Examples:</span>
+  945 <span class="s2">    To perform energy minimization for a macromolecule in a PDB file until the</span>
+  946 <span class="s2">    energy is converged, writing information to log file every 100 steps and </span>
+  947 <span class="s2">    generate a PDB file for the minimized system, type:</span>
+  948 
+  949 <span class="s2">        % OpenMMPerformMinimization.py -i Sample13.pdb</span>
+  950 
+  951 <span class="s2">    To run the first example for writing information to both stdout and log file</span>
+  952 <span class="s2">     every 100 steps and generate various output files, type:</span>
+  953 
+  954 <span class="s2">        % OpenMMPerformMinimization.py -i Sample13.pdb --outputParams</span>
+  955 <span class="s2">          &quot;minimizationDataStdout, yes&quot;</span>
+  956 
+  957 <span class="s2">    To run the first example for performing OpenMM simulation using multi-</span>
+  958 <span class="s2">    threading employing all available CPUs on your machine and generate various</span>
+  959 <span class="s2">    output files, type:</span>
+  960 
+  961 <span class="s2">        % OpenMMPerformMinimization.py -i Sample13.pdb</span>
+  962 <span class="s2">          --platformParams &quot;threads,0&quot;</span>
+  963 
+  964 <span class="s2">    To run the first example for performing OpenMM simulation using CUDA platform</span>
+  965 <span class="s2">    on your machine and generate various output files, type:</span>
+  966 
+  967 <span class="s2">        % OpenMMPerformMinimization.py -i Sample13.pdb -p CUDA</span>
+  968 
+  969 <span class="s2">    To run the second example for a marcomolecule in a complex with a small</span>
+  970 <span class="s2">    molecule and generate various output files, type:</span>
+  971 
+  972 <span class="s2">        % OpenMMPerformMinimization.py -i Sample13.pdb -s Sample13Ligand.sdf</span>
+  973 <span class="s2">          --platformParams &quot;threads,0&quot;</span>
+  974 
+  975 <span class="s2">    To run the second example by adding a water box to the system and generate</span>
+  976 <span class="s2">    various output files, type:</span>
+  977 
+  978 <span class="s2">        % OpenMMPerformMinimization.py -i Sample13.pdb --waterBox yes</span>
+  979 <span class="s2">          --platformParams &quot;threads,0&quot;</span>
+  980 
+  981 <span class="s2">    To run the second example for a marcomolecule in a complex with a small</span>
+  982 <span class="s2">    molecule by adding a water box to the system and generate various output</span>
+  983 <span class="s2">    files, type:</span>
+  984 
+  985 <span class="s2">        % OpenMMPerformMinimization.py -i Sample13.pdb -s Sample13Ligand.sdf</span>
+  986 <span class="s2">          --waterBox yes --platformParams &quot;threads,0&quot;</span>
+  987 
+  988 <span class="s2">    To run the second example by freezing CAlpha atoms in a macromolecule without</span>
+  989 <span class="s2">    using any system constraints to avoid any issues with the freezing of the same atoms</span>
+  990 <span class="s2">    and generate various output files, type:</span>
+  991 
+  992 <span class="s2">        % OpenMMPerformMinimization.py -i Sample13.pdb</span>
+  993 <span class="s2">          --freezeAtoms yes --freezeAtomsParams &quot;selection,CAlphaProtein&quot;</span>
+  994 <span class="s2">          --systemParams &quot;constraints, None&quot;</span>
+  995 <span class="s2">          --platformParams &quot;threads,0&quot;</span>
+  996 
+  997 <span class="s2">        % OpenMMPerformMinimization.py -i Sample13.pdb</span>
+  998 <span class="s2">          --freezeAtoms yes --freezeAtomsParams &quot;selection,CAlphaProtein&quot;</span>
+  999 <span class="s2">          --systemParams &quot;constraints, None&quot;</span>
+ 1000 <span class="s2">          --platformParams &quot;threads,0&quot; --waterBox yes</span>
+ 1001 
+ 1002 <span class="s2">    To run the second example by restrainting CAlpha atoms in a macromolecule and</span>
+ 1003 <span class="s2">    and generate various output files, type:</span>
+ 1004 
+ 1005 <span class="s2">        % OpenMMPerformMinimization.py -i Sample13.pdb</span>
+ 1006 <span class="s2">          --restraintAtomsParams &quot;selection,CAlphaProtein&quot;</span>
+ 1007 <span class="s2">          --platformParams &quot;threads,0&quot;</span>
+ 1008 
+ 1009 <span class="s2">        % OpenMMPerformMinimization.py -i Sample13.pdb</span>
+ 1010 <span class="s2">          --restraintAtomsParams &quot;selection,CAlphaProtein&quot;</span>
+ 1011 <span class="s2">          --platformParams &quot;threads,0&quot;</span>
+ 1012 <span class="s2">          --waterBox yes</span>
+ 1013 
+ 1014 <span class="s2">    To run the second example by specifying explict values for various parametres</span>
+ 1015 <span class="s2">    and generate various output files, type:</span>
+ 1016 
+ 1017 <span class="s2">        % OpenMMPerformMinimization.py -i Sample13.pdb</span>
+ 1018 <span class="s2">          -f &quot; biopolymer,amber14-all.xml,smallMolecule, openff-2.2.1,</span>
+ 1019 <span class="s2">          water,amber14/tip3pfb.xml&quot; --waterBox yes</span>
+ 1020 <span class="s2">          --outputParams &quot;minimizationDataSteps, 100, minimizationDataStdout,</span>
+ 1021 <span class="s2">          yes,minimizationDataLog,yes&quot;</span>
+ 1022 <span class="s2">          -p CPU --platformParams &quot;threads,0&quot;</span>
+ 1023 <span class="s2">          --simulationParams &quot;minimizationMaxSteps,500,</span>
+ 1024 <span class="s2">          minimizationTolerance, 0.24&quot;</span>
+ 1025 <span class="s2">          --systemParams &quot;constraints,BondsInvolvingHydrogens,</span>
+ 1026 <span class="s2">          nonbondedMethodPeriodic,PME,nonbondedMethodNonPeriodic,NoCutoff,</span>
+ 1027 <span class="s2">          hydrogenMassRepartioning, yes&quot;</span>
+ 1028 
+ 1029 <span class="s2">Author:</span>
+ 1030 <span class="s2">    Manish Sud(msud@san.rr.com)</span>
+ 1031 
+ 1032 <span class="s2">See also:</span>
+ 1033 <span class="s2">    OpenMMPrepareMacromolecule.py, OpenMMPerformMDSimulation.py,</span>
+ 1034 <span class="s2">    OpenMMPerformSimulatedAnnealing.py</span>
+ 1035 
+ 1036 <span class="s2">Copyright:</span>
+ 1037 <span class="s2">    Copyright (C) 2026 Manish Sud. All rights reserved.</span>
+ 1038 
+ 1039 <span class="s2">    The functionality available in this script is implemented using OpenMM, an</span>
+ 1040 <span class="s2">    open source molecuar simulation package.</span>
+ 1041 
+ 1042 <span class="s2">    This file is part of MayaChemTools.</span>
+ 1043 
+ 1044 <span class="s2">    MayaChemTools is free software; you can redistribute it and/or modify it under</span>
+ 1045 <span class="s2">    the terms of the GNU Lesser General Public License as published by the Free</span>
+ 1046 <span class="s2">    Software Foundation; either version 3 of the License, or (at your option) any</span>
+ 1047 <span class="s2">    later version.</span>
+ 1048 
+ 1049 <span class="s2">&quot;&quot;&quot;</span>
+ 1050 
+ 1051 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+ 1052     <span class="n">main</span><span class="p">()</span>
+</pre>
+<br />
+<center>
+<img src="../../../images/h2o2.png">
+</center>
+</body>
+</html>

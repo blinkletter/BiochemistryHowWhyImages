@@ -1,0 +1,748 @@
+NAME
+    OpenFECalculateRelativeBindingFreeEnergy.py - Calculate relative binding
+    free energy
+
+SYNOPSIS
+    OpenFECalculateRelativeBindingFreeEnergy.py [--executeDAGParams
+    <Name,Value,..>] [--loggingLevel <Info, Warning or Error>] [--mapper
+    <mapper1, mapper2,...>] [--mapperParams <Name,Value,..>] [--mapperScorer
+    <LOMAP>] [--mode <MoleculePairs or MoleculeNetwork>]
+    [--missingChargeMode <Calculate or Stop>] [--moleculePairs
+    <MolName1,MolName2,..>] [--network <text>] [--networkParams
+    <Name,Value,..>] [--outfilePrefix <text>] [--overwrite] [--rbfeParams
+    <Name,Value,...>] [--rbfeChargeCorrection <yes or no>]
+    [--rbfeChargeCorrectionParams <Name,Value,...>] [--resultFileParams
+    <Name,Value,..>] [--solventParams <Name,Value,...>]
+    [--smallMolFileParams <Name,Value,...> ] [-w <dir>] -i <infile> -s
+    <smallmolfile> -o <outifiledir>
+
+    OpenFECalculateRelativeBindingFreeEnergy.py -l | --list
+
+    OpenFECalculateRelativeBindingFreeEnergy.py -h | --help | -e |
+    --examples
+
+DESCRIPTION
+    Calculate Relative Binding Free Energy (RBFE) for a pair of molecules in
+    a small molecule input file. You may calculate RBFEs for specific pairs
+    of molecules or all molecule pairs corresponding to edges in a molecule
+    network.
+
+    The input file must contain a macromolecule already prepared for
+    simulation. The preparation of the macromolecule for a simulation
+    generally involves the following tasks: identification and replacement
+    of non-standard residues; addition of missing residues; addition of
+    missing heavy atoms; addition of missing hydrogens.
+
+    In addition, the small molecule input file must contain molecules
+    already prepared for simulation. It must contain appropriate 3D
+    coordinates relative to the macromolecule along with no missing
+    hydrogens.
+
+    The MD simulation workflow, employed for the calculation of RBFEs,
+    involves the following steps: initial minimization; NVT equilibration;
+    NPT equilibration; production NPT. The MD simulation protocol is
+    repeated 3 times for each pair pair of transformations,
+    MolAToMolBComplexSolvent and MolAToMolBSolvent, and the results are
+    analyzed to estimate RBFEs. The default time and step size settings for
+    the MD protocol are shown below:
+
+        Protocol repeats, 3
+    
+        Time step size: 4.0 femtosecond
+    
+        Max minimization steps: 5,000
+    
+        NVT equilibration length: 1.0 nanosecond
+        NPT equilibration length: 1.0 nanosecond
+        NPT production length: 5.0 nanosecond
+
+    Each MD simulation, by default, may run for 7 nanosecond, for a total of
+    21 nanosecond to repeat it 3 times. The total MD simulation time for
+    each pair of transformations, MolAToMolBComplexSolvent and
+    MolAToMolBSolvent, may correspond to more than 42 nanoseconds.
+
+    The supported macromolecule input file formats are: PDB (.pdb) and CIF
+    (.cif)
+
+    The supported small molecule input file format are : SD (.sdf, .sd)
+
+    Possible outfile prefix:
+
+        <OutfilePrefix> or <SmallMolFileRoot>
+
+    Possible output directories:
+
+        <OutfileDir>
+    
+        <OutfileDir>/MoleculePairImages [ MoleculeNetwork mode ]
+        <OutfileDir>/NetworkEdgeImages [ MoleculePairs mode]
+    
+        <OutfileDir>/Transformations
+        <OutfileDir>/Results
+
+    Possible output files and directories under <OutfileDir>:
+
+        <OutfilePrefix>_RBFE_Results.<csv or tsv>
+    
+        MoleculePairImages/<MolAName>_To_<MolBName>_Molecule_Pair*.png
+        ... ... ...
+     
+        <OutfilePrefix>_Network*.graphml
+        <OutfilePrefix>_Network*.svg
+        NetworkEdgeImages/<MolAName>_To_<MolBName>_Network*.png
+        ... ... ...
+    
+        Transformations/<MolAName>_To_<MolBName>_Complex_Solvent.json
+        Transformations/<MolAName>_To_<MolBName>_Solvent.json
+        ... ... ...
+    
+        Results/shared_RelativeHybridTopologyProtocolUnit-*/
+        Results/scratch_RelativeHybridTopologyProtocolUnit-*/
+        ... ... ...
+
+OPTIONS
+    -e, --examples
+        Print examples.
+
+    --executeDAGParams <Name,Value,..> [default: auto]
+        A comma delimited list of parameter name and value pairs for
+        executing protocol DAGs (Directed Acyclic Graph) to run RBFE
+        calculations.
+
+        The supported parameter names along with their default values are
+        are shown below:
+
+            keepShared, yes  [ Possible values: yes or no ]
+            keepScratch, no  [ Possible values: yes or no ]
+            nRetries, 2  [ Possible values: >= 0. A value of 0 implies only
+                1 try. ]
+
+        A brief description of parameters is provided below:
+
+            keepShared: Keep shared directories after the execution of DAG.
+            keepScratch: Keep scratch directories after the execution of DAG.
+            nRetries: Number of times to attempt the execution.
+
+    -h, --help
+        Print this help message.
+
+    -i, --infile <infile>
+        Input file name containing a macromolecule.
+
+    -l, --list
+        List default RBFE protocol settings provided by OpenFE module
+        RelativeHybridTopologyProtocol.
+
+    --loggingLevel <Info, Warning or Error> [default: Error]
+        Logging level to configure the 'root logger' via
+        logging.basicConfig() function. The default logging level is changed
+        from 'logging.INFO' to 'logging.ERROR'. Otherwise, OpenFE and its
+        associated modules may generate a lot of informational messages.
+
+    --mapper <mapper1, mapper2> [default: LOMAP]
+        A comma delimited names of atom mappers for generating atom mapping
+        corresponding to molecule pairs or edges in a molecule network.
+        Possible values: LOMAP [ Lead Optimization MAPer; Ref 176 ] or
+        Kartograf [ Ref 177 ]. You may specify multiple mappers for
+        generating mapping between pair of molecules. All specified mappers
+        are employed to identify the highest scoring mapping between a pair
+        of molecules.
+
+    --mapperParams <Name,Value,..> [default: auto]
+        A comma delimited list of parameter name and value pairs for atom
+        mappers employed to generate mapping between molecule pairs or edges
+        in a molecule network.
+
+        The supported parameter names along with their default values are
+        are shown below:
+
+            lomapTime, 20, [ Units: seconds ]
+            lomapThreeD, yes [ Possible values: yes or no ]
+            lomapMax3D, 1.0 [ Units: Angstrom ]
+            lomapElementChange, yes [ Possible values: yes or no]
+            lomapSeed, None [ Possible value: A string. An empty string causes
+                MCS search to start from scratch ]
+            lomapShift, no [  Possible values: yes or no]
+    
+            kartografAtomMaxDistance, 0.95 [ Units: Angstrom ]
+            kartografAtomMapHydrogens, yes [ Possible values: yes or no ]
+            kartografMapHydrogensOnHydrogensOnly, No [ Possible values: yes or
+                no ]
+            kartografMapExactRingMatchesOnly, yes [ Possible values: yes or no ]
+            kartografAllowPartialFusedRings, yes [ Possible values: yes or no ]
+
+        A brief description of parameters is provided below:
+
+            lomapTime: Time out for MCS algorithm.
+            lomapThreeD: Use atom positions to prune symmetric mappings.
+            lomapMax3D: Forbid mapping between atoms with distance more than
+                specified value.
+            lomapElementChange: Allow mappings that change an atom element.
+            lomapSeed: An Empty SMARTS string causes MCS search to start from
+                scratch.
+            lomapShift: Keep pre-aligned atom positions for 3D position checks.
+    
+            kartografAtomMaxDistance: Geometric criteria for two atoms
+                corresponding to maximum distance between them.
+            kartografAtomMapHydrogens: Map hydrogens.
+            kartografMapHydrogensOnHydrogensOnly: Map hydrogens only on
+                hydrogens.
+            kartografMapExactRingMatchesOnly: Map rings with only matching ring
+                size and bond orders. In addition, ring breaking is not
+                permitted.
+            kartografAllowPartialFusedRings: Allow mapping of partially fused
+                rings.
+
+    --mapperScorer <LOMAP> [default: LOMAP]
+        Atom mapper scorer to use for scoring mapping between molecule pairs
+        or edges in a molecule network. Possible value: LOMAP. The atom
+        scorer is not used during the generation of MinimalSpanning network.
+
+    -m, --mode <MoleculePairs or MoleculeNetwork> [default: MoleculePairs]
+        Calculate RBFEs for specified pairs of molecules or all molecule
+        pairs corresponding to edges in a molecule network.
+
+    --missingChargeMode <Calculate or Stop> [default: Stop]
+        Calculate missing partial charges for molecules before running RBFE
+        calculations or terminate the execution of the script. The missing
+        partial charges will be automatically calculated by OpenFE module
+        RelativeHybridTopologyProtocol during the calculation of RBFE. You
+        may control the calculation of partial charges by specifying values
+        for partialCharge* parameters using '--rbfeParams' option.
+
+    --moleculePairs <MolName1,MolName2,..> [default: auto]
+        A comma delimited list of molecule name pairs for calculating RBFEs.
+        Default: the names of the first and second molecule in small
+        molecule input file. This option is only used during 'MoleculePairs'
+        value for '-m, --mode' option.
+
+    -n, --network <text> [default: MinimalSpanning]
+        Name of a molecule network to generate for calculating RBFEs.
+        Possible values: LOMAP, MinimalSpanning or Radial. This option is
+        only used during 'MoleculeNetwork' value for '-m, --mode' option.
+
+    --networkParams <Name,Value,..> [default: auto]
+        A comma delimited list of parameter name and value pairs for
+        generating a molecule network.
+
+        The supported parameter names along with their default values are
+        are shown below:
+
+            lomapDistanceCutoff, 0.4
+            lomapMaxPathLength, 6
+            lomapRequireCycleCovering, yes  [ Possible values: yes or no ]
+    
+            minimalSpanningProgress, no  [ Possible values: yes or no ]
+    
+            radialCentralLigand, None  [ Possible values: Valid ligand name ]
+    
+            outputEdges, no  [ Possible values: yes or no ]
+            outputNetworkFormat, svg  [ Possible values: Any valid format. ]
+
+        A brief description of parameters is provided below:
+
+            lomapDistanceCutoff: Maximum distance/dissimilarity between two
+                molecules for an edge to be accepted.
+            lomapMaxPathLength: Maximum distance between any two molecules in
+                the resulting network
+            lomapRequireCycleCovering: Add cycles into the network
+    
+            minimalSpanningProgress: Show progress using tqdm.
+    
+            radialCentralLigand: Name of central ligand. A valid ligand name
+                must be specified to generate a radial molecule network.
+    
+            outputEdges: Generate PNG image files for all edges in a molecule
+                network.
+            outputNetworkFormat: Valid image file format for molecule network.
+                You must specify a valid format supported by Python module
+                Matplotlib. For example: PNG (.png), SVG (.svg), PDF (.pdf),
+                etc. In addition, the graphml file is always generated.
+
+    -o, --outfileDir <outfiledir>
+        Output directory.
+
+    --outfilePrefix <text> [default: auto]
+        Prefix for generating output files under output directory.
+
+    --overwrite
+        Overwrite existing files.
+
+    --resultFileParams <Name,Value,..> [default: auto]
+        A comma delimited list of parameter name and value pairs for writing
+        calculated RBFEs values to a results file.
+
+        The supported parameter names along with their default values are
+        are shown below:
+
+            precision, 4  [ Possible values: > 0 ]
+            delimiter, comma  [ Possible values: comma or tab ]
+
+    -r, --rbfeParams <Name,Value,...> [default: auto]
+        A comma delimited list of parameter name and value pairs for RBFE
+        protocol settings employed during the calculation of RBFEs.
+
+        The default values are automatically updated to match settings
+        provided by OpenFE module RelativeHybridTopologyProtocol.
+
+        You must specify valid OpenFE values for these parameters. An
+        extensive validation is not performed.
+
+        The supported parameter names along with their default values are
+        are shown below:
+
+            protocolRepeats, 3
+    
+            Alchemical settings:
+    
+            alchemicalEndstateDispersionCorrection, no  [ Possible values:
+                yes or no ]
+            alchemicalExplicitChargeCorrection, no  [ Possible values:
+                yes or no ]
+            alchemicalExplicitChargeCorrectionCutoff, 0.8  [ Units: nanometer ]
+            alchemicalSoftcoreLJ, Gapsys [ Possible values: Gapsys or Beutler ] 
+            alchemicalSoftcoreAlpha, 0.85
+            alchemicalTurnOffCoreUniqueExceptions, no  [ Possible values:
+                yes or no ]
+            alchemicalUseDispersionCorrection, no [ Possible values: yes or no ]
+    
+            Engine settings:
+    
+            engineComputePlatform, CPU  [ Possible values: CPU, CUDA, OpenCL,
+                or Reference ]
+            engineGpuDeviceIndex, None [ Possible values: 0, 0 1, etc. ]
+    
+            Forcefield settings:
+    
+            forcefieldConstraints, HBonds  [ Possible values: HBonds, AllBonds, or
+                HAngles  ]
+            forcefields, amber/ff14SB.xml amber/tip3p_standard.xml
+                amber/tip3p_HFE_multivalent.xml amber/phosaa10.xml
+                [ Possible values: A space delimited list of valid names. ]
+            forcefieldHydrogenMass, 3.0  [ Units: amu ]y
+            forcefieldNonbondedCutoff, 0.9  [ Units: nanometer ]
+            forcefieldNonbondedMethod, PME [ Possible values: PME or NoCutoff ]
+            forcefieldRigidWater, yes  [ Possible values: yes or no ]
+            forcefieldSmallMoleculeForcefield, openff-2.1.1  [ Possible value:
+                A valid forcefield name. ]
+    
+            Integrator settings:
+    
+            integratorBarostatFrequency, 25.0 * timestep  [ The specified value
+                is a multiple of integratorTimestep. ]
+            integratorConstraintTolerance, 1e-06
+            integratorLangevinCollisionRate, 1.0  [ Units: 1 / picosecond ]
+            integratorNRestartAttempts, 20
+            integratorReassignVelocities, no  [ Possible values: yes or no ]
+            integratorRemoveCom, no  [ Possible values: yes or no ]
+            integratorTimestep, 4.0 [ Units: femtosecond ] 
+    
+            Lambda settings:
+    
+            lambdaFunctions, default  [ Possible values: Default, namd, or
+                quarters ]
+            lambdaWindows, 11
+    
+            Output settings:
+    
+            outputCheckpointInterval, 1.0 [ Units: nanosecond ]
+            outputCheckpointStorageFilename, checkpoint.chk
+            outputForcefieldCache, db.json
+            outputFilename, simulation.nc
+            outputIndices, not water  [ Possible value: Any valid selection. ]
+            outputStructure, hybrid_system.pdb
+            outputPositionsWriteFrequency, 100.0 [ Units: picosecond ]
+            outputVelocitiesWriteFrequency, None  [  Possible values: > 0;
+                Units: picosecond ]
+    
+            Partial charge settings:
+    
+            partialChargeNaglModel, None  [ Default: Production AM1BCC model for
+                NAGL; Possible value: Any valid name. ]
+            partialChargeNumberOfConformers, None  [ Possible value: > 0 ]
+            partialChargeOffToolkitBackend, AmberTools  [ Possible values:
+                AmberTools or RDKit ]
+            partialChargeMethod, AM1BCC  [ Possble values: AM1BCC, Espaloma,
+                or NAGL ]
+    
+            Simulation settings:
+    
+            simulationEarlyTerminationTargetError, 0.0 [ Units:
+                kilocalorie_per_mole ]
+            simulationEquilibrationLength, 1.0 [ Units: nanosecond ]
+            simulationMinimizationSteps, 5000
+            simulationNReplicas, 11
+            simulationProductionLength, 5.0 [ Units: nanosecond ]
+            simulationRealTimeAnalysisInterval, 250.0 [ Units: picosecond ]
+            simulationRealTimeAnalysisMinimumTime, 500.0  [ Units: picosecond ]
+            simulationSamplerMethod, repex  [ Possible values: repex, sams,
+                or independent ]
+            simulationSamsFlatnessCriteria, logZ-flatness  [ Possible values:
+                logZ-flatness, minimum-visits or histogram-flatness ]
+            simulationSamsGamma0, 1.0
+            simulationTimePerIteration, 2.5  [ Units: picosecond ]
+    
+            Solvation settings:
+    
+            solvationBoxShape, dodecahedron  [  Possible values: cube,
+                dodecahedron, or octahedron ]
+            solvationBoxSize, None  [ Possible value: A triplet of space
+                X Y Z values; Units: nanometer ]
+            solvationSolventModel, tip3p  [ Possible values: tip3p, spce, tip4pew,
+                or tip5p ]
+            solvationSolventPadding, 1.5  [ Units: nanometer ]
+    
+            Thermo settings:
+    
+            thermoPh, None  [ Possible values: > 0 ]
+            thermoPressure, 1.0  [ Units: bar ]
+            thermoRedoxPotential, None  [ Possible values: A valid float.
+                Units: millivolts (mV) ]
+            thermoTemperature, 298.15  [ Units: kelvin ]
+
+        A brief description of parameters, taken from OpenFE documentation,
+        is provided below:
+
+            protocolRepeats: Number of completely independent repeats of the
+                entire sampling process.
+    
+            Alchemical settings:
+    
+            Parameters controlling the creation of the hybrid topology system,
+            including various parameters ranging from softcore parameters to
+            whether or not to apply an explicit charge correction for systems
+            with net charge changes.
+    
+            alchemicalEndstateDispersionCorrection: Employ extra unsampled
+                endstate windows for long range correction.
+            alchemicalExplicitChargeCorrection: Explicitly account for a charge
+                difference during the alchemical transformation by transforming
+                a water to a counterion of the opposite charge of the formal
+                charge difference.
+            alchemicalExplicitChargeCorrectionCutoff: Minimum distance from the
+                system solutes from which an alchemical water can be chosen.
+            alchemicalSoftcoreLJ: Use LJ softcore function as defined by Gapsys
+                [ Ref 181 ] or Buetler [ Ref 182 ].
+            alchemicalSoftcoreAlpha: Softcore alpha parameter.
+            alchemicalTurnOffCoreUniqueExceptions: Turn off interactions for
+                new exceptions (not just 1,4s) at lambda 0 and old exceptions at
+                lambda 1 between unique atoms and core atoms.
+            alchemicalUseDispersionCorrection: Use dispersion correction in the
+                hybrid topology state.
+
+            Engine settings:
+    
+            Parameters configuring the compute platform used by the OpenMM to
+            perform the simulation.
+    
+            engineComputePlatform: Platform to use for running OpenMM MD
+                calculations.
+            engineGpuDeviceIndex: Space delimited list of device indices to use
+                for running OpenMM MD calculations.
+    
+            Forcefield settings:
+    
+            Parameters to set up the force field with OpenMM Force Fields,
+            including the general force fields, the small molecule force field,
+            the nonbonded method, and the nonbonded cutoff.
+    
+            forcefieldConstraints: Constraints to use.
+            forcefields: List of valid forcefield paths for all components
+                except small molecules.
+            forcefieldHydrogenMass: Mass to be repartitioned to hydrogens from
+                neighboring heavy atoms.
+            forcefieldNonbondedCutoff: Cutoff for short range nonbonded
+                interactions.
+            forcefieldNonbondedMethod: Method for treating nonbonded
+                interactions.
+            forcefieldRigidWater: Use a rigid water model.
+            forcefieldSmallMoleculeForcefield: A valid forcefield name to use
+                for small molecules.
+    
+            Integrator settings
+    
+            Parameters controlling the LangevinSplittingDynamicsMove integrator
+            used for simulation.
+    
+            integratorBarostatFrequency: Frequency at which volume scaling
+                changes should be attempted.
+            integratorConstraintTolerance: Tolerance for constraint solver.
+            integratorLangevinCollisionRate: Collision frequency.
+            integratorNRestartAttempts: Number of attempts to restart from
+                Context in case there are NaNs in the energies after
+                integration.
+            integratorReassignVelocities: Reassign velocities  from the
+                Maxwell-Boltzmann distribution at the beginning of each
+                Monte Carlo move.
+            integratorRemoveCom: Remove the center of mass motion.
+            integratorTimestep: Size of the simulation timestep.
+    
+            Lambda settings:
+    
+            Lambda protocol parameters, including number of lambda windows and
+            lambda functions.
+    
+            lambdaFunctions: Function name to use for alchemical mutation.
+            lambdaWindows: Number of lambda windows to calculate.
+    
+            Output settings:
+    
+            Parameter controlling simulation output, including the frequency to
+            write a checkpoint file, the selection string for writing selected
+            coordinates, and the paths to the trajectory and output structure
+            files.
+    
+            outputCheckpointInterval: Frequency to write the checkpoint file.
+            outputCheckpointStorageFilename: Checkpoint filename.
+            outputForcefieldCache: Filename for caching small molecule residue
+                templates.
+            outputFilename: Trajectory filename.
+            outputIndices: Selection string for selecting coordinates to write.
+            outputStructure: Hybrid topology structure filename.
+            outputPositionsWriteFrequency: Frequency for writing positions to
+                trajectory file.
+            outputVelocitiesWriteFrequency: Frequency for writing velocities to
+                trajectory file.
+    
+            Partial charge settings:
+    
+            Parameters for automatically assigning missing partial charges to
+            small molecules, including the partial charge method.
+    
+            partialChargeNaglModel: Model to use for partial charge assignment.
+                A value of None implies the use of the latest available
+                production AM1BCC model.
+            partialChargeNumberOfConformers: Number of conformers to generate
+                as part of the partial charge assignment. A value of None
+                implies the use of the existing conformer.
+            partialChargeOffToolkitBackend: OpenFF toolkit registry backend to
+                use for calculating partial charges.
+            partialChargeMethod: Method to use for calculating partial charges.
+    
+            Simulation settings:
+    
+            Parameters controlling the simulation plan and the alchemical
+            sampler, including the number of minimization steps, lengths of
+            equilibration and production runs, the sampler method (e.g.
+            Hamiltonian REPlica EXchange (repex), and the time interval at
+            which to perform an analysis of the free energies.
+    
+            simulationEarlyTerminationTargetError: Target error for the real
+                time analysis measured in kcal/mol. Once the MBAR error of the
+                free energy is at or below this value, the simulation will be
+                considered complete. The suggested value of 0.12 has shown to
+                be effective in both hydration and binding free energy
+                benchmarks.
+            simulationEquilibrationLength: Length of the equilibration phase.
+                The specified value must be divisible by 'integratorTimestep'.
+            simulationMinimizationSteps: Maximum number of minimization steps
+                to perform.
+            simulationNReplicas: Number of replicas to use.
+            simulationProductionLength: Length of the production phase.
+                The specified value must be divisible by 'integratorTimestep'.
+            simulationRealTimeAnalysisInterval: Time interval for performing
+                analysis of the free energies. At each interval, real time
+                analysis data will be written to a yaml file named
+                <outputFileName>_real_time_analysis.yaml. The current error
+                in the estimate will also be assessed and the simulation will
+                be terminated when it drops below
+                'simulationEarlyTerminationTargetError'.
+            simulationRealTimeAnalysisMinimumTime: Minimum simulation time
+                after which the real time analysis is performed.
+            simulationSamplerMethod: Alchemical sampling method to use:
+                REPEX (Hamiltonian REPlica EXchange), SAMS (Self-Adjusted
+                Mixture Sampling), or Independent (Independently sampled lambda
+                windows).
+            simulationSamsFlatnessCriteria:Method for assessing when to switch
+                to asymptomatically optimal scheme for SAMS.
+            simulationSamsGamma0: Initial weight adaptation rate for SAMS.
+            simulationTimePerIteration: Simulation time between each MCMC move
+               attempt 
+    
+            Solvation settings:
+    
+            Solvation parameters for the system, including the solvent model and
+            the solvent padding.
+    
+            solvationBoxShape: Shape of the periodic solvent box to create.
+            solvationBoxSize: Lengths of the unit cell for a solvent box.
+            solvationSolventModel: Forcefield water model to use during
+                solvation and defining the model properties.
+            solvationSolventPadding: Minimum distance from any solute bounding
+                sphere to the edge of the box.
+    
+            Thermo settings:
+    
+            Thermodynamic parameters, including the temperature and the pressure
+            of the system.
+    
+            thermoPh: Simulation pH
+            thermoPressure: Simulation pressure.
+            thermoRedoxPotential:Simulation redox potential.
+            thermoTemperature: Simulation temperature.
+
+    --rbfeChargeCorrection <yes or no> [default: yes]
+        Perform automatic charge correction for charge changing
+        transformations during the calculation of RBFEs. The
+        '--rbfeChargeCorrectionParams' are used during the automatic charge
+        correction to override the corresponding values in '-r,
+        --rbfeParams'.
+
+    --rbfeChargeCorrectionParams <Name,Value,...> [default: auto]
+        A comma delimited list of parameter name and value pairs to use for
+        RBFE protocol settings during explicit charge correction for charge
+        changing transformation between pair of molecules. These parameters
+        override the corresponding values in '-r, --rbfeParams'.
+
+        The default parameter values for charge changing transformations are
+        based on the industry benchmarking performed by OpenFE.
+
+        The supported parameter names along with their default values are
+        are shown below:
+
+            alchemicalExplicitChargeCorrection, yes [ Possible values: yes or no ]
+            simulationProductionLength, 20 [ Units: nanosecond ]
+            simulationNReplicas, 22
+            lambdaWindows, 22
+
+        A brief description of these parameters is available under the
+        corresponding parameters in the section for '-r, --rbfeParams'.
+
+    -s, --smallMolFile <SmallMolFile>
+        Input file containing small molecules.
+
+    --smallMolFileParams <Name,Value,...> [default: auto]
+        A comma delimited list of parameter name and value pairs for reading
+        molecules from files. The supported parameter names for different
+        file formats, along with their default values, are shown below:
+
+            SD: removeHydrogens,no,sanitize,yes,strictParsing,yes
+
+    --solventParams <Name,Value,...> [default: auto]
+        A comma delimited list of parameter name and value pairs for solvent
+        component. You must specify valid OpenFE values. No extensive
+        validation is performed. These parameters are used in conjunction
+        with solvation* parameters available through '--rbfeParams' to
+        perform solvation.
+
+        The supported parameter names along with their default values are
+        are shown below:
+
+            positiveIon, Na+ [ Possible value: Li+, Na+, K+, Rb+, or Cs+ ]
+            negativeIon, Cl- [ Possible values: Cl-, Br-, F-, or I- ]
+            neutralize, yes  [ Possible values: yes or no ]
+            ionConcentration, 0.15  [ Units: molar ]
+
+        A brief description of parameters is provided below:
+
+            positiveIon, negativeion: Pair of ions used to neutralize and bring
+                the solvent to required ionic concentration.
+            neutralize: Neutralize the net charge on the chemical state by the
+                ions in the solvent component.
+            ionConcentration: Ionic concentration.
+
+    -w, --workingdir <dir>
+        Location of working directory which defaults to the current
+        directory.
+
+EXAMPLES
+    The sample protein and ligand files for tyrosine kinase 2 (Tyk2) are
+    distributed with MayaChemTools and are available in data directory.
+    These files have been taken from OpenFE distribution for example
+    notebooks. The AM1BCC partial charges have been calculated for the
+    ligands in SD file to facilitate calculations. You may review OpenFE
+    tutorial notebooks for the expected results.
+
+    To calculate RBFE for a pair molecules corresponding to the fist and
+    second molecules in a SD file, performing 3 independent repeats of the
+    entire MD sampling process to calculate RBFE for a pair of molecules,
+    each MD repeat consisting of minimization (5,000 steps) followed by NVT
+    and NPT equilibration (1 ns; 250,000 steps) leading to NPT production
+    (5ns; 1,250,000 steps) using a step size of 4 fs, writing out
+    appropriate trajectory and PDB files for each MD repeat in Results
+    subdirectory under output directory, generating final results file along
+    with appropriate graph and image files under output directory, type:
+
+        % OpenFECalculateRelativeBindingFreeEnergy.py -i SampleTyk2.pdb
+          -s SampleTyk2Ligands.sdf -o SampleTyk2LigandsRBFE
+
+    To run the first example for calculating RBFE for a specific pair
+    molecules using CUDA platform on your machine to perform MD simulations
+    and generate various output files, type:
+
+        % OpenFECalculateRelativeBindingFreeEnergy.py -i SampleTyk2.pdb
+          -s SampleTyk2Ligands.sdf -o SampleTyk2LigandsRBFE -m MoleculePairs
+          --moleculePairs "lig_ejm_31, lig_ejm_47"
+          --rbfeParams "engineComputePlatform,CUDA"
+
+    To run the second example to see all warning messages produced by OpenFE
+    modules and write various output files, type;
+
+        % OpenFECalculateRelativeBindingFreeEnergy.py -i SampleTyk2.pdb
+          -s SampleTyk2Ligands.sdf -o SampleTyk2LigandsRBFE -m MoleculePairs
+          --moleculePairs "lig_ejm_31, lig_ejm_47"
+          --rbfeParams "engineComputePlatform,CUDA"
+          --loggingLevel Warning
+
+    To run the first example for calculating RBFE for all pairs of molecules
+    corresponding to edges in a molecule network using CUDA platform on your
+    machine to perform MD simulations and generate various output files,
+    type:
+
+        % OpenFECalculateRelativeBindingFreeEnergy.py -i SampleTyk2.pdb
+          -s SampleTyk2Ligands.sdf -o SampleTyk2LigandsRBFE -m MoleculeNetwork
+          --network MinimalSpanning
+          --rbfeParams "engineComputePlatform,CUDA"
+
+    To run the first example for calculating RBFE for a specific pair
+    molecules using CUDA platform on your machine to perform MD simulations,
+    automatically calculate missing partial charges for molecules, and
+    generate various output files, type:
+
+        % OpenFECalculateRelativeBindingFreeEnergy.py -i SampleTyk2.pdb
+          -s SampleTyk2LigandsNoCharges.sdf -o SampleTyk2LigandsRBFE
+          -m MoleculePairs --moleculePairs "lig_ejm_31, lig_ejm_47"
+          --rbfeParams "engineComputePlatform,CUDA"
+          --missingChargeMode Calculate
+
+    To run the second example by specifying explict values for various
+    parametres and generate various output files, type:
+
+        % OpenFECalculateRelativeBindingFreeEnergy.py -i SampleTyk2.pdb
+          -s SampleTyk2Ligands.sdf -o SampleTyk2LigandsRBFE -m MoleculePairs
+          --moleculePairs "lig_ejm_31, lig_ejm_47"
+          --loggingLevel Error
+          --executeDAGParams "keepShared, yes, nRetries, 2" --mapper LOMAP
+          --mapperParams "lomapTime, 20, lomapThreeD, yes"
+           --missingChargeMode Stop --rbfeParams "protocolRepeats,3,
+          alchemicalSoftcoreLJ, Gapsys, engineComputePlatform,CUDA,
+          forcefieldConstraints, HBonds, forcefieldHydrogenMass, 3.0,
+          forcefieldNonbondedMethod, PME, integratorTimestep, 4.0,
+          lambdaWindows, 11, outputCheckpointInterval, 250.0,
+          simulationMinimizationSteps, 5000, simulationEquilibrationLength, 1.0,
+          simulationProductionLength, 5.0, solvationBoxShape, cube,
+          solvationSolventPadding, 1.2, thermoPressure, 0.98692327,
+          thermoTemperature, 298.15"
+          --solventParams "positiveIon, Na+, negativeIon, Cl-"
+
+AUTHOR
+    Manish Sud(msud@san.rr.com)
+
+SEE ALSO
+       OpenFECalculateAbsoluteBindingFreeEnergy.py,
+       OpenFECalculateAbsoluteHydrationFreeEnergy.py, OpenFECalculatePartialCharges.py,
+       OpenFECalculateRelativeHydrationFreeEnergy.py, OpenFEGenerateLigandNetwork.py
+
+COPYRIGHT
+    Copyright (C) 2026 Manish Sud. All rights reserved.
+
+    The functionality available in this script is implemented using OpenFE,
+    an open source molecuar for alchemical free energy calculations.
+
+    This file is part of MayaChemTools.
+
+    MayaChemTools is free software; you can redistribute it and/or modify it
+    under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or (at
+    your option) any later version.
+

@@ -1,0 +1,499 @@
+<html>
+<head>
+<title>MayaChemTools:Code:OpenFECalculatePartialCharges.py</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../../css/MayaChemToolsPythonCode.css">
+</head>
+<body leftmargin="20" rightmargin="20" topmargin="10" bottommargin="10">
+<br/>
+<center>
+<a href="http://www.mayachemtools.org" title="MayaChemTools Home"><img src="../../../images/MayaChemToolsLogo.gif" border="0" alt="MayaChemTools"></a>
+</center>
+<br/>
+<pre>
+   1 <span class="ch">#!/bin/env python</span>
+   2 <span class="c1">#</span>
+   3 <span class="c1"># File: OpenFECalculatePartialCharges.py</span>
+   4 <span class="c1"># Author: Manish Sud &lt;msud@san.rr.com&gt;</span>
+   5 <span class="c1">#</span>
+   6 <span class="c1"># Copyright (C) 2026 Manish Sud. All rights reserved.</span>
+   7 <span class="c1">#</span>
+   8 <span class="c1"># The functionality available in this script is implemented using OpenFE, an</span>
+   9 <span class="c1"># open source package for alchemical free energy calculations.</span>
+  10 <span class="c1">#</span>
+  11 <span class="c1"># This file is part of MayaChemTools.</span>
+  12 <span class="c1">#</span>
+  13 <span class="c1"># MayaChemTools is free software; you can redistribute it and/or modify it under</span>
+  14 <span class="c1"># the terms of the GNU Lesser General Public License as published by the Free</span>
+  15 <span class="c1"># Software Foundation; either version 3 of the License, or (at your option) any</span>
+  16 <span class="c1"># later version.</span>
+  17 <span class="c1">#</span>
+  18 <span class="c1"># MayaChemTools is distributed in the hope that it will be useful, but without</span>
+  19 <span class="c1"># any warranty; without even the implied warranty of merchantability of fitness</span>
+  20 <span class="c1"># for a particular purpose.  See the GNU Lesser General Public License for more</span>
+  21 <span class="c1"># details.</span>
+  22 <span class="c1">#</span>
+  23 <span class="c1"># You should have received a copy of the GNU Lesser General Public License</span>
+  24 <span class="c1"># along with MayaChemTools; if not, see &lt;http://www.gnu.org/licenses/&gt; or</span>
+  25 <span class="c1"># write to the Free Software Foundation Inc., 59 Temple Place, Suite 330,</span>
+  26 <span class="c1"># Boston, MA, 02111-1307, USA.</span>
+  27 <span class="c1">#</span>
+  28 
+  29 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+  30 
+  31 <span class="kn">import</span> <span class="nn">os</span>
+  32 <span class="kn">import</span> <span class="nn">sys</span>
+  33 <span class="kn">import</span> <span class="nn">time</span>
+  34 <span class="kn">import</span> <span class="nn">re</span>
+  35 <span class="kn">import</span> <span class="nn">logging</span>
+  36 
+  37 <span class="c1"># OpenFE imports...</span>
+  38 <span class="k">try</span><span class="p">:</span>
+  39     <span class="kn">import</span> <span class="nn">openfe</span>
+  40 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ErrMsg</span><span class="p">:</span>
+  41     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Failed to import OpenFE related module/package: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ErrMsg</span><span class="p">)</span>
+  42     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Check/update your OpenFE environment and try again.</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+  43     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  44 
+  45 <span class="c1"># RDKit imports...</span>
+  46 <span class="k">try</span><span class="p">:</span>
+  47     <span class="kn">from</span> <span class="nn">rdkit</span> <span class="kn">import</span> <span class="n">rdBase</span>
+  48 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ErrMsg</span><span class="p">:</span>
+  49     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Failed to import RDKit module/package: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ErrMsg</span><span class="p">)</span>
+  50     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Check/update your RDKit environment and try again.</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+  51     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  52 
+  53 <span class="c1"># MayaChemTools imports...</span>
+  54 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;lib&quot;</span><span class="p">,</span> <span class="s2">&quot;Python&quot;</span><span class="p">))</span>
+  55 <span class="k">try</span><span class="p">:</span>
+  56     <span class="kn">from</span> <span class="nn">docopt</span> <span class="kn">import</span> <span class="n">docopt</span>
+  57     <span class="kn">import</span> <span class="nn">MiscUtil</span>
+  58     <span class="kn">import</span> <span class="nn">RDKitUtil</span>
+  59     <span class="kn">import</span> <span class="nn">OpenFEUtil</span>
+  60 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ErrMsg</span><span class="p">:</span>
+  61     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Failed to import MayaChemTools module/package: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ErrMsg</span><span class="p">)</span>
+  62     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Check/update your MayaChemTools environment and try again.</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+  63     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  64 
+  65 <span class="n">ScriptName</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+  66 <span class="n">Options</span> <span class="o">=</span> <span class="p">{}</span>
+  67 <span class="n">OptionsInfo</span> <span class="o">=</span> <span class="p">{}</span>
+  68 
+  69 
+  70 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+  71     <span class="sd">&quot;&quot;&quot;Start execution of the script.&quot;&quot;&quot;</span>
+  72 
+  73     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span>
+  74         <span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2"> (OpenFE v</span><span class="si">%s</span><span class="s2">; OpenMM v</span><span class="si">%s</span><span class="s2">; RDKit v</span><span class="si">%s</span><span class="s2">; MayaChemTools v</span><span class="si">%s</span><span class="s2">; </span><span class="si">%s</span><span class="s2">): Starting...</span><span class="se">\n</span><span class="s2">&quot;</span>
+  75         <span class="o">%</span> <span class="p">(</span>
+  76             <span class="n">ScriptName</span><span class="p">,</span>
+  77             <span class="n">openfe</span><span class="o">.</span><span class="n">version</span><span class="p">(</span><span class="s2">&quot;openfe&quot;</span><span class="p">),</span>
+  78             <span class="n">openfe</span><span class="o">.</span><span class="n">version</span><span class="p">(</span><span class="s2">&quot;openmm&quot;</span><span class="p">),</span>
+  79             <span class="n">rdBase</span><span class="o">.</span><span class="n">rdkitVersion</span><span class="p">,</span>
+  80             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetMayaChemToolsVersion</span><span class="p">(),</span>
+  81             <span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">(),</span>
+  82         <span class="p">)</span>
+  83     <span class="p">)</span>
+  84 
+  85     <span class="p">(</span><span class="n">WallClockTime</span><span class="p">,</span> <span class="n">ProcessorTime</span><span class="p">)</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetWallClockAndProcessorTime</span><span class="p">()</span>
+  86 
+  87     <span class="c1"># Retrieve command line arguments and options...</span>
+  88     <span class="n">RetrieveOptions</span><span class="p">()</span>
+  89 
+  90     <span class="c1"># Process and validate command line arguments and options...</span>
+  91     <span class="n">ProcessOptions</span><span class="p">()</span>
+  92 
+  93     <span class="c1"># Perform actions required by the script...</span>
+  94     <span class="n">CalculatePartialCharges</span><span class="p">()</span>
+  95 
+  96     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2">: Done...</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ScriptName</span><span class="p">)</span>
+  97     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Total time: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetFormattedElapsedTime</span><span class="p">(</span><span class="n">WallClockTime</span><span class="p">,</span> <span class="n">ProcessorTime</span><span class="p">))</span>
+  98 
+  99 
+ 100 <span class="k">def</span> <span class="nf">CalculatePartialCharges</span><span class="p">():</span>
+ 101     <span class="sd">&quot;&quot;&quot;Calculate partial charges and write them out to a SD file.&quot;&quot;&quot;</span>
+ 102 
+ 103     <span class="c1"># Process molecules...</span>
+ 104     <span class="n">Mols</span> <span class="o">=</span> <span class="n">ProcessMolecules</span><span class="p">()</span>
+ 105 
+ 106     <span class="c1"># Calculate charges...</span>
+ 107     <span class="n">ChargedMols</span> <span class="o">=</span> <span class="n">CalculateCharges</span><span class="p">(</span><span class="n">Mols</span><span class="p">)</span>
+ 108 
+ 109     <span class="c1"># Write charges...</span>
+ 110     <span class="n">WriteCharges</span><span class="p">(</span><span class="n">ChargedMols</span><span class="p">)</span>
+ 111 
+ 112 
+ 113 <span class="k">def</span> <span class="nf">CalculateCharges</span><span class="p">(</span><span class="n">Mols</span><span class="p">):</span>
+ 114     <span class="sd">&quot;&quot;&quot;Calculate partial charges.&quot;&quot;&quot;</span>
+ 115 
+ 116     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Calculating partial atomic charges (</span><span class="si">%s</span><span class="s2">)...&quot;</span> <span class="o">%</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Charge&quot;</span><span class="p">])</span>
+ 117 
+ 118     <span class="n">ChargedMols</span><span class="p">,</span> <span class="n">Status</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">CalculatePartialCharges</span><span class="p">(</span><span class="n">Mols</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Charge&quot;</span><span class="p">],</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ChargeParams&quot;</span><span class="p">])</span>
+ 119 
+ 120     <span class="k">if</span> <span class="ow">not</span> <span class="n">Status</span><span class="p">:</span>
+ 121         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span><span class="s2">&quot;Failed to calculate partial atomic charges.&quot;</span><span class="p">)</span>
+ 122 
+ 123     <span class="k">return</span> <span class="n">ChargedMols</span>
+ 124 
+ 125 
+ 126 <span class="k">def</span> <span class="nf">WriteCharges</span><span class="p">(</span><span class="n">ChargedMols</span><span class="p">):</span>
+ 127     <span class="sd">&quot;&quot;&quot;Write charges.&quot;&quot;&quot;</span>
+ 128 
+ 129     <span class="n">Writer</span> <span class="o">=</span> <span class="n">RDKitUtil</span><span class="o">.</span><span class="n">MoleculesWriter</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Outfile&quot;</span><span class="p">],</span> <span class="o">**</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutfileParams&quot;</span><span class="p">])</span>
+ 130     <span class="k">if</span> <span class="n">Writer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+ 131         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span><span class="s2">&quot;Failed to setup a writer for output fie </span><span class="si">%s</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Outfile&quot;</span><span class="p">])</span>
+ 132     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Generating file </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Outfile&quot;</span><span class="p">])</span>
+ 133 
+ 134     <span class="n">RDKitChargedMols</span> <span class="o">=</span> <span class="p">[</span><span class="n">openfe</span><span class="o">.</span><span class="n">SmallMoleculeComponent</span><span class="o">.</span><span class="n">to_rdkit</span><span class="p">(</span><span class="n">Mol</span><span class="p">)</span> <span class="k">for</span> <span class="n">Mol</span> <span class="ow">in</span> <span class="n">ChargedMols</span><span class="p">]</span>
+ 135 
+ 136     <span class="k">for</span> <span class="n">Mol</span> <span class="ow">in</span> <span class="n">RDKitChargedMols</span><span class="p">:</span>
+ 137         <span class="n">FormatPartialCharges</span><span class="p">(</span><span class="n">Mol</span><span class="p">)</span>
+ 138         <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">Mol</span><span class="p">)</span>
+ 139     <span class="n">Writer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+ 140 
+ 141 
+ 142 <span class="k">def</span> <span class="nf">FormatPartialCharges</span><span class="p">(</span><span class="n">Mol</span><span class="p">):</span>
+ 143     <span class="sd">&quot;&quot;&quot;Format partial charges.&quot;&quot;&quot;</span>
+ 144 
+ 145     <span class="n">Precision</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ChargeParams&quot;</span><span class="p">][</span><span class="s2">&quot;Precision&quot;</span><span class="p">]</span>
+ 146     <span class="n">LineSize</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ChargeParams&quot;</span><span class="p">][</span><span class="s2">&quot;LineSize&quot;</span><span class="p">]</span>
+ 147 
+ 148     <span class="c1"># RDkit uses Chem.CreateAtomDoublePropertyList(rdmol, &quot;PartialCharge&quot;) to set</span>
+ 149     <span class="c1"># up &#39;atom.dprop.PartialCharge&#39; employing &quot;\n&quot; as new line delimiter.</span>
+ 150     <span class="n">PropName</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">GetPartialChargePropName</span><span class="p">()</span>
+ 151     <span class="n">LineDelim</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+ 152 
+ 153     <span class="n">ChargesString</span> <span class="o">=</span> <span class="n">Mol</span><span class="o">.</span><span class="n">GetProp</span><span class="p">(</span><span class="n">PropName</span><span class="p">)</span>
+ 154 
+ 155     <span class="n">FormattedChargesLines</span> <span class="o">=</span> <span class="p">[]</span>
+ 156     <span class="n">CurrentLine</span> <span class="o">=</span> <span class="kc">None</span>
+ 157     <span class="n">CurrentLineSize</span> <span class="o">=</span> <span class="mi">0</span>
+ 158 
+ 159     <span class="k">for</span> <span class="n">ChargesLine</span> <span class="ow">in</span> <span class="n">ChargesString</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">LineDelim</span><span class="p">):</span>
+ 160         <span class="k">for</span> <span class="n">Value</span> <span class="ow">in</span> <span class="n">ChargesLine</span><span class="o">.</span><span class="n">split</span><span class="p">():</span>
+ 161             <span class="n">FormattedValue</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%.*f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">Precision</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">Value</span><span class="p">))</span>
+ 162             <span class="n">FormattedValueSize</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">FormattedValue</span><span class="p">)</span>
+ 163 
+ 164             <span class="k">if</span> <span class="p">(</span><span class="n">FormattedValueSize</span> <span class="o">+</span> <span class="n">CurrentLineSize</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">LineSize</span><span class="p">:</span>
+ 165                 <span class="k">if</span> <span class="n">CurrentLine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+ 166                     <span class="n">FormattedChargesLines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CurrentLine</span><span class="p">))</span>
+ 167 
+ 168                 <span class="n">CurrentLine</span> <span class="o">=</span> <span class="p">[</span><span class="n">FormattedValue</span><span class="p">]</span>
+ 169                 <span class="n">CurrentLineSize</span> <span class="o">=</span> <span class="n">FormattedValueSize</span>
+ 170             <span class="k">else</span><span class="p">:</span>
+ 171                 <span class="n">CurrentLineSize</span> <span class="o">+=</span> <span class="n">FormattedValueSize</span>
+ 172                 <span class="k">if</span> <span class="n">CurrentLine</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+ 173                     <span class="n">CurrentLine</span> <span class="o">=</span> <span class="p">[</span><span class="n">FormattedValue</span><span class="p">]</span>
+ 174                 <span class="k">else</span><span class="p">:</span>
+ 175                     <span class="c1"># Increment line size to account for space delimiter....</span>
+ 176                     <span class="n">CurrentLineSize</span> <span class="o">+=</span> <span class="mi">1</span>
+ 177                     <span class="n">CurrentLine</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FormattedValue</span><span class="p">)</span>
+ 178 
+ 179     <span class="k">if</span> <span class="n">CurrentLine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+ 180         <span class="n">FormattedChargesLines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CurrentLine</span><span class="p">))</span>
+ 181 
+ 182     <span class="n">FormattedChargesString</span> <span class="o">=</span> <span class="n">LineDelim</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">FormattedChargesLines</span><span class="p">)</span>
+ 183     <span class="n">Mol</span><span class="o">.</span><span class="n">SetProp</span><span class="p">(</span><span class="n">PropName</span><span class="p">,</span> <span class="n">FormattedChargesString</span><span class="p">)</span>
+ 184 
+ 185 
+ 186 <span class="k">def</span> <span class="nf">ProcessMolecules</span><span class="p">():</span>
+ 187     <span class="sd">&quot;&quot;&quot;Process molecules.&quot;&quot;&quot;</span>
+ 188 
+ 189     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Processing file </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Infile&quot;</span><span class="p">])</span>
+ 190     <span class="n">Mols</span><span class="p">,</span> <span class="n">MolCount</span><span class="p">,</span> <span class="n">ValidMolCount</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">ReadAndValidateMolecules</span><span class="p">(</span>
+ 191         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfilePath&quot;</span><span class="p">],</span> <span class="o">**</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfileParams&quot;</span><span class="p">]</span>
+ 192     <span class="p">)</span>
+ 193 
+ 194     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Total number of molecules: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">MolCount</span><span class="p">)</span>
+ 195     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Number of valid molecules: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ValidMolCount</span><span class="p">)</span>
+ 196     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Number of ignored molecules: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">MolCount</span> <span class="o">-</span> <span class="n">ValidMolCount</span><span class="p">))</span>
+ 197 
+ 198     <span class="k">if</span> <span class="n">ValidMolCount</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+ 199         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+ 200         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span><span class="s2">&quot;No valid molecules found in input file.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+ 201 
+ 202     <span class="k">return</span> <span class="n">Mols</span>
+ 203 
+ 204 
+ 205 <span class="k">def</span> <span class="nf">ConfigureLogging</span><span class="p">():</span>
+ 206     <span class="sd">&quot;&quot;&quot;Configure logging.&quot;&quot;&quot;</span>
+ 207 
+ 208     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;LoggingLevel&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--loggingLevel&quot;</span><span class="p">]</span>
+ 209 
+ 210     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^Warning$&quot;</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;LoggingLevel&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 211         <span class="n">LoggingLevel</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span>
+ 212     <span class="k">else</span><span class="p">:</span>
+ 213         <span class="n">LoggingLevel</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span>
+ 214 
+ 215     <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(levelname)s</span><span class="s2">: </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">LoggingLevel</span><span class="p">)</span>
+ 216 
+ 217 
+ 218 <span class="k">def</span> <span class="nf">ProcessOptions</span><span class="p">():</span>
+ 219     <span class="sd">&quot;&quot;&quot;Process and validate command line arguments and options.&quot;&quot;&quot;</span>
+ 220 
+ 221     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Processing options...&quot;</span><span class="p">)</span>
+ 222 
+ 223     <span class="c1"># Validate options...</span>
+ 224     <span class="n">ValidateOptions</span><span class="p">()</span>
+ 225 
+ 226     <span class="c1"># Configure logging...</span>
+ 227     <span class="n">ConfigureLogging</span><span class="p">()</span>
+ 228 
+ 229     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Infile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">]</span>
+ 230     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfilePath&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Infile&quot;</span><span class="p">])</span>
+ 231 
+ 232     <span class="n">ParamsDefaultInfoOverride</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;RemoveHydrogens&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+ 233     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfileParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ProcessOptionInfileParameters</span><span class="p">(</span>
+ 234         <span class="s2">&quot;--infileParams&quot;</span><span class="p">,</span>
+ 235         <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infileParams&quot;</span><span class="p">],</span>
+ 236         <span class="n">InfileName</span><span class="o">=</span><span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">],</span>
+ 237         <span class="n">ParamsDefaultInfo</span><span class="o">=</span><span class="n">ParamsDefaultInfoOverride</span><span class="p">,</span>
+ 238     <span class="p">)</span>
+ 239 
+ 240     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Outfile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfile&quot;</span><span class="p">]</span>
+ 241     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutfileParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ProcessOptionOutfileParameters</span><span class="p">(</span>
+ 242         <span class="s2">&quot;--outfileParams&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfileParams&quot;</span><span class="p">]</span>
+ 243     <span class="p">)</span>
+ 244 
+ 245     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Charge&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">ProcessOptionOpenFECharge</span><span class="p">(</span><span class="s2">&quot;-c, --charge&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--charge&quot;</span><span class="p">])</span>
+ 246     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ChargeParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">ProcessOptionOpenFEChargeParameters</span><span class="p">(</span>
+ 247         <span class="s2">&quot;--chargeParams&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--chargeParams&quot;</span><span class="p">],</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Charge&quot;</span><span class="p">]</span>
+ 248     <span class="p">)</span>
+ 249 
+ 250     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;LoggingLevel&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--loggingLevel&quot;</span><span class="p">]</span>
+ 251 
+ 252     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Overwrite&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--overwrite&quot;</span><span class="p">]</span>
+ 253 
+ 254 
+ 255 <span class="k">def</span> <span class="nf">RetrieveOptions</span><span class="p">():</span>
+ 256     <span class="sd">&quot;&quot;&quot;Retrieve command line arguments and options.&quot;&quot;&quot;</span>
+ 257 
+ 258     <span class="c1"># Get options...</span>
+ 259     <span class="k">global</span> <span class="n">Options</span>
+ 260     <span class="n">Options</span> <span class="o">=</span> <span class="n">docopt</span><span class="p">(</span><span class="n">_docoptUsage_</span><span class="p">)</span>
+ 261 
+ 262     <span class="c1"># Set current working directory to the specified directory...</span>
+ 263     <span class="n">WorkingDir</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--workingdir&quot;</span><span class="p">]</span>
+ 264     <span class="k">if</span> <span class="n">WorkingDir</span><span class="p">:</span>
+ 265         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">WorkingDir</span><span class="p">)</span>
+ 266 
+ 267     <span class="c1"># Handle examples option...</span>
+ 268     <span class="k">if</span> <span class="s2">&quot;--examples&quot;</span> <span class="ow">in</span> <span class="n">Options</span> <span class="ow">and</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--examples&quot;</span><span class="p">]:</span>
+ 269         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetExamplesTextFromDocOptText</span><span class="p">(</span><span class="n">_docoptUsage_</span><span class="p">))</span>
+ 270         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+ 271 
+ 272 
+ 273 <span class="k">def</span> <span class="nf">ValidateOptions</span><span class="p">():</span>
+ 274     <span class="sd">&quot;&quot;&quot;Validate option values.&quot;&quot;&quot;</span>
+ 275 
+ 276     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFilePath</span><span class="p">(</span><span class="s2">&quot;-i, --infile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">])</span>
+ 277     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFileExt</span><span class="p">(</span><span class="s2">&quot;-i, --infile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">],</span> <span class="s2">&quot;sdf sd mol&quot;</span><span class="p">)</span>
+ 278 
+ 279     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFileExt</span><span class="p">(</span><span class="s2">&quot;-o, --outfile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfile&quot;</span><span class="p">],</span> <span class="s2">&quot;sdf sd&quot;</span><span class="p">)</span>
+ 280     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionsOutputFileOverwrite</span><span class="p">(</span>
+ 281         <span class="s2">&quot;-o, --outfile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfile&quot;</span><span class="p">],</span> <span class="s2">&quot;--overwrite&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--overwrite&quot;</span><span class="p">]</span>
+ 282     <span class="p">)</span>
+ 283     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionsDistinctFileNames</span><span class="p">(</span>
+ 284         <span class="s2">&quot;-i, --infile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">],</span> <span class="s2">&quot;-o, --outfile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfile&quot;</span><span class="p">]</span>
+ 285     <span class="p">)</span>
+ 286 
+ 287     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span>
+ 288         <span class="s2">&quot;-c, --charge&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--charge&quot;</span><span class="p">],</span> <span class="s2">&quot;AM1BCC AM1-Mulliken Espaloma Gasteiger MMFF94 NAGL&quot;</span>
+ 289     <span class="p">)</span>
+ 290 
+ 291     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--loggingLevel&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--loggingLevel&quot;</span><span class="p">],</span> <span class="s2">&quot;Info Warning&quot;</span><span class="p">)</span>
+ 292 
+ 293 
+ 294 <span class="c1"># Setup a usage string for docopt...</span>
+ 295 <span class="n">_docoptUsage_</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+ 296 <span class="s2">OpenFECalculatePartialCharges.py - Generate ligand network</span>
+ 297 
+ 298 <span class="s2">Usage:</span>
+ 299 <span class="s2">    OpenFECalculatePartialCharges.py [--charge &lt;text&gt;]  [--chargeParams &lt;Name,Value,..&gt;]</span>
+ 300 <span class="s2">                                     [--infileParams &lt;Name,Value,...&gt;] [--loggingLevel &lt;Info or Warning&gt;]</span>
+ 301 <span class="s2">                                     [--outfileParams &lt;Name,Value,...&gt;] [--overwrite] [-w &lt;dir&gt;] -i &lt;infile&gt; -o &lt;outfile&gt;</span>
+ 302 <span class="s2">    OpenFECalculatePartialCharges.py -h | --help | -e | --examples</span>
+ 303 
+ 304 <span class="s2">Description:</span>
+ 305 <span class="s2">    Calculate partial atomic charges for molecules in an input file and write </span>
+ 306 <span class="s2">    them out to a SD file.</span>
+ 307 
+ 308 <span class="s2">    The partial charges are written to SD file as values of the data field label</span>
+ 309 <span class="s2">    &#39;atom.dprop.PartialCharge&#39;. These values are automatically processed by</span>
+ 310 <span class="s2">    RDKit during the loading of a SD file and assigned to atoms. You may retrieve</span>
+ 311 <span class="s2">    these value using RDKit method Atom.GetDoubleProp(&#39;PartialCharge&#39;)</span>
+ 312 
+ 313 <span class="s2">    You must specify a valid input file containing 3D coordinates for all</span>
+ 314 <span class="s2">    molecules. In addition, the hydrogens must be present for all molecules</span>
+ 315 <span class="s2">    in the input file.</span>
+ 316 
+ 317 <span class="s2">    The supported input file formats are: Mol (.mol), SD (.sdf, .sd)</span>
+ 318 
+ 319 <span class="s2">    The supported output file formats is: SD (.sdf, .sd)</span>
+ 320 
+ 321 <span class="s2">Options:</span>
+ 322 <span class="s2">    -e, --examples</span>
+ 323 <span class="s2">        Print examples.</span>
+ 324 <span class="s2">    -h, --help</span>
+ 325 <span class="s2">        Print this help message.</span>
+ 326 <span class="s2">    -i, --infile &lt;infile&gt;</span>
+ 327 <span class="s2">        Input file name.</span>
+ 328 <span class="s2">    -c, --charge &lt;text&gt;  [default: AM1BCC]</span>
+ 329 <span class="s2">        Type of partial atomic charges to calculate. Possible values: AM1BCC,</span>
+ 330 <span class="s2">        AM1-Mulliken, Espaloma, Gasteiger, MMFF94, or NAGL.</span>
+ 331 <span class="s2">    --chargeParams &lt;Name,Value,..&gt;  [default: auto]</span>
+ 332 <span class="s2">        A comma delimited list of parameter name and value pairs for calculating</span>
+ 333 <span class="s2">        partial aromic charges.</span>
+ 334 <span class="s2">        </span>
+ 335 <span class="s2">        The supported parameter names along with their default values are</span>
+ 336 <span class="s2">            </span>
+ 337 <span class="s2">            naglModel, auto [ Possible value: A valid NAGL model name. By</span>
+ 338 <span class="s2">                default, it corresponds to the latest AM1BCC production model ]</span>
+ 339 <span class="s2">            toolkit, auto [ Possible values: RDKit or AmberTools. Default value:</span>
+ 340 <span class="s2">                RDKit for Gasteiger and MMFF94; AmberTools for AM1BCC and</span>
+ 341 <span class="s2">                AM1-Mulliken; Not used for Espaloma and NAGL. ]</span>
+ 342 <span class="s2">            </span>
+ 343 <span class="s2">            numProcessors, 1  [ Only used for AM1BCC, AM1-Mulliken, Espaloma,</span>
+ 344 <span class="s2">                and NAGL ]</span>
+ 345 <span class="s2">            </span>
+ 346 <span class="s2">            precision, 4</span>
+ 347 <span class="s2">            lineSize, 90</span>
+ 348 <span class="s2">            </span>
+ 349 <span class="s2">            useConformer, auto  [ Use current conformer. Possible values: yes or</span>
+ 350 <span class="s2">                no. Default value: no for Gasteiger using AmberToolkit;</span>
+ 351 <span class="s2">                otherwise, yes. ]</span>
+ 352 <span class="s2">            </span>
+ 353 <span class="s2">        A brief description of parameters is provided below:</span>
+ 354 <span class="s2">            </span>
+ 355 <span class="s2">            naglModel: NAGL model name. The latest AM1BCC NAGL production</span>
+ 356 <span class="s2">                model is used by default. You must specify it explicitly in case no</span>
+ 357 <span class="s2">                production model is available.</span>
+ 358 <span class="s2">            toolkit: Toolkit name. RDKit for Gasteiger and MMFF94; AmberTools</span>
+ 359 <span class="s2">                for AM1BCC, AM1-Mulliken, and Gasteiger.</span>
+ 360 <span class="s2">            </span>
+ 361 <span class="s2">            numProcessors: Number of processors. This is only used during the</span>
+ 362 <span class="s2">                calculation of AM1BCC, AM1-Mulliken, Espaloma, and NAGL</span>
+ 363 <span class="s2">                employing OpenFE method bulk_assign_partial_charges().</span>
+ 364 <span class="s2">            </span>
+ 365 <span class="s2">            precision: Floating point precision for writing the calculated</span>
+ 366 <span class="s2">                partial atomic charges.</span>
+ 367 <span class="s2">            lineSize: Line size for writing the calculated partial aromic</span>
+ 368 <span class="s2">                charges to SD file as a string value for data field label</span>
+ 369 <span class="s2">                &#39;atom.dprop.PartialCharge&#39;.</span>
+ 370 <span class="s2">            </span>
+ 371 <span class="s2">            useConformer: Use current conformer. The current conformer is</span>
+ 372 <span class="s2">                always used to calculate AM1BCC, Espaloma abd NAGL charges</span>
+ 373 <span class="s2">                using OpenFE method bulk_assign_partial_charges() and this</span>
+ 374 <span class="s2">                option is ignored. In addition, the option value is passed to</span>
+ 375 <span class="s2">                OpenFF method assign_partial_charges() during the calculation</span>
+ 376 <span class="s2">                of AM1-Mulliken, Gasteiger and MMFF94 charges employing</span>
+ 377 <span class="s2">                AmberTools or RDKit. The RDKit functions, however, ignore the</span>
+ 378 <span class="s2">                conformer during the calculation of Gasteiger and MMFF94</span>
+ 379 <span class="s2">                charges. The current conformer appears not used to calculate</span>
+ 380 <span class="s2">                Gasteiger charges employing AmberTools.</span>
+ 381 <span class="s2">            </span>
+ 382 <span class="s2">    --infileParams &lt;Name,Value,...&gt;  [default: auto]</span>
+ 383 <span class="s2">        A comma delimited list of parameter name and value pairs for reading</span>
+ 384 <span class="s2">        molecules from files. The supported parameter names for different file</span>
+ 385 <span class="s2">        formats, along with their default values, are shown below:</span>
+ 386 <span class="s2">            </span>
+ 387 <span class="s2">            SD,MOL: removeHydrogens,no,sanitize,yes,strictParsing,yes</span>
+ 388 <span class="s2">            </span>
+ 389 <span class="s2">    --loggingLevel &lt;Info or Warning&gt;  [default: Warning]</span>
+ 390 <span class="s2">        Logging level to configure the &#39;root logger&#39; via logging.basicConfig()</span>
+ 391 <span class="s2">        function. The default logging level is changed from &#39;logging.INFO&#39; to</span>
+ 392 <span class="s2">        &#39;logging.WARNING&#39;. Otherwise, OpenFE and its associated modules</span>
+ 393 <span class="s2">        may generate a lot of informational messages.</span>
+ 394 <span class="s2">    -o, --outfile &lt;outfile&gt;</span>
+ 395 <span class="s2">        Output file name.</span>
+ 396 <span class="s2">    --outfileParams &lt;Name,Value,...&gt;  [default: auto]</span>
+ 397 <span class="s2">        A comma delimited list of parameter name and value pairs for writing</span>
+ 398 <span class="s2">        molecules to files. The supported parameter names for different file</span>
+ 399 <span class="s2">        formats, along with their default values, are shown below:</span>
+ 400 <span class="s2">            </span>
+ 401 <span class="s2">            SD: kekulize,yes,forceV3000,no</span>
+ 402 <span class="s2">            </span>
+ 403 <span class="s2">    --overwrite</span>
+ 404 <span class="s2">        Overwrite existing files.</span>
+ 405 <span class="s2">    -w, --workingdir &lt;dir&gt;</span>
+ 406 <span class="s2">        Location of working directory which defaults to the current directory.</span>
+ 407 
+ 408 <span class="s2">Examples:</span>
+ 409 <span class="s2">    To calculate AM1BCC partial atomic charges for molecules in a SD file and</span>
+ 410 <span class="s2">    file and write them out to a file, type:</span>
+ 411 
+ 412 <span class="s2">        % OpenFECalculatePartialCharges.py -i SampleTyk2Ligands.sdf</span>
+ 413 <span class="s2">          -o SampleTyk2LigandsAM1BCCOut.sdf</span>
+ 414 
+ 415 <span class="s2">    To run the first example for calculating AM1-Mulliken charges using</span>
+ 416 <span class="s2">    AmberTools, type:</span>
+ 417 
+ 418 <span class="s2">        % OpenFECalculatePartialCharges.py -i SampleTyk2Ligands.sdf</span>
+ 419 <span class="s2">          -o SampleTyk2LigandsAM1MullikenOut.sdf -c AM1-Mulliken</span>
+ 420 
+ 421 <span class="s2">    To run the first example for calculating Gasteiger charges using RDKit,</span>
+ 422 <span class="s2">    type:</span>
+ 423 
+ 424 <span class="s2">        % OpenFECalculatePartialCharges.py -i SampleTyk2Ligands.sdf</span>
+ 425 <span class="s2">          -o SampleTyk2LigandsGasteigerRDKit.sdf -c Gasteiger</span>
+ 426 
+ 427 <span class="s2">    To run the first example for calculating Gasteiger charges using</span>
+ 428 <span class="s2">    AmberTools, type:</span>
+ 429 
+ 430 <span class="s2">        % OpenFECalculatePartialCharges.py -i SampleTyk2Ligands.sdf</span>
+ 431 <span class="s2">          -o SampleTyk2LigandsasteigerAmberTools.sdf -c Gasteiger</span>
+ 432 <span class="s2">          --chargeParams &quot;toolkit,AmberTools&quot;</span>
+ 433 
+ 434 <span class="s2">    To run the first example for calculating NAGL charges using the default</span>
+ 435 <span class="s2">    production AM1BCC model, type:</span>
+ 436 
+ 437 <span class="s2">        %  OpenFECalculatePartialCharges.py -i SampleTyk2Ligands.sdf</span>
+ 438 <span class="s2">          -o SampleTyk2LigandsNAGL.sdf -c NAGL</span>
+ 439 
+ 440 <span class="s2">    To run the first example for calculating NAGL charges using a specific</span>
+ 441 <span class="s2">    model, type:</span>
+ 442 
+ 443 <span class="s2">        %  OpenFECalculatePartialCharges.py -i SampleTyk2Ligands.sdf</span>
+ 444 <span class="s2">          -o SampleTyk2LigandsNAGL.sdf -c NAGL</span>
+ 445 <span class="s2">          --chargeParams &quot;naglmodel, openff-gnn-am1bcc-0.1.0-rc.3.pt&quot;</span>
+ 446 
+ 447 <span class="s2">    To run the first example by specifying explicit values for various parameters,</span>
+ 448 <span class="s2">    type:</span>
+ 449 
+ 450 <span class="s2">        % OpenFECalculatePartialCharges.py -i SampleTyk2Ligands.sdf</span>
+ 451 <span class="s2">          -o SampleTyk2LigandsAM1BCCOut.sdf -c AM1BCC</span>
+ 452 <span class="s2">          --chargeParams &quot;numProcessors, 4, precision, 4, lineSize, 90&quot;</span>
+ 453 <span class="s2">          --loggingLevel Warning</span>
+ 454 
+ 455 <span class="s2">Author:</span>
+ 456 <span class="s2">    Manish Sud(msud@san.rr.com)</span>
+ 457 
+ 458 <span class="s2">See also:</span>
+ 459 <span class="s2">    OpenFECalculateAbsoluteHydrationFreeEnergy.py, OpenFEGenerateLigandNetwork.py,</span>
+ 460 <span class="s2">    OpenFECalculateRelativeBindingFreeEnergy.py,</span>
+ 461 <span class="s2">    OpenFECalculateRelativeHydrationFreeEnergy.py</span>
+ 462 
+ 463 <span class="s2">Copyright:</span>
+ 464 <span class="s2">    Copyright (C) 2026 Manish Sud. All rights reserved.</span>
+ 465 
+ 466 <span class="s2">    The functionality available in this script is implemented using OpenFE, an</span>
+ 467 <span class="s2">    open source molecuar for alchemical free energy calculations.</span>
+ 468 
+ 469 <span class="s2">    This file is part of MayaChemTools.</span>
+ 470 
+ 471 <span class="s2">    MayaChemTools is free software; you can redistribute it and/or modify it under</span>
+ 472 <span class="s2">    the terms of the GNU Lesser General Public License as published by the Free</span>
+ 473 <span class="s2">    Software Foundation; either version 3 of the License, or (at your option) any</span>
+ 474 <span class="s2">    later version.</span>
+ 475 
+ 476 <span class="s2">&quot;&quot;&quot;</span>
+ 477 
+ 478 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+ 479     <span class="n">main</span><span class="p">()</span>
+</pre>
+<br />
+<center>
+<img src="../../../images/h2o2.png">
+</center>
+</body>
+</html>

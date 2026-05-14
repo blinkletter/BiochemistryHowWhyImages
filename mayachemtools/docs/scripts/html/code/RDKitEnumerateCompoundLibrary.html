@@ -1,0 +1,894 @@
+<html>
+<head>
+<title>MayaChemTools:Code:RDKitEnumerateCompoundLibrary.py</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../../css/MayaChemToolsPythonCode.css">
+</head>
+<body leftmargin="20" rightmargin="20" topmargin="10" bottommargin="10">
+<br/>
+<center>
+<a href="http://www.mayachemtools.org" title="MayaChemTools Home"><img src="../../../images/MayaChemToolsLogo.gif" border="0" alt="MayaChemTools"></a>
+</center>
+<br/>
+<pre>
+   1 <span class="ch">#!/bin/env python</span>
+   2 <span class="c1">#</span>
+   3 <span class="c1"># File: RDKitEnumerateCompoundLibrary.py</span>
+   4 <span class="c1"># Author: Manish Sud &lt;msud@san.rr.com&gt;</span>
+   5 <span class="c1">#</span>
+   6 <span class="c1"># Copyright (C) 2026 Manish Sud. All rights reserved.</span>
+   7 <span class="c1">#</span>
+   8 <span class="c1"># The functionality available in this script is implemented using RDKit, an</span>
+   9 <span class="c1"># open source toolkit for cheminformatics developed by Greg Landrum.</span>
+  10 <span class="c1">#</span>
+  11 <span class="c1"># This file is part of MayaChemTools.</span>
+  12 <span class="c1">#</span>
+  13 <span class="c1"># MayaChemTools is free software; you can redistribute it and/or modify it under</span>
+  14 <span class="c1"># the terms of the GNU Lesser General Public License as published by the Free</span>
+  15 <span class="c1"># Software Foundation; either version 3 of the License, or (at your option) any</span>
+  16 <span class="c1"># later version.</span>
+  17 <span class="c1">#</span>
+  18 <span class="c1"># MayaChemTools is distributed in the hope that it will be useful, but without</span>
+  19 <span class="c1"># any warranty; without even the implied warranty of merchantability of fitness</span>
+  20 <span class="c1"># for a particular purpose.  See the GNU Lesser General Public License for more</span>
+  21 <span class="c1"># details.</span>
+  22 <span class="c1">#</span>
+  23 <span class="c1"># You should have received a copy of the GNU Lesser General Public License</span>
+  24 <span class="c1"># along with MayaChemTools; if not, see &lt;http://www.gnu.org/licenses/&gt; or</span>
+  25 <span class="c1"># write to the Free Software Foundation Inc., 59 Temple Place, Suite 330,</span>
+  26 <span class="c1"># Boston, MA, 02111-1307, USA.</span>
+  27 <span class="c1">#</span>
+  28 
+  29 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+  30 
+  31 <span class="kn">import</span> <span class="nn">os</span>
+  32 <span class="kn">import</span> <span class="nn">sys</span>
+  33 <span class="kn">import</span> <span class="nn">time</span>
+  34 <span class="kn">import</span> <span class="nn">re</span>
+  35 
+  36 <span class="c1"># RDKit imports...</span>
+  37 <span class="k">try</span><span class="p">:</span>
+  38     <span class="kn">from</span> <span class="nn">rdkit</span> <span class="kn">import</span> <span class="n">rdBase</span>
+  39     <span class="kn">from</span> <span class="nn">rdkit</span> <span class="kn">import</span> <span class="n">Chem</span>
+  40     <span class="kn">from</span> <span class="nn">rdkit.Chem</span> <span class="kn">import</span> <span class="n">AllChem</span>
+  41 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ErrMsg</span><span class="p">:</span>
+  42     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Failed to import RDKit module/package: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ErrMsg</span><span class="p">)</span>
+  43     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Check/update your RDKit environment and try again.</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+  44     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  45 
+  46 <span class="c1"># MayaChemTools imports...</span>
+  47 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;lib&quot;</span><span class="p">,</span> <span class="s2">&quot;Python&quot;</span><span class="p">))</span>
+  48 <span class="k">try</span><span class="p">:</span>
+  49     <span class="kn">from</span> <span class="nn">docopt</span> <span class="kn">import</span> <span class="n">docopt</span>
+  50     <span class="kn">import</span> <span class="nn">MiscUtil</span>
+  51     <span class="kn">import</span> <span class="nn">RDKitUtil</span>
+  52 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ErrMsg</span><span class="p">:</span>
+  53     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Failed to import MayaChemTools module/package: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ErrMsg</span><span class="p">)</span>
+  54     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Check/update your MayaChemTools environment and try again.</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+  55     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  56 
+  57 <span class="n">ScriptName</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+  58 <span class="n">Options</span> <span class="o">=</span> <span class="p">{}</span>
+  59 <span class="n">OptionsInfo</span> <span class="o">=</span> <span class="p">{}</span>
+  60 
+  61 <span class="n">RxnNamesMap</span> <span class="o">=</span> <span class="p">{}</span>
+  62 
+  63 
+  64 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+  65     <span class="sd">&quot;&quot;&quot;Start execution of the script.&quot;&quot;&quot;</span>
+  66 
+  67     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span>
+  68         <span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2"> (RDKit v</span><span class="si">%s</span><span class="s2">; MayaChemTools v</span><span class="si">%s</span><span class="s2">; </span><span class="si">%s</span><span class="s2">): Starting...</span><span class="se">\n</span><span class="s2">&quot;</span>
+  69         <span class="o">%</span> <span class="p">(</span><span class="n">ScriptName</span><span class="p">,</span> <span class="n">rdBase</span><span class="o">.</span><span class="n">rdkitVersion</span><span class="p">,</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetMayaChemToolsVersion</span><span class="p">(),</span> <span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">())</span>
+  70     <span class="p">)</span>
+  71 
+  72     <span class="p">(</span><span class="n">WallClockTime</span><span class="p">,</span> <span class="n">ProcessorTime</span><span class="p">)</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetWallClockAndProcessorTime</span><span class="p">()</span>
+  73 
+  74     <span class="c1"># Retrieve command line arguments and options...</span>
+  75     <span class="n">RetrieveOptions</span><span class="p">()</span>
+  76 
+  77     <span class="c1"># Process and validate command line arguments and options...</span>
+  78     <span class="n">ProcessOptions</span><span class="p">()</span>
+  79 
+  80     <span class="c1"># Perform actions required by the script...</span>
+  81     <span class="n">PerformChemicalLibraryEnumeration</span><span class="p">()</span>
+  82 
+  83     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2">: Done...</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ScriptName</span><span class="p">)</span>
+  84     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Total time: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetFormattedElapsedTime</span><span class="p">(</span><span class="n">WallClockTime</span><span class="p">,</span> <span class="n">ProcessorTime</span><span class="p">))</span>
+  85 
+  86 
+  87 <span class="k">def</span> <span class="nf">PerformChemicalLibraryEnumeration</span><span class="p">():</span>
+  88     <span class="sd">&quot;&quot;&quot;Retrieve functional groups information and perform search.&quot;&quot;&quot;</span>
+  89 
+  90     <span class="n">ProcessReactionNamesInfo</span><span class="p">()</span>
+  91     <span class="n">PerformEnumeration</span><span class="p">()</span>
+  92 
+  93 
+  94 <span class="k">def</span> <span class="nf">PerformEnumeration</span><span class="p">():</span>
+  95     <span class="sd">&quot;&quot;&quot;Enumerate virutal compound library.&quot;&quot;&quot;</span>
+  96 
+  97     <span class="n">ReactantFilesList</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ReactantFilesList&quot;</span><span class="p">]</span>
+  98     <span class="n">Outfile</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Outfile&quot;</span><span class="p">]</span>
+  99 
+ 100     <span class="n">RxnByNameMode</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnByNameMode&quot;</span><span class="p">]</span>
+ 101     <span class="k">if</span> <span class="n">RxnByNameMode</span><span class="p">:</span>
+ 102         <span class="n">RxnSMARTSPattern</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnNameSMARTS&quot;</span><span class="p">]</span>
+ 103     <span class="k">else</span><span class="p">:</span>
+ 104         <span class="n">RxnSMARTSPattern</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;SpecifiedSMARTS&quot;</span><span class="p">]</span>
+ 105 
+ 106     <span class="c1"># Set up a reaction and match number of reactants in rxn SMARTS against number of</span>
+ 107     <span class="c1"># reactant files...</span>
+ 108     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Validating reaction SMARTS...&quot;</span><span class="p">)</span>
+ 109     <span class="k">try</span><span class="p">:</span>
+ 110         <span class="n">Rxn</span> <span class="o">=</span> <span class="n">AllChem</span><span class="o">.</span><span class="n">ReactionFromSmarts</span><span class="p">(</span><span class="n">RxnSMARTSPattern</span><span class="p">)</span>
+ 111     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ErrMsg</span><span class="p">:</span>
+ 112         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span><span class="s2">&quot;Failed to validate reaction SMARTS </span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">RxnSMARTSPattern</span><span class="p">,</span> <span class="n">ErrMsg</span><span class="p">))</span>
+ 113 
+ 114     <span class="n">RxnReactantsCount</span> <span class="o">=</span> <span class="n">Rxn</span><span class="o">.</span><span class="n">GetNumReactantTemplates</span><span class="p">()</span>
+ 115 
+ 116     <span class="n">ReactantFilesList</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ReactantFilesList&quot;</span><span class="p">]</span>
+ 117     <span class="n">ReactantFilesCount</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ReactantFilesList</span><span class="p">)</span>
+ 118     <span class="k">if</span> <span class="n">ReactantFilesCount</span> <span class="o">!=</span> <span class="n">RxnReactantsCount</span><span class="p">:</span>
+ 119         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 120             <span class="s2">&quot;The number of specified reactant files, </span><span class="si">%d</span><span class="s2">, must match number of reactants, </span><span class="si">%d</span><span class="s2">, in reaction SMARTS&quot;</span>
+ 121             <span class="o">%</span> <span class="p">(</span><span class="n">ReactantFilesCount</span><span class="p">,</span> <span class="n">RxnReactantsCount</span><span class="p">)</span>
+ 122         <span class="p">)</span>
+ 123 
+ 124     <span class="c1"># Retrieve reactant molecules...</span>
+ 125     <span class="n">ReactantsMolsList</span> <span class="o">=</span> <span class="n">RetrieveReactantsMolecules</span><span class="p">()</span>
+ 126 
+ 127     <span class="c1"># Set up  a molecule writer...</span>
+ 128     <span class="n">Writer</span> <span class="o">=</span> <span class="kc">None</span>
+ 129     <span class="n">Writer</span> <span class="o">=</span> <span class="n">RDKitUtil</span><span class="o">.</span><span class="n">MoleculesWriter</span><span class="p">(</span><span class="n">Outfile</span><span class="p">,</span> <span class="o">**</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutfileParams&quot;</span><span class="p">])</span>
+ 130     <span class="k">if</span> <span class="n">Writer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+ 131         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span><span class="s2">&quot;Failed to setup a writer for output fie </span><span class="si">%s</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="n">Outfile</span><span class="p">)</span>
+ 132 
+ 133     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Generating file </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="n">Outfile</span><span class="p">)</span>
+ 134 
+ 135     <span class="c1"># Set up reaction...</span>
+ 136     <span class="n">ReturnReactants</span> <span class="o">=</span> <span class="kc">False</span>
+ 137     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;UseReactantNames&quot;</span><span class="p">]:</span>
+ 138         <span class="n">ReturnReactants</span> <span class="o">=</span> <span class="kc">True</span>
+ 139     <span class="n">RxnProducts</span> <span class="o">=</span> <span class="n">AllChem</span><span class="o">.</span><span class="n">EnumerateLibraryFromReaction</span><span class="p">(</span><span class="n">Rxn</span><span class="p">,</span> <span class="n">ReactantsMolsList</span><span class="p">,</span> <span class="n">ReturnReactants</span><span class="p">)</span>
+ 140 
+ 141     <span class="c1"># Generate product molecules and write them out...</span>
+ 142 
+ 143     <span class="n">Compute2DCoords</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Compute2DCoords&quot;</span><span class="p">]</span>
+ 144     <span class="n">Sanitize</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Sanitize&quot;</span><span class="p">]</span>
+ 145 
+ 146     <span class="n">ProdMolCount</span> <span class="o">=</span> <span class="mi">0</span>
+ 147     <span class="n">ValidProdMolCount</span> <span class="o">=</span> <span class="mi">0</span>
+ 148 
+ 149     <span class="k">if</span> <span class="n">ReturnReactants</span><span class="p">:</span>
+ 150         <span class="k">for</span> <span class="n">Products</span><span class="p">,</span> <span class="n">Reactants</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">RxnProducts</span><span class="p">):</span>
+ 151             <span class="k">for</span> <span class="n">ProdMol</span> <span class="ow">in</span> <span class="n">Products</span><span class="p">:</span>
+ 152                 <span class="n">ProdMolCount</span> <span class="o">+=</span> <span class="mi">1</span>
+ 153 
+ 154                 <span class="c1"># Set product name...</span>
+ 155                 <span class="n">ReactantMolNames</span> <span class="o">=</span> <span class="p">[</span><span class="n">ReactantMol</span><span class="o">.</span><span class="n">GetProp</span><span class="p">(</span><span class="s2">&quot;_Name&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">ReactantMol</span> <span class="ow">in</span> <span class="n">Reactants</span><span class="p">]</span>
+ 156                 <span class="n">Delimiter</span> <span class="o">=</span> <span class="s2">&quot;_&quot;</span>
+ 157                 <span class="n">ProdMolName</span> <span class="o">=</span> <span class="n">Delimiter</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ReactantMolNames</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_Prod</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ProdMolCount</span>
+ 158                 <span class="n">ProdMol</span><span class="o">.</span><span class="n">SetProp</span><span class="p">(</span><span class="s2">&quot;_Name&quot;</span><span class="p">,</span> <span class="n">ProdMolName</span><span class="p">)</span>
+ 159 
+ 160                 <span class="n">Status</span> <span class="o">=</span> <span class="n">WriteProductMolecule</span><span class="p">(</span><span class="n">Writer</span><span class="p">,</span> <span class="n">ProdMol</span><span class="p">,</span> <span class="n">Sanitize</span><span class="p">,</span> <span class="n">Compute2DCoords</span><span class="p">)</span>
+ 161                 <span class="k">if</span> <span class="n">Status</span><span class="p">:</span>
+ 162                     <span class="n">ValidProdMolCount</span> <span class="o">+=</span> <span class="mi">1</span>
+ 163     <span class="k">else</span><span class="p">:</span>
+ 164         <span class="k">for</span> <span class="n">Products</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">RxnProducts</span><span class="p">):</span>
+ 165             <span class="k">for</span> <span class="n">ProdMol</span> <span class="ow">in</span> <span class="n">Products</span><span class="p">:</span>
+ 166                 <span class="n">ProdMolCount</span> <span class="o">+=</span> <span class="mi">1</span>
+ 167 
+ 168                 <span class="c1"># Set product name...</span>
+ 169                 <span class="n">ProdMolName</span> <span class="o">=</span> <span class="s2">&quot;Prod</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ProdMolCount</span>
+ 170                 <span class="n">ProdMol</span><span class="o">.</span><span class="n">SetProp</span><span class="p">(</span><span class="s2">&quot;_Name&quot;</span><span class="p">,</span> <span class="n">ProdMolName</span><span class="p">)</span>
+ 171 
+ 172                 <span class="n">Status</span> <span class="o">=</span> <span class="n">WriteProductMolecule</span><span class="p">(</span><span class="n">Writer</span><span class="p">,</span> <span class="n">ProdMol</span><span class="p">,</span> <span class="n">Sanitize</span><span class="p">,</span> <span class="n">Compute2DCoords</span><span class="p">)</span>
+ 173                 <span class="k">if</span> <span class="n">Status</span><span class="p">:</span>
+ 174                     <span class="n">ValidProdMolCount</span> <span class="o">+=</span> <span class="mi">1</span>
+ 175 
+ 176     <span class="k">if</span> <span class="n">Writer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+ 177         <span class="n">Writer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+ 178 
+ 179     <span class="k">if</span> <span class="n">ValidProdMolCount</span><span class="p">:</span>
+ 180         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Total number of product molecules: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ProdMolCount</span><span class="p">)</span>
+ 181         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Number of valid product molecules: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ValidProdMolCount</span><span class="p">)</span>
+ 182         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Number of ignored product molecules: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ProdMolCount</span> <span class="o">-</span> <span class="n">ValidProdMolCount</span><span class="p">))</span>
+ 183     <span class="k">else</span><span class="p">:</span>
+ 184         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span>
+ 185             <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The compound library enumeration failed to generate any product molecules.</span><span class="se">\n</span><span class="s2">Check to make sure the reactants specified in input files match their corresponding specifications in reaction SMARTS and try again.&quot;</span>
+ 186         <span class="p">)</span>
+ 187 
+ 188 
+ 189 <span class="k">def</span> <span class="nf">WriteProductMolecule</span><span class="p">(</span><span class="n">Writer</span><span class="p">,</span> <span class="n">ProdMol</span><span class="p">,</span> <span class="n">Sanitize</span><span class="p">,</span> <span class="n">Compute2DCoords</span><span class="p">):</span>
+ 190     <span class="sd">&quot;&quot;&quot;Prepare and write out product  molecule.&quot;&quot;&quot;</span>
+ 191 
+ 192     <span class="k">try</span><span class="p">:</span>
+ 193         <span class="k">if</span> <span class="n">Sanitize</span><span class="p">:</span>
+ 194             <span class="n">Chem</span><span class="o">.</span><span class="n">SanitizeMol</span><span class="p">(</span><span class="n">ProdMol</span><span class="p">)</span>
+ 195     <span class="k">except</span> <span class="p">(</span><span class="ne">RuntimeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+ 196         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintWarning</span><span class="p">(</span><span class="s2">&quot;Ignoring product molecule: Failed to sanitize...</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+ 197         <span class="k">return</span> <span class="kc">False</span>
+ 198 
+ 199     <span class="k">try</span><span class="p">:</span>
+ 200         <span class="k">if</span> <span class="n">Compute2DCoords</span><span class="p">:</span>
+ 201             <span class="n">AllChem</span><span class="o">.</span><span class="n">Compute2DCoords</span><span class="p">(</span><span class="n">ProdMol</span><span class="p">)</span>
+ 202     <span class="k">except</span> <span class="p">(</span><span class="ne">RuntimeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+ 203         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintWarning</span><span class="p">(</span><span class="s2">&quot;Ignoring product molecule: Failed to compute 2D coordinates...</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+ 204         <span class="k">return</span> <span class="kc">False</span>
+ 205 
+ 206     <span class="n">Writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ProdMol</span><span class="p">)</span>
+ 207 
+ 208     <span class="k">return</span> <span class="kc">True</span>
+ 209 
+ 210 
+ 211 <span class="k">def</span> <span class="nf">RetrieveReactantsMolecules</span><span class="p">():</span>
+ 212     <span class="sd">&quot;&quot;&quot;Retrieve reactant molecules from each reactant file and return a list containing lists of molecules</span>
+ 213 <span class="sd">    for each reactant file.&quot;&quot;&quot;</span>
+ 214 
+ 215     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Processing reactant file(s)...&quot;</span><span class="p">)</span>
+ 216 
+ 217     <span class="n">ReactantsMolsList</span> <span class="o">=</span> <span class="p">[]</span>
+ 218     <span class="n">ReactantFilesList</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ReactantFilesList&quot;</span><span class="p">]</span>
+ 219     <span class="n">UseReactantNames</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;UseReactantNames&quot;</span><span class="p">]</span>
+ 220     <span class="n">ReactantCount</span> <span class="o">=</span> <span class="mi">0</span>
+ 221 
+ 222     <span class="k">for</span> <span class="n">FileIndex</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ReactantFilesList</span><span class="p">)):</span>
+ 223         <span class="n">ReactantCount</span> <span class="o">+=</span> <span class="mi">1</span>
+ 224         <span class="n">ReactantFile</span> <span class="o">=</span> <span class="n">ReactantFilesList</span><span class="p">[</span><span class="n">FileIndex</span><span class="p">]</span>
+ 225 
+ 226         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Processing reactant file: </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="n">ReactantFile</span><span class="p">)</span>
+ 227 
+ 228         <span class="n">Mols</span> <span class="o">=</span> <span class="n">RDKitUtil</span><span class="o">.</span><span class="n">ReadMolecules</span><span class="p">(</span><span class="n">ReactantFile</span><span class="p">,</span> <span class="o">**</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfileParams&quot;</span><span class="p">])</span>
+ 229 
+ 230         <span class="n">ValidMols</span> <span class="o">=</span> <span class="p">[]</span>
+ 231         <span class="n">MolCount</span> <span class="o">=</span> <span class="mi">0</span>
+ 232         <span class="n">ValidMolCount</span> <span class="o">=</span> <span class="mi">0</span>
+ 233 
+ 234         <span class="k">for</span> <span class="n">Mol</span> <span class="ow">in</span> <span class="n">Mols</span><span class="p">:</span>
+ 235             <span class="n">MolCount</span> <span class="o">+=</span> <span class="mi">1</span>
+ 236             <span class="k">if</span> <span class="n">Mol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+ 237                 <span class="k">continue</span>
+ 238 
+ 239             <span class="k">if</span> <span class="n">RDKitUtil</span><span class="o">.</span><span class="n">IsMolEmpty</span><span class="p">(</span><span class="n">Mol</span><span class="p">):</span>
+ 240                 <span class="n">MolName</span> <span class="o">=</span> <span class="n">RDKitUtil</span><span class="o">.</span><span class="n">GetMolName</span><span class="p">(</span><span class="n">Mol</span><span class="p">,</span> <span class="n">MolCount</span><span class="p">)</span>
+ 241                 <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintWarning</span><span class="p">(</span><span class="s2">&quot;Ignoring empty molecule: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">MolName</span><span class="p">)</span>
+ 242                 <span class="k">continue</span>
+ 243 
+ 244             <span class="n">ValidMolCount</span> <span class="o">+=</span> <span class="mi">1</span>
+ 245 
+ 246             <span class="c1"># Check and set mol name...</span>
+ 247             <span class="k">if</span> <span class="n">UseReactantNames</span><span class="p">:</span>
+ 248                 <span class="n">MolName</span> <span class="o">=</span> <span class="n">RDKitUtil</span><span class="o">.</span><span class="n">GetMolName</span><span class="p">(</span><span class="n">Mol</span><span class="p">)</span>
+ 249                 <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">MolName</span><span class="p">):</span>
+ 250                     <span class="n">MolName</span> <span class="o">=</span> <span class="s2">&quot;React</span><span class="si">%d</span><span class="s2">Mol</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ReactantCount</span><span class="p">,</span> <span class="n">MolCount</span><span class="p">)</span>
+ 251                     <span class="n">Mol</span><span class="o">.</span><span class="n">SetProp</span><span class="p">(</span><span class="s2">&quot;_Name&quot;</span><span class="p">,</span> <span class="n">MolName</span><span class="p">)</span>
+ 252 
+ 253             <span class="n">ValidMols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Mol</span><span class="p">)</span>
+ 254 
+ 255         <span class="n">ReactantsMolsList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ValidMols</span><span class="p">)</span>
+ 256 
+ 257         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Total number of molecules: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">MolCount</span><span class="p">)</span>
+ 258         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Number of valid molecules: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ValidMolCount</span><span class="p">)</span>
+ 259         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Number of ignored molecules: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">MolCount</span> <span class="o">-</span> <span class="n">ValidMolCount</span><span class="p">))</span>
+ 260 
+ 261     <span class="k">return</span> <span class="n">ReactantsMolsList</span>
+ 262 
+ 263 
+ 264 <span class="k">def</span> <span class="nf">ProcessReactionNamesInfo</span><span class="p">():</span>
+ 265     <span class="sd">&quot;&quot;&quot;Process reaction names information.&quot;&quot;&quot;</span>
+ 266 
+ 267     <span class="k">if</span> <span class="ow">not</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnByNameMode&quot;</span><span class="p">]:</span>
+ 268         <span class="k">return</span>
+ 269 
+ 270     <span class="n">RetrieveReactionNamesInfo</span><span class="p">()</span>
+ 271     <span class="n">ProcessSpecifiedReactionName</span><span class="p">()</span>
+ 272 
+ 273 
+ 274 <span class="k">def</span> <span class="nf">ProcessSpecifiedReactionName</span><span class="p">():</span>
+ 275     <span class="sd">&quot;&quot;&quot;Process and validate specified reaction name.&quot;&quot;&quot;</span>
+ 276 
+ 277     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnNameSMARTS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+ 278 
+ 279     <span class="c1"># Set up a map of valid group rxn names for checking specified rxn names...</span>
+ 280     <span class="n">CanonicalRxnNameMap</span> <span class="o">=</span> <span class="p">{}</span>
+ 281     <span class="k">for</span> <span class="n">Name</span> <span class="ow">in</span> <span class="n">RxnNamesMap</span><span class="p">[</span><span class="s2">&quot;Names&quot;</span><span class="p">]:</span>
+ 282         <span class="n">CanonicalRxnNameMap</span><span class="p">[</span><span class="n">Name</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="o">=</span> <span class="n">Name</span>
+ 283 
+ 284     <span class="n">CanonicalRxnName</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnName&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+ 285     <span class="k">if</span> <span class="n">CanonicalRxnName</span> <span class="ow">in</span> <span class="n">CanonicalRxnNameMap</span><span class="p">:</span>
+ 286         <span class="n">Name</span> <span class="o">=</span> <span class="n">CanonicalRxnNameMap</span><span class="p">[</span><span class="n">CanonicalRxnName</span><span class="p">]</span>
+ 287         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnNameSMARTS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">RxnNamesMap</span><span class="p">[</span><span class="s2">&quot;SMARTSPattern&quot;</span><span class="p">][</span><span class="n">Name</span><span class="p">]</span>
+ 288     <span class="k">else</span><span class="p">:</span>
+ 289         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 290             <span class="s1">&#39;The rxn name name, </span><span class="si">%s</span><span class="s1">, specified using &quot;-r, --rxnName&quot; option is not a valid name.&#39;</span>
+ 291             <span class="o">%</span> <span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnName&quot;</span><span class="p">])</span>
+ 292         <span class="p">)</span>
+ 293 
+ 294 
+ 295 <span class="k">def</span> <span class="nf">ProcessListReactionNamesOption</span><span class="p">():</span>
+ 296     <span class="sd">&quot;&quot;&quot;Process list reaction names information.&quot;&quot;&quot;</span>
+ 297 
+ 298     <span class="n">ProcessReactionNamesFileOption</span><span class="p">()</span>
+ 299     <span class="n">ProcessColumnOptions</span><span class="p">()</span>
+ 300 
+ 301     <span class="n">RetrieveReactionNamesInfo</span><span class="p">()</span>
+ 302     <span class="n">ListAndValidateReactionNamesInfo</span><span class="p">()</span>
+ 303 
+ 304 
+ 305 <span class="k">def</span> <span class="nf">RetrieveReactionNamesInfo</span><span class="p">():</span>
+ 306     <span class="sd">&quot;&quot;&quot;Retrieve reaction names information.&quot;&quot;&quot;</span>
+ 307 
+ 308     <span class="n">RxnNamesFile</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnNamesFile&quot;</span><span class="p">]</span>
+ 309 
+ 310     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Retrieving reaction names and SMARTS patterns from file </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">RxnNamesFile</span><span class="p">))</span>
+ 311 
+ 312     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">RxnNamesFile</span><span class="p">):</span>
+ 313         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span><span class="s2">&quot;The reaction names file, </span><span class="si">%s</span><span class="s2">, doesn&#39;t exist.</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">RxnNamesFile</span><span class="p">))</span>
+ 314 
+ 315     <span class="n">IgnoreHeaderLine</span> <span class="o">=</span> <span class="kc">True</span>
+ 316     <span class="n">RxnLinesWords</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetTextLinesWords</span><span class="p">(</span>
+ 317         <span class="n">RxnNamesFile</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnNamesFileDelimiter&quot;</span><span class="p">],</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnNamesFileQuote&quot;</span><span class="p">],</span> <span class="n">IgnoreHeaderLine</span>
+ 318     <span class="p">)</span>
+ 319 
+ 320     <span class="n">RxnNamesMap</span><span class="p">[</span><span class="s2">&quot;Names&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+ 321     <span class="n">RxnNamesMap</span><span class="p">[</span><span class="s2">&quot;SMARTSPattern&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+ 322 
+ 323     <span class="n">RxnNameColindex</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnNameColnum&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+ 324     <span class="n">RxnSMARTSColindex</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnSMARTSColnum&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+ 325 
+ 326     <span class="k">for</span> <span class="n">LineWords</span> <span class="ow">in</span> <span class="n">RxnLinesWords</span><span class="p">:</span>
+ 327         <span class="n">Name</span> <span class="o">=</span> <span class="n">LineWords</span><span class="p">[</span><span class="n">RxnNameColindex</span><span class="p">]</span>
+ 328         <span class="n">SMARTSPattern</span> <span class="o">=</span> <span class="n">LineWords</span><span class="p">[</span><span class="n">RxnSMARTSColindex</span><span class="p">]</span>
+ 329 
+ 330         <span class="k">if</span> <span class="n">Name</span> <span class="ow">in</span> <span class="n">RxnNamesMap</span><span class="p">[</span><span class="s2">&quot;SMARTSPattern&quot;</span><span class="p">]:</span>
+ 331             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintWarning</span><span class="p">(</span><span class="s2">&quot;Ignoring duplicate reaction name: </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="n">Name</span><span class="p">)</span>
+ 332         <span class="k">else</span><span class="p">:</span>
+ 333             <span class="n">RxnNamesMap</span><span class="p">[</span><span class="s2">&quot;Names&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Name</span><span class="p">)</span>
+ 334             <span class="n">RxnNamesMap</span><span class="p">[</span><span class="s2">&quot;SMARTSPattern&quot;</span><span class="p">][</span><span class="n">Name</span><span class="p">]</span> <span class="o">=</span> <span class="n">SMARTSPattern</span>
+ 335 
+ 336     <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">RxnNamesMap</span><span class="p">[</span><span class="s2">&quot;Names&quot;</span><span class="p">]):</span>
+ 337         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span><span class="s2">&quot;Failed to retrieve any reaction names and SMARTS patterns...&quot;</span><span class="p">)</span>
+ 338 
+ 339     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span>
+ 340         <span class="s2">&quot;Total number of reactions present in reaction names and SMARTS file: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">RxnNamesMap</span><span class="p">[</span><span class="s2">&quot;Names&quot;</span><span class="p">]))</span>
+ 341     <span class="p">)</span>
+ 342 
+ 343 
+ 344 <span class="k">def</span> <span class="nf">ListAndValidateReactionNamesInfo</span><span class="p">():</span>
+ 345     <span class="sd">&quot;&quot;&quot;List and validate reaction names information.&quot;&quot;&quot;</span>
+ 346 
+ 347     <span class="n">ListReactionNamesInfo</span><span class="p">()</span>
+ 348     <span class="n">ValidateReactionNamesInfo</span><span class="p">()</span>
+ 349 
+ 350 
+ 351 <span class="k">def</span> <span class="nf">ListReactionNamesInfo</span><span class="p">():</span>
+ 352     <span class="sd">&quot;&quot;&quot;List reaction names information.&quot;&quot;&quot;</span>
+ 353 
+ 354     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Listing available reaction names and SMARTS patterns...&quot;</span><span class="p">)</span>
+ 355     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">ReactionName</span><span class="se">\t</span><span class="s2">SMARTSPattern&quot;</span><span class="p">)</span>
+ 356 
+ 357     <span class="n">RxnCount</span> <span class="o">=</span> <span class="mi">0</span>
+ 358     <span class="k">for</span> <span class="n">Name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">RxnNamesMap</span><span class="p">[</span><span class="s2">&quot;Names&quot;</span><span class="p">]):</span>
+ 359         <span class="n">RxnCount</span> <span class="o">+=</span> <span class="mi">1</span>
+ 360         <span class="n">SMARTSPattern</span> <span class="o">=</span> <span class="n">RxnNamesMap</span><span class="p">[</span><span class="s2">&quot;SMARTSPattern&quot;</span><span class="p">][</span><span class="n">Name</span><span class="p">]</span>
+ 361         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">Name</span><span class="p">,</span> <span class="n">SMARTSPattern</span><span class="p">))</span>
+ 362 
+ 363     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Total number of reactions: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">RxnCount</span><span class="p">)</span>
+ 364 
+ 365 
+ 366 <span class="k">def</span> <span class="nf">ValidateReactionNamesInfo</span><span class="p">():</span>
+ 367     <span class="sd">&quot;&quot;&quot;Validate reaction names information.&quot;&quot;&quot;</span>
+ 368 
+ 369     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Validating reaction SMARTS patterns...&quot;</span><span class="p">)</span>
+ 370 
+ 371     <span class="n">RxnCount</span> <span class="o">=</span> <span class="mi">0</span>
+ 372     <span class="n">ValidRxnCount</span> <span class="o">=</span> <span class="mi">0</span>
+ 373     <span class="k">for</span> <span class="n">Name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">RxnNamesMap</span><span class="p">[</span><span class="s2">&quot;Names&quot;</span><span class="p">]):</span>
+ 374         <span class="n">RxnCount</span> <span class="o">+=</span> <span class="mi">1</span>
+ 375         <span class="n">SMARTSPattern</span> <span class="o">=</span> <span class="n">RxnNamesMap</span><span class="p">[</span><span class="s2">&quot;SMARTSPattern&quot;</span><span class="p">][</span><span class="n">Name</span><span class="p">]</span>
+ 376         <span class="k">try</span><span class="p">:</span>
+ 377             <span class="n">AllChem</span><span class="o">.</span><span class="n">ReactionFromSmarts</span><span class="p">(</span><span class="n">SMARTSPattern</span><span class="p">)</span>
+ 378             <span class="n">ValidRxnCount</span> <span class="o">+=</span> <span class="mi">1</span>
+ 379         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ErrMsg</span><span class="p">:</span>
+ 380             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span>
+ 381                 <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Failed to validate reaction SMARTS. ReactionName: </span><span class="si">%s</span><span class="s2">;  SMARTSPattern: </span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span>
+ 382                 <span class="o">%</span> <span class="p">(</span><span class="n">Name</span><span class="p">,</span> <span class="n">SMARTSPattern</span><span class="p">,</span> <span class="n">ErrMsg</span><span class="p">)</span>
+ 383             <span class="p">)</span>
+ 384 
+ 385     <span class="n">InvalidRxnCount</span> <span class="o">=</span> <span class="n">RxnCount</span> <span class="o">-</span> <span class="n">ValidRxnCount</span>
+ 386     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span>
+ 387         <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Total number of reactions: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">Number of valid reactions: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">Number of invalid reactions: </span><span class="si">%s</span><span class="s2">&quot;</span>
+ 388         <span class="o">%</span> <span class="p">(</span><span class="n">RxnCount</span><span class="p">,</span> <span class="n">ValidRxnCount</span><span class="p">,</span> <span class="n">InvalidRxnCount</span><span class="p">)</span>
+ 389     <span class="p">)</span>
+ 390 
+ 391     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+ 392 
+ 393 
+ 394 <span class="k">def</span> <span class="nf">ProcessReactionNamesFileOption</span><span class="p">():</span>
+ 395     <span class="sd">&quot;&quot;&quot;Process reaction names file option.&quot;&quot;&quot;</span>
+ 396 
+ 397     <span class="n">RxnNamesFile</span> <span class="o">=</span> <span class="kc">None</span>
+ 398     <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^auto$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--rxnNamesFile&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 399         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFilePath</span><span class="p">(</span><span class="s2">&quot;--rxnNamesFile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--rxnNamesFile&quot;</span><span class="p">])</span>
+ 400         <span class="n">RxnNamesFile</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--rxnNamesFile&quot;</span><span class="p">]</span>
+ 401 
+ 402     <span class="k">if</span> <span class="n">RxnNamesFile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+ 403         <span class="n">MayaChemToolsDataDir</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetMayaChemToolsLibDataPath</span><span class="p">()</span>
+ 404         <span class="n">RxnNamesFile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MayaChemToolsDataDir</span><span class="p">,</span> <span class="s2">&quot;ReactionNamesAndSMARTS.csv&quot;</span><span class="p">)</span>
+ 405 
+ 406     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnNamesFile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">RxnNamesFile</span>
+ 407     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnNamesFileDelimiter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span>
+ 408     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnNamesFileQuote&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&quot;&#39;</span>
+ 409 
+ 410 
+ 411 <span class="k">def</span> <span class="nf">ProcessColumnOptions</span><span class="p">():</span>
+ 412     <span class="sd">&quot;&quot;&quot;Process column options.&quot;&quot;&quot;</span>
+ 413 
+ 414     <span class="n">ProcessColumnModeOption</span><span class="p">()</span>
+ 415     <span class="n">RetrieveColumnNames</span><span class="p">()</span>
+ 416 
+ 417     <span class="n">ProcessReactionNameColOption</span><span class="p">()</span>
+ 418     <span class="n">ProcessReactionSMARTSColOption</span><span class="p">()</span>
+ 419 
+ 420 
+ 421 <span class="k">def</span> <span class="nf">ProcessColumnModeOption</span><span class="p">():</span>
+ 422     <span class="sd">&quot;&quot;&quot;Process column mode option.&quot;&quot;&quot;</span>
+ 423 
+ 424     <span class="n">CollabelMode</span><span class="p">,</span> <span class="n">ColnumMode</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span>
+ 425     <span class="n">Colmode</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--colmode&quot;</span><span class="p">]</span>
+ 426     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^collabel$&quot;</span><span class="p">,</span> <span class="n">Colmode</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 427         <span class="n">CollabelMode</span> <span class="o">=</span> <span class="kc">True</span>
+ 428     <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^colnum$&quot;</span><span class="p">,</span> <span class="n">Colmode</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 429         <span class="n">ColnumMode</span> <span class="o">=</span> <span class="kc">True</span>
+ 430     <span class="k">else</span><span class="p">:</span>
+ 431         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 432             <span class="s1">&#39;The value, </span><span class="si">%s</span><span class="s1">, specified for option &quot;-c, --colmode&quot; is not valid. Supported values: collabel or colnum</span><span class="se">\n</span><span class="s1">&#39;</span>
+ 433             <span class="o">%</span> <span class="p">(</span><span class="n">Colmode</span><span class="p">)</span>
+ 434         <span class="p">)</span>
+ 435 
+ 436     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Colmode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Colmode</span>
+ 437     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;CollabelMode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">CollabelMode</span>
+ 438     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ColnumMode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColnumMode</span>
+ 439 
+ 440 
+ 441 <span class="k">def</span> <span class="nf">RetrieveColumnNames</span><span class="p">():</span>
+ 442     <span class="sd">&quot;&quot;&quot;Retrieve column names.&quot;&quot;&quot;</span>
+ 443 
+ 444     <span class="n">RxnNamesFile</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnNamesFile&quot;</span><span class="p">]</span>
+ 445     <span class="n">IgnoreHeaderLine</span> <span class="o">=</span> <span class="kc">False</span>
+ 446     <span class="n">RxnLinesWords</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetTextLinesWords</span><span class="p">(</span>
+ 447         <span class="n">RxnNamesFile</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnNamesFileDelimiter&quot;</span><span class="p">],</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnNamesFileQuote&quot;</span><span class="p">],</span> <span class="n">IgnoreHeaderLine</span>
+ 448     <span class="p">)</span>
+ 449     <span class="n">Colnames</span> <span class="o">=</span> <span class="n">RxnLinesWords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+ 450 
+ 451     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">Colnames</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+ 452         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 453             <span class="s2">&quot;The first line in reaction names, </span><span class="si">%s</span><span class="s2">, is empty. It must contain column names.</span><span class="se">\n</span><span class="s2">&quot;</span>
+ 454             <span class="o">%</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnNamesFile&quot;</span><span class="p">]</span>
+ 455         <span class="p">)</span>
+ 456 
+ 457     <span class="n">ColnameToColnumMap</span> <span class="o">=</span> <span class="p">{}</span>
+ 458     <span class="n">ColnumToColnameMap</span> <span class="o">=</span> <span class="p">{}</span>
+ 459     <span class="k">for</span> <span class="n">ColIndex</span><span class="p">,</span> <span class="n">Colname</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">Colnames</span><span class="p">):</span>
+ 460         <span class="n">Colnum</span> <span class="o">=</span> <span class="n">ColIndex</span> <span class="o">+</span> <span class="mi">1</span>
+ 461         <span class="n">ColnameToColnumMap</span><span class="p">[</span><span class="n">Colname</span><span class="p">]</span> <span class="o">=</span> <span class="n">Colnum</span>
+ 462         <span class="n">ColnumToColnameMap</span><span class="p">[</span><span class="n">Colnum</span><span class="p">]</span> <span class="o">=</span> <span class="n">Colname</span>
+ 463 
+ 464     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Colnames&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Colnames</span>
+ 465     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ColCount&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">Colnames</span><span class="p">)</span>
+ 466     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ColnameToColnumMap&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColnameToColnumMap</span>
+ 467     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ColnumToColnameMap&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColnumToColnameMap</span>
+ 468 
+ 469 
+ 470 <span class="k">def</span> <span class="nf">ProcessReactionNameColOption</span><span class="p">():</span>
+ 471     <span class="sd">&quot;&quot;&quot;Process reaction name column option.&quot;&quot;&quot;</span>
+ 472 
+ 473     <span class="n">RxnNameCol</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--colRxnName&quot;</span><span class="p">]</span>
+ 474     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^auto$&quot;</span><span class="p">,</span> <span class="n">RxnNameCol</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 475         <span class="n">Colname</span> <span class="o">=</span> <span class="s2">&quot;RxnName&quot;</span>
+ 476         <span class="k">if</span> <span class="n">Colname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ColnameToColnumMap&quot;</span><span class="p">]:</span>
+ 477             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 478                 <span class="s1">&#39;The reaction name column name, </span><span class="si">%s</span><span class="s1">, doen</span><span class="se">\&#39;</span><span class="s1">t exist in reaction names file. You must specify a valid reaction name column name or number using &quot;--colRxnName&quot; option.</span><span class="se">\n</span><span class="s1">&#39;</span>
+ 479                 <span class="o">%</span> <span class="n">Colname</span>
+ 480             <span class="p">)</span>
+ 481 
+ 482         <span class="n">Colnum</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ColnameToColnumMap&quot;</span><span class="p">][</span><span class="n">Colname</span><span class="p">]</span>
+ 483         <span class="n">RxnNameColSpec</span> <span class="o">=</span> <span class="n">Colnum</span> <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ColnumMode&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="n">Colname</span>
+ 484     <span class="k">else</span><span class="p">:</span>
+ 485         <span class="n">RxnNameColSpec</span> <span class="o">=</span> <span class="n">RxnNameCol</span>
+ 486 
+ 487     <span class="n">RxnNameColname</span><span class="p">,</span> <span class="n">RxnNameColnum</span> <span class="o">=</span> <span class="n">ProcessColumnSpecification</span><span class="p">(</span><span class="s2">&quot;--colRxnName&quot;</span><span class="p">,</span> <span class="n">RxnNameColSpec</span><span class="p">)</span>
+ 488 
+ 489     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnNameCol&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">RxnNameCol</span>
+ 490     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnNameColname&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">RxnNameColname</span>
+ 491     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnNameColnum&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">RxnNameColnum</span>
+ 492 
+ 493 
+ 494 <span class="k">def</span> <span class="nf">ProcessReactionSMARTSColOption</span><span class="p">():</span>
+ 495     <span class="sd">&quot;&quot;&quot;Process reaction SMARTS column option.&quot;&quot;&quot;</span>
+ 496 
+ 497     <span class="n">RxnSMARTSCol</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--colRxnSMARTS&quot;</span><span class="p">]</span>
+ 498     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^auto$&quot;</span><span class="p">,</span> <span class="n">RxnSMARTSCol</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 499         <span class="n">Colname</span> <span class="o">=</span> <span class="s2">&quot;RxnSMARTS&quot;</span>
+ 500         <span class="k">if</span> <span class="n">Colname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ColnameToColnumMap&quot;</span><span class="p">]:</span>
+ 501             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 502                 <span class="s1">&#39;The reaction SMARTS column name, </span><span class="si">%s</span><span class="s1">, doen</span><span class="se">\&#39;</span><span class="s1">t exist in reaction names file. You must specify a valid reaction name column name or number using &quot;--colRxnSMARTS&quot; option.</span><span class="se">\n</span><span class="s1">&#39;</span>
+ 503                 <span class="o">%</span> <span class="n">Colname</span>
+ 504             <span class="p">)</span>
+ 505 
+ 506         <span class="n">Colnum</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ColnameToColnumMap&quot;</span><span class="p">][</span><span class="n">Colname</span><span class="p">]</span>
+ 507         <span class="n">RxnSMARTSColSpec</span> <span class="o">=</span> <span class="n">Colnum</span> <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ColnumMode&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="n">Colname</span>
+ 508     <span class="k">else</span><span class="p">:</span>
+ 509         <span class="n">RxnSMARTSColSpec</span> <span class="o">=</span> <span class="n">RxnSMARTSCol</span>
+ 510 
+ 511     <span class="n">RxnSMARTSColname</span><span class="p">,</span> <span class="n">RxnSMARTSColnum</span> <span class="o">=</span> <span class="n">ProcessColumnSpecification</span><span class="p">(</span><span class="s2">&quot;--colRxnSMARTS&quot;</span><span class="p">,</span> <span class="n">RxnSMARTSColSpec</span><span class="p">)</span>
+ 512 
+ 513     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnSMARTSCol&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">RxnSMARTSCol</span>
+ 514     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnSMARTSColname&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">RxnSMARTSColname</span>
+ 515     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnSMARTSColnum&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">RxnSMARTSColnum</span>
+ 516 
+ 517 
+ 518 <span class="k">def</span> <span class="nf">ProcessColumnSpecification</span><span class="p">(</span><span class="n">OptionName</span><span class="p">,</span> <span class="n">Colspec</span><span class="p">):</span>
+ 519     <span class="sd">&quot;&quot;&quot;Process column specification corresponding to a column name or number.&quot;&quot;&quot;</span>
+ 520 
+ 521     <span class="n">Colname</span><span class="p">,</span> <span class="n">Colnum</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+ 522     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ColnumMode&quot;</span><span class="p">]:</span>
+ 523         <span class="n">Colnum</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">Colspec</span><span class="p">)</span>
+ 524         <span class="k">if</span> <span class="n">Colnum</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ColnumToColnameMap&quot;</span><span class="p">]:</span>
+ 525             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 526                 <span class="s1">&#39;The column number, </span><span class="si">%s</span><span class="s1">, specified using &quot;</span><span class="si">%s</span><span class="s1">&quot; option doesn</span><span class="se">\&#39;</span><span class="s1">t exist in reaction names file. You must specify a valid column number. Valid values: &gt;= 1 and &lt;= </span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span>
+ 527                 <span class="o">%</span> <span class="p">(</span><span class="n">Colnum</span><span class="p">,</span> <span class="n">OptionName</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ColCount&quot;</span><span class="p">])</span>
+ 528             <span class="p">)</span>
+ 529         <span class="n">Colname</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ColnumToColnameMap&quot;</span><span class="p">][</span><span class="n">Colnum</span><span class="p">]</span>
+ 530     <span class="k">else</span><span class="p">:</span>
+ 531         <span class="n">Colname</span> <span class="o">=</span> <span class="n">Colspec</span>
+ 532         <span class="k">if</span> <span class="n">Colname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ColnameToColnumMap&quot;</span><span class="p">]:</span>
+ 533             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 534                 <span class="s1">&#39;The column name, </span><span class="si">%s</span><span class="s1">, specified using &quot;</span><span class="si">%s</span><span class="s1">&quot; option doesn</span><span class="se">\&#39;</span><span class="s1">t exist in input file. You must specify a valid column name. Valid values: </span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span>
+ 535                 <span class="o">%</span> <span class="p">(</span><span class="n">Colname</span><span class="p">,</span> <span class="n">OptionName</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Colnames&quot;</span><span class="p">]))</span>
+ 536             <span class="p">)</span>
+ 537         <span class="n">Colnum</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ColnameToColnumMap&quot;</span><span class="p">][</span><span class="n">Colname</span><span class="p">]</span>
+ 538 
+ 539     <span class="k">return</span> <span class="p">(</span><span class="n">Colname</span><span class="p">,</span> <span class="n">Colnum</span><span class="p">)</span>
+ 540 
+ 541 
+ 542 <span class="k">def</span> <span class="nf">ProcessOptions</span><span class="p">():</span>
+ 543     <span class="sd">&quot;&quot;&quot;Process and validate command line arguments and options.&quot;&quot;&quot;</span>
+ 544 
+ 545     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Processing options...&quot;</span><span class="p">)</span>
+ 546 
+ 547     <span class="c1"># Validate options...</span>
+ 548     <span class="n">ValidateOptions</span><span class="p">()</span>
+ 549 
+ 550     <span class="n">Compute2DCoords</span> <span class="o">=</span> <span class="kc">True</span>
+ 551     <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^yes$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--compute2DCoords&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 552         <span class="n">Compute2DCoords</span> <span class="o">=</span> <span class="kc">False</span>
+ 553     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Compute2DCoords&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Compute2DCoords</span>
+ 554 
+ 555     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Mode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--mode&quot;</span><span class="p">]</span>
+ 556     <span class="n">RxnByNameMode</span> <span class="o">=</span> <span class="kc">True</span>
+ 557     <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^RxnByName$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--mode&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 558         <span class="n">RxnByNameMode</span> <span class="o">=</span> <span class="kc">False</span>
+ 559     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnByNameMode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">RxnByNameMode</span>
+ 560 
+ 561     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ProdMolNamesMode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--prodMolNames&quot;</span><span class="p">]</span>
+ 562     <span class="n">UseReactantNames</span> <span class="o">=</span> <span class="kc">False</span>
+ 563     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^UseReactants$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--prodMolNames&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 564         <span class="n">UseReactantNames</span> <span class="o">=</span> <span class="kc">True</span>
+ 565     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;UseReactantNames&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">UseReactantNames</span>
+ 566 
+ 567     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnName&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--rxnName&quot;</span><span class="p">]</span>
+ 568     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnNameSMARTS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+ 569     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnByNameMode&quot;</span><span class="p">]:</span>
+ 570         <span class="k">if</span> <span class="ow">not</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--rxnName&quot;</span><span class="p">]:</span>
+ 571             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 572                 <span class="s1">&#39;No rxn name specified using &quot;-r, --rxnName&quot; option during &quot;RxnByName&quot; value of &quot;-m, --mode&quot; option&#39;</span>
+ 573             <span class="p">)</span>
+ 574 
+ 575     <span class="n">ProcessReactionNamesFileOption</span><span class="p">()</span>
+ 576     <span class="n">ProcessColumnOptions</span><span class="p">()</span>
+ 577 
+ 578     <span class="n">ReactantFiles</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infiles&quot;</span><span class="p">])</span>
+ 579     <span class="n">ReactantFilesList</span> <span class="o">=</span> <span class="p">[]</span>
+ 580     <span class="n">ReactantFilesList</span> <span class="o">=</span> <span class="n">ReactantFiles</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+ 581     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ReactantFiles&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ReactantFiles</span>
+ 582     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ReactantFilesList&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ReactantFilesList</span>
+ 583 
+ 584     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;SpecifiedSMARTS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--smartsRxn&quot;</span><span class="p">]</span>
+ 585     <span class="k">if</span> <span class="ow">not</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RxnByNameMode&quot;</span><span class="p">]:</span>
+ 586         <span class="k">if</span> <span class="ow">not</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--smartsRxn&quot;</span><span class="p">]:</span>
+ 587             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 588                 <span class="s1">&#39;No rxn SMARTS pattern specified using &quot;-r, --rxnName&quot; option during &quot;RxnByName&quot; value of &quot;-m, --mode&quot; option&#39;</span>
+ 589             <span class="p">)</span>
+ 590 
+ 591     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Outfile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfile&quot;</span><span class="p">]</span>
+ 592     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Overwrite&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--overwrite&quot;</span><span class="p">]</span>
+ 593 
+ 594     <span class="c1"># Use first reactant file as input file as all input files have the same format...</span>
+ 595     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfileParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ProcessOptionInfileParameters</span><span class="p">(</span>
+ 596         <span class="s2">&quot;--infileParams&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infileParams&quot;</span><span class="p">],</span> <span class="n">ReactantFilesList</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+ 597     <span class="p">)</span>
+ 598 
+ 599     <span class="c1"># No need to pass any input or output file name due to absence of any auto parameter...</span>
+ 600     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutfileParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ProcessOptionOutfileParameters</span><span class="p">(</span>
+ 601         <span class="s2">&quot;--outfileParams&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfileParams&quot;</span><span class="p">]</span>
+ 602     <span class="p">)</span>
+ 603 
+ 604     <span class="n">Sanitize</span> <span class="o">=</span> <span class="kc">True</span>
+ 605     <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^yes$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--sanitize&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 606         <span class="n">Sanitize</span> <span class="o">=</span> <span class="kc">False</span>
+ 607     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Sanitize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Sanitize</span>
+ 608 
+ 609 
+ 610 <span class="k">def</span> <span class="nf">RetrieveOptions</span><span class="p">():</span>
+ 611     <span class="sd">&quot;&quot;&quot;Retrieve command line arguments and options.&quot;&quot;&quot;</span>
+ 612 
+ 613     <span class="c1"># Get options...</span>
+ 614     <span class="k">global</span> <span class="n">Options</span>
+ 615     <span class="n">Options</span> <span class="o">=</span> <span class="n">docopt</span><span class="p">(</span><span class="n">_docoptUsage_</span><span class="p">)</span>
+ 616 
+ 617     <span class="c1"># Set current working directory to the specified directory...</span>
+ 618     <span class="n">WorkingDir</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--workingdir&quot;</span><span class="p">]</span>
+ 619     <span class="k">if</span> <span class="n">WorkingDir</span><span class="p">:</span>
+ 620         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">WorkingDir</span><span class="p">)</span>
+ 621 
+ 622     <span class="c1"># Handle examples option...</span>
+ 623     <span class="k">if</span> <span class="s2">&quot;--examples&quot;</span> <span class="ow">in</span> <span class="n">Options</span> <span class="ow">and</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--examples&quot;</span><span class="p">]:</span>
+ 624         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetExamplesTextFromDocOptText</span><span class="p">(</span><span class="n">_docoptUsage_</span><span class="p">))</span>
+ 625         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+ 626 
+ 627     <span class="c1"># Handle listing of functional group information...</span>
+ 628     <span class="k">if</span> <span class="n">Options</span> <span class="ow">and</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--list&quot;</span><span class="p">]:</span>
+ 629         <span class="n">ProcessListReactionNamesOption</span><span class="p">()</span>
+ 630         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+ 631 
+ 632 
+ 633 <span class="k">def</span> <span class="nf">ValidateOptions</span><span class="p">():</span>
+ 634     <span class="sd">&quot;&quot;&quot;Validate option values.&quot;&quot;&quot;</span>
+ 635 
+ 636     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;-c, --colmode&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--colmode&quot;</span><span class="p">],</span> <span class="s2">&quot;collabel colnum&quot;</span><span class="p">)</span>
+ 637 
+ 638     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--compute2DCoords&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--compute2DCoords&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no&quot;</span><span class="p">)</span>
+ 639 
+ 640     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;-m, --mode&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--mode&quot;</span><span class="p">],</span> <span class="s2">&quot;RxnByName RxnBySMARTS&quot;</span><span class="p">)</span>
+ 641     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;-p, --prodMolNames&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--prodMolNames&quot;</span><span class="p">],</span> <span class="s2">&quot;UseReactants Sequential&quot;</span><span class="p">)</span>
+ 642 
+ 643     <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^auto$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--rxnNamesFile&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 644         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFilePath</span><span class="p">(</span><span class="s2">&quot;--rxnNamesFile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--rxnNamesFile&quot;</span><span class="p">])</span>
+ 645 
+ 646     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFileExt</span><span class="p">(</span><span class="s2">&quot;-o, --outfile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfile&quot;</span><span class="p">],</span> <span class="s2">&quot;sdf sd smi&quot;</span><span class="p">)</span>
+ 647     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionsOutputFileOverwrite</span><span class="p">(</span>
+ 648         <span class="s2">&quot;-o, --outfile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfile&quot;</span><span class="p">],</span> <span class="s2">&quot;--overwrite&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--overwrite&quot;</span><span class="p">]</span>
+ 649     <span class="p">)</span>
+ 650 
+ 651     <span class="n">ReactantFiles</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infiles&quot;</span><span class="p">])</span>
+ 652     <span class="k">if</span> <span class="ow">not</span> <span class="n">ReactantFiles</span><span class="p">:</span>
+ 653         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span><span class="s1">&#39;No reactant files specified for &quot;-i, --infiles&quot; option&#39;</span><span class="p">)</span>
+ 654 
+ 655     <span class="c1"># Validate file extensions...</span>
+ 656     <span class="k">for</span> <span class="n">ReactantFile</span> <span class="ow">in</span> <span class="n">ReactantFiles</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">):</span>
+ 657         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFilePath</span><span class="p">(</span><span class="s2">&quot;-i, --infiles&quot;</span><span class="p">,</span> <span class="n">ReactantFile</span><span class="p">)</span>
+ 658         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFileExt</span><span class="p">(</span><span class="s2">&quot;-i, --infiles&quot;</span><span class="p">,</span> <span class="n">ReactantFile</span><span class="p">,</span> <span class="s2">&quot;sdf sd smi csv tsv txt&quot;</span><span class="p">)</span>
+ 659         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionsDistinctFileNames</span><span class="p">(</span><span class="s2">&quot;-i, --infiles&quot;</span><span class="p">,</span> <span class="n">ReactantFile</span><span class="p">,</span> <span class="s2">&quot;-o, --outfile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfile&quot;</span><span class="p">])</span>
+ 660 
+ 661     <span class="c1"># Match file formats...</span>
+ 662     <span class="n">FirstFile</span> <span class="o">=</span> <span class="kc">True</span>
+ 663     <span class="n">FirstFileFormat</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+ 664     <span class="k">for</span> <span class="n">ReactantFile</span> <span class="ow">in</span> <span class="n">ReactantFiles</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">):</span>
+ 665         <span class="n">FileFormat</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+ 666         <span class="k">if</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">CheckFileExt</span><span class="p">(</span><span class="n">ReactantFile</span><span class="p">,</span> <span class="s2">&quot;sdf sd&quot;</span><span class="p">):</span>
+ 667             <span class="n">FileFormat</span> <span class="o">=</span> <span class="s2">&quot;SD&quot;</span>
+ 668         <span class="k">elif</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">CheckFileExt</span><span class="p">(</span><span class="n">ReactantFile</span><span class="p">,</span> <span class="s2">&quot;smi csv tsv txt&quot;</span><span class="p">):</span>
+ 669             <span class="n">FileFormat</span> <span class="o">=</span> <span class="s2">&quot;SMILES&quot;</span>
+ 670         <span class="k">else</span><span class="p">:</span>
+ 671             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 672                 <span class="s1">&#39;The file name specified , </span><span class="si">%s</span><span class="s1">, for option &quot;-i, --infiles&quot; is not valid. Supported file formats: sdf sd smi csv tsv txt</span><span class="se">\n</span><span class="s1">&#39;</span>
+ 673                 <span class="o">%</span> <span class="n">ReactantFile</span>
+ 674             <span class="p">)</span>
+ 675 
+ 676         <span class="k">if</span> <span class="n">FirstFile</span><span class="p">:</span>
+ 677             <span class="n">FirstFile</span> <span class="o">=</span> <span class="kc">False</span>
+ 678             <span class="n">FirstFileFormat</span> <span class="o">=</span> <span class="n">FileFormat</span>
+ 679             <span class="k">continue</span>
+ 680 
+ 681         <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^</span><span class="si">%s</span><span class="s2">$&quot;</span> <span class="o">%</span> <span class="n">FirstFileFormat</span><span class="p">,</span> <span class="n">FileFormat</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">):</span>
+ 682             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 683                 <span class="s1">&#39;All reactant file names -  </span><span class="si">%s</span><span class="s1"> - specified using option &quot;-i, --infiles&quot; must have the same file format.</span><span class="se">\n</span><span class="s1">&#39;</span>
+ 684                 <span class="o">%</span> <span class="n">ReactantFiles</span>
+ 685             <span class="p">)</span>
+ 686 
+ 687     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--sanitize&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--sanitize&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no&quot;</span><span class="p">)</span>
+ 688 
+ 689 
+ 690 <span class="c1"># Setup a usage string for docopt...</span>
+ 691 <span class="n">_docoptUsage_</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+ 692 <span class="s2">RDKitEnumerateCompoundLibrary.py - Enumerate a virtual compound library</span>
+ 693 
+ 694 <span class="s2">Usage:</span>
+ 695 <span class="s2">    RDKitEnumerateCompoundLibrary.py  [--colmode &lt;collabel or colnum&gt;] [--colRxnName &lt;text or number&gt;]</span>
+ 696 <span class="s2">                                      [--colRxnSMARTS &lt;text or number&gt;] [--compute2DCoords &lt;yes or no&gt;] [--infileParams &lt;Name,Value,...&gt;]</span>
+ 697 <span class="s2">                                      [--mode &lt;RxnByName or RxnBySMARTS&gt;] [--outfileParams &lt;Name,Value,...&gt;] [--overwrite]</span>
+ 698 <span class="s2">                                      [--prodMolNames &lt;UseReactants or Sequential&gt;] [--rxnName &lt;text&gt;]</span>
+ 699 <span class="s2">                                      [--rxnNamesFile &lt;FileName or auto&gt;] [--smartsRxn &lt;text&gt;] [--sanitize &lt;yes or no&gt;]</span>
+ 700 <span class="s2">                                      [-w &lt;dir&gt;] -i  &lt;ReactantFile1,...&gt; -o &lt;outfile&gt;</span>
+ 701 <span class="s2">    RDKitEnumerateCompoundLibrary.py [--colmode &lt;collabel or colnum&gt;] [--colRxnName &lt;text or number&gt;] [--colRxnSMARTS &lt;text or number&gt;]</span>
+ 702 <span class="s2">                                      [--rxnNamesFile &lt;FileName or auto&gt;] -l | --list</span>
+ 703 <span class="s2">    RDKitEnumerateCompoundLibrary.py -h | --help | -e | --examples</span>
+ 704 
+ 705 <span class="s2">Description:</span>
+ 706 <span class="s2">    Perform a combinatorial enumeration of a virtual library of molecules for a reaction specified</span>
+ 707 <span class="s2">    using a reaction name or SMARTS pattern and reactant input files.</span>
+ 708 
+ 709 <span class="s2">    The SMARTS patterns for supported reactions names [ Ref 134 ] are retrieved from file,</span>
+ 710 <span class="s2">    ReactionNamesAndSMARTS.csv, available in MayaChemTools data directory. The current</span>
+ 711 <span class="s2">    list of supported reaction names is shown below:</span>
+ 712 
+ 713 <span class="s2">    &#39;1,2,4_triazole_acetohydrazide&#39;, &#39;1,2,4_triazole_carboxylic_acid_ester&#39;, 3_nitrile_pyridine,</span>
+ 714 <span class="s2">    Benzimidazole_derivatives_aldehyde, Benzimidazole_derivatives_carboxylic_acid_ester,</span>
+ 715 <span class="s2">    Benzofuran, Benzothiazole, Benzothiophene, Benzoxazole_aromatic_aldehyde,</span>
+ 716 <span class="s2">    Benzoxazole_carboxylic_acid, Buchwald_Hartwig, Decarboxylative_coupling, Fischer_indole,</span>
+ 717 <span class="s2">    Friedlaender_chinoline, Grignard_alcohol, Grignard_carbonyl, Heck_non_terminal_vinyl,</span>
+ 718 <span class="s2">    Heck_terminal_vinyl, Heteroaromatic_nuc_sub, Huisgen_Cu_catalyzed_1,4_subst,</span>
+ 719 <span class="s2">    Huisgen_disubst_alkyne, Huisgen_Ru_catalyzed_1,5_subst, Imidazole, Indole, Mitsunobu_imide,</span>
+ 720 <span class="s2">    Mitsunobu_phenole, Mitsunobu_sulfonamide, Mitsunobu_tetrazole_1, Mitsunobu_tetrazole_2,</span>
+ 721 <span class="s2">    Mitsunobu_tetrazole_3, Mitsunobu_tetrazole_4, N_arylation_heterocycles, Negishi,</span>
+ 722 <span class="s2">    Niementowski_quinazoline, Nucl_sub_aromatic_ortho_nitro, Nucl_sub_aromatic_para_nitro,</span>
+ 723 <span class="s2">    Oxadiazole, Paal_Knorr_pyrrole, Phthalazinone, Pictet_Spengler, Piperidine_indole,</span>
+ 724 <span class="s2">    Pyrazole, Reductive_amination, Schotten_Baumann_amide, Sonogashira, Spiro_chromanone,</span>
+ 725 <span class="s2">    Stille, Sulfon_amide, Suzuki, Tetrazole_connect_regioisomer_1, Tetrazole_connect_regioisomer_2,</span>
+ 726 <span class="s2">    Tetrazole_terminal, Thiazole, Thiourea, Triaryl_imidazole, Urea, Williamson_ether, Wittig </span>
+ 727 
+ 728 <span class="s2">    The supported input file formats are: SD (.sdf, .sd), SMILES (.smi, .csv, .tsv, .txt)</span>
+ 729 
+ 730 <span class="s2">    The supported output file formats are:  SD (.sdf, .sd), SMILES (.smi)</span>
+ 731 
+ 732 <span class="s2">Options:</span>
+ 733 <span class="s2">    -c, --colmode &lt;collabel or colnum&gt;  [default: collabel]</span>
+ 734 <span class="s2">        Use column number or name for the specification of columns in a CSV</span>
+ 735 <span class="s2">        file containing reaction names along with reaction SMARTS. You may</span>
+ 736 <span class="s2">        specify a reaction names file using &#39;--rxnNamesFile&#39; option.</span>
+ 737 <span class="s2">    --colRxnName &lt;text or number&gt;  [default: auto]</span>
+ 738 <span class="s2">        Column name or number corresponding to reaction names. The default value</span>
+ 739 <span class="s2">        is automatically set based on the value of &#39;-c, --colmode&#39;: &#39;RxnName&#39;  for</span>
+ 740 <span class="s2">        &#39;collabel&#39;; Reaction name column number for &#39;colnum&#39;.</span>
+ 741 <span class="s2">    --colRxnSMARTS &lt;text or number&gt;  [default: auto]</span>
+ 742 <span class="s2">        Column name or number corresponding to reaction SMARTS strings. The default</span>
+ 743 <span class="s2">        value is automatically set based on the value of &#39;-c, --colmode&#39;: &#39;RxnSMARTS&#39;</span>
+ 744 <span class="s2">        for &#39;collabel&#39;; Reacton SMARTS column number for &#39;colnum&#39;.</span>
+ 745 <span class="s2">    --compute2DCoords &lt;yes or no&gt;  [default: yes]</span>
+ 746 <span class="s2">        Compute 2D coordinates of product molecules before writing them out.</span>
+ 747 <span class="s2">    -i, --infiles &lt;ReactantFile1, ReactantFile2...&gt;</span>
+ 748 <span class="s2">        Comma delimited list of reactant file names for enumerating a compound library</span>
+ 749 <span class="s2">        using reaction SMARTS. The number of reactant files must match number of</span>
+ 750 <span class="s2">        reaction components in reaction SMARTS. All reactant input files must have</span>
+ 751 <span class="s2">        the same format.</span>
+ 752 <span class="s2">    --infileParams &lt;Name,Value,...&gt;  [default: auto]</span>
+ 753 <span class="s2">        A comma delimited list of parameter name and value pairs for reading</span>
+ 754 <span class="s2">        molecules from files. The supported parameter names for different file</span>
+ 755 <span class="s2">        formats, along with their default values, are shown below:</span>
+ 756 <span class="s2">            </span>
+ 757 <span class="s2">            SD, MOL: removeHydrogens,yes,sanitize,yes,strictParsing,yes</span>
+ 758 <span class="s2">            SMILES: smilesColumn,1,smilesNameColumn,2,smilesDelimiter,space,</span>
+ 759 <span class="s2">                smilesTitleLine,auto,sanitize,yes</span>
+ 760 <span class="s2">            </span>
+ 761 <span class="s2">        Possible values for smilesDelimiter: space, comma or tab. These parameters apply</span>
+ 762 <span class="s2">        to all reactant input files, which must have the same file format.</span>
+ 763 <span class="s2">    -e, --examples</span>
+ 764 <span class="s2">        Print examples.</span>
+ 765 <span class="s2">    -h, --help</span>
+ 766 <span class="s2">        Print this help message.</span>
+ 767 <span class="s2">    -l, --list</span>
+ 768 <span class="s2">        List available reaction names along with corresponding SMARTS patterns without</span>
+ 769 <span class="s2">        performing any enumeration. In addition, reaction SMARTS patterns are validated.</span>
+ 770 <span class="s2">    -m, --mode &lt;RxnByName or RxnBySMARTS&gt;  [default: RxnByName]</span>
+ 771 <span class="s2">        Indicate whether a reaction is specified by a reaction name or a SMARTS pattern.</span>
+ 772 <span class="s2">        Possible values: RxnByName or RxnBySMARTS.</span>
+ 773 <span class="s2">    -o, --outfile &lt;outfile&gt;</span>
+ 774 <span class="s2">        Output file name.</span>
+ 775 <span class="s2">    --outfileParams &lt;Name,Value,...&gt;  [default: auto]</span>
+ 776 <span class="s2">        A comma delimited list of parameter name and value pairs for writing</span>
+ 777 <span class="s2">        molecules to files. The supported parameter names for different file</span>
+ 778 <span class="s2">        formats, along with their default values, are shown below:</span>
+ 779 <span class="s2">            </span>
+ 780 <span class="s2">            SD: kekulize,yes,forceV3000,no</span>
+ 781 <span class="s2">            SMILES: smilesKekulize,no,smilesDelimiter,space, smilesIsomeric,yes,</span>
+ 782 <span class="s2">                smilesTitleLine,yes</span>
+ 783 <span class="s2">            </span>
+ 784 <span class="s2">    -p, --prodMolNames &lt;UseReactants or Sequential&gt;  [default: UseReactants]</span>
+ 785 <span class="s2">        Generate names of product molecules using reactant names or assign names in</span>
+ 786 <span class="s2">        a sequential order. Possible values: UseReactants or Sequential. Format of</span>
+ 787 <span class="s2">        molecule names: UseReactants - &lt;ReactName1&gt;_&lt;ReactName2&gt;..._Prod&lt;Num&gt;;</span>
+ 788 <span class="s2">        Sequential - Prod&lt;Num&gt;</span>
+ 789 <span class="s2">    --overwrite</span>
+ 790 <span class="s2">        Overwrite existing files.</span>
+ 791 <span class="s2">    -r, --rxnName &lt;text&gt;</span>
+ 792 <span class="s2">        Name of a reaction to use for enumerating a compound library. This option</span>
+ 793 <span class="s2">        is only used during &#39;RxnByName&#39; value of &#39;-m, --mode&#39; option.</span>
+ 794 <span class="s2">    --rxnNamesFile &lt;FileName or auto&gt;  [default: auto]</span>
+ 795 <span class="s2">        Specify a file name containing data for names of reactions and SMARTS patterns or</span>
+ 796 <span class="s2">        use default file, ReactionNamesAndSMARTS.csv, available in MayaChemTools data</span>
+ 797 <span class="s2">        directory.</span>
+ 798 <span class="s2">        </span>
+ 799 <span class="s2">        Default reactions SMARTS file format: RxnName,RxnSMARTS.</span>
+ 800 <span class="s2">        </span>
+ 801 <span class="s2">        The local file format is assumed to be same as the default file format. You may</span>
+ 802 <span class="s2">        explicitly specify column names or numbers for reaction name and reaction</span>
+ 803 <span class="s2">        SMARTS using &#39;--colRxnName&#39; and &#39;--colRxnSMARTS&#39; options.</span>
+ 804 <span class="s2">    -s, --smartsRxn &lt;text&gt;</span>
+ 805 <span class="s2">        SMARTS pattern of a reaction to use for enumerating a compound library. This</span>
+ 806 <span class="s2">        option is only used during &#39;RxnBySMARTS&#39; value of &#39;-m, --mode&#39; option.</span>
+ 807 <span class="s2">    --sanitize &lt;yes or no&gt;  [default: yes]</span>
+ 808 <span class="s2">        Sanitize product molecules before writing them out.</span>
+ 809 <span class="s2">    -w, --workingdir &lt;dir&gt;</span>
+ 810 <span class="s2">        Location of working directory which defaults to the current directory.</span>
+ 811 
+ 812 <span class="s2">Examples:</span>
+ 813 <span class="s2">    To list all available reaction names along with their SMARTS pattern, type:</span>
+ 814 
+ 815 <span class="s2">         % RDKitEnumerateCompoundLibrary.py -l</span>
+ 816 
+ 817 <span class="s2">    To perform a combinatorial enumeration of a virtual compound library corresponding</span>
+ 818 <span class="s2">    to named amide reaction, Schotten_Baumann_amide, and write out a SMILES file</span>
+ 819 <span class="s2">    type:</span>
+ 820 
+ 821 <span class="s2">        % RDKitEnumerateCompoundLibrary.py -r Schotten_Baumann_amide</span>
+ 822 <span class="s2">          -i &#39;SampleAcids.smi,SampleAmines.smi&#39; -o SampleOutCmpdLibrary.smi</span>
+ 823 
+ 824 <span class="s2">    To run the previous command using a local reaction names file with explicit</span>
+ 825 <span class="s2">    specification of column names containing reaction names and SMARTS, and write</span>
+ 826 <span class="s2">     out a SMILES file type:</span>
+ 827 
+ 828 <span class="s2">        % RDKitEnumerateCompoundLibrary.py -r Schotten_Baumann_amide</span>
+ 829 <span class="s2">          --rxnNamesFile ReactionNamesAndSMARTS.csv</span>
+ 830 <span class="s2">          --colmode collabel --colRxnName RxnName --colRxnSMARTS RxnSMARTS</span>
+ 831 <span class="s2">          -i &#39;SampleAcids.smi,SampleAmines.smi&#39; -o SampleOutCmpdLibrary.smi</span>
+ 832 
+ 833 <span class="s2">    To perform a combinatorial enumeration of a virtual compound library corresponding</span>
+ 834 <span class="s2">    to an amide reaction specified using a SMARTS pattern and write out a SD file containing</span>
+ 835 <span class="s2">    sanitized molecules, computed 2D coordinates, and generation of molecule names from</span>
+ 836 <span class="s2">    reactant names, type:</span>
+ 837 
+ 838 <span class="s2">        % RDKitEnumerateCompoundLibrary.py -m RxnBySMARTS</span>
+ 839 <span class="s2">          -s &#39;[O:2]=[C:1][OH].[N:3]&gt;&gt;[O:2]=[C:1][N:3]&#39;</span>
+ 840 <span class="s2">          -i &#39;SampleAcids.smi,SampleAmines.smi&#39; -o SampleOutCmpdLibrary.sdf</span>
+ 841 
+ 842 <span class="s2">    To perform a combinatorial enumeration of a virtual compound library corresponding</span>
+ 843 <span class="s2">    to an amide reaction specified using a SMARTS pattern  and write out a SD file containing</span>
+ 844 <span class="s2">    unsanitized molecules, without generating 2D coordinates, and a sequential generation</span>
+ 845 <span class="s2">    of molecule names, type:</span>
+ 846 
+ 847 <span class="s2">        % RDKitEnumerateCompoundLibrary.py -m RxnBySMARTS -c no --sanitize no</span>
+ 848 <span class="s2">          -p Sequential -s &#39;[O:2]=[C:1][OH].[N:3]&gt;&gt;[O:2]=[C:1][N:3]&#39;</span>
+ 849 <span class="s2">          -i &#39;SampleAcids.smi,SampleAmines.smi&#39; -o SampleOutCmpdLibrary.sdf</span>
+ 850 
+ 851 <span class="s2">Author:</span>
+ 852 <span class="s2">    Manish Sud(msud@san.rr.com)</span>
+ 853 
+ 854 <span class="s2">See also:</span>
+ 855 <span class="s2">    RDKitConvertFileFormat.py, RDKitFilterPAINS.py, RDKitSearchFunctionalGroups.py,</span>
+ 856 <span class="s2">    RDKitSearchSMARTS.py</span>
+ 857 
+ 858 <span class="s2">Copyright:</span>
+ 859 <span class="s2">    Copyright (C) 2026 Manish Sud. All rights reserved.</span>
+ 860 
+ 861 <span class="s2">    The functionality available in this script is implemented using RDKit, an</span>
+ 862 <span class="s2">    open source toolkit for cheminformatics developed by Greg Landrum.</span>
+ 863 
+ 864 <span class="s2">    This file is part of MayaChemTools.</span>
+ 865 
+ 866 <span class="s2">    MayaChemTools is free software; you can redistribute it and/or modify it under</span>
+ 867 <span class="s2">    the terms of the GNU Lesser General Public License as published by the Free</span>
+ 868 <span class="s2">    Software Foundation; either version 3 of the License, or (at your option) any</span>
+ 869 <span class="s2">    later version.</span>
+ 870 
+ 871 <span class="s2">&quot;&quot;&quot;</span>
+ 872 
+ 873 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+ 874     <span class="n">main</span><span class="p">()</span>
+</pre>
+<br />
+<center>
+<img src="../../../images/h2o2.png">
+</center>
+</body>
+</html>

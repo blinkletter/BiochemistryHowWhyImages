@@ -1,0 +1,654 @@
+<html>
+<head>
+<title>MayaChemTools:Code:OpenFEGenerateLigandNetwork.py</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../../css/MayaChemToolsPythonCode.css">
+</head>
+<body leftmargin="20" rightmargin="20" topmargin="10" bottommargin="10">
+<br/>
+<center>
+<a href="http://www.mayachemtools.org" title="MayaChemTools Home"><img src="../../../images/MayaChemToolsLogo.gif" border="0" alt="MayaChemTools"></a>
+</center>
+<br/>
+<pre>
+   1 <span class="ch">#!/bin/env python</span>
+   2 <span class="c1">#</span>
+   3 <span class="c1"># File: OpenFEGenerateLigandNetwork.py</span>
+   4 <span class="c1"># Author: Manish Sud &lt;msud@san.rr.com&gt;</span>
+   5 <span class="c1">#</span>
+   6 <span class="c1"># Copyright (C) 2026 Manish Sud. All rights reserved.</span>
+   7 <span class="c1">#</span>
+   8 <span class="c1"># The functionality available in this script is implemented using OpenFE, an</span>
+   9 <span class="c1"># open source package for alchemical free energy calculations.</span>
+  10 <span class="c1">#</span>
+  11 <span class="c1"># This file is part of MayaChemTools.</span>
+  12 <span class="c1">#</span>
+  13 <span class="c1"># MayaChemTools is free software; you can redistribute it and/or modify it under</span>
+  14 <span class="c1"># the terms of the GNU Lesser General Public License as published by the Free</span>
+  15 <span class="c1"># Software Foundation; either version 3 of the License, or (at your option) any</span>
+  16 <span class="c1"># later version.</span>
+  17 <span class="c1">#</span>
+  18 <span class="c1"># MayaChemTools is distributed in the hope that it will be useful, but without</span>
+  19 <span class="c1"># any warranty; without even the implied warranty of merchantability of fitness</span>
+  20 <span class="c1"># for a particular purpose.  See the GNU Lesser General Public License for more</span>
+  21 <span class="c1"># details.</span>
+  22 <span class="c1">#</span>
+  23 <span class="c1"># You should have received a copy of the GNU Lesser General Public License</span>
+  24 <span class="c1"># along with MayaChemTools; if not, see &lt;http://www.gnu.org/licenses/&gt; or</span>
+  25 <span class="c1"># write to the Free Software Foundation Inc., 59 Temple Place, Suite 330,</span>
+  26 <span class="c1"># Boston, MA, 02111-1307, USA.</span>
+  27 <span class="c1">#</span>
+  28 
+  29 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+  30 
+  31 <span class="kn">import</span> <span class="nn">os</span>
+  32 <span class="kn">import</span> <span class="nn">sys</span>
+  33 <span class="kn">import</span> <span class="nn">time</span>
+  34 <span class="kn">import</span> <span class="nn">re</span>
+  35 <span class="kn">import</span> <span class="nn">logging</span>
+  36 
+  37 <span class="c1"># OpenFE imports...</span>
+  38 <span class="k">try</span><span class="p">:</span>
+  39     <span class="kn">import</span> <span class="nn">openfe</span>
+  40 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ErrMsg</span><span class="p">:</span>
+  41     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Failed to import OpenFE related module/package: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ErrMsg</span><span class="p">)</span>
+  42     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Check/update your OpenFE environment and try again.</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+  43     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  44 
+  45 <span class="c1"># RDKit imports...</span>
+  46 <span class="k">try</span><span class="p">:</span>
+  47     <span class="kn">from</span> <span class="nn">rdkit</span> <span class="kn">import</span> <span class="n">rdBase</span>
+  48 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ErrMsg</span><span class="p">:</span>
+  49     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Failed to import RDKit module/package: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ErrMsg</span><span class="p">)</span>
+  50     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Check/update your RDKit environment and try again.</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+  51     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  52 
+  53 <span class="c1"># MayaChemTools imports...</span>
+  54 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;lib&quot;</span><span class="p">,</span> <span class="s2">&quot;Python&quot;</span><span class="p">))</span>
+  55 <span class="k">try</span><span class="p">:</span>
+  56     <span class="kn">from</span> <span class="nn">docopt</span> <span class="kn">import</span> <span class="n">docopt</span>
+  57     <span class="kn">import</span> <span class="nn">MiscUtil</span>
+  58     <span class="kn">import</span> <span class="nn">OpenFEUtil</span>
+  59 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ErrMsg</span><span class="p">:</span>
+  60     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Failed to import MayaChemTools module/package: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ErrMsg</span><span class="p">)</span>
+  61     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Check/update your MayaChemTools environment and try again.</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+  62     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  63 
+  64 <span class="n">ScriptName</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+  65 <span class="n">Options</span> <span class="o">=</span> <span class="p">{}</span>
+  66 <span class="n">OptionsInfo</span> <span class="o">=</span> <span class="p">{}</span>
+  67 
+  68 
+  69 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+  70     <span class="sd">&quot;&quot;&quot;Start execution of the script.&quot;&quot;&quot;</span>
+  71 
+  72     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span>
+  73         <span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2"> (OpenFE v</span><span class="si">%s</span><span class="s2">; OpenMM v</span><span class="si">%s</span><span class="s2">; RDKit v</span><span class="si">%s</span><span class="s2">; MayaChemTools v</span><span class="si">%s</span><span class="s2">; </span><span class="si">%s</span><span class="s2">): Starting...</span><span class="se">\n</span><span class="s2">&quot;</span>
+  74         <span class="o">%</span> <span class="p">(</span>
+  75             <span class="n">ScriptName</span><span class="p">,</span>
+  76             <span class="n">openfe</span><span class="o">.</span><span class="n">version</span><span class="p">(</span><span class="s2">&quot;openfe&quot;</span><span class="p">),</span>
+  77             <span class="n">openfe</span><span class="o">.</span><span class="n">version</span><span class="p">(</span><span class="s2">&quot;openmm&quot;</span><span class="p">),</span>
+  78             <span class="n">rdBase</span><span class="o">.</span><span class="n">rdkitVersion</span><span class="p">,</span>
+  79             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetMayaChemToolsVersion</span><span class="p">(),</span>
+  80             <span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">(),</span>
+  81         <span class="p">)</span>
+  82     <span class="p">)</span>
+  83 
+  84     <span class="p">(</span><span class="n">WallClockTime</span><span class="p">,</span> <span class="n">ProcessorTime</span><span class="p">)</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetWallClockAndProcessorTime</span><span class="p">()</span>
+  85 
+  86     <span class="c1"># Retrieve command line arguments and options...</span>
+  87     <span class="n">RetrieveOptions</span><span class="p">()</span>
+  88 
+  89     <span class="c1"># Process and validate command line arguments and options...</span>
+  90     <span class="n">ProcessOptions</span><span class="p">()</span>
+  91 
+  92     <span class="c1"># Perform actions required by the script...</span>
+  93     <span class="n">GenerateLigandNetwork</span><span class="p">()</span>
+  94 
+  95     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2">: Done...</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ScriptName</span><span class="p">)</span>
+  96     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Total time: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetFormattedElapsedTime</span><span class="p">(</span><span class="n">WallClockTime</span><span class="p">,</span> <span class="n">ProcessorTime</span><span class="p">))</span>
+  97 
+  98 
+  99 <span class="k">def</span> <span class="nf">GenerateLigandNetwork</span><span class="p">():</span>
+ 100     <span class="sd">&quot;&quot;&quot;Generate ligand network for molecules and write them out.&quot;&quot;&quot;</span>
+ 101 
+ 102     <span class="c1"># Process ligand molecules...</span>
+ 103     <span class="n">Mols</span> <span class="o">=</span> <span class="n">ProcessLigandMolecules</span><span class="p">()</span>
+ 104 
+ 105     <span class="c1"># Validate central ligand name for radial network...</span>
+ 106     <span class="n">ValidateRadialCentralLigandName</span><span class="p">(</span><span class="n">Mols</span><span class="p">)</span>
+ 107 
+ 108     <span class="c1"># Initialize atom mappers...</span>
+ 109     <span class="n">Mappers</span> <span class="o">=</span> <span class="n">InitializeAtomMappers</span><span class="p">()</span>
+ 110 
+ 111     <span class="c1"># Initialize atom scorer...</span>
+ 112     <span class="n">MapperScorer</span> <span class="o">=</span> <span class="n">InitializeAtomMapperScorer</span><span class="p">()</span>
+ 113 
+ 114     <span class="c1"># Generate network...</span>
+ 115     <span class="n">GenerateNetwork</span><span class="p">(</span><span class="n">Mols</span><span class="p">,</span> <span class="n">Mappers</span><span class="p">,</span> <span class="n">MapperScorer</span><span class="p">)</span>
+ 116 
+ 117 
+ 118 <span class="k">def</span> <span class="nf">GenerateNetwork</span><span class="p">(</span><span class="n">Mols</span><span class="p">,</span> <span class="n">Mappers</span><span class="p">,</span> <span class="n">MapperScorer</span><span class="p">):</span>
+ 119     <span class="sd">&quot;&quot;&quot;Generate network and write it out.&quot;&quot;&quot;</span>
+ 120 
+ 121     <span class="n">NetworkName</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Network&quot;</span><span class="p">]</span>
+ 122     <span class="n">NetworkParams</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;NetworkParams&quot;</span><span class="p">]</span>
+ 123 
+ 124     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Changing directory to </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutfileDir&quot;</span><span class="p">])</span>
+ 125     <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutfileDirPath&quot;</span><span class="p">])</span>
+ 126 
+ 127     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Generating ligand network (</span><span class="si">%s</span><span class="s2">)...&quot;</span> <span class="o">%</span> <span class="n">NetworkName</span><span class="p">)</span>
+ 128 
+ 129     <span class="n">LigandNetwork</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">GenerateLigandNetwork</span><span class="p">(</span><span class="n">Mols</span><span class="p">,</span> <span class="n">NetworkName</span><span class="p">,</span> <span class="n">NetworkParams</span><span class="p">,</span> <span class="n">Mappers</span><span class="p">,</span> <span class="n">MapperScorer</span><span class="p">)</span>
+ 130 
+ 131     <span class="c1"># Write out ligand network graphml and image files...</span>
+ 132     <span class="n">WriteLigandNetworkOutputFiles</span><span class="p">(</span><span class="n">LigandNetwork</span><span class="p">,</span> <span class="n">NetworkName</span><span class="p">)</span>
+ 133 
+ 134     <span class="c1">#  Write out image files for edges...</span>
+ 135     <span class="n">WriteLigandNetworkEdgesOutputFiles</span><span class="p">(</span><span class="n">LigandNetwork</span><span class="p">,</span> <span class="n">NetworkName</span><span class="p">)</span>
+ 136 
+ 137 
+ 138 <span class="k">def</span> <span class="nf">WriteLigandNetworkOutputFiles</span><span class="p">(</span><span class="n">LigandNetwork</span><span class="p">,</span> <span class="n">NetworkName</span><span class="p">):</span>
+ 139     <span class="sd">&quot;&quot;&quot;Write ligand network output files.&quot;&quot;&quot;</span>
+ 140 
+ 141     <span class="n">GraphMLOutfile</span><span class="p">,</span> <span class="n">ImageOutfile</span> <span class="o">=</span> <span class="n">SetupLigandNetworkOutputFilePaths</span><span class="p">(</span><span class="n">NetworkName</span><span class="p">)</span>
+ 142 
+ 143     <span class="c1"># Write graphml file...</span>
+ 144     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Writing </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="n">GraphMLOutfile</span><span class="p">)</span>
+ 145     <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">WriteLigandNetworkGraphMLFile</span><span class="p">(</span><span class="n">LigandNetwork</span><span class="p">,</span> <span class="n">GraphMLOutfile</span><span class="p">)</span>
+ 146 
+ 147     <span class="c1"># Write image file...</span>
+ 148     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Writing </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="n">ImageOutfile</span><span class="p">)</span>
+ 149     <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">WriteLigandNetworkImageFile</span><span class="p">(</span><span class="n">LigandNetwork</span><span class="p">,</span> <span class="n">ImageOutfile</span><span class="p">)</span>
+ 150 
+ 151 
+ 152 <span class="k">def</span> <span class="nf">WriteLigandNetworkEdgesOutputFiles</span><span class="p">(</span><span class="n">LigandNetwork</span><span class="p">,</span> <span class="n">NetworkName</span><span class="p">):</span>
+ 153     <span class="sd">&quot;&quot;&quot;Write ligand network edges output files.&quot;&quot;&quot;</span>
+ 154 
+ 155     <span class="k">if</span> <span class="ow">not</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;NetworkParams&quot;</span><span class="p">][</span><span class="s2">&quot;OutputEdges&quot;</span><span class="p">]:</span>
+ 156         <span class="k">return</span>
+ 157 
+ 158     <span class="n">NetworkEdges</span> <span class="o">=</span> <span class="p">[</span><span class="n">Edge</span> <span class="k">for</span> <span class="n">Edge</span> <span class="ow">in</span> <span class="n">LigandNetwork</span><span class="o">.</span><span class="n">edges</span><span class="p">]</span>
+ 159 
+ 160     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">NetworkEdges</span><span class="p">):</span>
+ 161         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span>
+ 162             <span class="s2">&quot;Writing </span><span class="si">%s</span><span class="s2"> edge output files &lt;MolName1&gt;_To_&lt;MolName2&gt;_*.png to </span><span class="si">%s</span><span class="s2"> subdirectory...&quot;</span>
+ 163             <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">NetworkEdges</span><span class="p">),</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;EdgesOutfileDir&quot;</span><span class="p">])</span>
+ 164         <span class="p">)</span>
+ 165 
+ 166     <span class="k">for</span> <span class="n">Edge</span> <span class="ow">in</span> <span class="n">NetworkEdges</span><span class="p">:</span>
+ 167         <span class="n">EdgeOutfile</span> <span class="o">=</span> <span class="n">SetupLigandNetworkEdgeOutputFilePath</span><span class="p">(</span><span class="n">Edge</span><span class="p">,</span> <span class="n">NetworkName</span><span class="p">)</span>
+ 168         <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">WriteMappingImageFile</span><span class="p">(</span><span class="n">Edge</span><span class="p">,</span> <span class="n">EdgeOutfile</span><span class="p">)</span>
+ 169 
+ 170 
+ 171 <span class="k">def</span> <span class="nf">SetupLigandNetworkOutputFilePaths</span><span class="p">(</span><span class="n">NetworkName</span><span class="p">):</span>
+ 172     <span class="sd">&quot;&quot;&quot;Setup ligand network output file paths.&quot;&quot;&quot;</span>
+ 173 
+ 174     <span class="n">NetworkOutfilePrefix</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_Network_</span><span class="si">%s</span><span class="s2">_Mapper_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutfilePrefix&quot;</span><span class="p">],</span> <span class="n">NetworkName</span><span class="p">,</span> <span class="n">SetupMapperLabel</span><span class="p">())</span>
+ 175 
+ 176     <span class="n">GraphMLOutfile</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.graphml&quot;</span> <span class="o">%</span> <span class="n">NetworkOutfilePrefix</span>
+ 177     <span class="n">ImageOutfile</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">NetworkOutfilePrefix</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;NetworkParams&quot;</span><span class="p">][</span><span class="s2">&quot;OutputNetworkFormat&quot;</span><span class="p">])</span>
+ 178 
+ 179     <span class="k">return</span> <span class="p">(</span><span class="n">GraphMLOutfile</span><span class="p">,</span> <span class="n">ImageOutfile</span><span class="p">)</span>
+ 180 
+ 181 
+ 182 <span class="k">def</span> <span class="nf">SetupLigandNetworkEdgeOutputFilePath</span><span class="p">(</span><span class="n">Edge</span><span class="p">,</span> <span class="n">NetworkName</span><span class="p">):</span>
+ 183     <span class="sd">&quot;&quot;&quot;Setup ligand network edge outfile file path.&quot;&quot;&quot;</span>
+ 184 
+ 185     <span class="n">EdgeOutfile</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_To_</span><span class="si">%s</span><span class="s2">_Network_</span><span class="si">%s</span><span class="s2">_Mapper_</span><span class="si">%s</span><span class="s2">.png&quot;</span> <span class="o">%</span> <span class="p">(</span>
+ 186         <span class="n">Edge</span><span class="o">.</span><span class="n">componentA</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+ 187         <span class="n">Edge</span><span class="o">.</span><span class="n">componentB</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+ 188         <span class="n">NetworkName</span><span class="p">,</span>
+ 189         <span class="n">SetupMapperLabel</span><span class="p">(),</span>
+ 190     <span class="p">)</span>
+ 191     <span class="n">EdgeOutfile</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">EdgeOutfile</span><span class="p">)</span>
+ 192 
+ 193     <span class="n">EdgeOutfilePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;EdgesOutfileDir&quot;</span><span class="p">],</span> <span class="n">EdgeOutfile</span><span class="p">)</span>
+ 194 
+ 195     <span class="k">return</span> <span class="n">EdgeOutfilePath</span>
+ 196 
+ 197 
+ 198 <span class="k">def</span> <span class="nf">SetupMapperLabel</span><span class="p">():</span>
+ 199     <span class="sd">&quot;&quot;&quot;Setup mapper label.&quot;&quot;&quot;</span>
+ 200 
+ 201     <span class="k">return</span> <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MapperList&quot;</span><span class="p">])</span>
+ 202 
+ 203 
+ 204 <span class="k">def</span> <span class="nf">InitializeAtomMappers</span><span class="p">():</span>
+ 205     <span class="sd">&quot;&quot;&quot;Initialize atom mappers..&quot;&quot;&quot;</span>
+ 206 
+ 207     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Initializing atom mappers (</span><span class="si">%s</span><span class="s2">)...&quot;</span> <span class="o">%</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MapperList&quot;</span><span class="p">]))</span>
+ 208     <span class="n">Mappers</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">InitializeAtomMappers</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MapperList&quot;</span><span class="p">],</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MapperParams&quot;</span><span class="p">])</span>
+ 209 
+ 210     <span class="k">return</span> <span class="n">Mappers</span>
+ 211 
+ 212 
+ 213 <span class="k">def</span> <span class="nf">InitializeAtomMapperScorer</span><span class="p">():</span>
+ 214     <span class="sd">&quot;&quot;&quot;Initialize atom mapper scorer.&quot;&quot;&quot;</span>
+ 215 
+ 216     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Initializing atom mapper scorer (</span><span class="si">%s</span><span class="s2">)...&quot;</span> <span class="o">%</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MapperScorer&quot;</span><span class="p">])</span>
+ 217     <span class="n">MapperScorer</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">InitializeAtomMapperScorer</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MapperScorer&quot;</span><span class="p">])</span>
+ 218 
+ 219     <span class="k">return</span> <span class="n">MapperScorer</span>
+ 220 
+ 221 
+ 222 <span class="k">def</span> <span class="nf">ProcessLigandMolecules</span><span class="p">():</span>
+ 223     <span class="sd">&quot;&quot;&quot;Process ligand molecules.&quot;&quot;&quot;</span>
+ 224 
+ 225     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Processing file </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Infile&quot;</span><span class="p">])</span>
+ 226     <span class="n">Mols</span><span class="p">,</span> <span class="n">MolCount</span><span class="p">,</span> <span class="n">ValidMolCount</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">ReadAndValidateMolecules</span><span class="p">(</span>
+ 227         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfilePath&quot;</span><span class="p">],</span> <span class="o">**</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfileParams&quot;</span><span class="p">]</span>
+ 228     <span class="p">)</span>
+ 229 
+ 230     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Total number of molecules: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">MolCount</span><span class="p">)</span>
+ 231     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Number of valid molecules: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ValidMolCount</span><span class="p">)</span>
+ 232     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Number of ignored molecules: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">MolCount</span> <span class="o">-</span> <span class="n">ValidMolCount</span><span class="p">))</span>
+ 233 
+ 234     <span class="k">if</span> <span class="n">ValidMolCount</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+ 235         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+ 236         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span><span class="s2">&quot;No valid ligand molecules found in input file.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+ 237 
+ 238     <span class="k">return</span> <span class="n">Mols</span>
+ 239 
+ 240 
+ 241 <span class="k">def</span> <span class="nf">ValidateRadialCentralLigandName</span><span class="p">(</span><span class="n">Mols</span><span class="p">):</span>
+ 242     <span class="sd">&quot;&quot;&quot;Validate central ligand name for radial network.&quot;&quot;&quot;</span>
+ 243 
+ 244     <span class="k">if</span> <span class="ow">not</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RadialNetworkStatus&quot;</span><span class="p">]:</span>
+ 245         <span class="k">return</span>
+ 246 
+ 247     <span class="k">if</span> <span class="ow">not</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">IsMolNamePresent</span><span class="p">(</span><span class="n">Mols</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;NetworkParams&quot;</span><span class="p">][</span><span class="s2">&quot;RadialCentralLigand&quot;</span><span class="p">]):</span>
+ 248         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 249             <span class="s1">&#39;The value specified, </span><span class="si">%s</span><span class="s1">, for parameter name, radialCentralLigand, using option &quot;-n, --networkParams&quot; is not valid. Failed to find the specified molecule name in input file.&#39;</span>
+ 250             <span class="o">%</span> <span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;NetworkParams&quot;</span><span class="p">][</span><span class="s2">&quot;RadialCentralLigand&quot;</span><span class="p">])</span>
+ 251         <span class="p">)</span>
+ 252 
+ 253     <span class="k">if</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">IsMolNamePresentMultipleTimes</span><span class="p">(</span><span class="n">Mols</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;NetworkParams&quot;</span><span class="p">][</span><span class="s2">&quot;RadialCentralLigand&quot;</span><span class="p">]):</span>
+ 254         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 255             <span class="s1">&#39;The value specified, </span><span class="si">%s</span><span class="s1">, for parameter name, radialCentralLigand, using option &quot;-n, --networkParams&quot; is not valid. Found multiple occurrences of the specified molecule name in input file.&#39;</span>
+ 256             <span class="o">%</span> <span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;NetworkParams&quot;</span><span class="p">][</span><span class="s2">&quot;RadialCentralLigand&quot;</span><span class="p">])</span>
+ 257         <span class="p">)</span>
+ 258 
+ 259 
+ 260 <span class="k">def</span> <span class="nf">ProcessOutfilePrefixOption</span><span class="p">():</span>
+ 261     <span class="sd">&quot;&quot;&quot;Process outfile prefix option.&quot;&quot;&quot;</span>
+ 262 
+ 263     <span class="n">OutfilePrefix</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfilePrefix&quot;</span><span class="p">]</span>
+ 264 
+ 265     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^auto$&quot;</span><span class="p">,</span> <span class="n">OutfilePrefix</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 266         <span class="n">OutfilePrefix</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfileRoot&quot;</span><span class="p">]</span>
+ 267 
+ 268     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutfilePrefix&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OutfilePrefix</span>
+ 269 
+ 270 
+ 271 <span class="k">def</span> <span class="nf">ProcessOutfileDirOption</span><span class="p">():</span>
+ 272     <span class="sd">&quot;&quot;&quot;Process outfile directory Option.&quot;&quot;&quot;</span>
+ 273 
+ 274     <span class="n">OutfileDir</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfileDir&quot;</span><span class="p">]</span>
+ 275     <span class="n">OutfileDirPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">OutfileDir</span><span class="p">)</span>
+ 276 
+ 277     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">OutfileDir</span><span class="p">):</span>
+ 278         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Creating output directory </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">OutfileDir</span><span class="p">))</span>
+ 279         <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">OutfileDirPath</span><span class="p">)</span>
+ 280 
+ 281     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutfileDir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OutfileDir</span>
+ 282     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutfileDirPath&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OutfileDirPath</span>
+ 283 
+ 284     <span class="c1"># Setup edges output directory...</span>
+ 285     <span class="n">EdgesOutfileDir</span> <span class="o">=</span> <span class="s2">&quot;EdgeImages&quot;</span>
+ 286     <span class="n">EdgesOutfileDirPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutfileDirPath&quot;</span><span class="p">],</span> <span class="n">EdgesOutfileDir</span><span class="p">)</span>
+ 287     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;NetworkParams&quot;</span><span class="p">][</span><span class="s2">&quot;OutputEdges&quot;</span><span class="p">]:</span>
+ 288         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">EdgesOutfileDirPath</span><span class="p">):</span>
+ 289             <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">EdgesOutfileDirPath</span><span class="p">)</span>
+ 290 
+ 291     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;EdgesOutfileDir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">EdgesOutfileDir</span>
+ 292     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;EdgesOutfileDirPath&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">EdgesOutfileDirPath</span>
+ 293 
+ 294 
+ 295 <span class="k">def</span> <span class="nf">ConfigureLogging</span><span class="p">():</span>
+ 296     <span class="sd">&quot;&quot;&quot;Configure logging.&quot;&quot;&quot;</span>
+ 297 
+ 298     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;LoggingLevel&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--loggingLevel&quot;</span><span class="p">]</span>
+ 299 
+ 300     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^Warning$&quot;</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;LoggingLevel&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 301         <span class="n">LoggingLevel</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span>
+ 302     <span class="k">else</span><span class="p">:</span>
+ 303         <span class="n">LoggingLevel</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span>
+ 304 
+ 305     <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(levelname)s</span><span class="s2">: </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">LoggingLevel</span><span class="p">)</span>
+ 306 
+ 307 
+ 308 <span class="k">def</span> <span class="nf">ProcessOptions</span><span class="p">():</span>
+ 309     <span class="sd">&quot;&quot;&quot;Process and validate command line arguments and options.&quot;&quot;&quot;</span>
+ 310 
+ 311     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Processing options...&quot;</span><span class="p">)</span>
+ 312 
+ 313     <span class="c1"># Validate options...</span>
+ 314     <span class="n">ValidateOptions</span><span class="p">()</span>
+ 315 
+ 316     <span class="c1"># Configure logging...</span>
+ 317     <span class="n">ConfigureLogging</span><span class="p">()</span>
+ 318 
+ 319     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Infile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">]</span>
+ 320     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfilePath&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Infile&quot;</span><span class="p">])</span>
+ 321 
+ 322     <span class="n">FileDir</span><span class="p">,</span> <span class="n">FileName</span><span class="p">,</span> <span class="n">FileExt</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ParseFileName</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Infile&quot;</span><span class="p">])</span>
+ 323     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfileRoot&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">FileName</span>
+ 324 
+ 325     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;LoggingLevel&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--loggingLevel&quot;</span><span class="p">]</span>
+ 326 
+ 327     <span class="n">ParamsDefaultInfoOverride</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;RemoveHydrogens&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+ 328     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfileParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ProcessOptionInfileParameters</span><span class="p">(</span>
+ 329         <span class="s2">&quot;--infileParams&quot;</span><span class="p">,</span>
+ 330         <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infileParams&quot;</span><span class="p">],</span>
+ 331         <span class="n">InfileName</span><span class="o">=</span><span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">],</span>
+ 332         <span class="n">ParamsDefaultInfo</span><span class="o">=</span><span class="n">ParamsDefaultInfoOverride</span><span class="p">,</span>
+ 333     <span class="p">)</span>
+ 334 
+ 335     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MapperList&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">ProcessOptionOpenFEMapper</span><span class="p">(</span><span class="s2">&quot;-m, --mapper&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--mapper&quot;</span><span class="p">])</span>
+ 336     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MapperParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">ProcessOptionOpenFEMapperParameters</span><span class="p">(</span>
+ 337         <span class="s2">&quot;-m, --mapperParams&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--mapperParams&quot;</span><span class="p">]</span>
+ 338     <span class="p">)</span>
+ 339     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MapperScorer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--mapperScorer&quot;</span><span class="p">]</span>
+ 340 
+ 341     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Network&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">ProcessOptionOpenFENetwork</span><span class="p">(</span><span class="s2">&quot;-n, --network&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--network&quot;</span><span class="p">])</span>
+ 342     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RadialNetworkStatus&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^Radial$&quot;</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Network&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+ 343     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;NetworkParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">ProcessOptionOpenFENetworkParameters</span><span class="p">(</span>
+ 344         <span class="s2">&quot;--networkParams&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--networkParams&quot;</span><span class="p">],</span> <span class="n">RadialNetworkStatus</span><span class="o">=</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;RadialNetworkStatus&quot;</span><span class="p">]</span>
+ 345     <span class="p">)</span>
+ 346 
+ 347     <span class="n">ProcessOutfilePrefixOption</span><span class="p">()</span>
+ 348     <span class="n">ProcessOutfileDirOption</span><span class="p">()</span>
+ 349 
+ 350     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Overwrite&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--overwrite&quot;</span><span class="p">]</span>
+ 351 
+ 352     <span class="c1"># Track top level working directory...</span>
+ 353     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;TopWorkingDir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+ 354 
+ 355 
+ 356 <span class="k">def</span> <span class="nf">RetrieveOptions</span><span class="p">():</span>
+ 357     <span class="sd">&quot;&quot;&quot;Retrieve command line arguments and options.&quot;&quot;&quot;</span>
+ 358 
+ 359     <span class="c1"># Get options...</span>
+ 360     <span class="k">global</span> <span class="n">Options</span>
+ 361     <span class="n">Options</span> <span class="o">=</span> <span class="n">docopt</span><span class="p">(</span><span class="n">_docoptUsage_</span><span class="p">)</span>
+ 362 
+ 363     <span class="c1"># Set current working directory to the specified directory...</span>
+ 364     <span class="n">WorkingDir</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--workingdir&quot;</span><span class="p">]</span>
+ 365     <span class="k">if</span> <span class="n">WorkingDir</span><span class="p">:</span>
+ 366         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">WorkingDir</span><span class="p">)</span>
+ 367 
+ 368     <span class="c1"># Handle examples option...</span>
+ 369     <span class="k">if</span> <span class="s2">&quot;--examples&quot;</span> <span class="ow">in</span> <span class="n">Options</span> <span class="ow">and</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--examples&quot;</span><span class="p">]:</span>
+ 370         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetExamplesTextFromDocOptText</span><span class="p">(</span><span class="n">_docoptUsage_</span><span class="p">))</span>
+ 371         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+ 372 
+ 373 
+ 374 <span class="k">def</span> <span class="nf">ValidateOptions</span><span class="p">():</span>
+ 375     <span class="sd">&quot;&quot;&quot;Validate option values.&quot;&quot;&quot;</span>
+ 376 
+ 377     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFilePath</span><span class="p">(</span><span class="s2">&quot;-i, --infile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">])</span>
+ 378     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFileExt</span><span class="p">(</span><span class="s2">&quot;-i, --infile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">],</span> <span class="s2">&quot;sdf sd&quot;</span><span class="p">)</span>
+ 379 
+ 380     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionDirPath</span><span class="p">(</span><span class="s2">&quot;-o, --outfileDir&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfileDir&quot;</span><span class="p">])</span>
+ 381     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionsOutputDirOverwrite</span><span class="p">(</span>
+ 382         <span class="s2">&quot;-o, --outfileDir&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfileDir&quot;</span><span class="p">],</span> <span class="s2">&quot;--overwrite&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--overwrite&quot;</span><span class="p">]</span>
+ 383     <span class="p">)</span>
+ 384 
+ 385     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot; --loggingLevel&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--loggingLevel&quot;</span><span class="p">],</span> <span class="s2">&quot;Info Warning&quot;</span><span class="p">)</span>
+ 386 
+ 387     <span class="k">for</span> <span class="n">Mapper</span> <span class="ow">in</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--mapper&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">):</span>
+ 388         <span class="n">Mapper</span> <span class="o">=</span> <span class="n">Mapper</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+ 389         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;-m, --mapper&quot;</span><span class="p">,</span> <span class="n">Mapper</span><span class="p">,</span> <span class="s2">&quot;LOMAP Kartograf&quot;</span><span class="p">)</span>
+ 390 
+ 391     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--mapperScorer&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--mapperScorer&quot;</span><span class="p">],</span> <span class="s2">&quot;LOMAP&quot;</span><span class="p">)</span>
+ 392 
+ 393     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;-n, --network&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--network&quot;</span><span class="p">],</span> <span class="s2">&quot;LOMAP MinimalSpanning Radial&quot;</span><span class="p">)</span>
+ 394 
+ 395 
+ 396 <span class="c1"># Setup a usage string for docopt...</span>
+ 397 <span class="n">_docoptUsage_</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+ 398 <span class="s2">OpenFEGenerateLigandNetwork.py - Generate ligand network</span>
+ 399 
+ 400 <span class="s2">Usage:</span>
+ 401 <span class="s2">    OpenFEGenerateLigandNetwork.py [--infileParams &lt;Name,Value,...&gt;] [--loggingLevel &lt;Info or Warning&gt;]</span>
+ 402 <span class="s2">                                    [--mapper &lt;mapper1, mapper2,...&gt;] [--mapperParams &lt;Name,Value,..&gt;] [--mapperScorer &lt;LOMAP&gt;]</span>
+ 403 <span class="s2">                                    [--network &lt;text&gt;] [--networkParams &lt;Name,Value,..&gt;] [--outfilePrefix &lt;text&gt;]</span>
+ 404 <span class="s2">                                    [--overwrite] [-w &lt;dir&gt;] -i &lt;infile&gt; -o &lt;outifiledir&gt;</span>
+ 405 <span class="s2">    OpenFEGenerateLigandNetwork.py -h | --help | -e | --examples</span>
+ 406 
+ 407 <span class="s2">Description:</span>
+ 408 <span class="s2">    Generate a ligand network for molecules in an input file and write it out</span>
+ 409 <span class="s2">    as graphml and image files under the output directory. You may optionally</span>
+ 410 <span class="s2">    generate image files for all edges in a ligand network.</span>
+ 411 
+ 412 <span class="s2">    You must specify a valid input file containing 3D coordinates for all</span>
+ 413 <span class="s2">    molecules. In addition, the hydrogens must be present for all molecules</span>
+ 414 <span class="s2">    in the input file.</span>
+ 415 
+ 416 <span class="s2">    The supported input file format is:  SD (.sdf, .sd)</span>
+ 417 
+ 418 <span class="s2">    The supported output file formats are:  GraphML (.graphml), SVG (.svg),</span>
+ 419 <span class="s2">    PNG (.png), etc.</span>
+ 420 
+ 421 <span class="s2">    Possible output directories:</span>
+ 422 <span class="s2">        </span>
+ 423 <span class="s2">        &lt;OutfileDir&gt;</span>
+ 424 <span class="s2">        &lt;OutfileDir&gt;/Edges</span>
+ 425 <span class="s2">        </span>
+ 426 <span class="s2">    Possible outfile prefixe:</span>
+ 427 <span class="s2">        </span>
+ 428 <span class="s2">        &lt;OutfilePrefix&gt; or &lt;InfileRoot&gt;</span>
+ 429 <span class="s2">        </span>
+ 430 <span class="s2">    Possible output files:</span>
+ 431 <span class="s2">        </span>
+ 432 <span class="s2">        &lt;OutfilePrefix&gt;_Network_&lt;NetworkName&gt;_Mapper_&lt;MapperNames&gt;.graphml</span>
+ 433 <span class="s2">        &lt;OutfilePrefix&gt;_Network_&lt;NetworkName&gt;_Mapper_&lt;MapperNames&gt;.&lt;ImgExt&gt;</span>
+ 434 <span class="s2">        </span>
+ 435 <span class="s2">        Edges:</span>
+ 436 <span class="s2">        </span>
+ 437 <span class="s2">        &lt;MolName1&gt;_To_&lt;MolName2&gt;_&lt;NetworkName&gt;_Mapper_&lt;MapperNames&gt;.png</span>
+ 438 <span class="s2">         ... ... ...</span>
+ 439 
+ 440 <span class="s2">Options:</span>
+ 441 <span class="s2">    -e, --examples</span>
+ 442 <span class="s2">        Print examples.</span>
+ 443 <span class="s2">    -h, --help</span>
+ 444 <span class="s2">        Print this help message.</span>
+ 445 <span class="s2">    -i, --infile &lt;infile&gt;</span>
+ 446 <span class="s2">        Input file name.</span>
+ 447 <span class="s2">    --infileParams &lt;Name,Value,...&gt;  [default: auto]</span>
+ 448 <span class="s2">        A comma delimited list of parameter name and value pairs for reading</span>
+ 449 <span class="s2">        molecules from files. The supported parameter names for different file</span>
+ 450 <span class="s2">        formats, along with their default values, are shown below:</span>
+ 451 <span class="s2">            </span>
+ 452 <span class="s2">            SD: removeHydrogens,no,sanitize,yes,strictParsing,yes</span>
+ 453 <span class="s2">            </span>
+ 454 <span class="s2">    --loggingLevel &lt;Info or Warning&gt;  [default: Warning]</span>
+ 455 <span class="s2">        Logging level to configure the &#39;root logger&#39; via logging.basicConfig()</span>
+ 456 <span class="s2">        function. The default logging level is changed from &#39;logging.INFO&#39; to</span>
+ 457 <span class="s2">        &#39;logging.WARNING&#39;. Otherwise, OpenFE and its associated modules</span>
+ 458 <span class="s2">        may generate a lot of informational messages.</span>
+ 459 <span class="s2">    -m, --mapper &lt;mapper1, mapper2&gt;  [default: LOMAP]</span>
+ 460 <span class="s2">        A comma delimited names of atom mappers to use for generating a ligand</span>
+ 461 <span class="s2">        network. Possible values: LOMAP [ Lead Optimization MAPer; Ref 176 ] or</span>
+ 462 <span class="s2">        Kartograf [ Ref 177 ]. You may specify multiple mappers for generating</span>
+ 463 <span class="s2">        mapping between two molecules. All specified mappers are employed to</span>
+ 464 <span class="s2">        identify the highest scoring edges for generating a ligand network.</span>
+ 465 <span class="s2">    --mapperParams &lt;Name,Value,..&gt;  [default: auto]</span>
+ 466 <span class="s2">        A comma delimited list of parameter name and value pairs for atom</span>
+ 467 <span class="s2">        mappers used during the generation of a ligand network.</span>
+ 468 <span class="s2">        </span>
+ 469 <span class="s2">        The supported parameter names along with their default values are</span>
+ 470 <span class="s2">        are shown below:</span>
+ 471 <span class="s2">            </span>
+ 472 <span class="s2">            lomapTime, 20, [ Units: seconds ]</span>
+ 473 <span class="s2">            lomapThreeD, yes [ Possible values: yes or no ]</span>
+ 474 <span class="s2">            lomapMax3D, 1.0 [ Units: Angstrom ]</span>
+ 475 <span class="s2">            lomapElementChange, yes [ Possible values: yes or no]</span>
+ 476 <span class="s2">            lomapSeed, None [ Possible value: A string. An empty string causes</span>
+ 477 <span class="s2">                MCS search to start from scratch ]</span>
+ 478 <span class="s2">            lomapShift, no [  Possible values: yes or no]</span>
+ 479 <span class="s2">            </span>
+ 480 <span class="s2">            kartografAtomMaxDistance, 0.95 [ Units: Angstrom ]</span>
+ 481 <span class="s2">            kartografAtomMapHydrogens, yes [ Possible values: yes or no ]</span>
+ 482 <span class="s2">            kartografMapHydrogensOnHydrogensOnly, No [ Possible values: yes or</span>
+ 483 <span class="s2">                no ]</span>
+ 484 <span class="s2">            kartografMapExactRingMatchesOnly, yes [ Possible values: yes or no ]</span>
+ 485 <span class="s2">            kartografAllowPartialFusedRings, yes [ Possible values: yes or no ]</span>
+ 486 <span class="s2">            </span>
+ 487 <span class="s2">        A brief description of parameters is provided below:</span>
+ 488 <span class="s2">            </span>
+ 489 <span class="s2">            lomapTime: Time out for MCS algorithm.</span>
+ 490 <span class="s2">            lomapThreeD: Use atom positions to prune symmetric mappings.</span>
+ 491 <span class="s2">            lomapMax3D: Forbid mapping between atoms with distance more than</span>
+ 492 <span class="s2">                specified value.</span>
+ 493 <span class="s2">            lomapElementChange: Allow mappings that change an atom element.</span>
+ 494 <span class="s2">            lomapSeed: An Empty SMARTS string causes MCS search to start from</span>
+ 495 <span class="s2">                scratch.</span>
+ 496 <span class="s2">            lomapShift: Keep pre-aligned atom positions for 3D position checks.</span>
+ 497 <span class="s2">            </span>
+ 498 <span class="s2">            kartografAtomMaxDistance: Geometric criteria for two atoms</span>
+ 499 <span class="s2">                corresponding to maximum distance between them.</span>
+ 500 <span class="s2">            kartografAtomMapHydrogens: Map hydrogens.</span>
+ 501 <span class="s2">            kartografMapHydrogensOnHydrogensOnly: Map hydrogens only on</span>
+ 502 <span class="s2">                hydrogens.</span>
+ 503 <span class="s2">            kartografMapExactRingMatchesOnly: Map rings with only matching ring</span>
+ 504 <span class="s2">                size and bond orders. In addition, ring breaking is not</span>
+ 505 <span class="s2">                permitted.</span>
+ 506 <span class="s2">            kartografAllowPartialFusedRings: Allow mapping of partially fused</span>
+ 507 <span class="s2">                rings.</span>
+ 508 <span class="s2">            </span>
+ 509 <span class="s2">    --mapperScorer &lt;LOMAP&gt;  [default: LOMAP]</span>
+ 510 <span class="s2">        Atom mapper scorer to use for scoring edge mappings during generation</span>
+ 511 <span class="s2">        of a ligand network. Possible value: LOMAP. The atom scorer is not used</span>
+ 512 <span class="s2">        during the generation of MinimalSpanning network.</span>
+ 513 <span class="s2">    -n, --network &lt;text&gt;  [default: MinimalSpanning]</span>
+ 514 <span class="s2">        Name of a ligand network to generate. Possible values: LOMAP,</span>
+ 515 <span class="s2">        MinimalSpanning or Radial. </span>
+ 516 <span class="s2">    --networkParams &lt;Name,Value,..&gt;  [default: auto]</span>
+ 517 <span class="s2">        A comma delimited list of parameter name and value pairs for generating</span>
+ 518 <span class="s2">        a ligand network.</span>
+ 519 <span class="s2">        </span>
+ 520 <span class="s2">        The supported parameter names along with their default values are</span>
+ 521 <span class="s2">        are shown below:</span>
+ 522 <span class="s2">            </span>
+ 523 <span class="s2">            lomapDistanceCutoff, 0.4</span>
+ 524 <span class="s2">            lomapMaxPathLength, 6</span>
+ 525 <span class="s2">            lomapRequireCycleCovering, yes  [ Possible values: yes or no ]</span>
+ 526 <span class="s2">            </span>
+ 527 <span class="s2">            minimalSpanningProgress, no  [ Possible values: yes or no ]</span>
+ 528 <span class="s2">            </span>
+ 529 <span class="s2">            radialCentralLigand, None  [ Possible values: Valid ligand name ]</span>
+ 530 <span class="s2">            </span>
+ 531 <span class="s2">            outputEdges, no  [ Possible values: yes or no ]</span>
+ 532 <span class="s2">            outputNetworkFormat, svg  [ Possible values: Any valid format. ]</span>
+ 533 <span class="s2">            </span>
+ 534 <span class="s2">        A brief description of parameters is provided below:</span>
+ 535 <span class="s2">            </span>
+ 536 <span class="s2">            lomapDistanceCutoff: Maximum distance/dissimilarity between two</span>
+ 537 <span class="s2">                molecules for an edge to be accepted.</span>
+ 538 <span class="s2">            lomapMaxPathLength: Maximum distance between any two molecules in</span>
+ 539 <span class="s2">                the resulting network</span>
+ 540 <span class="s2">            lomapRequireCycleCovering: Add cycles into the network</span>
+ 541 <span class="s2">            </span>
+ 542 <span class="s2">            minimalSpanningProgress: Show progress using tqdm.</span>
+ 543 <span class="s2">            </span>
+ 544 <span class="s2">            radialCentralLigand: Name of central ligand. A valid ligand name</span>
+ 545 <span class="s2">                must be specified to generate a radial ligand network.</span>
+ 546 <span class="s2">            </span>
+ 547 <span class="s2">            outputEdges: Generate PNG image files for all edges in a ligand</span>
+ 548 <span class="s2">                network.</span>
+ 549 <span class="s2">            outputNetworkFormat: Valid image file format for ligand network.</span>
+ 550 <span class="s2">                You must specify a valid format supported by Python module</span>
+ 551 <span class="s2">                Matplotlib. For example: PNG (.png), SVG (.svg), PDF (.pdf),</span>
+ 552 <span class="s2">                etc. In addition, the graphml file is always generated.</span>
+ 553 <span class="s2">            </span>
+ 554 <span class="s2">    -o, --outfileDir &lt;outfiledir&gt;</span>
+ 555 <span class="s2">        Output directory.</span>
+ 556 <span class="s2">    --outfilePrefix &lt;text&gt;  [default: auto]</span>
+ 557 <span class="s2">        Prefix for generating output files under output directory.</span>
+ 558 <span class="s2">    --overwrite</span>
+ 559 <span class="s2">        Overwrite existing files.</span>
+ 560 <span class="s2">    -w, --workingdir &lt;dir&gt;</span>
+ 561 <span class="s2">        Location of working directory which defaults to the current directory.</span>
+ 562 
+ 563 <span class="s2">Examples:</span>
+ 564 <span class="s2">    To generate a minimal spanning ligand network for molecules in a SD file with</span>
+ 565 <span class="s2">    3D structures, employing LOMAP atom mapper to map egdes, and write out</span>
+ 566 <span class="s2">    network GraphML, SVG and edge image files to output directory, type:</span>
+ 567 
+ 568 <span class="s2">        % OpenFEGenerateLigandNetwork.py -i SampleTyk2Ligands.sdf</span>
+ 569 <span class="s2">          -o SampleTyk2LigandsMSTNetwork</span>
+ 570 
+ 571 <span class="s2">    To run the first example along with generating PNG image files for all edges,</span>
+ 572 <span class="s2">    type:</span>
+ 573 
+ 574 <span class="s2">        % OpenFEGenerateLigandNetwork.py -i SampleTyk2Ligands.sdf</span>
+ 575 <span class="s2">          -o SampleTyk2LigandsMSTNetwork --networkParams &quot;outputEdges, yes&quot;</span>
+ 576 
+ 577 <span class="s2">    To run the first example employing Kartograf atom mapper to map edges,</span>
+ 578 <span class="s2">    and write out various output files under to directory, type:</span>
+ 579 
+ 580 <span class="s2">        % OpenFEGenerateLigandNetwork.py -i SampleTyk2Ligands.sdf</span>
+ 581 <span class="s2">          -o SampleTyk2LigandsMSTNetwork -m Kartograf</span>
+ 582 
+ 583 <span class="s2">    To run the first example for generating a radial ligand network centered</span>
+ 584 <span class="s2">    around the ligand lig_ejm_31, and write out various output files to output</span>
+ 585 <span class="s2">    directory, type:</span>
+ 586 
+ 587 <span class="s2">        % OpenFEGenerateLigandNetwork.py -i SampleTyk2Ligands.sdf</span>
+ 588 <span class="s2">          -o SampleTyk2LigandsRadialNetwork -n Radial --networkParams</span>
+ 589 <span class="s2">          &quot;RadialCentralLigand,lig_ejm_31&quot;</span>
+ 590 
+ 591 <span class="s2">    To run the previous example along with generating PNG image files for all edges,</span>
+ 592 <span class="s2">    type:</span>
+ 593 
+ 594 <span class="s2">        % OpenFEGenerateLigandNetwork.py -i SampleTyk2Ligands.sdf</span>
+ 595 <span class="s2">          -o SampleTyk2LigandsRadialNetwork -n Radial --networkParams</span>
+ 596 <span class="s2">          &quot;RadialCentralLigand,lig_ejm_31,outputEdges, yes&quot;</span>
+ 597 
+ 598 <span class="s2">    To run the first example by specifying explicit values for various parameters</span>
+ 599 <span class="s2">    and write out various output files to output directory, type:</span>
+ 600 
+ 601 <span class="s2">        % OpenFEGenerateLigandNetwork.py -i SampleTyk2Ligands.sdf</span>
+ 602 <span class="s2">          -o SampleTyk2LigandsLOMAPNetwork</span>
+ 603 <span class="s2">          --loggingLevel Warning -m LOMAP  --mapperParams &quot;lomapTime, 20,</span>
+ 604 <span class="s2">          lomapThreeD, yes, lomapElementChange, yes, lomapElementChange, yes,</span>
+ 605 <span class="s2">          lomapSeed, None, lomapShift, no&quot; -n LOMAP --networkParams</span>
+ 606 <span class="s2">          &quot;lomapDistanceCutoff, 0.4, lomapMaxPathLength, 6,</span>
+ 607 <span class="s2">          lomapRequireCycleCovering, yes, outputEdges, yes&quot;</span>
+ 608 
+ 609 <span class="s2">Author:</span>
+ 610 <span class="s2">    Manish Sud(msud@san.rr.com)</span>
+ 611 
+ 612 <span class="s2">See also:</span>
+ 613 <span class="s2">    OpenFECalculateAbsoluteHydrationFreeEnergy.py,</span>
+ 614 <span class="s2">    OpenFECalculateRelativeBindingFreeEnergy.py,</span>
+ 615 <span class="s2">    OpenFECalculateRelativeHydrationFreeEnergy.py,</span>
+ 616 <span class="s2">    OpenFECalculatePartialCharges.py</span>
+ 617 
+ 618 <span class="s2">Copyright:</span>
+ 619 <span class="s2">    Copyright (C) 2026 Manish Sud. All rights reserved.</span>
+ 620 
+ 621 <span class="s2">    The functionality available in this script is implemented using OpenFE, an</span>
+ 622 <span class="s2">    open source molecuar for alchemical free energy calculations.</span>
+ 623 
+ 624 <span class="s2">    This file is part of MayaChemTools.</span>
+ 625 
+ 626 <span class="s2">    MayaChemTools is free software; you can redistribute it and/or modify it under</span>
+ 627 <span class="s2">    the terms of the GNU Lesser General Public License as published by the Free</span>
+ 628 <span class="s2">    Software Foundation; either version 3 of the License, or (at your option) any</span>
+ 629 <span class="s2">    later version.</span>
+ 630 
+ 631 <span class="s2">&quot;&quot;&quot;</span>
+ 632 
+ 633 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+ 634     <span class="n">main</span><span class="p">()</span>
+</pre>
+<br />
+<center>
+<img src="../../../images/h2o2.png">
+</center>
+</body>
+</html>

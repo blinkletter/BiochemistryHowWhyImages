@@ -1,0 +1,41 @@
+HEADER
+HEADER This is a pdb format file writen by the programm fpocket.                 
+HEADER It represents the atoms contacted by the voronoi vertices of the pocket.  
+HEADER                                                                           
+HEADER Information about the pocket    20:
+HEADER 0  - Pocket Score                      : -0.0477
+HEADER 1  - Drug Score                        : 0.0023
+HEADER 2  - Number of alpha spheres           :    20
+HEADER 3  - Mean alpha-sphere radius          : 4.1063
+HEADER 4  - Mean alpha-sphere Solvent Acc.    : 0.6382
+HEADER 5  - Mean B-factor of pocket residues  : 0.4209
+HEADER 6  - Hydrophobicity Score              : 27.3750
+HEADER 7  - Polarity Score                    :     5
+HEADER 8  - Amino Acid based volume Score     : 4.2500
+HEADER 9  - Pocket volume (Monte Carlo)       : 227.4368
+HEADER 10  -Pocket volume (convex hull)       : 7.3677
+HEADER 11 - Charge Score                      :     1
+HEADER 12 - Local hydrophobic density Score   : 10.0000
+HEADER 13 - Number of apolar alpha sphere     :    11
+HEADER 14 - Proportion of apolar alpha sphere : 0.5500
+ATOM   1201   CB HIS A 158     -12.831  24.017 -28.688  0.00  0.00           C 0
+ATOM   1721  CZ2 TRP A 221     -12.622  19.995 -32.504  0.00  0.00           C 0
+ATOM   1204  CD2 HIS A 158     -11.388  22.302 -29.990  0.00  0.00           C 0
+ATOM   1169   CA GLU A 155     -16.428  21.068 -29.534  0.00  0.00           C 0
+ATOM   1173   CG GLU A 155     -18.557  21.700 -30.824  0.00  0.00           C 0
+ATOM     49  CD1 LEU A  19     -20.996  25.021 -29.554  0.00  0.00           C 0
+ATOM   1171    O GLU A 155     -16.661  23.083 -28.239  0.73  3.21           O 0
+ATOM   1211   CB SER A 159     -17.556  26.218 -27.447  0.00  0.00           C 0
+ATOM   2262  CG1 VAL A 288     -17.572  21.457 -34.788  0.00  0.00           C 0
+ATOM   2257    N VAL A 288     -15.343  22.421 -36.598  0.00  0.00           N 0
+ATOM   2219    O GLY A 282     -11.101  23.233 -35.958  0.78  7.50           O 0
+ATOM   1718  NE1 TRP A 221     -10.575  21.260 -33.204  0.57  1.09           N 0
+ATOM   1689   NZ LYS A 217     -11.404  27.968 -30.343  0.23  7.66           N 0
+ATOM   1207    N SER A 159     -15.194  25.581 -27.213  0.00  0.00           N 0
+ATOM   1208   CA SER A 159     -16.119  26.706 -27.216  0.00  0.00           C 0
+ATOM   2261   CB VAL A 288     -16.171  20.869 -34.878  0.00  0.00           C 0
+ATOM   1687   CD LYS A 217      -9.879  26.063 -29.839  0.00  0.00           C 0
+ATOM   1199    C HIS A 158     -13.877  25.784 -27.246  0.00  0.00           C 0
+ATOM   1200    O HIS A 158     -13.363  26.898 -27.236  0.00  0.00           O 0
+TER
+END

@@ -1,0 +1,828 @@
+<html>
+<head>
+<title>MayaChemTools:Code:OpenMMPrepareMacromolecule.py</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../../css/MayaChemToolsPythonCode.css">
+</head>
+<body leftmargin="20" rightmargin="20" topmargin="10" bottommargin="10">
+<br/>
+<center>
+<a href="http://www.mayachemtools.org" title="MayaChemTools Home"><img src="../../../images/MayaChemToolsLogo.gif" border="0" alt="MayaChemTools"></a>
+</center>
+<br/>
+<pre>
+   1 <span class="ch">#!/bin/env python</span>
+   2 <span class="c1">#</span>
+   3 <span class="c1"># File: OpenMMPrepareMacromolecule.py</span>
+   4 <span class="c1"># Author: Manish Sud &lt;msud@san.rr.com&gt;</span>
+   5 <span class="c1">#</span>
+   6 <span class="c1"># Copyright (C) 2026 Manish Sud. All rights reserved.</span>
+   7 <span class="c1">#</span>
+   8 <span class="c1"># The functionality available in this script is implemented using OpenMM, an</span>
+   9 <span class="c1"># open source molecuar simulation package.</span>
+  10 <span class="c1">#</span>
+  11 <span class="c1"># This file is part of MayaChemTools.</span>
+  12 <span class="c1">#</span>
+  13 <span class="c1"># MayaChemTools is free software; you can redistribute it and/or modify it under</span>
+  14 <span class="c1"># the terms of the GNU Lesser General Public License as published by the Free</span>
+  15 <span class="c1"># Software Foundation; either version 3 of the License, or (at your option) any</span>
+  16 <span class="c1"># later version.</span>
+  17 <span class="c1">#</span>
+  18 <span class="c1"># MayaChemTools is distributed in the hope that it will be useful, but without</span>
+  19 <span class="c1"># any warranty; without even the implied warranty of merchantability of fitness</span>
+  20 <span class="c1"># for a particular purpose.  See the GNU Lesser General Public License for more</span>
+  21 <span class="c1"># details.</span>
+  22 <span class="c1">#</span>
+  23 <span class="c1"># You should have received a copy of the GNU Lesser General Public License</span>
+  24 <span class="c1"># along with MayaChemTools; if not, see &lt;http://www.gnu.org/licenses/&gt; or</span>
+  25 <span class="c1"># write to the Free Software Foundation Inc., 59 Temple Place, Suite 330,</span>
+  26 <span class="c1"># Boston, MA, 02111-1307, USA.</span>
+  27 <span class="c1">#</span>
+  28 
+  29 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+  30 
+  31 <span class="kn">import</span> <span class="nn">os</span>
+  32 <span class="kn">import</span> <span class="nn">sys</span>
+  33 <span class="kn">import</span> <span class="nn">time</span>
+  34 <span class="kn">import</span> <span class="nn">re</span>
+  35 
+  36 <span class="c1"># OpenMM imports...</span>
+  37 <span class="k">try</span><span class="p">:</span>
+  38     <span class="kn">import</span> <span class="nn">openmm</span> <span class="k">as</span> <span class="nn">mm</span>
+  39     <span class="kn">import</span> <span class="nn">pdbfixer</span>
+  40     <span class="kn">from</span> <span class="nn">pdbfixer.pdbfixer</span> <span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">pdbfixerversion</span>
+  41 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ErrMsg</span><span class="p">:</span>
+  42     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Failed to import OpenMM related module/package: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ErrMsg</span><span class="p">)</span>
+  43     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Check/update your OpenMM environment and try again.</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+  44     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  45 
+  46 <span class="c1"># MayaChemTools imports...</span>
+  47 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;lib&quot;</span><span class="p">,</span> <span class="s2">&quot;Python&quot;</span><span class="p">))</span>
+  48 <span class="k">try</span><span class="p">:</span>
+  49     <span class="kn">from</span> <span class="nn">docopt</span> <span class="kn">import</span> <span class="n">docopt</span>
+  50     <span class="kn">import</span> <span class="nn">MiscUtil</span>
+  51     <span class="kn">import</span> <span class="nn">OpenMMUtil</span>
+  52 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ErrMsg</span><span class="p">:</span>
+  53     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Failed to import MayaChemTools module/package: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ErrMsg</span><span class="p">)</span>
+  54     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Check/update your MayaChemTools environment and try again.</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+  55     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  56 
+  57 <span class="n">ScriptName</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+  58 <span class="n">Options</span> <span class="o">=</span> <span class="p">{}</span>
+  59 <span class="n">OptionsInfo</span> <span class="o">=</span> <span class="p">{}</span>
+  60 
+  61 
+  62 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+  63     <span class="sd">&quot;&quot;&quot;Start execution of the script.&quot;&quot;&quot;</span>
+  64 
+  65     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span>
+  66         <span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2"> (OpenMM v</span><span class="si">%s</span><span class="s2">; PDBFixerVersion v</span><span class="si">%s</span><span class="s2">; MayaChemTools v</span><span class="si">%s</span><span class="s2">; </span><span class="si">%s</span><span class="s2">): Starting...</span><span class="se">\n</span><span class="s2">&quot;</span>
+  67         <span class="o">%</span> <span class="p">(</span>
+  68             <span class="n">ScriptName</span><span class="p">,</span>
+  69             <span class="n">mm</span><span class="o">.</span><span class="n">Platform</span><span class="o">.</span><span class="n">getOpenMMVersion</span><span class="p">(),</span>
+  70             <span class="n">pdbfixerversion</span><span class="p">,</span>
+  71             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetMayaChemToolsVersion</span><span class="p">(),</span>
+  72             <span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">(),</span>
+  73         <span class="p">)</span>
+  74     <span class="p">)</span>
+  75 
+  76     <span class="p">(</span><span class="n">WallClockTime</span><span class="p">,</span> <span class="n">ProcessorTime</span><span class="p">)</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetWallClockAndProcessorTime</span><span class="p">()</span>
+  77 
+  78     <span class="c1"># Retrieve command line arguments and options...</span>
+  79     <span class="n">RetrieveOptions</span><span class="p">()</span>
+  80 
+  81     <span class="c1"># Process and validate command line arguments and options...</span>
+  82     <span class="n">ProcessOptions</span><span class="p">()</span>
+  83 
+  84     <span class="c1"># Perform actions required by the script...</span>
+  85     <span class="n">PrepareMacromolecule</span><span class="p">()</span>
+  86 
+  87     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2">: Done...</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ScriptName</span><span class="p">)</span>
+  88     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Total time: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetFormattedElapsedTime</span><span class="p">(</span><span class="n">WallClockTime</span><span class="p">,</span> <span class="n">ProcessorTime</span><span class="p">))</span>
+  89 
+  90 
+  91 <span class="k">def</span> <span class="nf">PrepareMacromolecule</span><span class="p">():</span>
+  92     <span class="sd">&quot;&quot;&quot;Prepare a macromolecule for simulation and write it out.&quot;&quot;&quot;</span>
+  93 
+  94     <span class="c1"># Read macromolecule...</span>
+  95     <span class="n">PDBFixerObjectHandle</span> <span class="o">=</span> <span class="n">ReadMacromolecule</span><span class="p">()</span>
+  96 
+  97     <span class="c1"># Identify missing residues...</span>
+  98     <span class="n">IdentifyMissingResidues</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="p">)</span>
+  99 
+ 100     <span class="c1"># Identify and replace non-standard residues...</span>
+ 101     <span class="n">IdentifyAndReplaceNonStandardResidues</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="p">)</span>
+ 102 
+ 103     <span class="c1"># Identify and delete heterogen residues...</span>
+ 104     <span class="n">IdentifyAndDeleteHeterogenResidues</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="p">)</span>
+ 105 
+ 106     <span class="c1"># Identify and add missing atoms...</span>
+ 107     <span class="n">IdentifyAndAddMissingAtoms</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="p">)</span>
+ 108 
+ 109     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;WaterBox&quot;</span><span class="p">]:</span>
+ 110         <span class="n">AddWaterBox</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="p">)</span>
+ 111     <span class="k">elif</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Membrane&quot;</span><span class="p">]:</span>
+ 112         <span class="n">AddLipidMembrane</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="p">)</span>
+ 113     <span class="k">else</span><span class="p">:</span>
+ 114         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Skipping addtion of water box or membrane...&quot;</span><span class="p">)</span>
+ 115 
+ 116     <span class="c1"># Write macromolecule...</span>
+ 117     <span class="n">WriteMacromolecule</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="p">)</span>
+ 118 
+ 119 
+ 120 <span class="k">def</span> <span class="nf">ReadMacromolecule</span><span class="p">():</span>
+ 121     <span class="sd">&quot;&quot;&quot;Read macromolecule.&quot;&quot;&quot;</span>
+ 122 
+ 123     <span class="n">Infile</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Infile&quot;</span><span class="p">]</span>
+ 124     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Processing file </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="n">Infile</span><span class="p">)</span>
+ 125 
+ 126     <span class="n">PDBFixerObjectHandle</span> <span class="o">=</span> <span class="n">pdbfixer</span><span class="o">.</span><span class="n">pdbfixer</span><span class="o">.</span><span class="n">PDBFixer</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">Infile</span><span class="p">)</span>
+ 127 
+ 128     <span class="k">return</span> <span class="n">PDBFixerObjectHandle</span>
+ 129 
+ 130 
+ 131 <span class="k">def</span> <span class="nf">WriteMacromolecule</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="p">):</span>
+ 132     <span class="sd">&quot;&quot;&quot;Write macromolecule.&quot;&quot;&quot;</span>
+ 133 
+ 134     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Generating output file </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Outfile&quot;</span><span class="p">])</span>
+ 135     <span class="n">OpenMMUtil</span><span class="o">.</span><span class="n">WritePDBFile</span><span class="p">(</span>
+ 136         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Outfile&quot;</span><span class="p">],</span> <span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">topology</span><span class="p">,</span> <span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">positions</span><span class="p">,</span> <span class="n">KeepIDs</span><span class="o">=</span><span class="kc">True</span>
+ 137     <span class="p">)</span>
+ 138 
+ 139 
+ 140 <span class="k">def</span> <span class="nf">IdentifyMissingResidues</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="p">):</span>
+ 141     <span class="sd">&quot;&quot;&quot;Identify missing residues based on PDB REMARK records.&quot;&quot;&quot;</span>
+ 142 
+ 143     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Identifying missing residues...&quot;</span><span class="p">)</span>
+ 144 
+ 145     <span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">missingResidues</span> <span class="o">=</span> <span class="p">{}</span>
+ 146     <span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">findMissingResidues</span><span class="p">()</span>
+ 147 
+ 148     <span class="n">ListMissingResidues</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="p">)</span>
+ 149 
+ 150 
+ 151 <span class="k">def</span> <span class="nf">ListMissingResidues</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="p">):</span>
+ 152     <span class="sd">&quot;&quot;&quot;List missing residues.&quot;&quot;&quot;</span>
+ 153 
+ 154     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">missingResidues</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+ 155         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Number of missing residues: 0&quot;</span><span class="p">)</span>
+ 156         <span class="k">return</span>
+ 157 
+ 158     <span class="n">Chains</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">topology</span><span class="o">.</span><span class="n">chains</span><span class="p">())</span>
+ 159 
+ 160     <span class="n">MissingResiduesCount</span> <span class="o">=</span> <span class="mi">0</span>
+ 161     <span class="n">MissingResiduesInfo</span> <span class="o">=</span> <span class="p">[]</span>
+ 162     <span class="k">for</span> <span class="n">Index</span><span class="p">,</span> <span class="n">Key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">missingResidues</span><span class="p">)):</span>
+ 163         <span class="n">ChainIndex</span> <span class="o">=</span> <span class="n">Key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+ 164         <span class="c1"># ResidueIndex corresponds to the residue after the insertion of missing residues...`</span>
+ 165         <span class="n">ResidueIndex</span> <span class="o">=</span> <span class="n">Key</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+ 166 
+ 167         <span class="n">MissingResidues</span> <span class="o">=</span> <span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">missingResidues</span><span class="p">[</span><span class="n">Key</span><span class="p">]</span>
+ 168         <span class="n">MissingResiduesCount</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">MissingResidues</span><span class="p">)</span>
+ 169 
+ 170         <span class="n">Chain</span> <span class="o">=</span> <span class="n">Chains</span><span class="p">[</span><span class="n">ChainIndex</span><span class="p">]</span>
+ 171         <span class="n">ChainResidues</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Chain</span><span class="o">.</span><span class="n">residues</span><span class="p">())</span>
+ 172 
+ 173         <span class="k">if</span> <span class="n">ResidueIndex</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">ChainResidues</span><span class="p">):</span>
+ 174             <span class="n">ResidueNumOffset</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ChainResidues</span><span class="p">[</span><span class="n">ResidueIndex</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">MissingResidues</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+ 175         <span class="k">else</span><span class="p">:</span>
+ 176             <span class="n">ResidueNumOffset</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ChainResidues</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+ 177 
+ 178         <span class="n">StartResNum</span> <span class="o">=</span> <span class="n">ResidueNumOffset</span> <span class="o">+</span> <span class="mi">1</span>
+ 179         <span class="n">EndResNum</span> <span class="o">=</span> <span class="n">ResidueNumOffset</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">MissingResidues</span><span class="p">)</span>
+ 180 
+ 181         <span class="n">MissingResiduesInfo</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+ 182             <span class="s2">&quot;Chain: </span><span class="si">%s</span><span class="s2">; StartResNum-EndResNum: </span><span class="si">%s</span><span class="s2">-</span><span class="si">%s</span><span class="s2">; Count: </span><span class="si">%s</span><span class="s2">; Residues: </span><span class="si">%s</span><span class="s2">&quot;</span>
+ 183             <span class="o">%</span> <span class="p">(</span><span class="n">Chain</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">StartResNum</span><span class="p">,</span> <span class="n">EndResNum</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">MissingResidues</span><span class="p">),</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MissingResidues</span><span class="p">))</span>
+ 184         <span class="p">)</span>
+ 185 
+ 186     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Total number of missing residues: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">MissingResiduesCount</span><span class="p">))</span>
+ 187     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ListDetails&quot;</span><span class="p">]:</span>
+ 188         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MissingResiduesInfo</span><span class="p">)))</span>
+ 189 
+ 190 
+ 191 <span class="k">def</span> <span class="nf">IdentifyAndReplaceNonStandardResidues</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="p">):</span>
+ 192     <span class="sd">&quot;&quot;&quot;Identify and replace non-standard residues.&quot;&quot;&quot;</span>
+ 193 
+ 194     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Identifying non-standard residues...&quot;</span><span class="p">)</span>
+ 195 
+ 196     <span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">findNonstandardResidues</span><span class="p">()</span>
+ 197     <span class="n">NonStandardResidues</span> <span class="o">=</span> <span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">nonstandardResidues</span>
+ 198     <span class="n">NumNonStandardResiues</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">NonStandardResidues</span><span class="p">)</span>
+ 199 
+ 200     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Total number of non-standard residues: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">NumNonStandardResiues</span><span class="p">)</span>
+ 201 
+ 202     <span class="k">if</span> <span class="n">NumNonStandardResiues</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+ 203         <span class="k">return</span>
+ 204 
+ 205     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ListDetails&quot;</span><span class="p">]:</span>
+ 206         <span class="n">ListNonStandardResidues</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="p">)</span>
+ 207 
+ 208     <span class="k">if</span> <span class="ow">not</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ReplaceNonStandardResidues&quot;</span><span class="p">]:</span>
+ 209         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Skipping replacement of non-standard residues...&quot;</span><span class="p">)</span>
+ 210         <span class="k">return</span>
+ 211 
+ 212     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Replacing non-standard residues...&quot;</span><span class="p">)</span>
+ 213     <span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">replaceNonstandardResidues</span><span class="p">()</span>
+ 214 
+ 215 
+ 216 <span class="k">def</span> <span class="nf">ListNonStandardResidues</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="p">):</span>
+ 217     <span class="sd">&quot;&quot;&quot;List non-standard residues.&quot;&quot;&quot;</span>
+ 218 
+ 219     <span class="n">NonStandardResidues</span> <span class="o">=</span> <span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">nonstandardResidues</span>
+ 220 
+ 221     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">NonStandardResidues</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+ 222         <span class="k">return</span>
+ 223 
+ 224     <span class="n">NonStandardResiduesMappingInfo</span> <span class="o">=</span> <span class="p">[]</span>
+ 225     <span class="k">for</span> <span class="n">Values</span> <span class="ow">in</span> <span class="n">NonStandardResidues</span><span class="p">:</span>
+ 226         <span class="n">NonStandardRes</span> <span class="o">=</span> <span class="n">Values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+ 227         <span class="n">StandardResName</span> <span class="o">=</span> <span class="n">Values</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+ 228 
+ 229         <span class="n">MappingInfo</span> <span class="o">=</span> <span class="s2">&quot;&lt;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&gt;: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+ 230             <span class="n">NonStandardRes</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+ 231             <span class="n">NonStandardRes</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+ 232             <span class="n">NonStandardRes</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+ 233             <span class="n">StandardResName</span><span class="p">,</span>
+ 234         <span class="p">)</span>
+ 235         <span class="n">NonStandardResiduesMappingInfo</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MappingInfo</span><span class="p">)</span>
+ 236 
+ 237     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">NonStandardResiduesMappingInfo</span><span class="p">):</span>
+ 238         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Non-standard residues mapping: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">NonStandardResiduesMappingInfo</span><span class="p">))</span>
+ 239 
+ 240 
+ 241 <span class="k">def</span> <span class="nf">IdentifyAndDeleteHeterogenResidues</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="p">):</span>
+ 242     <span class="sd">&quot;&quot;&quot;Identify and delete heterogen residues.&quot;&quot;&quot;</span>
+ 243 
+ 244     <span class="n">DeleteHeterogens</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;DeleteHeterogens&quot;</span><span class="p">]</span>
+ 245     <span class="k">if</span> <span class="n">DeleteHeterogens</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+ 246         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Skipping deletion of any heterogen residues...&quot;</span><span class="p">)</span>
+ 247         <span class="k">return</span>
+ 248 
+ 249     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^All$&quot;</span><span class="p">,</span> <span class="n">DeleteHeterogens</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 250         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Deleting all heterogen residues including water...&quot;</span><span class="p">)</span>
+ 251         <span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">removeHeterogens</span><span class="p">(</span><span class="n">keepWater</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+ 252     <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^AllExceptWater$&quot;</span><span class="p">,</span> <span class="n">DeleteHeterogens</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 253         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Deleting all heterogen residues except water...&quot;</span><span class="p">)</span>
+ 254         <span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">removeHeterogens</span><span class="p">(</span><span class="n">keepWater</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+ 255     <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^WaterOnly$&quot;</span><span class="p">,</span> <span class="n">DeleteHeterogens</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 256         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Deleting water only heterogen residues...&quot;</span><span class="p">)</span>
+ 257         <span class="n">DeleteWater</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="p">)</span>
+ 258     <span class="k">else</span><span class="p">:</span>
+ 259         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 260             <span class="s1">&#39;The value specified, </span><span class="si">%s</span><span class="s1">, for option &quot;--deleteHeterogens&quot; is not valid. Supported values: All AllExceptWater WaterOnly None&#39;</span>
+ 261             <span class="o">%</span> <span class="n">DeleteHeterogens</span>
+ 262         <span class="p">)</span>
+ 263 
+ 264 
+ 265 <span class="k">def</span> <span class="nf">DeleteWater</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="p">):</span>
+ 266     <span class="sd">&quot;&quot;&quot;Delete water.&quot;&quot;&quot;</span>
+ 267 
+ 268     <span class="n">ModellerObjectHandle</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">Modeller</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">topology</span><span class="p">,</span> <span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">positions</span><span class="p">)</span>
+ 269     <span class="n">ModellerObjectHandle</span><span class="o">.</span><span class="n">deleteWater</span><span class="p">()</span>
+ 270 
+ 271     <span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">topology</span> <span class="o">=</span> <span class="n">ModellerObjectHandle</span><span class="o">.</span><span class="n">topology</span>
+ 272     <span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">positions</span> <span class="o">=</span> <span class="n">ModellerObjectHandle</span><span class="o">.</span><span class="n">positions</span>
+ 273 
+ 274 
+ 275 <span class="k">def</span> <span class="nf">IdentifyAndAddMissingAtoms</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="p">):</span>
+ 276     <span class="sd">&quot;&quot;&quot;Identify and missing atoms along with already identified missing residues.&quot;&quot;&quot;</span>
+ 277 
+ 278     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Identifying missing atoms...&quot;</span><span class="p">)</span>
+ 279     <span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">findMissingAtoms</span><span class="p">()</span>
+ 280 
+ 281     <span class="n">ListMissingAtoms</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="p">)</span>
+ 282 
+ 283     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AddHeavyAtoms&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AddResidues&quot;</span><span class="p">]:</span>
+ 284         <span class="n">Msg</span> <span class="o">=</span> <span class="s2">&quot;Adding missing heavy atoms along with missing residues...&quot;</span>
+ 285     <span class="k">elif</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AddHeavyAtoms&quot;</span><span class="p">]:</span>
+ 286         <span class="n">Msg</span> <span class="o">=</span> <span class="s2">&quot;Adding missing heavy atoms...&quot;</span>
+ 287     <span class="k">elif</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AddResidues&quot;</span><span class="p">]:</span>
+ 288         <span class="n">Msg</span> <span class="o">=</span> <span class="s2">&quot;Adding missing residues...&quot;</span>
+ 289     <span class="k">else</span><span class="p">:</span>
+ 290         <span class="n">Msg</span> <span class="o">=</span> <span class="s2">&quot;Skipping addition of any heavy atoms along with any missing residues...&quot;</span>
+ 291 
+ 292     <span class="k">if</span> <span class="ow">not</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AddHeavyAtoms&quot;</span><span class="p">]:</span>
+ 293         <span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">missingAtoms</span> <span class="o">=</span> <span class="p">{}</span>
+ 294         <span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">missingTerminals</span> <span class="o">=</span> <span class="p">{}</span>
+ 295 
+ 296     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">Msg</span><span class="p">)</span>
+ 297     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AddHeavyAtoms&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AddResidues&quot;</span><span class="p">]:</span>
+ 298         <span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">addMissingAtoms</span><span class="p">()</span>
+ 299 
+ 300     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AddHydrogens&quot;</span><span class="p">]:</span>
+ 301         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Adding missing hydrogens at pH </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AddHydrogensAtpH&quot;</span><span class="p">])</span>
+ 302         <span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">addMissingHydrogens</span><span class="p">(</span><span class="n">pH</span><span class="o">=</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AddHydrogensAtpH&quot;</span><span class="p">],</span> <span class="n">forcefield</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+ 303     <span class="k">else</span><span class="p">:</span>
+ 304         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Skipping addition of any missing hydrogens...&quot;</span><span class="p">)</span>
+ 305 
+ 306 
+ 307 <span class="k">def</span> <span class="nf">ListMissingAtoms</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="p">):</span>
+ 308     <span class="sd">&quot;&quot;&quot;List missing atoms.&quot;&quot;&quot;</span>
+ 309 
+ 310     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">missingAtoms</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">missingTerminals</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+ 311         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Total number of missing atoms: 0&quot;</span><span class="p">)</span>
+ 312         <span class="k">return</span>
+ 313 
+ 314     <span class="n">ListMissingAtomsInfo</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">missingAtoms</span><span class="p">,</span> <span class="n">TerminalAtoms</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+ 315     <span class="n">ListMissingAtomsInfo</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">missingTerminals</span><span class="p">,</span> <span class="n">TerminalAtoms</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+ 316 
+ 317 
+ 318 <span class="k">def</span> <span class="nf">ListMissingAtomsInfo</span><span class="p">(</span><span class="n">MissingAtoms</span><span class="p">,</span> <span class="n">TerminalAtoms</span><span class="p">):</span>
+ 319     <span class="sd">&quot;&quot;&quot;Setup missing atoms information.&quot;&quot;&quot;</span>
+ 320 
+ 321     <span class="n">MissingAtomsInfo</span> <span class="o">=</span> <span class="p">[]</span>
+ 322     <span class="n">MissingAtomsCount</span> <span class="o">=</span> <span class="mi">0</span>
+ 323     <span class="n">MissingAtomsResiduesCount</span> <span class="o">=</span> <span class="mi">0</span>
+ 324     <span class="k">for</span> <span class="n">Residue</span><span class="p">,</span> <span class="n">Atoms</span> <span class="ow">in</span> <span class="n">MissingAtoms</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+ 325         <span class="n">MissingAtomsResiduesCount</span> <span class="o">+=</span> <span class="mi">1</span>
+ 326         <span class="n">MissingAtomsCount</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">Atoms</span><span class="p">)</span>
+ 327 
+ 328         <span class="k">if</span> <span class="n">TerminalAtoms</span><span class="p">:</span>
+ 329             <span class="n">AtomsNames</span> <span class="o">=</span> <span class="p">[</span><span class="n">AtomName</span> <span class="k">for</span> <span class="n">AtomName</span> <span class="ow">in</span> <span class="n">Atoms</span><span class="p">]</span>
+ 330         <span class="k">else</span><span class="p">:</span>
+ 331             <span class="n">AtomsNames</span> <span class="o">=</span> <span class="p">[</span><span class="n">Atom</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">Atom</span> <span class="ow">in</span> <span class="n">Atoms</span><span class="p">]</span>
+ 332         <span class="n">AtomsInfo</span> <span class="o">=</span> <span class="s2">&quot;&lt;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&gt;: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">Residue</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">Residue</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">Residue</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">AtomsNames</span><span class="p">))</span>
+ 333         <span class="n">MissingAtomsInfo</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">AtomsInfo</span><span class="p">)</span>
+ 334 
+ 335     <span class="n">AtomsLabel</span> <span class="o">=</span> <span class="s2">&quot;terminal atoms&quot;</span> <span class="k">if</span> <span class="n">TerminalAtoms</span> <span class="k">else</span> <span class="s2">&quot;atoms&quot;</span>
+ 336     <span class="k">if</span> <span class="n">MissingAtomsCount</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+ 337         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Total number of missing </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">MissingAtomsCount</span><span class="p">,</span> <span class="n">AtomsLabel</span><span class="p">))</span>
+ 338     <span class="k">else</span><span class="p">:</span>
+ 339         <span class="n">ResiduesLabel</span> <span class="o">=</span> <span class="s2">&quot;residue&quot;</span> <span class="k">if</span> <span class="n">MissingAtomsResiduesCount</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;residues&quot;</span>
+ 340         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span>
+ 341             <span class="s2">&quot;Total number of missing </span><span class="si">%s</span><span class="s2"> across </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span>
+ 342             <span class="o">%</span> <span class="p">(</span><span class="n">AtomsLabel</span><span class="p">,</span> <span class="n">MissingAtomsResiduesCount</span><span class="p">,</span> <span class="n">ResiduesLabel</span><span class="p">,</span> <span class="n">MissingAtomsCount</span><span class="p">)</span>
+ 343         <span class="p">)</span>
+ 344         <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ListDetails&quot;</span><span class="p">]:</span>
+ 345             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Missing </span><span class="si">%s</span><span class="s2"> across residues: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">AtomsLabel</span><span class="p">,</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MissingAtomsInfo</span><span class="p">)))</span>
+ 346 
+ 347 
+ 348 <span class="k">def</span> <span class="nf">AddWaterBox</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="p">):</span>
+ 349     <span class="sd">&quot;&quot;&quot;Add water box.&quot;&quot;&quot;</span>
+ 350 
+ 351     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Adding water box...&quot;</span><span class="p">)</span>
+ 352 
+ 353     <span class="n">WaterBoxParams</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;WaterBoxParams&quot;</span><span class="p">]</span>
+ 354 
+ 355     <span class="n">Size</span><span class="p">,</span> <span class="n">Padding</span><span class="p">,</span> <span class="n">Shape</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
+ 356     <span class="k">if</span> <span class="n">WaterBoxParams</span><span class="p">[</span><span class="s2">&quot;ModeSize&quot;</span><span class="p">]:</span>
+ 357         <span class="n">SizeList</span> <span class="o">=</span> <span class="n">WaterBoxParams</span><span class="p">[</span><span class="s2">&quot;SizeList&quot;</span><span class="p">]</span>
+ 358         <span class="n">Size</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">Vec3</span><span class="p">(</span><span class="n">SizeList</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">SizeList</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">SizeList</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">*</span> <span class="n">mm</span><span class="o">.</span><span class="n">unit</span><span class="o">.</span><span class="n">nanometer</span>
+ 359     <span class="k">elif</span> <span class="n">WaterBoxParams</span><span class="p">[</span><span class="s2">&quot;ModePadding&quot;</span><span class="p">]:</span>
+ 360         <span class="n">Padding</span> <span class="o">=</span> <span class="n">WaterBoxParams</span><span class="p">[</span><span class="s2">&quot;Padding&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">mm</span><span class="o">.</span><span class="n">unit</span><span class="o">.</span><span class="n">nanometer</span>
+ 361         <span class="n">Shape</span> <span class="o">=</span> <span class="n">WaterBoxParams</span><span class="p">[</span><span class="s2">&quot;Shape&quot;</span><span class="p">]</span>
+ 362     <span class="k">else</span><span class="p">:</span>
+ 363         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 364             <span class="s1">&#39;The parameter value, </span><span class="si">%s</span><span class="s1">, specified for parameter name, mode, using &quot;--waterBoxParams&quot; option is not a valid value. Supported values: Size Padding </span><span class="se">\n</span><span class="s1">&#39;</span>
+ 365             <span class="o">%</span> <span class="p">(</span><span class="n">WaterBoxParams</span><span class="p">[</span><span class="s2">&quot;Mode&quot;</span><span class="p">])</span>
+ 366         <span class="p">)</span>
+ 367 
+ 368     <span class="n">IonicStrength</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;IonicStrength&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">mm</span><span class="o">.</span><span class="n">unit</span><span class="o">.</span><span class="n">molar</span>
+ 369     <span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">addSolvent</span><span class="p">(</span>
+ 370         <span class="n">boxSize</span><span class="o">=</span><span class="n">Size</span><span class="p">,</span>
+ 371         <span class="n">padding</span><span class="o">=</span><span class="n">Padding</span><span class="p">,</span>
+ 372         <span class="n">boxShape</span><span class="o">=</span><span class="n">Shape</span><span class="p">,</span>
+ 373         <span class="n">positiveIon</span><span class="o">=</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;IonPositive&quot;</span><span class="p">],</span>
+ 374         <span class="n">negativeIon</span><span class="o">=</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;IonNegative&quot;</span><span class="p">],</span>
+ 375         <span class="n">ionicStrength</span><span class="o">=</span><span class="n">IonicStrength</span><span class="p">,</span>
+ 376     <span class="p">)</span>
+ 377 
+ 378 
+ 379 <span class="k">def</span> <span class="nf">AddLipidMembrane</span><span class="p">(</span><span class="n">PDBFixerObjectHandle</span><span class="p">):</span>
+ 380     <span class="sd">&quot;&quot;&quot;Add lipid membrane along with water.&quot;&quot;&quot;</span>
+ 381 
+ 382     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Adding membrane along with water...&quot;</span><span class="p">)</span>
+ 383 
+ 384     <span class="n">MembraneParams</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MembraneParams&quot;</span><span class="p">]</span>
+ 385 
+ 386     <span class="n">LipidType</span> <span class="o">=</span> <span class="n">MembraneParams</span><span class="p">[</span><span class="s2">&quot;LipidType&quot;</span><span class="p">]</span>
+ 387     <span class="n">MembraneCenterZ</span> <span class="o">=</span> <span class="n">MembraneParams</span><span class="p">[</span><span class="s2">&quot;MembraneCenterZ&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">mm</span><span class="o">.</span><span class="n">unit</span><span class="o">.</span><span class="n">nanometer</span>
+ 388     <span class="n">Padding</span> <span class="o">=</span> <span class="n">MembraneParams</span><span class="p">[</span><span class="s2">&quot;Padding&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">mm</span><span class="o">.</span><span class="n">unit</span><span class="o">.</span><span class="n">nanometer</span>
+ 389 
+ 390     <span class="n">IonicStrength</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;IonicStrength&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">mm</span><span class="o">.</span><span class="n">unit</span><span class="o">.</span><span class="n">molar</span>
+ 391 
+ 392     <span class="n">PDBFixerObjectHandle</span><span class="o">.</span><span class="n">addMembrane</span><span class="p">(</span>
+ 393         <span class="n">lipidType</span><span class="o">=</span><span class="n">LipidType</span><span class="p">,</span>
+ 394         <span class="n">membraneCenterZ</span><span class="o">=</span><span class="n">MembraneCenterZ</span><span class="p">,</span>
+ 395         <span class="n">minimumPadding</span><span class="o">=</span><span class="n">Padding</span><span class="p">,</span>
+ 396         <span class="n">positiveIon</span><span class="o">=</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;IonPositive&quot;</span><span class="p">],</span>
+ 397         <span class="n">negativeIon</span><span class="o">=</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;IonNegative&quot;</span><span class="p">],</span>
+ 398         <span class="n">ionicStrength</span><span class="o">=</span><span class="n">IonicStrength</span><span class="p">,</span>
+ 399     <span class="p">)</span>
+ 400 
+ 401 
+ 402 <span class="k">def</span> <span class="nf">ProcessMembraneParamsOption</span><span class="p">():</span>
+ 403     <span class="sd">&quot;&quot;&quot;Process option for membrane parameters.&quot;&quot;&quot;</span>
+ 404 
+ 405     <span class="n">ParamsOptionName</span> <span class="o">=</span> <span class="s2">&quot;--membraneParams&quot;</span>
+ 406     <span class="n">ParamsOptionValue</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="n">ParamsOptionName</span><span class="p">]</span>
+ 407     <span class="n">ParamsDefaultInfo</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;LipidType&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;str&quot;</span><span class="p">,</span> <span class="s2">&quot;POPC&quot;</span><span class="p">],</span> <span class="s2">&quot;MembraneCenterZ&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="s2">&quot;Padding&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]}</span>
+ 408     <span class="n">MembraneParams</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ProcessOptionNameValuePairParameters</span><span class="p">(</span>
+ 409         <span class="n">ParamsOptionName</span><span class="p">,</span> <span class="n">ParamsOptionValue</span><span class="p">,</span> <span class="n">ParamsDefaultInfo</span>
+ 410     <span class="p">)</span>
+ 411 
+ 412     <span class="k">for</span> <span class="n">ParamName</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;LipidType&quot;</span><span class="p">,</span> <span class="s2">&quot;MembraneCenterZ&quot;</span><span class="p">,</span> <span class="s2">&quot;Padding&quot;</span><span class="p">]:</span>
+ 413         <span class="n">ParamValue</span> <span class="o">=</span> <span class="n">MembraneParams</span><span class="p">[</span><span class="n">ParamName</span><span class="p">]</span>
+ 414         <span class="k">if</span> <span class="n">ParamName</span> <span class="o">==</span> <span class="s2">&quot;LipidType&quot;</span><span class="p">:</span>
+ 415             <span class="n">LipidTypes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;POPC&quot;</span><span class="p">,</span> <span class="s2">&quot;POPE&quot;</span><span class="p">,</span> <span class="s2">&quot;DLPC&quot;</span><span class="p">,</span> <span class="s2">&quot;DLPE&quot;</span><span class="p">,</span> <span class="s2">&quot;DMPC&quot;</span><span class="p">,</span> <span class="s2">&quot;DOPC&quot;</span><span class="p">,</span> <span class="s2">&quot;DPPC&quot;</span><span class="p">]</span>
+ 416             <span class="k">if</span> <span class="n">ParamValue</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">LipidTypes</span><span class="p">:</span>
+ 417                 <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 418                     <span class="s1">&#39;The parameter value, </span><span class="si">%s</span><span class="s1">, specified for parameter name, </span><span class="si">%s</span><span class="s1">, using &quot;</span><span class="si">%s</span><span class="s1">&quot; option is not a valid value. Supported values: </span><span class="si">%s</span><span class="s1"> </span><span class="se">\n</span><span class="s1">&#39;</span>
+ 419                     <span class="o">%</span> <span class="p">(</span><span class="n">ParamValue</span><span class="p">,</span> <span class="n">ParamName</span><span class="p">,</span> <span class="n">ParamsOptionName</span><span class="p">,</span> <span class="n">LipidTypes</span><span class="p">)</span>
+ 420                 <span class="p">)</span>
+ 421         <span class="k">elif</span> <span class="n">ParamName</span> <span class="o">==</span> <span class="s2">&quot;Padding&quot;</span><span class="p">:</span>
+ 422             <span class="k">if</span> <span class="n">ParamValue</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+ 423                 <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 424                     <span class="s1">&#39;The parameter value, </span><span class="si">%s</span><span class="s1">, specified for parameter name, </span><span class="si">%s</span><span class="s1">, using &quot;</span><span class="si">%s</span><span class="s1">&quot; option is not a valid value. Supported values: &gt; 0</span><span class="se">\n</span><span class="s1">&#39;</span>
+ 425                     <span class="o">%</span> <span class="p">(</span><span class="n">ParamValue</span><span class="p">,</span> <span class="n">ParamName</span><span class="p">,</span> <span class="n">ParamsOptionName</span><span class="p">)</span>
+ 426                 <span class="p">)</span>
+ 427 
+ 428     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MembraneParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">MembraneParams</span>
+ 429 
+ 430 
+ 431 <span class="k">def</span> <span class="nf">ProcessOptions</span><span class="p">():</span>
+ 432     <span class="sd">&quot;&quot;&quot;Process and validate command line arguments and options.&quot;&quot;&quot;</span>
+ 433 
+ 434     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Processing options...&quot;</span><span class="p">)</span>
+ 435 
+ 436     <span class="c1"># Validate options...</span>
+ 437     <span class="n">ValidateOptions</span><span class="p">()</span>
+ 438 
+ 439     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Infile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">]</span>
+ 440     <span class="n">FileDir</span><span class="p">,</span> <span class="n">FileName</span><span class="p">,</span> <span class="n">FileExt</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ParseFileName</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Infile&quot;</span><span class="p">])</span>
+ 441     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfileRoot&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">FileName</span>
+ 442 
+ 443     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Outfile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfile&quot;</span><span class="p">]</span>
+ 444 
+ 445     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AddHeavyAtoms&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^yes$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--addHeavyAtoms&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+ 446 
+ 447     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AddHydrogens&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^yes$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--addHydrogens&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+ 448     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AddHydrogensAtpH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--addHydrogensAtpH&quot;</span><span class="p">])</span>
+ 449 
+ 450     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AddResidues&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^yes$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--addResidues&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+ 451 
+ 452     <span class="n">DeleteHeterogens</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--deleteHeterogens&quot;</span><span class="p">]</span>
+ 453     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^All$&quot;</span><span class="p">,</span> <span class="n">DeleteHeterogens</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 454         <span class="n">DeleteHeterogens</span> <span class="o">=</span> <span class="s2">&quot;All&quot;</span>
+ 455     <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^AllExceptWater$&quot;</span><span class="p">,</span> <span class="n">DeleteHeterogens</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 456         <span class="n">DeleteHeterogens</span> <span class="o">=</span> <span class="s2">&quot;AllExceptWater&quot;</span>
+ 457     <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^WaterOnly$&quot;</span><span class="p">,</span> <span class="n">DeleteHeterogens</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 458         <span class="n">DeleteHeterogens</span> <span class="o">=</span> <span class="s2">&quot;WaterOnly&quot;</span>
+ 459     <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^None$&quot;</span><span class="p">,</span> <span class="n">DeleteHeterogens</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 460         <span class="n">DeleteHeterogens</span> <span class="o">=</span> <span class="kc">None</span>
+ 461     <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^auto$&quot;</span><span class="p">,</span> <span class="n">DeleteHeterogens</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 462         <span class="n">DeleteHeterogens</span> <span class="o">=</span> <span class="kc">None</span>
+ 463         <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^yes$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--membrane&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span> <span class="ow">or</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^yes$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--waterBox&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 464             <span class="n">DeleteHeterogens</span> <span class="o">=</span> <span class="s2">&quot;WaterOnly&quot;</span>
+ 465     <span class="k">else</span><span class="p">:</span>
+ 466         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 467             <span class="s1">&#39;The value specified, </span><span class="si">%s</span><span class="s1">, for option &quot;--deleteHeterogens&quot; is not valid. Supported values: All AllExceptWater WaterOnly None&#39;</span>
+ 468             <span class="o">%</span> <span class="n">DeleteHeterogens</span>
+ 469         <span class="p">)</span>
+ 470     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;DeleteHeterogens&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DeleteHeterogens</span>
+ 471 
+ 472     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;IonPositive&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--ionPositive&quot;</span><span class="p">]</span>
+ 473     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;IonNegative&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--ionNegative&quot;</span><span class="p">]</span>
+ 474     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;IonicStrength&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--ionicStrength&quot;</span><span class="p">])</span>
+ 475 
+ 476     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ListDetails&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^yes$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--listDetails&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+ 477 
+ 478     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Membrane&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^yes$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--membrane&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+ 479     <span class="n">ProcessMembraneParamsOption</span><span class="p">()</span>
+ 480 
+ 481     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ReplaceNonStandardResidues&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+ 482         <span class="kc">True</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^yes$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--replaceNonStandardResidues&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+ 483     <span class="p">)</span>
+ 484 
+ 485     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;WaterBox&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^yes$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--waterBox&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+ 486     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;WaterBoxParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OpenMMUtil</span><span class="o">.</span><span class="n">ProcessOptionOpenMMWaterBoxParameters</span><span class="p">(</span>
+ 487         <span class="s2">&quot;--waterBoxParams&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--waterBoxParams&quot;</span><span class="p">]</span>
+ 488     <span class="p">)</span>
+ 489 
+ 490     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Overwrite&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--overwrite&quot;</span><span class="p">]</span>
+ 491 
+ 492 
+ 493 <span class="k">def</span> <span class="nf">RetrieveOptions</span><span class="p">():</span>
+ 494     <span class="sd">&quot;&quot;&quot;Retrieve command line arguments and options.&quot;&quot;&quot;</span>
+ 495 
+ 496     <span class="c1"># Get options...</span>
+ 497     <span class="k">global</span> <span class="n">Options</span>
+ 498     <span class="n">Options</span> <span class="o">=</span> <span class="n">docopt</span><span class="p">(</span><span class="n">_docoptUsage_</span><span class="p">)</span>
+ 499 
+ 500     <span class="c1"># Set current working directory to the specified directory...</span>
+ 501     <span class="n">WorkingDir</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--workingdir&quot;</span><span class="p">]</span>
+ 502     <span class="k">if</span> <span class="n">WorkingDir</span><span class="p">:</span>
+ 503         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">WorkingDir</span><span class="p">)</span>
+ 504 
+ 505     <span class="c1"># Handle examples option...</span>
+ 506     <span class="k">if</span> <span class="s2">&quot;--examples&quot;</span> <span class="ow">in</span> <span class="n">Options</span> <span class="ow">and</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--examples&quot;</span><span class="p">]:</span>
+ 507         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetExamplesTextFromDocOptText</span><span class="p">(</span><span class="n">_docoptUsage_</span><span class="p">))</span>
+ 508         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+ 509 
+ 510 
+ 511 <span class="k">def</span> <span class="nf">ValidateOptions</span><span class="p">():</span>
+ 512     <span class="sd">&quot;&quot;&quot;Validate option values.&quot;&quot;&quot;</span>
+ 513 
+ 514     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFilePath</span><span class="p">(</span><span class="s2">&quot;-i, --infile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">])</span>
+ 515     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFileExt</span><span class="p">(</span><span class="s2">&quot;-i, --infile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">],</span> <span class="s2">&quot;pdb cif&quot;</span><span class="p">)</span>
+ 516 
+ 517     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFileExt</span><span class="p">(</span><span class="s2">&quot;-o, --outfile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfile&quot;</span><span class="p">],</span> <span class="s2">&quot;pdb cif&quot;</span><span class="p">)</span>
+ 518     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionsOutputFileOverwrite</span><span class="p">(</span>
+ 519         <span class="s2">&quot;-o, --outfile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfile&quot;</span><span class="p">],</span> <span class="s2">&quot;--overwrite&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--overwrite&quot;</span><span class="p">]</span>
+ 520     <span class="p">)</span>
+ 521     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionsDistinctFileNames</span><span class="p">(</span>
+ 522         <span class="s2">&quot;-i, --infile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">],</span> <span class="s2">&quot;-o, --outfile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfile&quot;</span><span class="p">]</span>
+ 523     <span class="p">)</span>
+ 524 
+ 525     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--addHeavyAtoms&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--addHeavyAtoms&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no&quot;</span><span class="p">)</span>
+ 526 
+ 527     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--addHydrogens&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--addHydrogens&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no&quot;</span><span class="p">)</span>
+ 528     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFloatValue</span><span class="p">(</span><span class="s2">&quot;--addHydrogensAtpH&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--addHydrogensAtpH&quot;</span><span class="p">],</span> <span class="p">{</span><span class="s2">&quot;&gt;=&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+ 529 
+ 530     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--addResidues&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--addResidues&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no&quot;</span><span class="p">)</span>
+ 531 
+ 532     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span>
+ 533         <span class="s2">&quot;--deleteHeterogens&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--deleteHeterogens&quot;</span><span class="p">],</span> <span class="s2">&quot;All AllExceptWater WaterOnly None auto&quot;</span>
+ 534     <span class="p">)</span>
+ 535     <span class="n">DeleteHeterogens</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--deleteHeterogens&quot;</span><span class="p">]</span>
+ 536     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^(AllExceptWater|None)$&quot;</span><span class="p">,</span> <span class="n">DeleteHeterogens</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 537         <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^yes$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--membrane&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 538             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 539                 <span class="s1">&#39;The value specified, </span><span class="si">%s</span><span class="s1">, for option &quot;--deleteHeterogens&quot; is not valid during &quot;yes&quot; value of option &quot;--membrane&quot;. &#39;</span>
+ 540                 <span class="o">%</span> <span class="n">DeleteHeterogens</span>
+ 541             <span class="p">)</span>
+ 542         <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^yes$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--waterBox&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 543             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 544                 <span class="s1">&#39;The value specified, </span><span class="si">%s</span><span class="s1">, for option &quot;--deleteHeterogens&quot; is not valid during &quot;yes&quot; value of option &quot;--waterBox&quot;. &#39;</span>
+ 545                 <span class="o">%</span> <span class="n">DeleteHeterogens</span>
+ 546             <span class="p">)</span>
+ 547 
+ 548     <span class="n">ValidValues</span> <span class="o">=</span> <span class="s2">&quot;Li+ Na+ K+ Rb+ Cs+&quot;</span>
+ 549     <span class="n">EscapedValidValuesPattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;Li\+|Na\+|K\+|Rb\+|Cs\+&quot;</span>
+ 550     <span class="n">Value</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--ionPositive&quot;</span><span class="p">]</span>
+ 551     <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^(</span><span class="si">%s</span><span class="s2">)$&quot;</span> <span class="o">%</span> <span class="n">EscapedValidValuesPattern</span><span class="p">,</span> <span class="n">Value</span><span class="p">):</span>
+ 552         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 553             <span class="s1">&#39;The value specified, </span><span class="si">%s</span><span class="s1">, for option &quot;-ionPositive&quot; is not valid: Supported value(s): </span><span class="si">%s</span><span class="s1">&#39;</span>
+ 554             <span class="o">%</span> <span class="p">(</span><span class="n">Value</span><span class="p">,</span> <span class="n">ValidValues</span><span class="p">)</span>
+ 555         <span class="p">)</span>
+ 556 
+ 557     <span class="n">ValidValues</span> <span class="o">=</span> <span class="s2">&quot;F- Cl- Br- I-&quot;</span>
+ 558     <span class="n">ValidValuesPattern</span> <span class="o">=</span> <span class="s2">&quot;F-|Cl-|Br-|I-&quot;</span>
+ 559     <span class="n">Value</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--ionNegative&quot;</span><span class="p">]</span>
+ 560     <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^(</span><span class="si">%s</span><span class="s2">)$&quot;</span> <span class="o">%</span> <span class="n">ValidValuesPattern</span><span class="p">,</span> <span class="n">Value</span><span class="p">):</span>
+ 561         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 562             <span class="s1">&#39;The value specified, </span><span class="si">%s</span><span class="s1">, for option &quot;-ionNegative&quot; is not valid: Supported value(s): </span><span class="si">%s</span><span class="s1">&#39;</span>
+ 563             <span class="o">%</span> <span class="p">(</span><span class="n">Value</span><span class="p">,</span> <span class="n">ValidValues</span><span class="p">)</span>
+ 564         <span class="p">)</span>
+ 565 
+ 566     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFloatValue</span><span class="p">(</span><span class="s2">&quot;--ionicStrength&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--ionicStrength&quot;</span><span class="p">],</span> <span class="p">{</span><span class="s2">&quot;&gt;=&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+ 567 
+ 568     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--listDetails&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--listDetails&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no&quot;</span><span class="p">)</span>
+ 569     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--replaceNonStandardResidues&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--replaceNonStandardResidues&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no&quot;</span><span class="p">)</span>
+ 570 
+ 571     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--membrane&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--membrane&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no&quot;</span><span class="p">)</span>
+ 572     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--waterBox&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--waterBox&quot;</span><span class="p">],</span> <span class="s2">&quot;yes no&quot;</span><span class="p">)</span>
+ 573 
+ 574     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^yes$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--membrane&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span> <span class="ow">and</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^yes$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--waterBox&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 575         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+ 576             <span class="s1">&#39;You</span><span class="se">\&#39;</span><span class="s1">ve specified, &quot;Yes&quot; for both &quot;--membrane&quot; and &quot;--waterBox&quot; options. It</span><span class="se">\&#39;</span><span class="s1">s not allowed. You must choose between adding a water box or a membrane. The water is automatically added during the construction of the membrane.&#39;</span>
+ 577         <span class="p">)</span>
+ 578 
+ 579 
+ 580 <span class="c1"># Setup a usage string for docopt...</span>
+ 581 <span class="n">_docoptUsage_</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+ 582 <span class="s2">OpenMMPrepareMacromolecule.py - Prepare a macromolecule for simulation</span>
+ 583 
+ 584 <span class="s2">Usage:</span>
+ 585 <span class="s2">    OpenMMPrepareMacromolecule.py [--addHeavyAtoms &lt;yes or no&gt;] [--addHydrogens &lt;yes or no&gt;] [--addHydrogensAtpH &lt;number&gt;]</span>
+ 586 <span class="s2">                                  [--addResidues &lt;yes or no&gt;] [--deleteHeterogens &lt;All, AllExceptWater, WaterOnly, None&gt;] [--ionPositive &lt;text&gt;]</span>
+ 587 <span class="s2">                                  [--ionNegative &lt;text&gt;] [--ionicStrength &lt;number&gt;] [--listDetails &lt;yes or no&gt; ] [--membrane &lt;yes or no&gt;]</span>
+ 588 <span class="s2">                                  [--membraneParams &lt;Name,Value,..&gt;] [--overwrite] [--replaceNonStandardResidues &lt;yes or no&gt;] [--waterBox &lt;yes or no&gt;]</span>
+ 589 <span class="s2">                                  [--waterBoxParams &lt;Name,Value,..&gt;] [-w &lt;dir&gt;] -i &lt;infile&gt; -o &lt;outfile&gt;</span>
+ 590 <span class="s2">    OpenMMPrepareMacromolecule.py -h | --help | -e | --examples</span>
+ 591 
+ 592 <span class="s2">Description:</span>
+ 593 <span class="s2">    Prepare a macromolecute in an input file for molecular simulation and</span>
+ 594 <span class="s2">    and write it out to an output file. The macromolecule is prepared by</span>
+ 595 <span class="s2">    automatically performing the following actions:</span>
+ 596 
+ 597 <span class="s2">        . Identify and replace non-standard residues</span>
+ 598 <span class="s2">        . Add missing residues</span>
+ 599 <span class="s2">        . Add missing heavy atoms</span>
+ 600 <span class="s2">        . Add missing hydrogens</span>
+ 601 
+ 602 <span class="s2">    You may optionally remove heterogens, add a water box, and add a lipid</span>
+ 603 <span class="s2">    membrane.</span>
+ 604 
+ 605 <span class="s2">    The supported input file format are:  PDB (.pdb) and CIF (.cif)</span>
+ 606 
+ 607 <span class="s2">    The supported output file formats are:  PDB (.pdb) and CIF (.cif)</span>
+ 608 
+ 609 <span class="s2">Options:</span>
+ 610 <span class="s2">    --addHeavyAtoms &lt;yes or no&gt;  [default: yes]</span>
+ 611 <span class="s2">        Add missing non-hydrogen atoms based on the templates. The terminal atoms</span>
+ 612 <span class="s2">        are also added.</span>
+ 613 <span class="s2">    --addHydrogens &lt;yes or no&gt;  [default: yes]</span>
+ 614 <span class="s2">        Add missing hydrogens at pH value specified using &#39;-addHydrogensAtpH&#39;</span>
+ 615 <span class="s2">        option. The missing hydrogens are added based on the templates and pKa</span>
+ 616 <span class="s2">        calculations are performed.</span>
+ 617 <span class="s2">    --addHydrogensAtpH &lt;number&gt;  [default: 7.0]</span>
+ 618 <span class="s2">        pH value to use for adding missing hydrogens.</span>
+ 619 <span class="s2">    --addResidues &lt;yes or no&gt;  [default: yes]</span>
+ 620 <span class="s2">        Add missing residues unidentified based on the PDB records.</span>
+ 621 <span class="s2">    --deleteHeterogens &lt;All, AllExceptWater, WaterOnly, None&gt;  [default: auto]</span>
+ 622 <span class="s2">        Delete heterogens corresponding to  non-standard names of amino acids, dna,</span>
+ 623 <span class="s2">        and rna along with any ligand names. &#39;N&#39; and &#39;UNK&#39; also consider standard</span>
+ 624 <span class="s2">        residues. Default value: WaterOnly during addition of WaterBox or Membrane;</span>
+ 625 <span class="s2">        Otherwise, None.</span>
+ 626 <span class="s2">        </span>
+ 627 <span class="s2">        The &#39;AllExceptWater&#39; or &#39;None&#39; values are not allowed during the addition of</span>
+ 628 <span class="s2">        a water box or membrane. The waters must be deleted as they are explicitly</span>
+ 629 <span class="s2">        added during the construction of a water box and membrane.</span>
+ 630 <span class="s2">    -e, --examples</span>
+ 631 <span class="s2">        Print examples.</span>
+ 632 <span class="s2">    -h, --help</span>
+ 633 <span class="s2">        Print this help message.</span>
+ 634 <span class="s2">    -i, --infile &lt;infile&gt;</span>
+ 635 <span class="s2">        Input file name.</span>
+ 636 <span class="s2">    --ionPositive &lt;text&gt;  [default: Na+]</span>
+ 637 <span class="s2">        Type of positive ion to add during the addition of a water box or membrane.</span>
+ 638 <span class="s2">        Possible values: Li+, Na+, K+, Rb+, or Cs+.</span>
+ 639 <span class="s2">    --ionNegative &lt;text&gt;  [default: Cl-]</span>
+ 640 <span class="s2">        Type of negative ion to add during the addition of a water box or membrane.</span>
+ 641 <span class="s2">        Possible values: Cl-, Br-, F-, or I-.</span>
+ 642 <span class="s2">    --ionicStrength &lt;number&gt;  [default: 0.0]</span>
+ 643 <span class="s2">        Total concentration of both positive and negative ions to add excluding</span>
+ 644 <span class="s2">        the ions added to neutralize the system during the addition of a water box</span>
+ 645 <span class="s2">        or a membrane.</span>
+ 646 <span class="s2">    -l, --listDetails &lt;yes or no&gt;  [default: no]</span>
+ 647 <span class="s2">        List details about missing and non-standard residues along with residues</span>
+ 648 <span class="s2">        containing missing atoms.</span>
+ 649 <span class="s2">    --membrane &lt;yes or no&gt;  [default: no]</span>
+ 650 <span class="s2">        Add lipid membrane along with a water box. The script replies on OpenMM</span>
+ 651 <span class="s2">        method modeller.addMebrane() to perform the task. The membrane is added</span>
+ 652 <span class="s2">        in the XY plane. The existing macromolecule must be oriented and positioned</span>
+ 653 <span class="s2">        correctly.</span>
+ 654 <span class="s2">        </span>
+ 655 <span class="s2">        A word to the wise: You may want to start with a model from the Orientations</span>
+ 656 <span class="s2">        of Proteins in Membranes (OPM) database at http://opm.phar.umich.edu.</span>
+ 657 <span class="s2">        </span>
+ 658 <span class="s2">        The size of the membrane and water box are determined by the value of</span>
+ 659 <span class="s2">        &#39;padding&#39; parameter specified using &#39;--membraneParams&#39; option. All atoms</span>
+ 660 <span class="s2">        in macromolecule are guaranteed to be at least this far from any edge of</span>
+ 661 <span class="s2">        the periodic box.</span>
+ 662 <span class="s2">    --membraneParams &lt;Name,Value,..&gt;  [default: auto]</span>
+ 663 <span class="s2">        A comma delimited list of parameter name and value pairs for adding</span>
+ 664 <span class="s2">        a lipid membrane and water.</span>
+ 665 <span class="s2">        </span>
+ 666 <span class="s2">        The supported parameter names along with their default values are</span>
+ 667 <span class="s2">        are shown below:</span>
+ 668 <span class="s2">            </span>
+ 669 <span class="s2">            lipidType, POPC  [ Possible values: POPC, POPE, DLPC, DLPE,  DMPC, </span>
+ 670 <span class="s2">                DOPC or DPPC ]</span>
+ 671 <span class="s2">            membraneCenterZ, 0.0</span>
+ 672 <span class="s2">            padding, 1.0</span>
+ 673 <span class="s2">            </span>
+ 674 <span class="s2">        A brief description of parameters is provided below:</span>
+ 675 <span class="s2">            </span>
+ 676 <span class="s2">            lipidType: Type of lipid to use for constructing the membrane.</span>
+ 677 <span class="s2">            membraneCenterZ: Position along the Z axis of the center of</span>
+ 678 <span class="s2">                the membrane in nanomertes.</span>
+ 679 <span class="s2">            padding: Minimum padding distance to use in nanomertes. It&#39;s used</span>
+ 680 <span class="s2">                to determine the size of the membrane and water box. All atoms</span>
+ 681 <span class="s2">                in the macromolecule are guaranteed to be at least this far from</span>
+ 682 <span class="s2">                any edge of the periodic box.</span>
+ 683 <span class="s2">            </span>
+ 684 <span class="s2">    -o, --outfile &lt;outfile&gt;</span>
+ 685 <span class="s2">        Output file name.</span>
+ 686 <span class="s2">    --overwrite</span>
+ 687 <span class="s2">        Overwrite existing files.</span>
+ 688 <span class="s2">    --replaceNonStandardResidues &lt;yes or no&gt;  [default: yes]</span>
+ 689 <span class="s2">        Replace non-standard residue names by standard residue names based on the</span>
+ 690 <span class="s2">        list of non-standard residues available in pdbfixer.</span>
+ 691 <span class="s2">    --waterBox &lt;yes or no&gt;  [default: no]</span>
+ 692 <span class="s2">        Add water box.</span>
+ 693 <span class="s2">    --waterBoxParams &lt;Name,Value,..&gt;  [default: auto]</span>
+ 694 <span class="s2">        A comma delimited list of parameter name and value pairs for adding</span>
+ 695 <span class="s2">        a water box.</span>
+ 696 <span class="s2">        </span>
+ 697 <span class="s2">        The supported parameter names along with their default values are</span>
+ 698 <span class="s2">        are shown below:</span>
+ 699 <span class="s2">            </span>
+ 700 <span class="s2">            mode, Padding  [ Possible values: Size or Padding ]</span>
+ 701 <span class="s2">            size, None  [ Possible value: xsize ysize zsize ]</span>
+ 702 <span class="s2">            padding, 1.0</span>
+ 703 <span class="s2">            shape, cube  [ Possible values: cube, dodecahedron, or octahedron ]</span>
+ 704 <span class="s2">            </span>
+ 705 <span class="s2">        A brief description of parameters is provided below:</span>
+ 706 <span class="s2">            </span>
+ 707 <span class="s2">            mode: Specify the size of the waterbox explicitly or calculate it</span>
+ 708 <span class="s2">                automatically for a macromolecule along with adding padding</span>
+ 709 <span class="s2">                around ther macromolecule.</span>
+ 710 <span class="s2">            size: A space delimited triplet of values corresponding to water</span>
+ 711 <span class="s2">                size in nanometers. It must be specified during &#39;Size&#39; value of</span>
+ 712 <span class="s2">                &#39;mode&#39; parameter.</span>
+ 713 <span class="s2">            padding: Padding around a macromolecule in nanometers for filling</span>
+ 714 <span class="s2">                box with water. It must be specified during &#39;Padding&#39; value of</span>
+ 715 <span class="s2">                &#39;mode&#39; parameter.</span>
+ 716 <span class="s2">            </span>
+ 717 <span class="s2">    -w, --workingdir &lt;dir&gt;</span>
+ 718 <span class="s2">        Location of working directory which defaults to the current directory.</span>
+ 719 
+ 720 <span class="s2">Examples:</span>
+ 721 <span class="s2">    To prepare a macromolecule in a PDB file by replacing non-standard residues,</span>
+ 722 <span class="s2">    adding missing residues, adding missing heavy atoms and missing hydrogens,</span>
+ 723 <span class="s2">    and generate a PDB file, type:</span>
+ 724 
+ 725 <span class="s2">        % OpenMMPrepareMacromolecule.py -i Sample11.pdb -o Sample11Out.pdb</span>
+ 726 
+ 727 <span class="s2">    To run the first example for listing additional details about missing atoms and</span>
+ 728 <span class="s2">    residues, and generate a PDB file, type:</span>
+ 729 
+ 730 <span class="s2">        % OpenMMPrepareMacromolecule.py --listDetails yes -i Sample11.pdb</span>
+ 731 <span class="s2">          -o Sample11Out.pdb</span>
+ 732 
+ 733 <span class="s2">    To run the first example for deleting all heterogens including water along</span>
+ 734 <span class="s2">    with performing all default actions, and generate a PDB file, type:</span>
+ 735 
+ 736 <span class="s2">        % OpenMMPrepareMacromolecule.py --deleteHeterogens All -i Sample11.pdb</span>
+ 737 <span class="s2">          -o Sample11Out.pdb</span>
+ 738 
+ 739 <span class="s2">    To run the first example for deleting water only heterogens along with performing</span>
+ 740 <span class="s2">    all default actions, and generate a PDB file, type:</span>
+ 741 
+ 742 <span class="s2">        % OpenMMPrepareMacromolecule.py --deleteHeterogens WaterOnly</span>
+ 743 <span class="s2">          -i Sample11.pdb -o Sample11Out.pdb --ov</span>
+ 744 
+ 745 <span class="s2">    To run the first example for adding a water box by automatically calculating its</span>
+ 746 <span class="s2">    size, along with performing all default actions, and generate a PDB file, type:</span>
+ 747 
+ 748 <span class="s2">        % OpenMMPrepareMacromolecule.py --waterBox yes -i Sample11.pdb</span>
+ 749 <span class="s2">          -o Sample11Out.pdb</span>
+ 750 
+ 751 <span class="s2">    To run the previous example by explcitly specifying various water box parameters,</span>
+ 752 <span class="s2">    and generate a PDB file, type:</span>
+ 753 
+ 754 <span class="s2">        % OpenMMPrepareMacromolecule.py --waterBox yes</span>
+ 755 <span class="s2">          --waterBoxParams &quot;mode,Padding, padding, 1.0, shape, cube&quot;</span>
+ 756 <span class="s2">          -i Sample11.pdb -o Sample11Out.pdb</span>
+ 757 
+ 758 <span class="s2">    To run the first example for adding a water box of a specific size along with</span>
+ 759 <span class="s2">    performing all default actions, and generate a PDB file, type:</span>
+ 760 
+ 761 <span class="s2">        % OpenMMPrepareMacromolecule.py --waterBox yes</span>
+ 762 <span class="s2">          --waterBoxParams &quot;mode,Size, size, 7.635 7.077 7.447&quot;</span>
+ 763 <span class="s2">          -i Sample11.pdb -o Sample11Out.pdb</span>
+ 764 
+ 765 <span class="s2">    To add a lipid membrane around a correctly oriented and positioned macromolecule,</span>
+ 766 <span class="s2">    along with performing all default actions,  and generate a PDB file, type:</span>
+ 767 
+ 768 <span class="s2">        % OpenMMPrepareMacromolecule.py --membrane yes</span>
+ 769 <span class="s2">          -i Sample12.pdb -o Sample12Out.pdb</span>
+ 770 
+ 771 <span class="s2">    To add a lipid membrane around a correctly oriented and positioned macromolecule,</span>
+ 772 <span class="s2">    deleting all heterogens along with performing all default actions,  and generate a</span>
+ 773 <span class="s2">    PDB file, type:</span>
+ 774 
+ 775 <span class="s2">        % OpenMMPrepareMacromolecule.py --membrane yes --deleteHeterogens All </span>
+ 776 <span class="s2">          -i Sample12.pdb -o Sample12Out.pdb</span>
+ 777 
+ 778 <span class="s2">    To run the previous example by explcitly specifying various membrane parameters,</span>
+ 779 <span class="s2">    and generate a PDB file, type:</span>
+ 780 
+ 781 <span class="s2">        % OpenMMPrepareMacromolecule.py --membrane yes</span>
+ 782 <span class="s2">          --membraneParams &quot;lipidType, POPC, membraneCenterZ, 0.0, padding, 1.0&quot;</span>
+ 783 <span class="s2">          -i Sample12.pdb -o Sample12Out.pdb</span>
+ 784 
+ 785 <span class="s2">Author:</span>
+ 786 <span class="s2">    Manish Sud(msud@san.rr.com)</span>
+ 787 
+ 788 <span class="s2">See also:</span>
+ 789 <span class="s2">    InfoPDBFiles.pl, ExtractFromPDBFiles.pl, PyMOLExtractSelection.py,</span>
+ 790 <span class="s2">    PyMOLInfoMacromolecules.py, PyMOLSplitChainsAndLigands.py</span>
+ 791 
+ 792 <span class="s2">Copyright:</span>
+ 793 <span class="s2">    Copyright (C) 2026 Manish Sud. All rights reserved.</span>
+ 794 
+ 795 <span class="s2">    The functionality available in this script is implemented using OpenMM, an</span>
+ 796 <span class="s2">    open source molecuar simulation package.</span>
+ 797 
+ 798 <span class="s2">    This file is part of MayaChemTools.</span>
+ 799 
+ 800 <span class="s2">    MayaChemTools is free software; you can redistribute it and/or modify it under</span>
+ 801 <span class="s2">    the terms of the GNU Lesser General Public License as published by the Free</span>
+ 802 <span class="s2">    Software Foundation; either version 3 of the License, or (at your option) any</span>
+ 803 <span class="s2">    later version.</span>
+ 804 
+ 805 <span class="s2">&quot;&quot;&quot;</span>
+ 806 
+ 807 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+ 808     <span class="n">main</span><span class="p">()</span>
+</pre>
+<br />
+<center>
+<img src="../../../images/h2o2.png">
+</center>
+</body>
+</html>

@@ -1,0 +1,472 @@
+<html>
+<head>
+<title>MayaChemTools:Documentation:OpenMMPerformMinimization.py</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../css/MayaChemTools.css">
+</head>
+<body leftmargin="20" rightmargin="20" topmargin="10" bottommargin="10">
+<br/>
+<center>
+<a href="http://www.mayachemtools.org" title="MayaChemTools Home"><img src="../../images/MayaChemToolsLogo.gif" border="0" alt="MayaChemTools"></a>
+</center>
+<br/>
+<div class="TopSubNav">
+  <ul style="padding-left: 50px;">
+    <li id="current"><a href="../../scripts/html/index.html" title="MayaChemTools Scripts Documentation">All</a></li>
+    <li><a href="../../scripts/html/Standalone/index.html" title="MayaChemTools Standalone Scripts Documentation">Standalone</a></li>
+    <li><a href="../../scripts/html/RDKit/index.html" title="MayaChemTools RDKit Scripts Documentation">RDKit</a></li>
+    <li><a href="../../scripts/html/PyMOL/index.html" title="MayaChemTools PyMOL Scripts Documentation">PyMOL</a></li>
+    <li><a href="../../scripts/html/OpenMM/index.html" title="MayaChemTools OpenMM Scripts Documentation">OpenMM</a></li>
+    <li><a href="../../scripts/html/OpenFE/index.html" title="MayaChemTools OpenFE Scripts Documentation">OpenFE</a></li>
+    <li><a href="../../scripts/html/Psi4/index.html" title="MayaChemTools Psi4 Scripts Documentation">Psi4</a></li>
+    <li><a href="../../scripts/html/Misc/index.html" title="MayaChemTools Misc Scripts Documentation">Misc</a></li>
+</ul>
+</div>
+<div class="DocNav">
+<table width="100%" border=0 cellpadding=0 cellspacing=2>
+<tr align="left" valign="top"><td width="33%" align="left"><a href="./OpenMMPerformMDSimulation.html" title="OpenMMPerformMDSimulation.html">Previous</a>&nbsp;&nbsp;<a href="./index.html" title="Table of Contents">TOC</a>&nbsp;&nbsp;<a href="./OpenMMPerformSimulatedAnnealing.html" title="OpenMMPerformSimulatedAnnealing.html">Next</a></td><td width="34%" align="middle"><strong>OpenMMPerformMinimization.py</strong></td><td width="33%" align="right"><a href="././code/OpenMMPerformMinimization.html" title="View source code">Code</a>&nbsp;|&nbsp;<a href="./../pdf/OpenMMPerformMinimization.pdf" title="PDF US Letter Size">PDF</a>&nbsp;|&nbsp;<a href="./../pdfa4/OpenMMPerformMinimization.pdf" title="PDF A4 Size">PDFA4</a></td></tr>
+</table>
+</div>
+<h1 id="NAME">NAME</h2>
+<p>OpenMMPerformMinimization.py - Perform an energy minimization</p>
+<h1 id="SYNOPSIS">SYNOPSIS</h2>
+<p>OpenMMPerformMinimization.py [<b>--forcefieldParams</b> &lt;Name,Value,..&gt;] [<b>--freezeAtoms</b> &lt;yes or no&gt;] [<b>--freezeAtomsParams</b> &lt;Name,Value,..&gt;] [<b>--integratorParams</b> &lt;Name,Value,..&gt;] [<b>--outputParams</b> &lt;Name,Value,..&gt;] [<b>--outfilePrefix</b> &lt;text&gt;] [<b>--overwrite</b>] [<b>--platform</b> &lt;text&gt;] [<b>--platformParams</b> &lt;Name,Value,..&gt;] [<b>--restraintAtoms</b> &lt;yes or no&gt;] [<b>--restraintAtomsParams</b> &lt;Name,Value,..&gt;] [<b>--restraintSpringConstant</b> &lt;number&gt;] [<b>--simulationParams</b> &lt;Name,Value,..&gt;] [<b>--smallMolFile</b> &lt;SmallMolFile&gt;] [<b>--smallMolID</b> &lt;text&gt;] [<b>--systemParams</b> &lt;Name,Value,..&gt;] [<b>--waterBox</b> &lt;yes or no&gt;] [<b>--waterBoxParams</b> &lt;Name,Value,..&gt;] [<b>-w</b> &lt;dir&gt;] <b>-i</b> &lt;infile&gt;</p>
+<p>OpenMMPerformMinimization.py <b>-h</b> | <b>--help</b> | <b>-e</b> | <b>--examples</b></p>
+<h1 id="DESCRIPTION">DESCRIPTION</h2>
+<p>Perform energy minimization for a macromolecule or a macromolecule in a complex with small molecule. You may optionally add a water box and freeze/restraint atoms to your system before minimization.</p>
+<p>The input file must contain a macromolecule already prepared for simulation. The preparation of the macromolecule for a simulation generally involves the following: identification and replacement non-standard residues; addition of missing residues; addition of missing heavy atoms; addition of missing hydrogens; addition of a water box which is optional.</p>
+<p>In addition, the small molecule input file must contain a molecule already prepared for simulation. It must contain appropriate 3D coordinates relative to the macromolecule along with no missing hydrogens.</p>
+<p>The supported macromolecule input file formats are: PDB (.pdb) and CIF (.cif)</p>
+<p>The supported small molecule input file format are : SD (.sdf, .sd)</p>
+<p>Possible outfile prefixes:</p>
+    <div class="OptionsBox">&lt;InfileRoot&gt;
+<br/>    &lt;InfileRoot&gt;_Solvated
+<br/>    &lt;InfileRoot&gt;_&lt;SmallMolFileRoot&gt;_Complex
+<br/>    &lt;InfileRoot&gt;_&lt;SmallMolFileRoot&gt;_Complex_Solvated
+     </div>
+<p>Possible output files:</p>
+    <div class="OptionsBox">&lt;OutfilePrefix&gt;_Initial.&lt;pdb or cif&gt;
+<br/>    &lt;OutfilePrefix&gt;_Minimized.&lt;pdb or cif&gt;
+<br/>    &lt;OutfilePrefix&gt;_Minimization.csv
+     </div>
+<h1 id="OPTIONS">OPTIONS</h2>
+<dl>
+<dt id="e---examples"><b>-e, --examples</b></dt>
+<dd>
+<p>Print examples.</p>
+</dd>
+<dt id="f---forcefieldParams-Name-Value-..-default:-auto"><b>-f, --forcefieldParams</b> &lt;Name,Value,..&gt; [default: auto]</dt>
+<dd>
+<p>A comma delimited list of parameter name and value pairs for biopolymer, water, and small molecule forcefields.</p>
+<p>The supported parameter names along with their default values are are shown below:</p>
+    <div class="OptionsBox"> biopolymer, amber14-all.xml  [ Possible values: Any Valid value ]
+<br/>    smallMolecule, openff-2.2.1  [ Possible values: Any Valid value ]
+<br/>    water, auto  [ Possible values: Any Valid value ]
+<br/>    additional, none [ Possible values: Space delimited list of any
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        valid value ]
+<br/>    </div>
+<p>Possible biopolymer forcefield values:</p>
+    <div class="OptionsBox">amber14-all.xml, amber99sb.xml, amber99sbildn.xml, amber03.xml,
+<br/>    amber10.xml
+<br/>    charmm36.xml, charmm_polar_2019.xml
+<br/>    amoeba2018.xml</div>
+<p>Possible small molecule forcefield values:</p>
+    <div class="OptionsBox">openff-2.2.1, openff-2.0.0, openff-1.3.1, openff-1.2.1,
+<br/>    openff-1.1.1, openff-1.1.0,...
+<br/>    smirnoff99Frosst-1.1.0, smirnoff99Frosst-1.0.9,...
+<br/>    gaff-2.11, gaff-2.1, gaff-1.81, gaff-1.8, gaff-1.4,...</div>
+<p>The default water forcefield valus is dependent on the type of the biopolymer forcefield as shown below:</p>
+    <div class="OptionsBox"> Amber: amber14/tip3pfb.xml
+<br/>    CHARMM: charmm36/water.xml or None for charmm_polar_2019.xml
+<br/>    Amoeba: None (Explicit)
+<br/>    </div>
+<p>Possible water forcefield values:</p>
+    <div class="OptionsBox">amber14/tip3p.xml, amber14/tip3pfb.xml, amber14/spce.xml,
+<br/>    amber14/tip4pew.xml, amber14/tip4pfb.xml,
+<br/>    charmm36/water.xml, charmm36/tip3p-pme-b.xml,
+<br/>    charmm36/tip3p-pme-f.xml, charmm36/spce.xml,
+<br/>    charmm36/tip4pew.xml, charmm36/tip4p2005.xml,
+<br/>    charmm36/tip5p.xml, charmm36/tip5pew.xml,
+<br/>    implicit/obc2.xml, implicit/GBn.xml, implicit/GBn2.xml,
+<br/>    amoeba2018_gk.xml (Implict water)
+<br/>    None (Explicit water for amoeba)</div>
+<p>The additional forcefield value is a space delimited list of any valid forcefield values and is passed on to the OpenMMForcefields SystemGenerator along with the specified forcefield values for biopolymer, water, and mall molecule. Possible additional forcefield values are:</p>
+    <div class="OptionsBox"> amber14/DNA.OL15.xml amber14/RNA.OL3.xml
+<br/>    amber14/lipid17.xml amber14/GLYCAM_06j-1.xml
+<br/>    ... ... ...
+<br/>    </div>
+<p>You may specify any valid forcefield names supported by OpenMM. No explicit validation is performed.</p>
+</dd>
+<dt id="freezeAtoms-yes-or-no-default:-no"><b>--freezeAtoms</b> &lt;yes or no&gt; [default: no]</dt>
+<dd>
+<p>Freeze atoms during energy minimization. The specified atoms are kept completely fixed by setting their masses to zero. Their positions do not change during energy minimization.</p>
+</dd>
+<dt id="freezeAtomsParams-Name-Value"><b>--freezeAtomsParams</b> &lt;Name,Value,..&gt;</dt>
+<dd>
+<p>A comma delimited list of parameter name and value pairs for freezing atoms during energy minimization. You must specify these parameters for &#39;yes&#39; value of &#39;--freezeAtoms&#39; option.</p>
+<p>The supported parameter names along with their default values are are shown below:</p>
+    <div class="OptionsBox"> selection, none [ Possible values: CAlphaProtein, Ions, Ligand,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Protein, Residues, or Water ]
+<br/>    selectionSpec, auto [ Possible values: A space delimited list of
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        residue names ]
+<br/>    negate, no [ Possible values: yes or no ]
+<br/>    </div>
+<p>A brief description of parameters is provided below:</p>
+    <div class="OptionsBox"> selection: Atom selection to freeze.
+<br/>    selectionSpec: A space delimited list of residue names for
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        selecting atoms to freeze. You must specify its value during
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &#39;Ligand&#39; and &#39;Protein&#39; value for &#39;selection&#39;. The default values
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        are automatically set for &#39;CAlphaProtein&#39;, &#39;Ions&#39;, &#39;Protein&#39;,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        and &#39;Water&#39; values of &#39;selection&#39; as shown below:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        CAlphaProtein: List of stadard protein residues from pdbfixer
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            for selecting CAlpha atoms.
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Ions: Li Na K Rb Cs Cl Br F I
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Water: HOH
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Protein: List of standard protein residues from pdbfixer.
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        
+<br/>    negate: Negate atom selection match to select atoms for freezing.
+<br/>    </div>
+<p>In addition, you may specify an explicit space delimited list of residue names using &#39;selectionSpec&#39; for any &#39;selection&quot;. The specified residue names are appended to the appropriate default values during the selection of atoms for freezing.</p>
+</dd>
+<dt id="h---help"><b>-h, --help</b></dt>
+<dd>
+<p>Print this help message.</p>
+</dd>
+<dt id="i---infile-infile"><b>-i, --infile</b> &lt;infile&gt;</dt>
+<dd>
+<p>Input file name containing a macromolecule.</p>
+</dd>
+<dt id="integratorParams-Name-Value-..-default:-auto"><b>--integratorParams</b> &lt;Name,Value,..&gt; [default: auto]</dt>
+<dd>
+<p>A comma delimited list of parameter name and value pairs for integrator to setup the system for local energy minimization. No MD simulation is performed.</p>
+<p>The supported parameter names along with their default values are are shown below:</p>
+    <div class="OptionsBox"> temperature, 300.0 [ Units: kelvin ]
+<br/>    </div>
+</dd>
+<dt id="outfilePrefix-text-default:-auto"><b>--outfilePrefix</b> &lt;text&gt; [default: auto]</dt>
+<dd>
+<p>File prefix for generating the names of output files. The default value depends on the names of input files for macromolecule and small molecule along with the type of statistical ensemble and the nature of the solvation.</p>
+<p>The possible values for outfile prefix are shown below:</p>
+    <div class="OptionsBox"> &lt;InfileRoot&gt;
+<br/>    &lt;InfileRoot&gt;_Solvated
+<br/>    &lt;InfileRoot&gt;_&lt;SmallMolFileRoot&gt;_Complex
+<br/>    &lt;InfileRoot&gt;_&lt;SmallMolFileRoot&gt;_Complex_Solvated
+<br/>    </div>
+</dd>
+<dt id="outputParams-Name-Value-..-default:-auto"><b>--outputParams</b> &lt;Name,Value,..&gt; [default: auto]</dt>
+<dd>
+<p>A comma delimited list of parameter name and value pairs for generating output during energy minimization..</p>
+<p>The supported parameter names along with their default values are are shown below:</p>
+    <div class="OptionsBox"> minimizationDataSteps, 100
+<br/>    minimizationDataStdout, no  [ Possible values: yes or no ]
+<br/>    minimizationDataLog, yes  [ Possible values: yes or no ]
+<br/>    minimizationDataLogFile, auto  [ Default:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &lt;OutfilePrefix&gt;_MinimizationOut.csv ]
+<br/>    minimizationDataOutType, auto [ Possible values: A space delimited
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        list of valid parameter names.  Default: SystemEnergy
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        RestraintEnergy MaxConstraintError.
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Other valid names: RestraintStrength ]
+<br/>    
+<br/>    pdbOutFormat, PDB  [ Possible values: PDB or CIF ]
+<br/>    pdbOutKeepIDs, yes  [ Possible values: yes or no ]
+<br/>    </div>
+<p>A brief description of parameters is provided below:</p>
+    <div class="OptionsBox"> minimizationDataSteps: Frequency of writing data to stdout
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        and log file.
+<br/>    minimizationDataStdout: Write data to stdout.
+<br/>    minimizationDataLog: Write data to log file.
+<br/>    minimizationDataLogFile: Data log fie name.
+<br/>    minimizationDataOutType: Type of data to write to stdout
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        and log file.
+<br/>    
+<br/>    pdbOutFormat: Format of output PDB files.
+<br/>    pdbOutKeepIDs: Keep existing chain and residue IDs.
+<br/>    </div>
+</dd>
+<dt id="overwrite"><b>--overwrite</b></dt>
+<dd>
+<p>Overwrite existing files.</p>
+</dd>
+<dt id="p---platform-text-default:-CPU"><b>-p, --platform</b> &lt;text&gt; [default: CPU]</dt>
+<dd>
+<p>Platform to use for running MD simulation. Possible values: CPU, CUDA, OpenCL, or Reference.</p>
+</dd>
+<dt id="platformParams-Name-Value-..-default:-auto"><b>--platformParams</b> &lt;Name,Value,..&gt; [default: auto]</dt>
+<dd>
+<p>A comma delimited list of parameter name and value pairs to configure platform for running energy minimization calculations..</p>
+<p>The supported parameter names along with their default values for different platforms are shown below:</p>
+    <div class="OptionsBox"> CPU:
+<br/>    
+<br/>    threads, 1  [ Possible value: &gt;= 0 or auto.  The value of &#39;auto&#39;
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        or zero implies the use of all available CPUs for threading. ]
+<br/>    
+<br/>    CUDA:
+<br/>    
+<br/>    deviceIndex, auto  [ Possible values: 0, &#39;0 1&#39; etc. ]
+<br/>    deterministicForces, auto [ Possible values: yes or no ]
+<br/>    precision, single  [ Possible values: single, double, or mix ]
+<br/>    tempDirectory, auto [ Possible value: DirName ]
+<br/>    useBlockingSync, auto [ Possible values: yes or no ]
+<br/>    useCpuPme, auto [ Possible values: yes or no ]
+<br/>    
+<br/>    OpenCL:
+<br/>    
+<br/>    deviceIndex, auto  [ Possible values: 0, &#39;0 1&#39; etc. ]
+<br/>    openCLPlatformIndex, auto  [ Possible value: Number]
+<br/>    precision, single  [ Possible values: single, double, or mix ]
+<br/>    useCpuPme, auto [ Possible values: yes or no ]
+<br/>    </div>
+<p>A brief description of parameters is provided below:</p>
+    <div class="OptionsBox"> CPU:
+<br/>    
+<br/>    threads: Number of threads to use for simulation.
+<br/>    
+<br/>    CUDA:
+<br/>    
+<br/>    deviceIndex: Space delimited list of device indices to use for
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        calculations.
+<br/>    deterministicForces: Generate reproducible results at the cost of a
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        small decrease in performance.
+<br/>    precision: Number precision to use for calculations.
+<br/>    tempDirectory: Directory name for storing temporary files.
+<br/>    useBlockingSync: Control run-time synchronization between CPU and
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        GPU.
+<br/>    useCpuPme: Use CPU-based PME implementation.
+<br/>    
+<br/>    OpenCL:
+<br/>    
+<br/>    deviceIndex: Space delimited list of device indices to use for
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        simulation.
+<br/>    openCLPlatformIndex: Platform index to use for calculations.
+<br/>    precision: Number precision to use for calculations.
+<br/>    useCpuPme: Use CPU-based PME implementation.
+<br/>    </div>
+</dd>
+<dt id="restraintAtoms-yes-or-no-default:-no"><b>--restraintAtoms</b> &lt;yes or no&gt; [default: no]</dt>
+<dd>
+<p>Restraint atoms during energy minimization. The motion of specified atoms is restricted by adding a harmonic force that binds them to their starting positions. The atoms are not completely fixed unlike freezing of atoms. Their motion, however, is restricted and they are not able to move far away from their starting positions during energy minimization.</p>
+</dd>
+<dt id="restraintAtomsParams-Name-Value"><b>--restraintAtomsParams</b> &lt;Name,Value,..&gt;</dt>
+<dd>
+<p>A comma delimited list of parameter name and value pairs for restraining atoms during energy minimization. You must specify these parameters for &#39;yes&#39; value of &#39;--restraintAtoms&#39; option.</p>
+<p>The supported parameter names along with their default values are are shown below:</p>
+    <div class="OptionsBox"> selection, none [ Possible values: CAlphaProtein, Ions, Ligand,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Protein, Residues, or Water ]
+<br/>    selectionSpec, auto [ Possible values: A space delimited list of
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        residue names ]
+<br/>    negate, no [ Possible values: yes or no ]
+<br/>    </div>
+<p>A brief description of parameters is provided below:</p>
+    <div class="OptionsBox"> selection: Atom selection to restraint.
+<br/>    selectionSpec: A space delimited list of residue names for
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        selecting atoms to restraint. You must specify its value during
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &#39;Ligand&#39; and &#39;Protein&#39; value for &#39;selection&#39;. The default values
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        are automatically set for &#39;CAlphaProtein&#39;, &#39;Ions&#39;, &#39;Protein&#39;,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        and &#39;Water&#39; values of &#39;selection&#39; as shown below:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        CAlphaProtein: List of stadard protein residues from pdbfixer
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            for selecting CAlpha atoms.
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Ions: Li Na K Rb Cs Cl Br F I
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Water: HOH
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Protein: List of standard protein residues from pdbfixer.
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        
+<br/>    negate: Negate atom selection match to select atoms for freezing.
+<br/>    </div>
+<p>In addition, you may specify an explicit space delimited list of residue names using &#39;selectionSpec&#39; for any &#39;selection&quot;. The specified residue names are appended to the appropriate default values during the selection of atoms for restraining.</p>
+</dd>
+<dt id="restraintSpringConstant-number-default:-2.5"><b>--restraintSpringConstant</b> &lt;number&gt; [default: 2.5]</dt>
+<dd>
+<p>Restraint spring constant for applying external restraint force to restraint atoms relative to their initial positions during &#39;yes&#39; value of &#39;--restraintAtoms&#39; option. Default units: kcal/mol/A**2. The default value, 2.5, corresponds to 1046.0 kjoules/mol/nm**2. The default value is automatically converted into units of kjoules/mol/nm**2 before its usage.</p>
+</dd>
+<dt id="simulationParams-Name-Value-..-default:-auto"><b>--simulationParams</b> &lt;Name,Value,..&gt; [default: auto]</dt>
+<dd>
+<p>A comma delimited list of parameter name and value pairs for simulation.</p>
+<p>The supported parameter names along with their default values are are shown below:</p>
+    <div class="OptionsBox"> minimizationMaxSteps, auto  [ Possible values: &gt;= 0. The value of
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        zero implies until the minimization is converged. ]
+<br/>    minimizationTolerance, 0.24  [ Units: kcal/mol/A. The default value
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        0.24, corresponds to OpenMM default of value of 10.04
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        kjoules/mol/nm. It is automatically converted into OpenMM
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        default units before its usage. ]
+<br/>    </div>
+<p>A brief description of parameters is provided below:</p>
+    <div class="OptionsBox"> minimizationMaxSteps: Maximum number of minimization steps. The
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        value of zero implies until the minimization is converged.
+<br/>    minimizationTolerance: Energy convergence tolerance during
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        minimization.
+<br/>    </div>
+</dd>
+<dt id="s---smallMolFile-SmallMolFile"><b>-s, --smallMolFile</b> &lt;SmallMolFile&gt;</dt>
+<dd>
+<p>Small molecule input file name. The macromolecue and small molecule are merged for simulation and the complex is written out to a PDB file.</p>
+</dd>
+<dt id="smallMolID-text-default:-LIG"><b>--smallMolID</b> &lt;text&gt; [default: LIG]</dt>
+<dd>
+<p>Three letter small molecule residue ID. The small molecule ID corresponds to the residue name of the small molecule and is written out to a PDB file containing the complex.</p>
+</dd>
+<dt id="systemParams-Name-Value-..-default:-auto"><b>--systemParams</b> &lt;Name,Value,..&gt; [default: auto]</dt>
+<dd>
+<p>A comma delimited list of parameter name and value pairs to configure a system for energy minimization. No MD simulation is performed.</p>
+<p>The supported parameter names along with their default values are are shown below:</p>
+    <div class="OptionsBox"> constraints, BondsInvolvingHydrogens [ Possible values: None,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        WaterOnly, BondsInvolvingHydrogens, AllBonds, or
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        AnglesInvolvingHydrogens ]
+<br/>    constraintErrorTolerance, 0.000001
+<br/>    ewaldErrorTolerance, 0.0005
+<br/>    
+<br/>    nonbondedMethodPeriodic, PME [ Possible values: NoCutoff,
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        CutoffNonPeriodic, or PME ]
+<br/>    nonbondedMethodNonPeriodic, NoCutoff [ Possible values:
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        NoCutoff or CutoffNonPeriodic]
+<br/>    nonbondedCutoff, 1.0 [ Units: nm ]
+<br/>    
+<br/>    hydrogenMassRepartioning, yes [ Possible values: yes or no ]
+<br/>    hydrogenMass, 1.5 [ Units: amu]
+<br/>    
+<br/>    removeCMMotion, yes [ Possible values: yes or no ]
+<br/>    rigidWater, auto [ Possible values: yes or no. Default: &#39;No&#39; for
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &#39;None&#39; value of constraints; Otherwise, yes ]
+<br/>    </div>
+<p>A brief description of parameters is provided below:</p>
+    <div class="OptionsBox"> constraints: Type of system constraints to use for simulation. These
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        constraints are different from freezing and restraining of any
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        atoms in the system.
+<br/>    constraintErrorTolerance: Distance tolerance for constraints as a
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        fraction of the constrained distance.
+<br/>    ewaldErrorTolerance: Ewald error tolerance for a periodic system.
+<br/>    
+<br/>    nonbondedMethodPeriodic: Nonbonded method to use during the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        calculation of long range interactions for a periodic system.
+<br/>    nonbondedMethodNonPeriodic: Nonbonded method to use during the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        calculation of long range interactions for a non-periodic system.
+<br/>    nonbondedCutoff: Cutoff distance to use for long range interactions
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        in both perioidic non-periodic systems.
+<br/>    
+<br/>    hydrogenMassRepartioning: Use hydrogen mass repartioning. It
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        increases the mass of the hydrogen atoms attached to the heavy
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        atoms and decreasing the mass of the bonded heavy atom to
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        maintain constant system mass. This allows the use of larger
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        integration step size (4 fs) during a simulation.
+<br/>    hydrogenMass: Hydrogen mass to use during repartioning.
+<br/>    
+<br/>    removeCMMotion: Remove all center of mass motion at every time step.
+<br/>    rigidWater: Keep water rigid during a simulation. This is determined
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        automatically based on the value of &#39;constraints&#39; parameter.
+<br/>    </div>
+</dd>
+<dt id="waterBox-yes-or-no-default:-no"><b>--waterBox</b> &lt;yes or no&gt; [default: no]</dt>
+<dd>
+<p>Add water box.</p>
+</dd>
+<dt id="waterBoxParams-Name-Value-..-default:-auto"><b>--waterBoxParams</b> &lt;Name,Value,..&gt; [default: auto]</dt>
+<dd>
+<p>A comma delimited list of parameter name and value pairs for adding a water box.</p>
+<p>The supported parameter names along with their default values are are shown below:</p>
+    <div class="OptionsBox"> model, tip3p [ Possible values: tip3p, spce, tip4pew, tip5p or
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        swm4ndp ]
+<br/>    mode, Padding  [ Possible values: Size or Padding ]
+<br/>    padding, 1.0
+<br/>    size, None  [ Possible value: xsize ysize zsize ]
+<br/>    shape, cube  [ Possible values: cube, dodecahedron, or octahedron ]
+<br/>    ionPositive, Na+ [ Possible values: Li+, Na+, K+, Rb+, or Cs+ ]
+<br/>    ionNegative, Cl- [ Possible values: Cl-, Br-, F-, or I- ]
+<br/>    ionicStrength, 0.0
+<br/>    </div>
+<p>A brief description of parameters is provided below:</p>
+    <div class="OptionsBox"> model: Water model to use for adding water box. The van der
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        Waals radii and atomic charges are determined using the
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        specified water forcefield. You must specify an appropriate
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        water forcefield. No validation is performed.
+<br/>    mode: Specify the size of the waterbox explicitly or calculate it
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        automatically for a macromolecule along with adding padding
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        around ther macromolecule.
+<br/>    padding: Padding around a macromolecule in nanometers for filling
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        box with water. It must be specified during &#39;Padding&#39; value of
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &#39;mode&#39; parameter.
+<br/>    size: A space delimited triplet of values corresponding to water
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        size in nanometers. It must be specified during &#39;Size&#39; value of
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &#39;mode&#39; parameter.
+<br/>    ionPositive: Type of positive ion to add during the addition of a
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        water box.
+<br/>    ionNegative: Type of negative ion to add during the addition of a
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        water box.
+<br/>    ionicStrength: Total concentration of both positive and negative
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        ions to add excluding the ions added to neutralize the system
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        during the addition of a water box.
+<br/>    </div>
+</dd>
+<dt id="w---workingdir-dir"><b>-w, --workingdir</b> &lt;dir&gt;</dt>
+<dd>
+<p>Location of working directory which defaults to the current directory.</p>
+</dd>
+</dl>
+<h1 id="EXAMPLES">EXAMPLES</h2>
+<p>To perform energy minimization for a macromolecule in a PDB file until the energy is converged, writing information to log file every 100 steps and generate a PDB file for the minimized system, type:</p>
+<div class="ExampleBox">% OpenMMPerformMinimization.py -i Sample13.pdb</div>
+<p>To run the first example for writing information to both stdout and log file every 100 steps and generate various output files, type:</p>
+<div class="ExampleBox">% OpenMMPerformMinimization.py -i Sample13.pdb --outputParams
+  &quot;minimizationDataStdout, yes&quot;</div>
+<p>To run the first example for performing OpenMM simulation using multi- threading employing all available CPUs on your machine and generate various output files, type:</p>
+<div class="ExampleBox">% OpenMMPerformMinimization.py -i Sample13.pdb
+  --platformParams &quot;threads,0&quot;</div>
+<p>To run the first example for performing OpenMM simulation using CUDA platform on your machine and generate various output files, type:</p>
+<div class="ExampleBox">% OpenMMPerformMinimization.py -i Sample13.pdb -p CUDA</div>
+<p>To run the second example for a marcomolecule in a complex with a small molecule and generate various output files, type:</p>
+<div class="ExampleBox">% OpenMMPerformMinimization.py -i Sample13.pdb -s Sample13Ligand.sdf
+  --platformParams &quot;threads,0&quot;</div>
+<p>To run the second example by adding a water box to the system and generate various output files, type:</p>
+<div class="ExampleBox">% OpenMMPerformMinimization.py -i Sample13.pdb --waterBox yes
+  --platformParams &quot;threads,0&quot;</div>
+<p>To run the second example for a marcomolecule in a complex with a small molecule by adding a water box to the system and generate various output files, type:</p>
+<div class="ExampleBox">% OpenMMPerformMinimization.py -i Sample13.pdb -s Sample13Ligand.sdf
+  --waterBox yes --platformParams &quot;threads,0&quot;</div>
+<p>To run the second example by freezing CAlpha atoms in a macromolecule without using any system constraints to avoid any issues with the freezing of the same atoms and generate various output files, type:</p>
+<div class="ExampleBox">% OpenMMPerformMinimization.py -i Sample13.pdb
+  --freezeAtoms yes --freezeAtomsParams &quot;selection,CAlphaProtein&quot;
+  --systemParams &quot;constraints, None&quot;
+  --platformParams &quot;threads,0&quot;
+% OpenMMPerformMinimization.py -i Sample13.pdb
+  --freezeAtoms yes --freezeAtomsParams &quot;selection,CAlphaProtein&quot;
+  --systemParams &quot;constraints, None&quot;
+  --platformParams &quot;threads,0&quot; --waterBox yes</div>
+<p>To run the second example by restrainting CAlpha atoms in a macromolecule and and generate various output files, type:</p>
+<div class="ExampleBox">% OpenMMPerformMinimization.py -i Sample13.pdb
+  --restraintAtomsParams &quot;selection,CAlphaProtein&quot;
+  --platformParams &quot;threads,0&quot;
+% OpenMMPerformMinimization.py -i Sample13.pdb
+  --restraintAtomsParams &quot;selection,CAlphaProtein&quot;
+  --platformParams &quot;threads,0&quot;
+  --waterBox yes</div>
+<p>To run the second example by specifying explict values for various parametres and generate various output files, type:</p>
+<div class="ExampleBox">% OpenMMPerformMinimization.py -i Sample13.pdb
+  -f &quot; biopolymer,amber14-all.xml,smallMolecule, openff-2.2.1,
+  water,amber14/tip3pfb.xml&quot; --waterBox yes
+  --outputParams &quot;minimizationDataSteps, 100, minimizationDataStdout,
+  yes,minimizationDataLog,yes&quot;
+  -p CPU --platformParams &quot;threads,0&quot;
+  --simulationParams &quot;minimizationMaxSteps,500,
+  minimizationTolerance, 0.24&quot;
+  --systemParams &quot;constraints,BondsInvolvingHydrogens,
+  nonbondedMethodPeriodic,PME,nonbondedMethodNonPeriodic,NoCutoff,
+  hydrogenMassRepartioning, yes&quot;</div>
+<h1 id="AUTHOR">AUTHOR</h2>
+<p><a href="mailto:msud@san.rr.com">Manish Sud</a></p>
+<h1 id="SEE-ALSO">SEE ALSO</h2>
+<p><a href="./OpenMMPrepareMacromolecule.html">OpenMMPrepareMacromolecule.py</a>, <a href="./OpenMMPerformMDSimulation.html">OpenMMPerformMDSimulation.py</a>, <a href="./OpenMMPerformSimulatedAnnealing.html">OpenMMPerformSimulatedAnnealing.py</a></p>
+<h1 id="COPYRIGHT">COPYRIGHT</h2>
+<p>Copyright (C) 2026 Manish Sud. All rights reserved.</p>
+<p>The functionality available in this script is implemented using OpenMM, an open source molecuar simulation package.</p>
+<p>This file is part of MayaChemTools.</p>
+<p>MayaChemTools is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.</p>
+<p>&nbsp</p><p>&nbsp</p><div class="DocNav">
+<table width="100%" border=0 cellpadding=0 cellspacing=2>
+<tr align="left" valign="top"><td width="33%" align="left"><a href="./OpenMMPerformMDSimulation.html" title="OpenMMPerformMDSimulation.html">Previous</a>&nbsp;&nbsp;<a href="./index.html" title="Table of Contents">TOC</a>&nbsp;&nbsp;<a href="./OpenMMPerformSimulatedAnnealing.html" title="OpenMMPerformSimulatedAnnealing.html">Next</a></td><td width="34%" align="middle"><strong>February 8, 2026</strong></td><td width="33%" align="right"><strong>OpenMMPerformMinimization.py</strong></td></tr>
+</table>
+</div>
+<br />
+<center>
+<img src="../../images/h2o2.png">
+</center>
+</body>
+</html>

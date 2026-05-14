@@ -1,0 +1,1268 @@
+<html>
+<head>
+<title>MayaChemTools:Code:OpenFECalculateAbsoluteHydrationFreeEnergy.py</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../../css/MayaChemToolsPythonCode.css">
+</head>
+<body leftmargin="20" rightmargin="20" topmargin="10" bottommargin="10">
+<br/>
+<center>
+<a href="http://www.mayachemtools.org" title="MayaChemTools Home"><img src="../../../images/MayaChemToolsLogo.gif" border="0" alt="MayaChemTools"></a>
+</center>
+<br/>
+<pre>
+    1 <span class="ch">#!/bin/env python</span>
+    2 <span class="c1">#</span>
+    3 <span class="c1"># File: OpenFECalculateAbsoluteHydrationFreeEnergy.py</span>
+    4 <span class="c1"># Author: Manish Sud &lt;msud@san.rr.com&gt;</span>
+    5 <span class="c1">#</span>
+    6 <span class="c1"># Copyright (C) 2026 Manish Sud. All rights reserved.</span>
+    7 <span class="c1">#</span>
+    8 <span class="c1"># The functionality available in this script is implemented using OpenFE, an</span>
+    9 <span class="c1"># open source package for alchemical free energy calculations.</span>
+   10 <span class="c1">#</span>
+   11 <span class="c1"># This file is part of MayaChemTools.</span>
+   12 <span class="c1">#</span>
+   13 <span class="c1"># MayaChemTools is free software; you can redistribute it and/or modify it under</span>
+   14 <span class="c1"># the terms of the GNU Lesser General Public License as published by the Free</span>
+   15 <span class="c1"># Software Foundation; either version 3 of the License, or (at your option) any</span>
+   16 <span class="c1"># later version.</span>
+   17 <span class="c1">#</span>
+   18 <span class="c1"># MayaChemTools is distributed in the hope that it will be useful, but without</span>
+   19 <span class="c1"># any warranty; without even the implied warranty of merchantability of fitness</span>
+   20 <span class="c1"># for a particular purpose.  See the GNU Lesser General Public License for more</span>
+   21 <span class="c1"># details.</span>
+   22 <span class="c1">#</span>
+   23 <span class="c1"># You should have received a copy of the GNU Lesser General Public License</span>
+   24 <span class="c1"># along with MayaChemTools; if not, see &lt;http://www.gnu.org/licenses/&gt; or</span>
+   25 <span class="c1"># write to the Free Software Foundation Inc., 59 Temple Place, Suite 330,</span>
+   26 <span class="c1"># Boston, MA, 02111-1307, USA.</span>
+   27 <span class="c1">#</span>
+   28 
+   29 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+   30 
+   31 <span class="kn">import</span> <span class="nn">os</span>
+   32 <span class="kn">import</span> <span class="nn">sys</span>
+   33 <span class="kn">import</span> <span class="nn">time</span>
+   34 <span class="kn">import</span> <span class="nn">re</span>
+   35 <span class="kn">import</span> <span class="nn">logging</span>
+   36 <span class="kn">import</span> <span class="nn">pathlib</span>
+   37 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+   38 
+   39 <span class="c1"># OpenFE imports...</span>
+   40 <span class="k">try</span><span class="p">:</span>
+   41     <span class="kn">import</span> <span class="nn">openfe</span>
+   42     <span class="kn">from</span> <span class="nn">openfe.protocols.openmm_afe</span> <span class="kn">import</span> <span class="n">AbsoluteSolvationProtocol</span>
+   43 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ErrMsg</span><span class="p">:</span>
+   44     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Failed to import OpenFE related module/package: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ErrMsg</span><span class="p">)</span>
+   45     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Check/update your OpenFE environment and try again.</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+   46     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+   47 
+   48 <span class="c1"># RDKit imports...</span>
+   49 <span class="k">try</span><span class="p">:</span>
+   50     <span class="kn">from</span> <span class="nn">rdkit</span> <span class="kn">import</span> <span class="n">rdBase</span>
+   51 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ErrMsg</span><span class="p">:</span>
+   52     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Failed to import RDKit module/package: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ErrMsg</span><span class="p">)</span>
+   53     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Check/update your RDKit environment and try again.</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+   54     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+   55 
+   56 <span class="c1"># MayaChemTools imports...</span>
+   57 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;lib&quot;</span><span class="p">,</span> <span class="s2">&quot;Python&quot;</span><span class="p">))</span>
+   58 <span class="k">try</span><span class="p">:</span>
+   59     <span class="kn">from</span> <span class="nn">docopt</span> <span class="kn">import</span> <span class="n">docopt</span>
+   60     <span class="kn">import</span> <span class="nn">MiscUtil</span>
+   61     <span class="kn">import</span> <span class="nn">OpenFEUtil</span>
+   62 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ErrMsg</span><span class="p">:</span>
+   63     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Failed to import MayaChemTools module/package: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ErrMsg</span><span class="p">)</span>
+   64     <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Check/update your MayaChemTools environment and try again.</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+   65     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+   66 
+   67 <span class="n">ScriptName</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+   68 <span class="n">Options</span> <span class="o">=</span> <span class="p">{}</span>
+   69 <span class="n">OptionsInfo</span> <span class="o">=</span> <span class="p">{}</span>
+   70 
+   71 
+   72 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+   73     <span class="sd">&quot;&quot;&quot;Start execution of the script.&quot;&quot;&quot;</span>
+   74 
+   75     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span>
+   76         <span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2"> (OpenFE v</span><span class="si">%s</span><span class="s2">; OpenMM v</span><span class="si">%s</span><span class="s2">; RDKit v</span><span class="si">%s</span><span class="s2">; MayaChemTools v</span><span class="si">%s</span><span class="s2">; </span><span class="si">%s</span><span class="s2">): Starting...</span><span class="se">\n</span><span class="s2">&quot;</span>
+   77         <span class="o">%</span> <span class="p">(</span>
+   78             <span class="n">ScriptName</span><span class="p">,</span>
+   79             <span class="n">openfe</span><span class="o">.</span><span class="n">version</span><span class="p">(</span><span class="s2">&quot;openfe&quot;</span><span class="p">),</span>
+   80             <span class="n">openfe</span><span class="o">.</span><span class="n">version</span><span class="p">(</span><span class="s2">&quot;openmm&quot;</span><span class="p">),</span>
+   81             <span class="n">rdBase</span><span class="o">.</span><span class="n">rdkitVersion</span><span class="p">,</span>
+   82             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetMayaChemToolsVersion</span><span class="p">(),</span>
+   83             <span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">(),</span>
+   84         <span class="p">)</span>
+   85     <span class="p">)</span>
+   86 
+   87     <span class="p">(</span><span class="n">WallClockTime</span><span class="p">,</span> <span class="n">ProcessorTime</span><span class="p">)</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetWallClockAndProcessorTime</span><span class="p">()</span>
+   88 
+   89     <span class="c1"># Retrieve command line arguments and options...</span>
+   90     <span class="n">RetrieveOptions</span><span class="p">()</span>
+   91 
+   92     <span class="k">if</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--list&quot;</span><span class="p">]:</span>
+   93         <span class="n">ProcessListOption</span><span class="p">()</span>
+   94     <span class="k">else</span><span class="p">:</span>
+   95         <span class="c1"># Process and validate command line arguments and options...</span>
+   96         <span class="n">ProcessOptions</span><span class="p">()</span>
+   97 
+   98         <span class="c1"># Perform actions required by the script...</span>
+   99         <span class="n">CalculateAbsoluteHydrationFreeEnergy</span><span class="p">()</span>
+  100 
+  101     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2">: Done...</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ScriptName</span><span class="p">)</span>
+  102     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Total time: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetFormattedElapsedTime</span><span class="p">(</span><span class="n">WallClockTime</span><span class="p">,</span> <span class="n">ProcessorTime</span><span class="p">))</span>
+  103 
+  104 
+  105 <span class="k">def</span> <span class="nf">CalculateAbsoluteHydrationFreeEnergy</span><span class="p">():</span>
+  106     <span class="sd">&quot;&quot;&quot;Calculate absolute hydration free energy.&quot;&quot;&quot;</span>
+  107 
+  108     <span class="c1"># Process input file...</span>
+  109     <span class="n">InMols</span> <span class="o">=</span> <span class="n">ProcessInputFile</span><span class="p">()</span>
+  110 
+  111     <span class="c1"># Process molecule names...</span>
+  112     <span class="n">Mols</span> <span class="o">=</span> <span class="n">ProcessMoleculeNames</span><span class="p">(</span><span class="n">InMols</span><span class="p">)</span>
+  113 
+  114     <span class="c1"># Check for miising partial charges...</span>
+  115     <span class="n">CheckMissingPartialCharges</span><span class="p">(</span><span class="n">Mols</span><span class="p">)</span>
+  116 
+  117     <span class="c1"># Initialize AHFE protocols...</span>
+  118     <span class="n">AHFEProtocol</span> <span class="o">=</span> <span class="n">InitializeAbsoluteSolvationProtocol</span><span class="p">()</span>
+  119 
+  120     <span class="c1"># Initialize solvent...</span>
+  121     <span class="n">Solvent</span> <span class="o">=</span> <span class="n">InitializeSolventComponent</span><span class="p">()</span>
+  122 
+  123     <span class="c1"># Setup transformations...</span>
+  124     <span class="n">MolTransformations</span> <span class="o">=</span> <span class="n">SetupTransformations</span><span class="p">(</span><span class="n">Mols</span><span class="p">,</span> <span class="n">Solvent</span><span class="p">,</span> <span class="n">AHFEProtocol</span><span class="p">)</span>
+  125 
+  126     <span class="c1"># Setup protocol DAGs...</span>
+  127     <span class="n">MolProtocolDAGs</span> <span class="o">=</span> <span class="n">SetupProtocolDAGs</span><span class="p">(</span><span class="n">MolTransformations</span><span class="p">)</span>
+  128 
+  129     <span class="c1"># Execute protocol DAGs and gather results...</span>
+  130     <span class="n">MolProtocolResults</span> <span class="o">=</span> <span class="n">ExecuteProtocolDAGsAndGatherResults</span><span class="p">(</span><span class="n">MolTransformations</span><span class="p">,</span> <span class="n">MolProtocolDAGs</span><span class="p">)</span>
+  131 
+  132     <span class="c1"># Process protocol results...</span>
+  133     <span class="n">ProcessProtocolResults</span><span class="p">(</span><span class="n">MolTransformations</span><span class="p">,</span> <span class="n">MolProtocolResults</span><span class="p">)</span>
+  134 
+  135 
+  136 <span class="k">def</span> <span class="nf">InitializeAbsoluteSolvationProtocol</span><span class="p">():</span>
+  137     <span class="sd">&quot;&quot;&quot;Initialize absolute solvation protocol.&quot;&quot;&quot;</span>
+  138 
+  139     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Initializing absolute solvation protocol...&quot;</span><span class="p">)</span>
+  140 
+  141     <span class="n">AHFESettings</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">SetupAbsoluteHydrationFreeEnergySettings</span><span class="p">(</span><span class="s2">&quot;-a, --ahfeParams&quot;</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AHFEParams&quot;</span><span class="p">])</span>
+  142     <span class="n">AHFEProtocol</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">InitializeAbsoluteSolvationFreeEngeryProtocol</span><span class="p">(</span><span class="n">AHFESettings</span><span class="p">)</span>
+  143 
+  144     <span class="k">return</span> <span class="n">AHFEProtocol</span>
+  145 
+  146 
+  147 <span class="k">def</span> <span class="nf">InitializeSolventComponent</span><span class="p">():</span>
+  148     <span class="sd">&quot;&quot;&quot;Initialize solvent component.&quot;&quot;&quot;</span>
+  149 
+  150     <span class="n">SolventParams</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;SolventParams&quot;</span><span class="p">]</span>
+  151     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span>
+  152         <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Initializing solvent component (PositiveIon: </span><span class="si">%s</span><span class="s2">; NegativeIon: </span><span class="si">%s</span><span class="s2">; Neutralize: </span><span class="si">%s</span><span class="s2">; IonConcentration: </span><span class="si">%s</span><span class="s2">)...&quot;</span>
+  153         <span class="o">%</span> <span class="p">(</span>
+  154             <span class="n">SolventParams</span><span class="p">[</span><span class="s2">&quot;PositiveIon&quot;</span><span class="p">],</span>
+  155             <span class="n">SolventParams</span><span class="p">[</span><span class="s2">&quot;NegativeIon&quot;</span><span class="p">],</span>
+  156             <span class="n">SolventParams</span><span class="p">[</span><span class="s2">&quot;Neutralize&quot;</span><span class="p">],</span>
+  157             <span class="n">SolventParams</span><span class="p">[</span><span class="s2">&quot;IonConcentration&quot;</span><span class="p">],</span>
+  158         <span class="p">)</span>
+  159     <span class="p">)</span>
+  160 
+  161     <span class="n">Solvent</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">InitializeSolventComponent</span><span class="p">(</span><span class="n">SolventParams</span><span class="p">)</span>
+  162 
+  163     <span class="k">return</span> <span class="n">Solvent</span>
+  164 
+  165 
+  166 <span class="k">def</span> <span class="nf">SetupTransformations</span><span class="p">(</span><span class="n">Mols</span><span class="p">,</span> <span class="n">Solvent</span><span class="p">,</span> <span class="n">AHFEProtocol</span><span class="p">):</span>
+  167     <span class="sd">&quot;&quot;&quot;Set up transformations for molecules.&quot;&quot;&quot;</span>
+  168 
+  169     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Setting up transformations (Count: </span><span class="si">%s</span><span class="s2">)...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Mols</span><span class="p">)))</span>
+  170 
+  171     <span class="n">MolTransformations</span> <span class="o">=</span> <span class="p">[]</span>
+  172 
+  173     <span class="k">for</span> <span class="n">Mol</span> <span class="ow">in</span> <span class="n">Mols</span><span class="p">:</span>
+  174         <span class="c1"># Setup a chemical system for a molecule fully interacting in the solvent...</span>
+  175         <span class="n">MolSolventSystem</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">InitializeChemicalSystem</span><span class="p">(</span>
+  176             <span class="n">SmallMol</span><span class="o">=</span><span class="n">Mol</span><span class="p">,</span> <span class="n">MacroMol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Solvent</span><span class="o">=</span><span class="n">Solvent</span><span class="p">,</span> <span class="n">Name</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_Solvent&quot;</span> <span class="o">%</span> <span class="n">Mol</span><span class="o">.</span><span class="n">name</span>
+  177         <span class="p">)</span>
+  178 
+  179         <span class="c1"># Setup a system for a molecule fully decoupled in the solvent: Only need to use the solvent....</span>
+  180         <span class="n">SolventOnlySystem</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">InitializeChemicalSystem</span><span class="p">(</span>
+  181             <span class="n">SmallMol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">MacroMol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Solvent</span><span class="o">=</span><span class="n">Solvent</span><span class="p">,</span> <span class="n">Name</span><span class="o">=</span><span class="s2">&quot;Solvent_Only&quot;</span>
+  182         <span class="p">)</span>
+  183 
+  184         <span class="c1"># Setup a transformation for absolute solvation protocol from MolSolvent to SolventOnly</span>
+  185         <span class="c1"># as the vacuum modelling is automatically handled by AbsoluteSolvationProtocol...</span>
+  186         <span class="n">TransformationName</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_AbsoluteSolvation&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">Mol</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+  187         <span class="n">MolTransformation</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">InitializeTransformation</span><span class="p">(</span>
+  188             <span class="n">StateA</span><span class="o">=</span><span class="n">MolSolventSystem</span><span class="p">,</span>
+  189             <span class="n">StateB</span><span class="o">=</span><span class="n">SolventOnlySystem</span><span class="p">,</span>
+  190             <span class="n">Mapping</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+  191             <span class="n">Protocol</span><span class="o">=</span><span class="n">AHFEProtocol</span><span class="p">,</span>
+  192             <span class="n">Name</span><span class="o">=</span><span class="n">TransformationName</span><span class="p">,</span>
+  193             <span class="n">Validate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+  194         <span class="p">)</span>
+  195 
+  196         <span class="n">MolTransformations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MolTransformation</span><span class="p">)</span>
+  197 
+  198     <span class="c1"># Write out transformatios...</span>
+  199     <span class="n">WriteTransformations</span><span class="p">(</span><span class="n">MolTransformations</span><span class="p">)</span>
+  200 
+  201     <span class="k">return</span> <span class="n">MolTransformations</span>
+  202 
+  203 
+  204 <span class="k">def</span> <span class="nf">WriteTransformations</span><span class="p">(</span><span class="n">MolTransformations</span><span class="p">):</span>
+  205     <span class="sd">&quot;&quot;&quot;Write out transformations.&quot;&quot;&quot;</span>
+  206 
+  207     <span class="n">TransformationsOutDirPath</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;TransformationsOutDirPath&quot;</span><span class="p">])</span>
+  208 
+  209     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span>
+  210         <span class="s2">&quot;Writing transformations files (Files: *.json; Count: </span><span class="si">%s</span><span class="s2">; Subdirectory: </span><span class="si">%s</span><span class="s2">)...&quot;</span>
+  211         <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">MolTransformations</span><span class="p">),</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;TransformationsOutDir&quot;</span><span class="p">])</span>
+  212     <span class="p">)</span>
+  213 
+  214     <span class="k">for</span> <span class="n">Transformation</span> <span class="ow">in</span> <span class="n">MolTransformations</span><span class="p">:</span>
+  215         <span class="n">TransformationFilePath</span> <span class="o">=</span> <span class="n">TransformationsOutDirPath</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.json&quot;</span> <span class="o">%</span> <span class="n">Transformation</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+  216         <span class="n">Transformation</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">TransformationFilePath</span><span class="p">)</span>
+  217 
+  218 
+  219 <span class="k">def</span> <span class="nf">SetupProtocolDAGs</span><span class="p">(</span><span class="n">MolTransformations</span><span class="p">):</span>
+  220     <span class="sd">&quot;&quot;&quot;Setup protocol Directed Acyclic Graphs (DAGs) for each transformation to</span>
+  221 <span class="sd">    to perform calculations.</span>
+  222 <span class="sd">    &quot;&quot;&quot;</span>
+  223 
+  224     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Setting up protocol DAGs (Count: </span><span class="si">%s</span><span class="s2">)...&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">MolTransformations</span><span class="p">))</span>
+  225 
+  226     <span class="n">MolProtocolDAGs</span> <span class="o">=</span> <span class="p">[]</span>
+  227     <span class="k">for</span> <span class="n">Transformation</span> <span class="ow">in</span> <span class="n">MolTransformations</span><span class="p">:</span>
+  228         <span class="n">ProtocolDAG</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">InitializeProtocolDAG</span><span class="p">(</span><span class="n">Transformation</span><span class="p">,</span> <span class="n">Name</span><span class="o">=</span><span class="n">Transformation</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+  229         <span class="n">MolProtocolDAGs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ProtocolDAG</span><span class="p">)</span>
+  230 
+  231     <span class="k">return</span> <span class="n">MolProtocolDAGs</span>
+  232 
+  233 
+  234 <span class="k">def</span> <span class="nf">ExecuteProtocolDAGsAndGatherResults</span><span class="p">(</span><span class="n">MolTransformations</span><span class="p">,</span> <span class="n">MolProtocolDAGs</span><span class="p">):</span>
+  235     <span class="sd">&quot;&quot;&quot;Execute protocol DAGs and gather results.&quot;&quot;&quot;</span>
+  236 
+  237     <span class="n">ResultsSharedOutDirPath</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ResultsOutDirPath&quot;</span><span class="p">]</span>
+  238     <span class="n">ResultsScratchOutDirPath</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ResultsScratchOutDirPath&quot;</span><span class="p">]</span>
+  239     <span class="n">ExecuteDAGParams</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ExecuteDAGParams&quot;</span><span class="p">]</span>
+  240 
+  241     <span class="n">MolProtocolResults</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">ExecuteProtocolDAGsAndGatherResults</span><span class="p">(</span>
+  242         <span class="n">MolTransformations</span><span class="p">,</span>
+  243         <span class="n">MolProtocolDAGs</span><span class="p">,</span>
+  244         <span class="n">ResultsSharedOutDirPath</span><span class="p">,</span>
+  245         <span class="n">ResultsScratchOutDirPath</span><span class="p">,</span>
+  246         <span class="n">KeepShared</span><span class="o">=</span><span class="n">ExecuteDAGParams</span><span class="p">[</span><span class="s2">&quot;KeepShared&quot;</span><span class="p">],</span>
+  247         <span class="n">KeepScratch</span><span class="o">=</span><span class="n">ExecuteDAGParams</span><span class="p">[</span><span class="s2">&quot;KeepScratch&quot;</span><span class="p">],</span>
+  248         <span class="n">NRetries</span><span class="o">=</span><span class="n">ExecuteDAGParams</span><span class="p">[</span><span class="s2">&quot;NRetries&quot;</span><span class="p">],</span>
+  249         <span class="n">WriteResults</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+  250     <span class="p">)</span>
+  251 
+  252     <span class="k">return</span> <span class="n">MolProtocolResults</span>
+  253 
+  254 
+  255 <span class="k">def</span> <span class="nf">ProcessProtocolResults</span><span class="p">(</span><span class="n">MolTransformations</span><span class="p">,</span> <span class="n">MolProtocolResults</span><span class="p">):</span>
+  256     <span class="sd">&quot;&quot;&quot;Process protocol results.&quot;&quot;&quot;</span>
+  257 
+  258     <span class="n">ResultFileParams</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ResultFileParams&quot;</span><span class="p">]</span>
+  259 
+  260     <span class="n">ResultFile</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_AHFE_Results.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutfilePrefix&quot;</span><span class="p">],</span> <span class="n">ResultFileParams</span><span class="p">[</span><span class="s2">&quot;Ext&quot;</span><span class="p">])</span>
+  261     <span class="n">ResultFilePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutfileDirPath&quot;</span><span class="p">],</span> <span class="n">ResultFile</span><span class="p">)</span>
+  262     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Writing </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="n">ResultFile</span><span class="p">)</span>
+  263 
+  264     <span class="n">Precision</span> <span class="o">=</span> <span class="n">ResultFileParams</span><span class="p">[</span><span class="s2">&quot;Precision&quot;</span><span class="p">]</span>
+  265 
+  266     <span class="n">ResultData</span> <span class="o">=</span> <span class="p">[]</span>
+  267     <span class="k">for</span> <span class="n">Index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">MolProtocolResults</span><span class="p">),</span> <span class="mi">1</span><span class="p">):</span>
+  268         <span class="n">MolProtocolResult</span> <span class="o">=</span> <span class="n">MolProtocolResults</span><span class="p">[</span><span class="n">Index</span><span class="p">]</span>
+  269 
+  270         <span class="c1"># Setup mol name using transformation...</span>
+  271         <span class="n">MolTransformation</span> <span class="o">=</span> <span class="n">MolTransformations</span><span class="p">[</span><span class="n">Index</span><span class="p">]</span>
+  272         <span class="n">Mol</span> <span class="o">=</span> <span class="n">MolTransformation</span><span class="o">.</span><span class="n">stateA</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="s2">&quot;ligand&quot;</span><span class="p">]</span>
+  273         <span class="n">MolName</span> <span class="o">=</span> <span class="n">Mol</span><span class="o">.</span><span class="n">name</span>
+  274 
+  275         <span class="k">if</span> <span class="n">MolProtocolResult</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  276             <span class="n">DeltaGHydration</span> <span class="o">=</span> <span class="s2">&quot;NA&quot;</span>
+  277             <span class="n">DeltaGHydrationUncertainty</span> <span class="o">=</span> <span class="s2">&quot;NA&quot;</span>
+  278         <span class="k">else</span><span class="p">:</span>
+  279             <span class="c1"># Setup hydration value without the units...</span>
+  280             <span class="n">DeltaGHydration</span> <span class="o">=</span> <span class="n">MolProtocolResult</span><span class="o">.</span><span class="n">get_estimate</span><span class="p">()</span>
+  281             <span class="n">DeltaGHydration</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%.*f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">Precision</span><span class="p">,</span> <span class="n">DeltaGHydration</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+  282 
+  283             <span class="c1"># Setup uncertainty value without the units...</span>
+  284             <span class="n">DeltaGHydrationUncertainty</span> <span class="o">=</span> <span class="n">MolProtocolResult</span><span class="o">.</span><span class="n">get_uncertainty</span><span class="p">()</span>
+  285             <span class="n">DeltaGHydrationUncertainty</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%.*f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">Precision</span><span class="p">,</span> <span class="n">DeltaGHydrationUncertainty</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+  286 
+  287         <span class="n">ResultData</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">MolName</span><span class="p">,</span> <span class="n">DeltaGHydration</span><span class="p">,</span> <span class="n">DeltaGHydrationUncertainty</span><span class="p">])</span>
+  288 
+  289     <span class="n">ResultDF</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">ResultData</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;MolName&quot;</span><span class="p">,</span> <span class="s2">&quot;AHFE DeltaG (kcal/mol)&quot;</span><span class="p">,</span> <span class="s2">&quot;Uncertainty (kcal/mol)&quot;</span><span class="p">])</span>
+  290     <span class="n">ResultDF</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">ResultFilePath</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">ResultFileParams</span><span class="p">[</span><span class="s2">&quot;Delim&quot;</span><span class="p">],</span> <span class="n">lineterminator</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+  291 
+  292 
+  293 <span class="k">def</span> <span class="nf">ProcessInputFile</span><span class="p">():</span>
+  294     <span class="sd">&quot;&quot;&quot;Process input file.&quot;&quot;&quot;</span>
+  295 
+  296     <span class="c1"># Read small molecule input file...</span>
+  297     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Reading small molecule file </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Infile&quot;</span><span class="p">])</span>
+  298     <span class="n">Mols</span><span class="p">,</span> <span class="n">MolCount</span><span class="p">,</span> <span class="n">ValidMolCount</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">ReadAndValidateMolecules</span><span class="p">(</span>
+  299         <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfilePath&quot;</span><span class="p">],</span> <span class="o">**</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfileParams&quot;</span><span class="p">]</span>
+  300     <span class="p">)</span>
+  301 
+  302     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Total number of molecules: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">MolCount</span><span class="p">)</span>
+  303     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Number of valid molecules: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ValidMolCount</span><span class="p">)</span>
+  304     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Number of ignored molecules: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">MolCount</span> <span class="o">-</span> <span class="n">ValidMolCount</span><span class="p">))</span>
+  305 
+  306     <span class="k">if</span> <span class="n">ValidMolCount</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+  307         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+  308         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span><span class="s2">&quot;No valid molecules found in small molecule input file.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+  309 
+  310     <span class="k">return</span> <span class="n">Mols</span>
+  311 
+  312 
+  313 <span class="k">def</span> <span class="nf">ProcessMoleculeNames</span><span class="p">(</span><span class="n">Mols</span><span class="p">):</span>
+  314     <span class="sd">&quot;&quot;&quot;Process molecule names.&quot;&quot;&quot;</span>
+  315 
+  316     <span class="n">SpecifiedMols</span> <span class="o">=</span> <span class="p">[]</span>
+  317     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;FirstMoleculeMode&quot;</span><span class="p">]:</span>
+  318         <span class="n">SpecifiedMols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Mols</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+  319     <span class="k">elif</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AllMoleculesMode&quot;</span><span class="p">]:</span>
+  320         <span class="n">SpecifiedMols</span> <span class="o">=</span> <span class="n">Mols</span>
+  321     <span class="k">elif</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MoleculesNamesMode&quot;</span><span class="p">]:</span>
+  322         <span class="n">SpecifiedMols</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">ProcessMoleculeNames</span><span class="p">(</span><span class="n">Mols</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MoleculeNamesList&quot;</span><span class="p">])</span>
+  323 
+  324     <span class="k">return</span> <span class="n">SpecifiedMols</span>
+  325 
+  326 
+  327 <span class="k">def</span> <span class="nf">CheckMissingPartialCharges</span><span class="p">(</span><span class="n">Mols</span><span class="p">):</span>
+  328     <span class="sd">&quot;&quot;&quot;Check missing partial charges for small molecules.&quot;&quot;&quot;</span>
+  329 
+  330     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Checking missing partial charges for small molecules...&quot;</span><span class="p">)</span>
+  331 
+  332     <span class="n">MissingChargesMolCount</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">GetMissingPartialChargesMolCount</span><span class="p">(</span><span class="n">Mols</span><span class="p">)</span>
+  333     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Number of molecules with missing partial charges: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">MissingChargesMolCount</span><span class="p">)</span>
+  334 
+  335     <span class="k">if</span> <span class="n">MissingChargesMolCount</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+  336         <span class="k">return</span>
+  337 
+  338     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^Stop$&quot;</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MissingChargeMode&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  339         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+  340         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+  341             <span class="s1">&#39;The small molecule input file contains molecules with missing partial charges. The execution of the script has been terminated for &quot;Stop&quot; value of &quot;--missingChargedMode&quot; option. You may continue the execution of the script by specifying &quot;Calculate&quot; value for &quot;--missingChargedMode&quot; option.</span><span class="se">\n\n</span><span class="s1">The missing charges will be automatically calculated by OpenFE AbsoluteSolvationProtocol module during the calculation of AHFE. You may control the calculation of partial charges by specifying values for partialCharge* parameters using &quot;--ahfeParams&quot; option.  Alternatively, you may employ the OpenFECalculatePartialCharges.py script to calculate partial charges and use the small molecule input file containing charges to calculate AHFE.</span><span class="se">\n</span><span class="s1">&#39;</span>
+  342         <span class="p">)</span>
+  343     <span class="k">else</span><span class="p">:</span>
+  344         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+  345         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintWarning</span><span class="p">(</span>
+  346             <span class="s1">&#39;The small molecule input file contains molecules with missing partial charges. The missing charges will be automatically calculated by OpenFE AbsoluteSolvationProtocol module during the calculation of AHFE. You may control the calculation of partial charges by specifying values for partialCharge* parameters using &quot;--ahfeParams&quot; option. Alternatively, you may employ the OpenFECalculatePartialCharges.py script to calculate partial charges and use the small molecule input file containing charges to calculate AHFE.</span><span class="se">\n</span><span class="s1">&#39;</span>
+  347         <span class="p">)</span>
+  348 
+  349 
+  350 <span class="k">def</span> <span class="nf">ProcessMoleculeNamesOption</span><span class="p">():</span>
+  351     <span class="sd">&quot;&quot;&quot;Process molecule names Option.&quot;&quot;&quot;</span>
+  352 
+  353     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MoleculeNames&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--moleculeNames&quot;</span><span class="p">]</span>
+  354     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MoleculeNamesList&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+  355 
+  356     <span class="k">if</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MoleculeNames&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  357         <span class="k">return</span>
+  358 
+  359     <span class="n">MoleculeNamesList</span> <span class="o">=</span> <span class="p">[]</span>
+  360     <span class="k">for</span> <span class="n">MoleculeName</span> <span class="ow">in</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MoleculeNames&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">):</span>
+  361         <span class="n">MoleculeNamesList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MoleculeName</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+  362 
+  363     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MoleculeNamesList&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">MoleculeNamesList</span>
+  364 
+  365 
+  366 <span class="k">def</span> <span class="nf">ProcessOutfilePrefixOption</span><span class="p">():</span>
+  367     <span class="sd">&quot;&quot;&quot;Process outfile prefix option.&quot;&quot;&quot;</span>
+  368 
+  369     <span class="n">OutfilePrefix</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfilePrefix&quot;</span><span class="p">]</span>
+  370 
+  371     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^auto$&quot;</span><span class="p">,</span> <span class="n">OutfilePrefix</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  372         <span class="n">OutfilePrefix</span> <span class="o">=</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfileRoot&quot;</span><span class="p">]</span>
+  373 
+  374     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutfilePrefix&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OutfilePrefix</span>
+  375 
+  376 
+  377 <span class="k">def</span> <span class="nf">ProcessOutfileDirOption</span><span class="p">():</span>
+  378     <span class="sd">&quot;&quot;&quot;Process outfile directory Option.&quot;&quot;&quot;</span>
+  379 
+  380     <span class="c1"># Setup output directory...</span>
+  381     <span class="n">OutfileDir</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfileDir&quot;</span><span class="p">]</span>
+  382     <span class="n">OutfileDirPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">OutfileDir</span><span class="p">)</span>
+  383     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">OutfileDir</span><span class="p">):</span>
+  384         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Creating output directory </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">OutfileDir</span><span class="p">))</span>
+  385         <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">OutfileDirPath</span><span class="p">)</span>
+  386     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutfileDir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OutfileDir</span>
+  387     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutfileDirPath&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OutfileDirPath</span>
+  388 
+  389     <span class="c1"># Setup a transformations subdirectory...</span>
+  390     <span class="n">TransformationsOutDir</span> <span class="o">=</span> <span class="s2">&quot;Transformations&quot;</span>
+  391     <span class="n">TransformationsOutDirPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutfileDirPath&quot;</span><span class="p">],</span> <span class="n">TransformationsOutDir</span><span class="p">)</span>
+  392     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">TransformationsOutDirPath</span><span class="p">):</span>
+  393         <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">TransformationsOutDirPath</span><span class="p">)</span>
+  394     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;TransformationsOutDir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">TransformationsOutDir</span>
+  395     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;TransformationsOutDirPath&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">TransformationsOutDirPath</span>
+  396 
+  397     <span class="c1"># Setup a results subdirectory...</span>
+  398     <span class="n">ResultsOutDir</span> <span class="o">=</span> <span class="s2">&quot;Results&quot;</span>
+  399     <span class="n">ResultsOutDirPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;OutfileDirPath&quot;</span><span class="p">],</span> <span class="n">ResultsOutDir</span><span class="p">)</span>
+  400     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">ResultsOutDirPath</span><span class="p">):</span>
+  401         <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">ResultsOutDirPath</span><span class="p">)</span>
+  402     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ResultsOutDir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ResultsOutDir</span>
+  403     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ResultsOutDirPath&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ResultsOutDirPath</span>
+  404 
+  405     <span class="c1"># Use results subdirectory for scratch results...</span>
+  406     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ResultsScratchOutDir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ResultsOutDir</span>
+  407     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ResultsScratchOutDirPath&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ResultsOutDirPath</span>
+  408 
+  409 
+  410 <span class="k">def</span> <span class="nf">ProcessListOption</span><span class="p">():</span>
+  411     <span class="sd">&quot;&quot;&quot;Process list protocol settings option.&quot;&quot;&quot;</span>
+  412 
+  413     <span class="n">AHFESettings</span> <span class="o">=</span> <span class="n">AbsoluteSolvationProtocol</span><span class="o">.</span><span class="n">default_settings</span><span class="p">()</span>
+  414 
+  415     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Listing AHFE settings...&quot;</span><span class="p">)</span>
+  416     <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">ListOpenFESettings</span><span class="p">(</span><span class="n">AHFESettings</span><span class="p">)</span>
+  417 
+  418 
+  419 <span class="k">def</span> <span class="nf">ConfigureLogging</span><span class="p">():</span>
+  420     <span class="sd">&quot;&quot;&quot;Configure logging.&quot;&quot;&quot;</span>
+  421 
+  422     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;LoggingLevel&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--loggingLevel&quot;</span><span class="p">]</span>
+  423 
+  424     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^Error$&quot;</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;LoggingLevel&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  425         <span class="n">LoggingLevel</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span>
+  426     <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^Warning$&quot;</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;LoggingLevel&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  427         <span class="n">LoggingLevel</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span>
+  428     <span class="k">else</span><span class="p">:</span>
+  429         <span class="n">LoggingLevel</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span>
+  430 
+  431     <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(levelname)s</span><span class="s2">: </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">LoggingLevel</span><span class="p">)</span>
+  432 
+  433     <span class="c1"># Turn warnings issued by warnings.warn() into log message to avoid display</span>
+  434     <span class="c1"># of a stack trace...</span>
+  435     <span class="n">logging</span><span class="o">.</span><span class="n">captureWarnings</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+  436 
+  437 
+  438 <span class="k">def</span> <span class="nf">ProcessOptions</span><span class="p">():</span>
+  439     <span class="sd">&quot;&quot;&quot;Process and validate command line arguments and options.&quot;&quot;&quot;</span>
+  440 
+  441     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="s2">&quot;Processing options...&quot;</span><span class="p">)</span>
+  442 
+  443     <span class="c1"># Validate options...</span>
+  444     <span class="n">ValidateOptions</span><span class="p">()</span>
+  445 
+  446     <span class="c1"># Configure logging...</span>
+  447     <span class="n">ConfigureLogging</span><span class="p">()</span>
+  448 
+  449     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Infile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">]</span>
+  450     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfilePath&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Infile&quot;</span><span class="p">])</span>
+  451     <span class="n">FileDir</span><span class="p">,</span> <span class="n">FileName</span><span class="p">,</span> <span class="n">FileExt</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ParseFileName</span><span class="p">(</span><span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Infile&quot;</span><span class="p">])</span>
+  452     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfileRoot&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">FileName</span>
+  453 
+  454     <span class="n">ParamsDefaultInfoOverride</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;RemoveHydrogens&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+  455     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;InfileParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ProcessOptionInfileParameters</span><span class="p">(</span>
+  456         <span class="s2">&quot;--infileParams&quot;</span><span class="p">,</span>
+  457         <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infileParams&quot;</span><span class="p">],</span>
+  458         <span class="n">InfileName</span><span class="o">=</span><span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">],</span>
+  459         <span class="n">ParamsDefaultInfo</span><span class="o">=</span><span class="n">ParamsDefaultInfoOverride</span><span class="p">,</span>
+  460     <span class="p">)</span>
+  461 
+  462     <span class="n">ParamsDefaultInfoOverride</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;SolventEngineComputePlatform&quot;</span><span class="p">:</span> <span class="s2">&quot;CPU&quot;</span><span class="p">,</span> <span class="s2">&quot;VacuumEngineComputePlatform&quot;</span><span class="p">:</span> <span class="s2">&quot;CPU&quot;</span><span class="p">}</span>
+  463     <span class="n">ParamsDefaultInfoOverride</span> <span class="o">=</span> <span class="kc">None</span>
+  464     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AHFEParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">ProcessOptionOpenFEAbsoluteHydrationFreeEnergyParameters</span><span class="p">(</span>
+  465         <span class="s2">&quot;--ahfeParams&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--ahfeParams&quot;</span><span class="p">],</span> <span class="n">ParamsDefaultInfo</span><span class="o">=</span><span class="n">ParamsDefaultInfoOverride</span>
+  466     <span class="p">)</span>
+  467 
+  468     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ExecuteDAGParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">ProcessOptionOpenFEExecuteDAGParameters</span><span class="p">(</span>
+  469         <span class="s2">&quot;--executeDAGParams&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--executeDAGParams&quot;</span><span class="p">]</span>
+  470     <span class="p">)</span>
+  471     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;LoggingLevel&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--loggingLevel&quot;</span><span class="p">]</span>
+  472 
+  473     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Mode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">ProcessOptionOpenFEAbsoluteFreeEnergyMode</span><span class="p">(</span><span class="s2">&quot;-m, --mode&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--mode&quot;</span><span class="p">])</span>
+  474     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;FirstMoleculeMode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^FirstMolecule$&quot;</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Mode&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+  475     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;AllMoleculesMode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^AllMolecules$&quot;</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Mode&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+  476     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MoleculesNamesMode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^MoleculeNames$&quot;</span><span class="p">,</span> <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Mode&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+  477 
+  478     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;MissingChargeMode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">ProcessOptionOpenFEMissingChargeMode</span><span class="p">(</span>
+  479         <span class="s2">&quot;--missingChargeMode&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--missingChargeMode&quot;</span><span class="p">]</span>
+  480     <span class="p">)</span>
+  481 
+  482     <span class="n">ProcessMoleculeNamesOption</span><span class="p">()</span>
+  483 
+  484     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;ResultFileParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">ProcessOptionOpenFEResultFileParameters</span><span class="p">(</span>
+  485         <span class="s2">&quot;--resultFileParams&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--resultFileParams&quot;</span><span class="p">]</span>
+  486     <span class="p">)</span>
+  487     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;SolventParams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OpenFEUtil</span><span class="o">.</span><span class="n">ProcessOptionOpenFESolventParameters</span><span class="p">(</span>
+  488         <span class="s2">&quot;--solventParams&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--solventParams&quot;</span><span class="p">]</span>
+  489     <span class="p">)</span>
+  490 
+  491     <span class="n">ProcessOutfilePrefixOption</span><span class="p">()</span>
+  492     <span class="n">ProcessOutfileDirOption</span><span class="p">()</span>
+  493 
+  494     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;Overwrite&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--overwrite&quot;</span><span class="p">]</span>
+  495 
+  496     <span class="c1"># Track top level working directory...</span>
+  497     <span class="n">OptionsInfo</span><span class="p">[</span><span class="s2">&quot;TopWorkingDir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+  498 
+  499 
+  500 <span class="k">def</span> <span class="nf">RetrieveOptions</span><span class="p">():</span>
+  501     <span class="sd">&quot;&quot;&quot;Retrieve command line arguments and options.&quot;&quot;&quot;</span>
+  502 
+  503     <span class="c1"># Get options...</span>
+  504     <span class="k">global</span> <span class="n">Options</span>
+  505     <span class="n">Options</span> <span class="o">=</span> <span class="n">docopt</span><span class="p">(</span><span class="n">_docoptUsage_</span><span class="p">)</span>
+  506 
+  507     <span class="c1"># Set current working directory to the specified directory...</span>
+  508     <span class="n">WorkingDir</span> <span class="o">=</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--workingdir&quot;</span><span class="p">]</span>
+  509     <span class="k">if</span> <span class="n">WorkingDir</span><span class="p">:</span>
+  510         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">WorkingDir</span><span class="p">)</span>
+  511 
+  512     <span class="c1"># Handle examples option...</span>
+  513     <span class="k">if</span> <span class="s2">&quot;--examples&quot;</span> <span class="ow">in</span> <span class="n">Options</span> <span class="ow">and</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--examples&quot;</span><span class="p">]:</span>
+  514         <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintInfo</span><span class="p">(</span><span class="n">MiscUtil</span><span class="o">.</span><span class="n">GetExamplesTextFromDocOptText</span><span class="p">(</span><span class="n">_docoptUsage_</span><span class="p">))</span>
+  515         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+  516 
+  517 
+  518 <span class="k">def</span> <span class="nf">ValidateOptions</span><span class="p">():</span>
+  519     <span class="sd">&quot;&quot;&quot;Validate option values.&quot;&quot;&quot;</span>
+  520 
+  521     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFilePath</span><span class="p">(</span><span class="s2">&quot;-i, --infile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">])</span>
+  522     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionFileExt</span><span class="p">(</span><span class="s2">&quot;-i, --infile&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--infile&quot;</span><span class="p">],</span> <span class="s2">&quot;sdf sd&quot;</span><span class="p">)</span>
+  523 
+  524     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionDirPath</span><span class="p">(</span><span class="s2">&quot;-o, --outfileDir&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfileDir&quot;</span><span class="p">])</span>
+  525     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionsOutputDirOverwrite</span><span class="p">(</span>
+  526         <span class="s2">&quot;-o, --outfileDir&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--outfileDir&quot;</span><span class="p">],</span> <span class="s2">&quot;--overwrite&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--overwrite&quot;</span><span class="p">]</span>
+  527     <span class="p">)</span>
+  528 
+  529     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--loggingLevel&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--loggingLevel&quot;</span><span class="p">],</span> <span class="s2">&quot;Info Warning Error&quot;</span><span class="p">)</span>
+  530 
+  531     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;-m, --mode&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--mode&quot;</span><span class="p">],</span> <span class="s2">&quot;FirstMolecule AllMolecules MoleculeNames&quot;</span><span class="p">)</span>
+  532     <span class="n">MiscUtil</span><span class="o">.</span><span class="n">ValidateOptionTextValue</span><span class="p">(</span><span class="s2">&quot;--missingChargeMode&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--missingChargeMode&quot;</span><span class="p">],</span> <span class="s2">&quot;Calculate Stop&quot;</span><span class="p">)</span>
+  533 
+  534     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^MoleculeNames$&quot;</span><span class="p">,</span> <span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--mode&quot;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  535         <span class="k">if</span> <span class="n">MiscUtil</span><span class="o">.</span><span class="n">IsEmpty</span><span class="p">(</span><span class="n">Options</span><span class="p">[</span><span class="s2">&quot;--moleculeNames&quot;</span><span class="p">]):</span>
+  536             <span class="n">MiscUtil</span><span class="o">.</span><span class="n">PrintError</span><span class="p">(</span>
+  537                 <span class="s1">&#39;You must specify a value for &quot;--moleculeNames&quot; option during, MoleculeNames, value for &quot;-m, --mode&quot; option.&#39;</span>
+  538             <span class="p">)</span>
+  539 
+  540 
+  541 <span class="c1"># Setup a usage string for docopt...</span>
+  542 <span class="n">_docoptUsage_</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+  543 <span class="s2">OpenFECalculateAbsoluteHydrationFreeEnergy.py - Calculate absolute hydration free energy</span>
+  544 
+  545 <span class="s2">Usage:</span>
+  546 <span class="s2">    OpenFECalculateAbsoluteHydrationFreeEnergy.py [--ahfeParams &lt;Name,Value,...&gt;] [--executeDAGParams &lt;Name,Value,..&gt;]</span>
+  547 <span class="s2">                                                  [--infileParams &lt;Name,Value,...&gt;] [--loggingLevel &lt;Info, Warning or Error&gt;] [--mode &lt;FirstMolecule, AllMolecules, or ...&gt;]</span>
+  548 <span class="s2">                                                  [--missingChargeMode &lt;Calculate or Stop&gt;] [--moleculeNames &lt;MolName1,MolName2,..&gt;] [--outfilePrefix &lt;text&gt;]</span>
+  549 <span class="s2">                                                  [--resultFileParams &lt;Name,Value,..&gt;] [--solventParams &lt;Name,Value,...&gt;] [--overwrite]</span>
+  550 <span class="s2">                                                  [-w &lt;dir&gt;] -i &lt;infile&gt;  -o &lt;outifiledir&gt;</span>
+  551 <span class="s2">    OpenFECalculateAbsoluteHydrationFreeEnergy.py -l | --list</span>
+  552 <span class="s2">    OpenFECalculateAbsoluteHydrationFreeEnergy.py -h | --help | -e | --examples</span>
+  553 
+  554 <span class="s2">Description:</span>
+  555 <span class="s2">    Calculate Absolute Hydration Free Energy (AHFE) for molecules in a small</span>
+  556 <span class="s2">    molecule input file. You may calculate AHFEs for specific molecules or all</span>
+  557 <span class="s2">    molecules in the input file.</span>
+  558 
+  559 <span class="s2">    The small molecule input file must contain molecules already prepared for</span>
+  560 <span class="s2">    simulation. It must contain appropriate 3D coordinates along with no missing</span>
+  561 <span class="s2">    hydrogens.</span>
+  562 
+  563 <span class="s2">    The MD simulation workflow, employed for the calculation of AHFEs, involves</span>
+  564 <span class="s2">    the following steps: initial minimization; NVT equilibration; NPT equilibration;</span>
+  565 <span class="s2">    production NPT. The MD simulation protocol is repeated 3 times for solvent</span>
+  566 <span class="s2">    transformation from MolSolventToSolventOnly and vacumm simulation, and</span>
+  567 <span class="s2">    he results are analyzed to estimate AHFEs. The default time and step size</span>
+  568 <span class="s2">    settings for the MD protocol are shown below:</span>
+  569 <span class="s2">        </span>
+  570 <span class="s2">        Protocol repeats, 3</span>
+  571 <span class="s2">        </span>
+  572 <span class="s2">        Time step size: 4.0 femtosecond</span>
+  573 
+  574 <span class="s2">        Solvent equilibration phase:</span>
+  575 <span class="s2">        </span>
+  576 <span class="s2">        Max minimization steps: 5,000</span>
+  577 <span class="s2">        NVT equilibration length: 0.1 nanosecond</span>
+  578 <span class="s2">        NPT equilibration length: 0.2 nanosecond</span>
+  579 <span class="s2">        NPT length: 0.5 nanosecond</span>
+  580 <span class="s2">        </span>
+  581 <span class="s2">        Solvent production phase:</span>
+  582 <span class="s2">        </span>
+  583 <span class="s2">        Max minimization steps: 5,000</span>
+  584 <span class="s2">        NPT equilibration length: 1.0 nanosecond</span>
+  585 <span class="s2">        NPT length: 10.0 nanosecond</span>
+  586 <span class="s2">        </span>
+  587 <span class="s2">        Vacuum equilibration phase:</span>
+  588 <span class="s2">        </span>
+  589 <span class="s2">        Max minimization steps: 5,000</span>
+  590 <span class="s2">        NVT equilibration length: None</span>
+  591 <span class="s2">        NPT equilibration length: 0.2 nanosecond</span>
+  592 <span class="s2">        NPT length: 0.5 nanosecond</span>
+  593 <span class="s2">        </span>
+  594 <span class="s2">        Vacuum production phase:</span>
+  595 <span class="s2">        </span>
+  596 <span class="s2">        Max minimization steps: 5,000</span>
+  597 <span class="s2">        NVT equilibration length: None</span>
+  598 <span class="s2">        NPT equilibration length: 0.5 nanosecond</span>
+  599 <span class="s2">        NPT length: 2.0 nanosecond</span>
+  600 <span class="s2">        </span>
+  601 <span class="s2">    Each solvent and vacuum simulation, by default, may run for 11.8 and 3.2</span>
+  602 <span class="s2">    nanosecond respectively, for a total of 15 nanoseconds. The total MD</span>
+  603 <span class="s2">    simulation time for correspond to 45 nanosecond to repeat the protocol</span>
+  604 <span class="s2">    3 times for the solvent and vacuum simulations.</span>
+  605 
+  606 <span class="s2">    Possible outfile prefix:</span>
+  607 <span class="s2">        </span>
+  608 <span class="s2">        &lt;OutfilePrefix&gt; or &lt;InfileRoot&gt;</span>
+  609 <span class="s2">        </span>
+  610 <span class="s2">    Possible output directories:</span>
+  611 <span class="s2">        </span>
+  612 <span class="s2">        &lt;OutfileDir&gt;</span>
+  613 <span class="s2">        </span>
+  614 <span class="s2">        &lt;OutfileDir&gt;/Transformations</span>
+  615 <span class="s2">        &lt;OutfileDir&gt;/Results</span>
+  616 <span class="s2">        </span>
+  617 <span class="s2">    Possible output files and directories under &lt;OutfileDir&gt;:</span>
+  618 <span class="s2">        </span>
+  619 <span class="s2">        &lt;OutfilePrefix&gt;_AHFE_Results.&lt;csv or tsv&gt;</span>
+  620 <span class="s2">        </span>
+  621 <span class="s2">        Transformations/&lt;MolName&gt;_Solvent_To_Solvent_Only.json</span>
+  622 <span class="s2">        ... ... ...</span>
+  623 <span class="s2">        </span>
+  624 <span class="s2">        Results/&lt;MolName&gt;_AbsoluteSolvation_Results.json</span>
+  625 <span class="s2">        </span>
+  626 <span class="s2">        Results/shared_AbsoluteSolvationSolventUnit-*/</span>
+  627 <span class="s2">        Results/scratch_AbsoluteSolvationVacuumUnit-*/</span>
+  628 <span class="s2">        ... ... ...</span>
+  629 
+  630 <span class="s2">Options:</span>
+  631 <span class="s2">    -a, --ahfeParams &lt;Name,Value,...&gt;  [default: auto]</span>
+  632 <span class="s2">        A comma delimited list of parameter name and value pairs for AHFE protocol</span>
+  633 <span class="s2">        settings employed during the calculation of AHFEs.</span>
+  634 <span class="s2">        </span>
+  635 <span class="s2">        The default values are automatically updated to match settings provided by</span>
+  636 <span class="s2">        OpenFE module AbsoluteSolvationProtocol.</span>
+  637 <span class="s2">        </span>
+  638 <span class="s2">        You must specify valid OpenFE values for these parameters. An extensive</span>
+  639 <span class="s2">        validation is not performed.</span>
+  640 <span class="s2">        </span>
+  641 <span class="s2">        The supported parameter names along with their default values are</span>
+  642 <span class="s2">        are shown below:</span>
+  643 <span class="s2">            </span>
+  644 <span class="s2">            protocolRepeats, 3</span>
+  645 <span class="s2">            </span>
+  646 <span class="s2">            Integrator settings:</span>
+  647 <span class="s2">            </span>
+  648 <span class="s2">            integratorBarostatFrequency, 25.0 * timestep  [ The specified value</span>
+  649 <span class="s2">                is a multiple of integratorTimestep. ]</span>
+  650 <span class="s2">            integratorConstraintTolerance, 1e-06</span>
+  651 <span class="s2">            integratorLangevinCollisionRate, 1.0  [ Units: 1 / picosecond ]</span>
+  652 <span class="s2">            integratorNRestartAttempts, 20</span>
+  653 <span class="s2">            integratorReassignVelocities, no  [ Possible values: yes or no ]</span>
+  654 <span class="s2">            integratorRemoveCom, no  [ Possible values: yes or no ]</span>
+  655 <span class="s2">            integratorTimestep, 4.0 [ Units: femtosecond ] </span>
+  656 <span class="s2">            </span>
+  657 <span class="s2">            Lambda settings:</span>
+  658 <span class="s2">            </span>
+  659 <span class="s2">            lambdaElec, 0.0 0.25 0.5 0.75 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0</span>
+  660 <span class="s2">                1.0  [ Possible values: A space delimited list of values</span>
+  661 <span class="s2">                between 0.0 and 1.0 ]</span>
+  662 <span class="s2">            lambdaRestraints, 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0</span>
+  663 <span class="s2">                0.0 0.0  [ Possible values: A space delimited list of values</span>
+  664 <span class="s2">                between 0.0 and 1.0 ]</span>
+  665 <span class="s2">            lambdaVdw, [0.0 0.0 0.0 0.0 0.0 0.12 0.24 0.36 0.48 0.6 0.7 0.77</span>
+  666 <span class="s2">                0.85 1.0  [ Possible values: A space delimited list of values</span>
+  667 <span class="s2">                between 0.0 and 1.0 ]</span>
+  668 <span class="s2">            </span>
+  669 <span class="s2">            Partial charge settings:</span>
+  670 <span class="s2">            </span>
+  671 <span class="s2">            partialChargeNaglModel, None  [ Default: Production AM1BCC model for</span>
+  672 <span class="s2">                NAGL; Possible value: Any valid name. ]</span>
+  673 <span class="s2">            partialChargeNumberOfConformers, None  [ Possible value: &gt; 0 ]</span>
+  674 <span class="s2">            partialChargeOffToolkitBackend, AmberTools  [ Possible values:</span>
+  675 <span class="s2">                AmberTools or RDKit ]</span>
+  676 <span class="s2">            partialChargeMethod, AM1BCC  [ Possble values: AM1BCC, Espaloma,</span>
+  677 <span class="s2">                or NAGL ]</span>
+  678 <span class="s2">            </span>
+  679 <span class="s2">            Solvation settings:</span>
+  680 <span class="s2">            </span>
+  681 <span class="s2">            solvationBoxShape, dodecahedron  [  Possible values: cube,</span>
+  682 <span class="s2">                dodecahedron, or octahedron ]</span>
+  683 <span class="s2">            solvationBoxSize, None  [ Possible value: A triplet of space</span>
+  684 <span class="s2">                X Y Z values; Units: nanometer ]</span>
+  685 <span class="s2">            solvationSolventModel, tip3p  [ Possible values: tip3p, spce, tip4pew,</span>
+  686 <span class="s2">                or tip5p ]</span>
+  687 <span class="s2">            solvationSolventPadding, 1.5  [ Units: nanometer ]</span>
+  688 <span class="s2">            </span>
+  689 <span class="s2">            Solvent engine settings:</span>
+  690 <span class="s2">            </span>
+  691 <span class="s2">            solventEngineComputePlatform, CPU  [ Possible values: CPU, CUDA,</span>
+  692 <span class="s2">                OpenCL, or Reference ]</span>
+  693 <span class="s2">            solventEngineGpuDeviceIndex, None [ Possible values: 0, 0 1, etc. ]</span>
+  694 <span class="s2">            </span>
+  695 <span class="s2">            Solvent equil output settings:</span>
+  696 <span class="s2">            </span>
+  697 <span class="s2">            solventEquilOutputCheckpointInterval, 1.0  [ Units: nanosecond ]</span>
+  698 <span class="s2">            solventEquilOutputCheckpointStorageFilename, checkpoint.chk</span>
+  699 <span class="s2">            solventEquilOutputNPTStructure, equil_npt_structure.pdb</span>
+  700 <span class="s2">            solventEquilOutputNVTStructure, equil_nvt_structure.pdb</span>
+  701 <span class="s2">            solventEquilOutputForcefieldCache, db.json</span>
+  702 <span class="s2">            solventEquilOutputLogOutput, equil_simulation.log</span>
+  703 <span class="s2">            solventEquilOutputMinimizedStructure, minimized.pdb</span>
+  704 <span class="s2">            solventEquilOutputIndices, not water  [ Possible value: Any valid</span>
+  705 <span class="s2">                selection. ]</span>
+  706 <span class="s2">            solventEquilOutputPreminimizedStructure, system.pdb</span>
+  707 <span class="s2">            solventEquilOutputProductionTrajectoryFilename, production_equil.xtc</span>
+  708 <span class="s2">            solventEquilOutputTrajectoryWriteInterval, 20.0  [ Units: picosecond ]</span>
+  709 <span class="s2">            </span>
+  710 <span class="s2">            Solvent equil simulation settings:</span>
+  711 <span class="s2">            </span>
+  712 <span class="s2">            solventEquilSimulationEquilLength, 0.2  [ Units: nanosecond ]</span>
+  713 <span class="s2">            solventEquilSimulationEquiLengthNVT, 0.1  [ Units: nanosecond ]</span>
+  714 <span class="s2">            solventEquilSimulationMinimizationSteps,5000</span>
+  715 <span class="s2">            solventEquilSimulationProductionLength,0.5  [ Units: nanosecond ]</span>
+  716 <span class="s2">            </span>
+  717 <span class="s2">            Solvent forcefield settings:</span>
+  718 <span class="s2">            </span>
+  719 <span class="s2">            solventForcefieldConstraints, HBonds  [ Possible values: HBonds,</span>
+  720 <span class="s2">                AllBonds, or HAngles ]</span>
+  721 <span class="s2">            solventForcefields, amber/ff14SB.xml, amber/tip3p_standard.xml</span>
+  722 <span class="s2">                amber/tip3p_HFE_multivalent.xml amber/phosaa10.xml</span>
+  723 <span class="s2">                [ Possible values: A space delimited list of valid names. ]</span>
+  724 <span class="s2">            solventForcefieldHydrogenMass, 3.0  [ Units: amu ]</span>
+  725 <span class="s2">            solventForcefieldNonbondedCutoff,0.9   [ Units: nanometer ]</span>
+  726 <span class="s2">            solventForcefieldNonbondedMethod, PME  [ Possible values: PME or</span>
+  727 <span class="s2">                NoCutoff ]</span>
+  728 <span class="s2">            solventForcefieldRigidWater, yes,  [ Possible values: yes or no ]</span>
+  729 <span class="s2">            solventForcefieldSmallMoleculeForcefield, openff-2.1.1  [ Possible</span>
+  730 <span class="s2">                value: A valid forcefield name. ]</span>
+  731 <span class="s2">            </span>
+  732 <span class="s2">            Solvent output settings:</span>
+  733 <span class="s2">            </span>
+  734 <span class="s2">            solventOutputCheckpointInterval, 1.0  [ Units: nanosecond ]</span>
+  735 <span class="s2">            solventOutputCheckpointStorageFilename, solvent_checkpoint.nc</span>
+  736 <span class="s2">            solventOutputForcefieldCache, db.json</span>
+  737 <span class="s2">            solventOutputFilename, solvent.nc</span>
+  738 <span class="s2">            solventOutputIndices, not water   [ Possible value: Any valid</span>
+  739 <span class="s2">                selection. ]</span>
+  740 <span class="s2">            solventOutputStructure, hybrid_system.pdb</span>
+  741 <span class="s2">            solventOutputPositionsWriteFrequency, 100.0 [ Units: picosecond ]</span>
+  742 <span class="s2">            solventOutputVelocitiesWriteFrequency, None  [ Possible</span>
+  743 <span class="s2">                values: &gt; 0; Units: picosecond ]</span>
+  744 <span class="s2">            </span>
+  745 <span class="s2">            Solvent simulation settings:</span>
+  746 <span class="s2">            </span>
+  747 <span class="s2">            solventSimulationEarlyTerminationTargetError, 0.0  [ Units:</span>
+  748 <span class="s2">                kilocalorie_per_mole ]</span>
+  749 <span class="s2">            solventSimulationEquilibrationLength, 1.0  [ Units: nanosecond ]</span>
+  750 <span class="s2">            solventSimulationMinimizationSteps, 5000</span>
+  751 <span class="s2">            solventSimulationNReplicas, 14</span>
+  752 <span class="s2">            solventSimulationProductionLength, 10.0  [ Units: nanosecond ]</span>
+  753 <span class="s2">            solventSimulationRealTimeAnalysisInterval, 250.0  [ Units:</span>
+  754 <span class="s2">                picosecond ]</span>
+  755 <span class="s2">            solventSimulationRealTimeAnalysisMinimumTime, 500.0 [ Units:</span>
+  756 <span class="s2">                picosecond</span>
+  757 <span class="s2">            solventSimulationSamplerMethod, repex  [ Possible values: repex,</span>
+  758 <span class="s2">                sams, or independent ]</span>
+  759 <span class="s2">            solventSimulationSamsFlatnessCriteria, logZ-flatness  [ Possible</span>
+  760 <span class="s2">               values: logZ-flatness, minimum-visits or histogram-flatness ]</span>
+  761 <span class="s2">            solventSimulationsamsGamma0, 1.0</span>
+  762 <span class="s2">            solventSimulationTimePerIteration,2.5  [ Units: picosecond ]</span>
+  763 <span class="s2">            </span>
+  764 <span class="s2">            Thermo settings:</span>
+  765 <span class="s2">            </span>
+  766 <span class="s2">            thermoPh, None  [ Possible values: &gt; 0 ]</span>
+  767 <span class="s2">            thermoPressure, 1.0  [ Units: bar ]</span>
+  768 <span class="s2">            thermoRedoxPotential, None  [ Possible values: A valid float.</span>
+  769 <span class="s2">                Units: millivolts (mV) ]</span>
+  770 <span class="s2">            thermoTemperature, 298.15  [ Units: kelvin ]</span>
+  771 <span class="s2">            </span>
+  772 <span class="s2">            Vacuum engine settings:</span>
+  773 <span class="s2">            </span>
+  774 <span class="s2">            vacuumEngineComputePlatform, CPU  [ Possible values: CPU, CUDA,</span>
+  775 <span class="s2">                OpenCL, or Reference ]</span>
+  776 <span class="s2">            vacummEngineGpuDeviceIndex, None [ Possible values: 0, 0 1, etc. ]</span>
+  777 <span class="s2">            </span>
+  778 <span class="s2">            Vacuum equil output settings:</span>
+  779 <span class="s2">            </span>
+  780 <span class="s2">            vacuumEquilOutputCheckpointInterval, 1.0  [ Units: nanosecond ]</span>
+  781 <span class="s2">            vacuumEquilOutputCheckpointStorageFilename, checkpoint.chk</span>
+  782 <span class="s2">            vacuumEquilOutputNPTStructure, equil_structure.pdb</span>
+  783 <span class="s2">            vacuumEquilOutputNVTStructure,None</span>
+  784 <span class="s2">            vacuumEquilOutputForcefieldCache, db.json</span>
+  785 <span class="s2">            vacuumEquilOutputLogOutput, equil_simulation.log</span>
+  786 <span class="s2">            vacuumEquilOutputMinimizedStructure, minimized.pdb</span>
+  787 <span class="s2">            vacuumEquilOutputIndices, not water   [ Possible value: Any valid</span>
+  788 <span class="s2">                selection. ]</span>
+  789 <span class="s2">            vacuumEquilOutputPreminimizedStructure, system.pdb</span>
+  790 <span class="s2">            vacuumEquilOutputProductionTrajectoryFilename, production_equil.xtc</span>
+  791 <span class="s2">            vacuumEquilOutputTrajectoryWriteInterval, 20.0  [ Units: picosecond ]</span>
+  792 <span class="s2">            </span>
+  793 <span class="s2">            Vacuum equil simulation settings:</span>
+  794 <span class="s2">            </span>
+  795 <span class="s2">            vacuumEquilSimulationEquilLength, 0.2  [ Units: nanosecond ]</span>
+  796 <span class="s2">            vacuumEquilSimulationEquilLengthNVT, None  [ Units: nanosecond ]</span>
+  797 <span class="s2">            vacuumEquilSimulationMinimizationSteps, 5000</span>
+  798 <span class="s2">            vacuumEquilSimulationProductionLength, 0.5 [ Units: nanosecond ]</span>
+  799 <span class="s2">            </span>
+  800 <span class="s2">            Vacuum forcefield settings:</span>
+  801 <span class="s2">             </span>
+  802 <span class="s2">            vacuumForcefieldConstraints, HBonds  [ Possible values: HBonds,</span>
+  803 <span class="s2">                AllBonds, or HAngles ]</span>
+  804 <span class="s2">            vacuumForcefields, amber/ff14SB.xml, amber/tip3p_standard.xml</span>
+  805 <span class="s2">                amber/tip3p_HFE_multivalent.xml amber/phosaa10.xml</span>
+  806 <span class="s2">                [ Possible values: A space delimited list of valid names. ]</span>
+  807 <span class="s2">            vacuumForcefieldHydrogenMass, 3.0  [ Units: amu ]</span>
+  808 <span class="s2">            vacuumForcefieldNonbondedCutoff, 0.9  [ Units: nanometer ]</span>
+  809 <span class="s2">            vacuumForcefieldNonbondedMethod, nocutoff  [ Possible values: PME</span>
+  810 <span class="s2">                or NoCutoff ]</span>
+  811 <span class="s2">            vacuumForcefieldRigidWater, yes,  [ Possible values: yes or no ]</span>
+  812 <span class="s2">            vacuumForcefieldSmallMoleculeForcefield, openff-2.1.1  [ Possible</span>
+  813 <span class="s2">                value: A valid forcefield name. ]</span>
+  814 <span class="s2">            </span>
+  815 <span class="s2">            Vacuum output settings:</span>
+  816 <span class="s2">             </span>
+  817 <span class="s2">            vacuumOutputCheckpointInterval, 1.0  [ Units: nanosecond ]</span>
+  818 <span class="s2">            vacuumOutputCheckpointStorageFilename, vacuum_checkpoint.nc</span>
+  819 <span class="s2">            vacuumOutputForcefieldCache, db.json</span>
+  820 <span class="s2">            vacuumOutputFilename, vacuum.nc</span>
+  821 <span class="s2">            vacuumOutputIndices, not water   [ Possible value: Any valid</span>
+  822 <span class="s2">                selection. ]</span>
+  823 <span class="s2">            vacuumOutputStructure, hybrid_system.pdb</span>
+  824 <span class="s2">            vacuumOutputPositionsWriteFrequency, 100.0  [ Units: picosecond ]</span>
+  825 <span class="s2">            vacuumOutputVelocitiesWriteFrequency, None  [ Possible</span>
+  826 <span class="s2">                values: &gt; 0; Units: picosecond ]</span>
+  827 <span class="s2">            </span>
+  828 <span class="s2">            Vacuum simulation settings:</span>
+  829 <span class="s2">             </span>
+  830 <span class="s2">            vacuumSimulationEarlyTerminationTargetError, 0.0  [ Units:</span>
+  831 <span class="s2">                0.0 kilocalorie_per_mole ]</span>
+  832 <span class="s2">            vacuumSimulationEquilibrationLength, 0.5  [ Units: nanosecond ]</span>
+  833 <span class="s2">            vacuumSimulationMinimizationSteps, 5000</span>
+  834 <span class="s2">            vacuumSimulationNReplicas, 14</span>
+  835 <span class="s2">            vacuumSimulationProductionLength, 2.0  [ Units: nanosecond ]</span>
+  836 <span class="s2">            vacuumSimulationRealTimeAnalysisInterval, 250.0  [ Units: picosecond ]</span>
+  837 <span class="s2">            vacuumSimulationRealTimeAnalysisMinimumTime, 500.0  [ Units: picosecond]</span>
+  838 <span class="s2">            vacuumSimulationSamplerMethod, repex [ Possible values: repex,</span>
+  839 <span class="s2">                sams, or independent ]</span>
+  840 <span class="s2">            vacuumSimulationSamsFlatnessCriteria, logZ-flatness  [ Possible</span>
+  841 <span class="s2">               values: logZ-flatness, minimum-visits or histogram-flatness ]</span>
+  842 <span class="s2">            vacuumSimulationSamsGamma0, 1.0</span>
+  843 <span class="s2">            vacuumSimulationTimePerIteration,2.5 [ Units: picosecond ]</span>
+  844 <span class="s2">            </span>
+  845 <span class="s2">        A brief description of parameters, taken from OpenFE documentation, is</span>
+  846 <span class="s2">        provided below:</span>
+  847 <span class="s2">            </span>
+  848 <span class="s2">            protocolRepeats: Number of completely independent repeats of the</span>
+  849 <span class="s2">                entire sampling process.</span>
+  850 <span class="s2">            </span>
+  851 <span class="s2">            Integrator settings:</span>
+  852 <span class="s2">            </span>
+  853 <span class="s2">            Parameters controlling the LangevinSplittingDynamicsMove integrator</span>
+  854 <span class="s2">            used for simulation.</span>
+  855 <span class="s2">            </span>
+  856 <span class="s2">            integratorBarostatFrequency: Frequency at which volume scaling</span>
+  857 <span class="s2">                changes should be attempted.</span>
+  858 <span class="s2">            integratorConstraintTolerance: Tolerance for constraint solver.</span>
+  859 <span class="s2">            integratorLangevinCollisionRate: Collision frequency.</span>
+  860 <span class="s2">            integratorNRestartAttempts: Number of attempts to restart from</span>
+  861 <span class="s2">                Context in case there are NaNs in the energies after</span>
+  862 <span class="s2">                integration.</span>
+  863 <span class="s2">            integratorReassignVelocities: Reassign velocities  from the</span>
+  864 <span class="s2">                Maxwell-Boltzmann distribution at the beginning of each</span>
+  865 <span class="s2">                Monte Carlo move.</span>
+  866 <span class="s2">            integratorRemoveCom: Remove the center of mass motion.</span>
+  867 <span class="s2">            integratorTimestep: Size of the simulation timestep.</span>
+  868 <span class="s2">            </span>
+  869 <span class="s2">            Lambda settings:</span>
+  870 <span class="s2">            </span>
+  871 <span class="s2">            Lambda protocol parameters.</span>
+  872 <span class="s2">            </span>
+  873 <span class="s2">            lambdaElec: List of lambda values for electrostatics. The values of</span>
+  874 <span class="s2">                0 and 1 imply state A and state B respectively.</span>
+  875 <span class="s2">            lambdaRestraints: List of lambda values for restraints. The values</span>
+  876 <span class="s2">                of 0 and 1 imply state A and state B respectively.</span>
+  877 <span class="s2">            lambdaVdw: List of lamda values for van der Waals. The values of</span>
+  878 <span class="s2">                of 0 and 1 imply state A and state B respectively.</span>
+  879 <span class="s2">            </span>
+  880 <span class="s2">            Partial charge settings:</span>
+  881 <span class="s2">            </span>
+  882 <span class="s2">            Parameters for automatically assigning missing partial charges to</span>
+  883 <span class="s2">            small molecules, including the partial charge method.</span>
+  884 <span class="s2">            </span>
+  885 <span class="s2">            partialChargeNaglModel: Model to use for partial charge assignment.</span>
+  886 <span class="s2">                A value of None implies the use of the latest available</span>
+  887 <span class="s2">                production AM1BCC model.</span>
+  888 <span class="s2">            partialChargeNumberOfConformers: Number of conformers to generate</span>
+  889 <span class="s2">                as part of the partial charge assignment. A value of None</span>
+  890 <span class="s2">                implies the use of the existing conformer.</span>
+  891 <span class="s2">            partialChargeOffToolkitBackend: OpenFF toolkit registry backend to</span>
+  892 <span class="s2">                use for calculating partial charges.</span>
+  893 <span class="s2">            partialChargeMethod: Method to use for calculating partial charges.</span>
+  894 <span class="s2">            </span>
+  895 <span class="s2">            Solvation settings:</span>
+  896 <span class="s2">            </span>
+  897 <span class="s2">            Solvation parameters for the system, including the solvent model and</span>
+  898 <span class="s2">            the solvent padding.</span>
+  899 <span class="s2">            </span>
+  900 <span class="s2">            solvationBoxShape: Shape of the periodic solvent box to create.</span>
+  901 <span class="s2">            solvationBoxSize: Lengths of the unit cell for a solvent box.</span>
+  902 <span class="s2">            solvationSolventModel: Forcefield water model to use during</span>
+  903 <span class="s2">                solvation and defining the model properties.</span>
+  904 <span class="s2">            solvationSolventPadding: Minimum distance from any solute bounding</span>
+  905 <span class="s2">                sphere to the edge of the box.</span>
+  906 <span class="s2">            </span>
+  907 <span class="s2">            Solvent engine settings:</span>
+  908 <span class="s2">            </span>
+  909 <span class="s2">            Parameters configuring the compute platform used by the OpenMM to</span>
+  910 <span class="s2">            perform the simulation.</span>
+  911 <span class="s2">            </span>
+  912 <span class="s2">            solventEngineComputePlatform: Platform to use for running OpenMM MD</span>
+  913 <span class="s2">                calculations.</span>
+  914 <span class="s2">            solventEngineGpuDeviceIndex: Space delimited list of device indices</span>
+  915 <span class="s2">                to use for running OpenMM MD calculations.</span>
+  916 <span class="s2">            </span>
+  917 <span class="s2">            Solvent equil output settings:</span>
+  918 <span class="s2">            </span>
+  919 <span class="s2">            Parameters controlling simulation output during equilibration</span>
+  920 <span class="s2">            phase of solvent transformation.</span>
+  921 <span class="s2">            </span>
+  922 <span class="s2">            solventEquilOutputCheckpointInterval: Frequency to write the</span>
+  923 <span class="s2">                checkpoint file.</span>
+  924 <span class="s2">            solventEquilOutputCheckpointStorageFilename: Checkpoint filename.</span>
+  925 <span class="s2">            solventEquilOutputNPTStructure: NPT structure filename.</span>
+  926 <span class="s2">            solventEquilOutputNVTStructure: NVT strucure filename.</span>
+  927 <span class="s2">            solventEquilOutputForcefieldCache: Filename for caching small</span>
+  928 <span class="s2">                molecule residue templates.</span>
+  929 <span class="s2">            solventEquilOutputLogOutput: Simulation log filename.</span>
+  930 <span class="s2">            solventEquilOutputMinimizedStructure: Minimized structire filename.</span>
+  931 <span class="s2">            solventEquilOutputIndices: Selection string for selecting</span>
+  932 <span class="s2">                coordinates to write.</span>
+  933 <span class="s2">            solventEquilOutputPreminimizedStructure: Initial structure filename.</span>
+  934 <span class="s2">            solventEquilOutputProductionTrajectoryFilename: Trajectory filename.</span>
+  935 <span class="s2">            solventEquilOutputTrajectoryWriteInterval: Frequency for writing</span>
+  936 <span class="s2">                velocities to trajectory file.</span>
+  937 <span class="s2">            </span>
+  938 <span class="s2">            Solvent equil simulation settings:</span>
+  939 <span class="s2">            </span>
+  940 <span class="s2">            Parameters controlling simulation during equilibration phase of</span>
+  941 <span class="s2">            solvent transformation.</span>
+  942 <span class="s2">            </span>
+  943 <span class="s2">            solventEquilSimulationEquilLength: Length of the NPT equilibration</span>
+  944 <span class="s2">                phase.</span>
+  945 <span class="s2">            solventEquilSimulationEquiLengthNVT: Length of the NVT equilibration</span>
+  946 <span class="s2">                phase.</span>
+  947 <span class="s2">            solventEquilSimulationMinimizationSteps: Maximum number of</span>
+  948 <span class="s2">                minimization steps to perform.</span>
+  949 <span class="s2">            solventEquilSimulationProductionLength: Length of the NPT production</span>
+  950 <span class="s2">                phase.</span>
+  951 <span class="s2">            </span>
+  952 <span class="s2">            Solvent forcefield settings:</span>
+  953 <span class="s2">            </span>
+  954 <span class="s2">            Parameters to set up the force field with OpenMM Force Fields</span>
+  955 <span class="s2">            equilibration phase of solvent transformation.</span>
+  956 <span class="s2">            </span>
+  957 <span class="s2">            solventForcefieldConstraints:  Constraints to use.</span>
+  958 <span class="s2">            solventForcefields:  List of valid forcefield paths for all</span>
+  959 <span class="s2">                components except small molecules.</span>
+  960 <span class="s2">            solventForcefieldHydrogenMass: Mass to be repartitioned to</span>
+  961 <span class="s2">                hydrogens from neighboring heavy atoms.</span>
+  962 <span class="s2">            solventForcefieldNonbondedCutoff: Cutoff for short range nonbonded</span>
+  963 <span class="s2">                interactions.</span>
+  964 <span class="s2">            solventForcefieldNonbondedMethod: Method for treating nonbonded</span>
+  965 <span class="s2">                interactions.</span>
+  966 <span class="s2">            solventForcefieldRigidWater: Use a rigid water model.</span>
+  967 <span class="s2">            solventForcefieldSmallMoleculeForcefield: A valid forcefield name</span>
+  968 <span class="s2">                to use for small molecules.</span>
+  969 <span class="s2">            </span>
+  970 <span class="s2">            Solvent output settings:</span>
+  971 <span class="s2">            </span>
+  972 <span class="s2">            Parameters controlling simulation output during final phase of</span>
+  973 <span class="s2">            solvent transformation.</span>
+  974 <span class="s2">            </span>
+  975 <span class="s2">            solventOutputCheckpointInterval: Frequency to write the checkpoint</span>
+  976 <span class="s2">                file.</span>
+  977 <span class="s2">            solventOutputCheckpointStorageFilename: Checkpoint filename.</span>
+  978 <span class="s2">            solventOutputForcefieldCache: Filename for caching small molecule</span>
+  979 <span class="s2">                residue templates.</span>
+  980 <span class="s2">            solventOutputFilename: Trajectory filename.</span>
+  981 <span class="s2">            solventOutputIndices: Selection string for selecting coordinates to</span>
+  982 <span class="s2">                write.</span>
+  983 <span class="s2">            solventOutputStructure: Hybrid topology structure filename.</span>
+  984 <span class="s2">            solventOutputPositionsWriteFrequency: Frequency for writing</span>
+  985 <span class="s2">                positions to trajectory file.</span>
+  986 <span class="s2">            solventOutputVelocitiesWriteFrequency: Frequency for writing</span>
+  987 <span class="s2">                velocities to trajectory file.</span>
+  988 <span class="s2">            </span>
+  989 <span class="s2">            Solvent simulation settings:</span>
+  990 <span class="s2">            </span>
+  991 <span class="s2">            Parameters controlling simulation during final phase of solvent</span>
+  992 <span class="s2">            transformation.</span>
+  993 <span class="s2">            </span>
+  994 <span class="s2">            solventSimulationEarlyTerminationTargetError: Target error for the</span>
+  995 <span class="s2">                real time analysis measured in kcal/mol. Once the MBAR error of</span>
+  996 <span class="s2">                the free energy is at or below this value, the simulation will</span>
+  997 <span class="s2">                be considered complete. The suggested value of 0.12 has shown to</span>
+  998 <span class="s2">                be effective in both hydration and binding free energy</span>
+  999 <span class="s2">                benchmarks.</span>
+ 1000 <span class="s2">            solventSimulationEquilibrationLength: Length of the equilibration</span>
+ 1001 <span class="s2">                phase. The specified value must be divisible by &#39;integratorTimestep&#39;.</span>
+ 1002 <span class="s2">            solventSimulationMinimizationSteps: Maximum number of minimization</span>
+ 1003 <span class="s2">                steps to perform.</span>
+ 1004 <span class="s2">            solventSimulationNReplicas: Number of replicas to use.</span>
+ 1005 <span class="s2">            solventSimulationProductionLength: Length of the production phase.</span>
+ 1006 <span class="s2">                The specified value must be divisible by &#39;integratorTimestep&#39;.</span>
+ 1007 <span class="s2">            solventSimulationRealTimeAnalysisMinimumTime: Time interval for</span>
+ 1008 <span class="s2">                performing analysis of the free energies. At each interval, real</span>
+ 1009 <span class="s2">                time analysis data will be written to a yaml file named</span>
+ 1010 <span class="s2">                &lt;outputFileName&gt;_real_time_analysis.yaml. The current error</span>
+ 1011 <span class="s2">                in the estimate will also be assessed and the simulation will</span>
+ 1012 <span class="s2">                be terminated when it drops below</span>
+ 1013 <span class="s2">                &#39;solventSimulationEarlyTerminationTargetError&#39;.</span>
+ 1014 <span class="s2">            solventSimulationSamplerMethod: Alchemical sampling method to use:</span>
+ 1015 <span class="s2">                REPEX (Hamiltonian REPlica EXchange), SAMS (Self-Adjusted</span>
+ 1016 <span class="s2">                Mixture Sampling), or Independent (Independently sampled lambda</span>
+ 1017 <span class="s2">                windows).</span>
+ 1018 <span class="s2">            solventSimulationSamsFlatnessCriteria:Method for assessing when to</span>
+ 1019 <span class="s2">                switch to asymptomatically optimal scheme for SAMS.</span>
+ 1020 <span class="s2">            solventSimulationsamsGamma0: Initial weight adaptation rate for</span>
+ 1021 <span class="s2">                SAMS.</span>
+ 1022 <span class="s2">            solventSimulationTimePerIteration: Simulation time between each</span>
+ 1023 <span class="s2">               MCMC move attempt </span>
+ 1024 <span class="s2">            </span>
+ 1025 <span class="s2">            Vacuum engine settings:</span>
+ 1026 <span class="s2">            </span>
+ 1027 <span class="s2">            Parameters configuring the compute platform used by the OpenMM to</span>
+ 1028 <span class="s2">            perform the simulation.</span>
+ 1029 <span class="s2">            </span>
+ 1030 <span class="s2">            vacuumEngineComputePlatform: Platform to use for running OpenMM MD</span>
+ 1031 <span class="s2">                calculations.</span>
+ 1032 <span class="s2">            vacuumEngineGpuDeviceIndex: Space delimited list of device indices</span>
+ 1033 <span class="s2">                to use for running OpenMM MD calculations.</span>
+ 1034 <span class="s2">            </span>
+ 1035 <span class="s2">            The rest of the vacuum settings are similar to the solvent settings</span>
+ 1036 <span class="s2">            already described under various sections for solvent. The prefix</span>
+ 1037 <span class="s2">            &#39;vacuum&#39; is used for the names of the pramaters instead of the</span>
+ 1038 <span class="s2">            prefix &#39;solvent.&#39;</span>
+ 1039 <span class="s2">            </span>
+ 1040 <span class="s2">            Thermo settings:</span>
+ 1041 <span class="s2">            </span>
+ 1042 <span class="s2">            Thermodynamic parameters, including the temperature and the pressure</span>
+ 1043 <span class="s2">            of the system.</span>
+ 1044 <span class="s2">            </span>
+ 1045 <span class="s2">            thermoPh: Simulation pH</span>
+ 1046 <span class="s2">            thermoPressure: Simulation pressure.</span>
+ 1047 <span class="s2">            thermoRedoxPotential:Simulation redox potential.</span>
+ 1048 <span class="s2">            thermoTemperature: Simulation temperature. </span>
+ 1049 <span class="s2">            </span>
+ 1050 <span class="s2">    -e, --examples</span>
+ 1051 <span class="s2">        Print examples.</span>
+ 1052 <span class="s2">    --executeDAGParams &lt;Name,Value,..&gt;  [default: auto]</span>
+ 1053 <span class="s2">        A comma delimited list of parameter name and value pairs for executing</span>
+ 1054 <span class="s2">        protocol DAGs (Directed Acyclic Graph) to run AHFE calculations.</span>
+ 1055 <span class="s2">        </span>
+ 1056 <span class="s2">        The supported parameter names along with their default values are</span>
+ 1057 <span class="s2">        are shown below:</span>
+ 1058 <span class="s2">            </span>
+ 1059 <span class="s2">            keepShared, yes  [ Possible values: yes or no ]</span>
+ 1060 <span class="s2">            keepScratch, no  [ Possible values: yes or no ]</span>
+ 1061 <span class="s2">            nRetries, 2  [ Possible values: &gt;= 0. A value of 0 implies only</span>
+ 1062 <span class="s2">                1 try. ]</span>
+ 1063 <span class="s2">            </span>
+ 1064 <span class="s2">        A brief description of parameters is provided below:</span>
+ 1065 <span class="s2">            </span>
+ 1066 <span class="s2">            keepShared: Keep shared directories after the execution of DAG.</span>
+ 1067 <span class="s2">            keepScratch: Keep scratch directories after the execution of DAG.</span>
+ 1068 <span class="s2">            nRetries: Number of times to attempt the execution.</span>
+ 1069 <span class="s2">            </span>
+ 1070 <span class="s2">    -h, --help</span>
+ 1071 <span class="s2">        Print this help message.</span>
+ 1072 <span class="s2">    -i, --infile &lt;infile&gt;</span>
+ 1073 <span class="s2">        Input file containing small molecules.</span>
+ 1074 <span class="s2">    --infileParams &lt;Name,Value,...&gt;  [default: auto]</span>
+ 1075 <span class="s2">        A comma delimited list of parameter name and value pairs for reading</span>
+ 1076 <span class="s2">        molecules from files. The supported parameter names for different file</span>
+ 1077 <span class="s2">        formats, along with their default values, are shown below:</span>
+ 1078 <span class="s2">            </span>
+ 1079 <span class="s2">            SD: removeHydrogens,no,sanitize,yes,strictParsing,yes</span>
+ 1080 <span class="s2">            </span>
+ 1081 <span class="s2">    -l, --list</span>
+ 1082 <span class="s2">        List default AHFE protocol settings provided by OpenFE module</span>
+ 1083 <span class="s2">        AbsoluteSolvationProtocol.</span>
+ 1084 <span class="s2">    --loggingLevel &lt;Info, Warning or Error&gt;  [default: Error]</span>
+ 1085 <span class="s2">        Logging level to configure the &#39;root logger&#39; via logging.basicConfig()</span>
+ 1086 <span class="s2">        function. The default logging level is changed from &#39;logging.INFO&#39; to</span>
+ 1087 <span class="s2">        &#39;logging.ERROR&#39;. Otherwise, OpenFE and its associated modules</span>
+ 1088 <span class="s2">        may generate a lot of informational messages.</span>
+ 1089 <span class="s2">    -m, --mode &lt;FirstMolecule, AllMolecules, or ...&gt;  [default: FirstMolecule]</span>
+ 1090 <span class="s2">        Calculate AHFE for the first molecule, the specified molecule names,</span>
+ 1091 <span class="s2">        or all molecules in an input file. Possible values:  FirstMolecule,</span>
+ 1092 <span class="s2">        AllMolecules, or MoleculeNames. You must specify a comma delimited list</span>
+ 1093 <span class="s2">        of molecule names using &#39;--moleculeNames&#39;option during &#39;MoleculeNames&#39;</span>
+ 1094 <span class="s2">        value for &#39;--mode&#39; option. </span>
+ 1095 <span class="s2">    --missingChargeMode &lt;Calculate or Stop&gt;  [default: Stop]</span>
+ 1096 <span class="s2">        Calculate missing partial charges for molecules before running AHFE</span>
+ 1097 <span class="s2">        calculations or terminate the execution of the script. The missing</span>
+ 1098 <span class="s2">        partial charges will be automatically calculated by OpenFE module</span>
+ 1099 <span class="s2">        AbsoluteSolvationProtocol during the calculation of AHFE. You</span>
+ 1100 <span class="s2">        may control the calculation of partial charges by specifying values for</span>
+ 1101 <span class="s2">        partialCharge* parameters using &#39;--ahfeParams&#39; option.</span>
+ 1102 <span class="s2">    --moleculeNames &lt;MolName1,MolName2,..&gt;</span>
+ 1103 <span class="s2">        A comma delimited list of molecule names for calculating AHFEs.</span>
+ 1104 <span class="s2">        This option is only used during &#39;MoleculeNames&#39; value for</span>
+ 1105 <span class="s2">        &#39;--mode&#39; option. </span>
+ 1106 <span class="s2">    -o, --outfileDir &lt;outfiledir&gt;</span>
+ 1107 <span class="s2">        Output directory.</span>
+ 1108 <span class="s2">    --outfilePrefix &lt;text&gt;  [default: auto]</span>
+ 1109 <span class="s2">        Prefix for generating output files under output directory.</span>
+ 1110 <span class="s2">    --overwrite</span>
+ 1111 <span class="s2">        Overwrite existing files.</span>
+ 1112 <span class="s2">    --resultFileParams &lt;Name,Value,..&gt;  [default: auto]</span>
+ 1113 <span class="s2">        A comma delimited list of parameter name and value pairs for writing</span>
+ 1114 <span class="s2">        calculated RHFEs values to a results file.</span>
+ 1115 <span class="s2">        </span>
+ 1116 <span class="s2">        The supported parameter names along with their default values are</span>
+ 1117 <span class="s2">        are shown below:</span>
+ 1118 <span class="s2">            </span>
+ 1119 <span class="s2">            precision, 4  [ Possible values: &gt; 0 ]</span>
+ 1120 <span class="s2">            delimiter, comma  [ Possible values: comma or tab ]</span>
+ 1121 <span class="s2">            </span>
+ 1122 <span class="s2">    --solventParams &lt;Name,Value,...&gt;  [default: auto]</span>
+ 1123 <span class="s2">        A comma delimited list of parameter name and value pairs for solvent</span>
+ 1124 <span class="s2">        component. You must specify valid OpenFE values. No extensive validation</span>
+ 1125 <span class="s2">        is performed. These parameters are used in conjunction with solvation*</span>
+ 1126 <span class="s2">        parameters available through &#39;--ahfeParams&#39; to perform solvation.</span>
+ 1127 <span class="s2">        </span>
+ 1128 <span class="s2">        The supported parameter names along with their default values are</span>
+ 1129 <span class="s2">        are shown below:</span>
+ 1130 <span class="s2">            </span>
+ 1131 <span class="s2">            positiveIon, Na+ [ Possible value: Li+, Na+, K+, Rb+, or Cs+ ]</span>
+ 1132 <span class="s2">            negativeIon, Cl- [ Possible values: Cl-, Br-, F-, or I- ]</span>
+ 1133 <span class="s2">            neutralize, yes  [ Possible values: yes or no ]</span>
+ 1134 <span class="s2">            ionConcentration, 0.15  [ Units: molar ]</span>
+ 1135 <span class="s2">            </span>
+ 1136 <span class="s2">        A brief description of parameters is provided below:</span>
+ 1137 <span class="s2">            </span>
+ 1138 <span class="s2">            positiveIon, negativeion: Pair of ions used to neutralize and bring</span>
+ 1139 <span class="s2">                the solvent to required ionic concentration.</span>
+ 1140 <span class="s2">            neutralize: Neutralize the net charge on the chemical state by the</span>
+ 1141 <span class="s2">                ions in the solvent component.</span>
+ 1142 <span class="s2">            ionConcentration: Ionic concentration.</span>
+ 1143 <span class="s2">            </span>
+ 1144 <span class="s2">    -w, --workingdir &lt;dir&gt;</span>
+ 1145 <span class="s2">        Location of working directory which defaults to the current directory.</span>
+ 1146 
+ 1147 <span class="s2">Examples:</span>
+ 1148 <span class="s2">    The sample protein and ligand files for tyrosine kinase 2 (Tyk2) are</span>
+ 1149 <span class="s2">    distributed with MayaChemTools and are available in data directory. These</span>
+ 1150 <span class="s2">    files have been taken from OpenFE distribution for example notebooks. The</span>
+ 1151 <span class="s2">    AM1BCC partial charges have been calculated for the ligands in SD file to</span>
+ 1152 <span class="s2">    facilitate calculations. You may review OpenFE tutorial notebooks for the</span>
+ 1153 <span class="s2">    expected results.</span>
+ 1154 
+ 1155 <span class="s2">    To calcuate AHFE for the first molecule in a SD file, performing 3 independent</span>
+ 1156 <span class="s2">    repeats of the entire MD sampling process to estimate AHFE for the molecule,</span>
+ 1157 <span class="s2">    each solvent and vacuum MD repeat consisting of equilibration phase ( Solvent:</span>
+ 1158 <span class="s2">    Minimization - 5,000; NVT - 0.1 ns; NPT - 0.2; NPT prod - 0.5 ns; Vacuum:</span>
+ 1159 <span class="s2">    Minimization  - 5,000; NVT - None; NPT - 0.2 ns; NPT prod - 0.5 ns) and</span>
+ 1160 <span class="s2">    production phase ( Solvent: Minimization - 5,000; NPT equil - 1.0 ns; NPT prod:</span>
+ 1161 <span class="s2">    10.0 ns; Vacuum: Minimization - 5,000; NVT equil - None; NPT equil - 0.5 ns;</span>
+ 1162 <span class="s2">    NPT prod - 2 ns) using a step size of of 4 fs, writing out appropriate trajectory</span>
+ 1163 <span class="s2">    and PDB files for each MD repeat in Results subdirectory under output directory,</span>
+ 1164 <span class="s2">    type:</span>
+ 1165 
+ 1166 <span class="s2">        % OpenFECalculateAbsoluteHydrationFreeEnergy.py</span>
+ 1167 <span class="s2">          -i SampleTyk2Ligands.sdf -o SampleTyk2LigandsAHFE</span>
+ 1168 
+ 1169 <span class="s2">    To run the first example for calculating AHFE for specific molecules using CUDA</span>
+ 1170 <span class="s2">    platform on your machine to perform solvent and vacuum MD simulations and</span>
+ 1171 <span class="s2">    generate various output files, type:</span>
+ 1172 
+ 1173 <span class="s2">        % OpenFECalculateAbsoluteHydrationFreeEnergy.py</span>
+ 1174 <span class="s2">          -i SampleTyk2Ligands.sdf -o SampleTyk2LigandsAHFE -m MoleculeNames</span>
+ 1175 <span class="s2">          --moleculeNames &quot;lig_ejm_31, lig_ejm_47&quot;</span>
+ 1176 <span class="s2">          --ahfeParams &quot;solventEngineComputePlatform,CUDA,</span>
+ 1177 <span class="s2">          vacuumEngineComputePlatform,CUDA&quot;</span>
+ 1178 
+ 1179 <span class="s2">    To run the second example to see all warning messages produced by OpenFE</span>
+ 1180 <span class="s2">    modules and write various output files, type;</span>
+ 1181 
+ 1182 <span class="s2">        % OpenFECalculateAbsoluteHydrationFreeEnergy.py</span>
+ 1183 <span class="s2">          -i SampleTyk2Ligands.sdf -o SampleTyk2LigandsAHFE -m MoleculeNames</span>
+ 1184 <span class="s2">          --moleculeNames &quot;lig_ejm_31, lig_ejm_47&quot;</span>
+ 1185 <span class="s2">          --ahfeParams &quot;solventEngineComputePlatform,CUDA,</span>
+ 1186 <span class="s2">          vacuumEngineComputePlatform,CUDA&quot;</span>
+ 1187 <span class="s2">          --loggingLevel Warning</span>
+ 1188 
+ 1189 <span class="s2">    To run the first example for calculating AHFE for all molecules using CUDA</span>
+ 1190 <span class="s2">    platform on your machine to perform solvent and vacuum MD simulations,</span>
+ 1191 <span class="s2">    automatically calculate missing partial charges for molecules, and generate</span>
+ 1192 <span class="s2">    various output files, type:</span>
+ 1193 
+ 1194 <span class="s2">        % OpenFECalculateAbsoluteHydrationFreeEnergy.py</span>
+ 1195 <span class="s2">          -i SampleTyk2LigandsNoCharges.sdf -o SampleTyk2LigandsAHFE</span>
+ 1196 <span class="s2">          -m AllMolecules --ahfeParams &quot;solventEngineComputePlatform,CUDA,</span>
+ 1197 <span class="s2">          vacuumEngineComputePlatform,CUDA&quot;</span>
+ 1198 <span class="s2">          --missingChargeMode Calculate</span>
+ 1199 
+ 1200 <span class="s2">    To run the second example by specifying explict values for various parametres</span>
+ 1201 <span class="s2">    and generate various output files, type:</span>
+ 1202 
+ 1203 <span class="s2">        % OpenFECalculateAbsoluteHydrationFreeEnergy.py</span>
+ 1204 <span class="s2">          -i SampleTyk2Ligands.sdf -o SampleTyk2LigandsAHFE -m MoleculeNames</span>
+ 1205 <span class="s2">          --moleculeNames &quot;lig_ejm_31, lig_ejm_47&quot;</span>
+ 1206 <span class="s2">          --loggingLevel Error</span>
+ 1207 <span class="s2">          --executeDAGParams &quot;keepShared, yes, nRetries, 2&quot;</span>
+ 1208 <span class="s2">          --missingChargeMode Stop --ahfeParams &quot;protocolRepeats,3,</span>
+ 1209 <span class="s2">          solventEngineComputePlatform,CUDA, vacuumEngineComputePlatform,CUDA,</span>
+ 1210 <span class="s2">          integratorTimestep, 4.0, solvationBoxShape, cube,</span>
+ 1211 <span class="s2">          solvationSolventModel, tip3p,</span>
+ 1212 <span class="s2">          solventEquilSimulationEquiLengthNVT, 0.1,</span>
+ 1213 <span class="s2">          solventEquilSimulationEquilLength, 0.2,</span>
+ 1214 <span class="s2">          solventEquilSimulationProductionLength,0.5,</span>
+ 1215 <span class="s2">          solventSimulationEquilibrationLength, 1.0,</span>
+ 1216 <span class="s2">          solventSimulationProductionLength, 10.0,</span>
+ 1217 <span class="s2">          vacuumEquilSimulationEquilLengthNVT, None,</span>
+ 1218 <span class="s2">          vacuumEquilSimulationEquilLength, 0.2,</span>
+ 1219 <span class="s2">          vacuumEquilSimulationProductionLength, 0.5,</span>
+ 1220 <span class="s2">          vacuumSimulationEquilibrationLength, 0.5,</span>
+ 1221 <span class="s2">          vacuumSimulationProductionLength, 2.0,</span>
+ 1222 <span class="s2">          thermoPressure, 0.98692327, thermoTemperature, 298.15&quot;</span>
+ 1223 
+ 1224 <span class="s2">Author:</span>
+ 1225 <span class="s2">    Manish Sud(msud@san.rr.com)</span>
+ 1226 
+ 1227 <span class="s2">See also:</span>
+ 1228 <span class="s2">    OpenFECalculateAbsoluteBindingFreeEnergy.py,</span>
+ 1229 <span class="s2">    OpenFECalculatePartialCharges.py, OpenFECalculateRelativeBindingFreeEnergy.py,</span>
+ 1230 <span class="s2">    OpenFECalculateRelativeHydrationFreeEnergy.py, OpenFEGenerateLigandNetwork.py</span>
+ 1231 
+ 1232 <span class="s2">Copyright:</span>
+ 1233 <span class="s2">    Copyright (C) 2026 Manish Sud. All rights reserved.</span>
+ 1234 
+ 1235 <span class="s2">    The functionality available in this script is implemented using OpenFE, an</span>
+ 1236 <span class="s2">    open source molecuar for alchemical free energy calculations.</span>
+ 1237 
+ 1238 <span class="s2">    This file is part of MayaChemTools.</span>
+ 1239 
+ 1240 <span class="s2">    MayaChemTools is free software; you can redistribute it and/or modify it under</span>
+ 1241 <span class="s2">    the terms of the GNU Lesser General Public License as published by the Free</span>
+ 1242 <span class="s2">    Software Foundation; either version 3 of the License, or (at your option) any</span>
+ 1243 <span class="s2">    later version.</span>
+ 1244 
+ 1245 <span class="s2">&quot;&quot;&quot;</span>
+ 1246 
+ 1247 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+ 1248     <span class="n">main</span><span class="p">()</span>
+</pre>
+<br />
+<center>
+<img src="../../../images/h2o2.png">
+</center>
+</body>
+</html>

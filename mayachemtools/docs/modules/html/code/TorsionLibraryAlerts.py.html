@@ -1,0 +1,1309 @@
+<html>
+<head>
+<title>MayaChemTools:Code:Python/TorsionAlerts/TorsionLibraryAlerts.py</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../../css/MayaChemToolsPythonCode.css">
+</head>
+<body leftmargin="20" rightmargin="20" topmargin="10" bottommargin="10">
+<br/>
+<center>
+<a href="http://www.mayachemtools.org" title="MayaChemTools Home"><img src="../../../images/MayaChemToolsLogo.gif" border="0" alt="MayaChemTools"></a>
+</center>
+<br/>
+<pre>
+    1 <span class="ch">#</span>
+    2 <span class="c1"># File: TorsionLibraryAlerts.py</span>
+    3 <span class="c1"># Author: Manish Sud &lt;msud@san.rr.com&gt;</span>
+    4 <span class="c1">#</span>
+    5 <span class="c1"># Collaborator: Pat Walters</span>
+    6 <span class="c1">#</span>
+    7 <span class="c1"># Acknowledgments: Wolfgang Guba, Patrick Penner, and Levi Pierce</span>
+    8 <span class="c1">#</span>
+    9 <span class="c1"># Copyright (C) 2026 Manish Sud. All rights reserved.</span>
+   10 <span class="c1">#</span>
+   11 <span class="c1"># This module uses the Torsion Library jointly developed by the University</span>
+   12 <span class="c1"># of Hamburg, Center for Bioinformatics, Hamburg, Germany and</span>
+   13 <span class="c1"># F. Hoffmann-La-Roche Ltd., Basel, Switzerland.</span>
+   14 <span class="c1">#</span>
+   15 <span class="c1"># This file is part of MayaChemTools.</span>
+   16 <span class="c1">#</span>
+   17 <span class="c1"># MayaChemTools is free software; you can redistribute it and/or modify it under</span>
+   18 <span class="c1"># the terms of the GNU Lesser General Public License as published by the Free</span>
+   19 <span class="c1"># Software Foundation; either version 3 of the License, or (at your option) any</span>
+   20 <span class="c1"># later version.</span>
+   21 <span class="c1">#</span>
+   22 <span class="c1"># MayaChemTools is distributed in the hope that it will be useful, but without</span>
+   23 <span class="c1"># any warranty; without even the implied warranty of merchantability of fitness</span>
+   24 <span class="c1"># for a particular purpose.  See the GNU Lesser General Public License for more</span>
+   25 <span class="c1"># details.</span>
+   26 <span class="c1">#</span>
+   27 <span class="c1"># You should have received a copy of the GNU Lesser General Public License</span>
+   28 <span class="c1"># along with MayaChemTools; if not, see &lt;http://www.gnu.org/licenses/&gt; or</span>
+   29 <span class="c1"># write to the Free Software Foundation Inc., 59 Temple Place, Suite 330,</span>
+   30 <span class="c1"># Boston, MA, 02111-1307, USA.</span>
+   31 <span class="c1">#</span>
+   32 
+   33 <span class="kn">import</span> <span class="nn">os</span>
+   34 <span class="kn">import</span> <span class="nn">re</span>
+   35 <span class="kn">import</span> <span class="nn">math</span>
+   36 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+   37 
+   38 <span class="kn">from</span> <span class="nn">rdkit</span> <span class="kn">import</span> <span class="n">Chem</span>
+   39 <span class="kn">from</span> <span class="nn">rdkit.Chem</span> <span class="kn">import</span> <span class="n">rdMolTransforms</span>
+   40 
+   41 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">TorsionAlertsUtil</span>
+   42 
+   43 
+   44 <span class="k">class</span> <span class="nc">TorsionLibraryAlerts</span><span class="p">:</span>
+   45     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+   46         <span class="bp">self</span><span class="p">,</span>
+   47         <span class="n">AlertsMode</span><span class="o">=</span><span class="s2">&quot;Red&quot;</span><span class="p">,</span>
+   48         <span class="n">MinAlertsCount</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+   49         <span class="n">NitrogenLonePairAllowHydrogenNbrs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+   50         <span class="n">NitrogenLonePairPlanarityTolerance</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+   51         <span class="n">RotBondsSMARTSMode</span><span class="o">=</span><span class="s2">&quot;SemiStrict&quot;</span><span class="p">,</span>
+   52         <span class="n">RotBondsSMARTSPattern</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+   53         <span class="n">TorsionLibraryFilePath</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+   54     <span class="p">):</span>
+   55         <span class="sd">&quot;&quot;&quot;Identify strained molecules from an input file for torsion library [ Ref 146, 152, 159 ]</span>
+   56 <span class="sd">        alerts by matching rotatable bonds against SMARTS patterns specified for torsion</span>
+   57 <span class="sd">        rules in a torsion library file, The molecules must have 3D coordinates. The default</span>
+   58 <span class="sd">        torsion library file, TorsionLibrary.xml, is available in the directory containing this file.</span>
+   59 
+   60 <span class="sd">        The data in torsion library file is organized in a hierarchical manner. It consists</span>
+   61 <span class="sd">        of one generic class and six specific classes at the highest level. Each class</span>
+   62 <span class="sd">        contains multiple subclasses corresponding to named functional groups or</span>
+   63 <span class="sd">        substructure patterns. The subclasses consist of torsion rules sorted from</span>
+   64 <span class="sd">        specific to generic torsion patterns. The torsion rule, in turn, contains a list</span>
+   65 <span class="sd">        of peak values for torsion angles and two tolerance values. A pair of tolerance</span>
+   66 <span class="sd">        values define torsion bins around a torsion peak value. For example:</span>
+   67 
+   68 <span class="sd">            &lt;library&gt;</span>
+   69 <span class="sd">                &lt;hierarchyClass name=&quot;GG&quot; id1=&quot;G&quot; id2=&quot;G&quot;&gt;</span>
+   70 <span class="sd">                ...</span>
+   71 <span class="sd">                &lt;/hierarchyClass&gt;</span>
+   72 <span class="sd">                &lt;hierarchyClass name=&quot;CO&quot; id1=&quot;C&quot; id2=&quot;O&quot;&gt;</span>
+   73 <span class="sd">                    &lt;hierarchySubClass name=&quot;Ester bond I&quot; smarts=&quot;O=[C:2][O:3]&quot;&gt;</span>
+   74 <span class="sd">                        &lt;torsionRule smarts=&quot;[O:1]=[C:2]!@[O:3]~[CH0:4]&quot;&gt;</span>
+   75 <span class="sd">                            &lt;angleList&gt;</span>
+   76 <span class="sd">                                &lt;angle value=&quot;0.0&quot; tolerance1=&quot;20.00&quot;</span>
+   77 <span class="sd">                                 tolerance2=&quot;25.00&quot; score=&quot;56.52&quot;/&gt;</span>
+   78 <span class="sd">                            &lt;/angleList&gt;</span>
+   79 <span class="sd">                        &lt;/torsionRule&gt;</span>
+   80 <span class="sd">                        ...</span>
+   81 <span class="sd">                    ...</span>
+   82 <span class="sd">                 ...</span>
+   83 <span class="sd">                &lt;/hierarchyClass&gt;</span>
+   84 <span class="sd">                &lt;hierarchyClass name=&quot;NC&quot; id1=&quot;N&quot; id2=&quot;C&quot;&gt;</span>
+   85 <span class="sd">                 ...</span>
+   86 <span class="sd">                &lt;/hierarchyClass&gt;</span>
+   87 <span class="sd">                &lt;hierarchyClass name=&quot;SN&quot; id1=&quot;S&quot; id2=&quot;N&quot;&gt;</span>
+   88 <span class="sd">                ...</span>
+   89 <span class="sd">                &lt;/hierarchyClass&gt;</span>
+   90 <span class="sd">                &lt;hierarchyClass name=&quot;CS&quot; id1=&quot;C&quot; id2=&quot;S&quot;&gt;</span>
+   91 <span class="sd">                ...</span>
+   92 <span class="sd">                &lt;/hierarchyClass&gt;</span>
+   93 <span class="sd">                &lt;hierarchyClass name=&quot;CC&quot; id1=&quot;C&quot; id2=&quot;C&quot;&gt;</span>
+   94 <span class="sd">                ...</span>
+   95 <span class="sd">                &lt;/hierarchyClass&gt;</span>
+   96 <span class="sd">                &lt;hierarchyClass name=&quot;SS&quot; id1=&quot;S&quot; id2=&quot;S&quot;&gt;</span>
+   97 <span class="sd">                 ...</span>
+   98 <span class="sd">                &lt;/hierarchyClass&gt;</span>
+   99 <span class="sd">            &lt;/library&gt;</span>
+  100 
+  101 <span class="sd">        The rotatable bonds in a 3D molecule are identified using a default SMARTS pattern.</span>
+  102 <span class="sd">        A custom SMARTS pattern may be optionally specified to detect rotatable bonds.</span>
+  103 <span class="sd">        Each rotatable bond is matched to a torsion rule in the torsion library and</span>
+  104 <span class="sd">        assigned one of the following three alert categories: Green, Orange or Red. The</span>
+  105 <span class="sd">        rotatable bond is marked Green or Orange for the measured angle of the torsion</span>
+  106 <span class="sd">        pattern within the first or second tolerance bins around a torsion peak.</span>
+  107 <span class="sd">        Otherwise, it&#39;s marked Red implying that the measured angle is not observed in</span>
+  108 <span class="sd">        the structure databases employed to generate the torsion library.</span>
+  109 
+  110 <span class="sd">        Arguments:</span>
+  111 <span class="sd">            AlertsMode(str): Torsion library alert types to use for issuing</span>
+  112 <span class="sd">                alerts about molecules.</span>
+  113 <span class="sd">            MinAlertsCount(int): Minimum number of alerts allowed in a molecule.</span>
+  114 <span class="sd">            NitrogenLonePairAllowHydrogenNbrs (bool): Use hydrogen neighbors</span>
+  115 <span class="sd">                attached to nitrogen during the determination of its planarity.</span>
+  116 <span class="sd">            NitrogenLonePairPlanarityTolerance (float): Angle tolerance in</span>
+  117 <span class="sd">                degrees allowed for nitrogen to be considered coplanar with its</span>
+  118 <span class="sd">                three neighbors.</span>
+  119 <span class="sd">            RotBondsSMARTSMode (str): SMARTS pattern to use for identifying</span>
+  120 <span class="sd">                rotatable bonds in a molecule. Possible values: NonStrict,</span>
+  121 <span class="sd">                SemiStrict, Strict or Specify.</span>
+  122 <span class="sd">            RotBondsSMARTSPattern (str):SMARTS pattern for identifying rotatable</span>
+  123 <span class="sd">                bonds. This paramater is only valid for &#39;Specify&#39; value</span>
+  124 <span class="sd">                &#39;RotBondsSMARTSMode&#39;.</span>
+  125 <span class="sd">            TorsionLibraryFilePath (str): A XML file name containing data for</span>
+  126 <span class="sd">                torsion library.</span>
+  127 
+  128 <span class="sd">        Returns:</span>
+  129 <span class="sd">            object: An instantiated class object.</span>
+  130 
+  131 <span class="sd">        Notes:</span>
+  132 <span class="sd">            The following sections provide additional details for the parameters.</span>
+  133 
+  134 <span class="sd">            AlertsMode: Torsion library alert types to use for issuing alerts about</span>
+  135 <span class="sd">            molecules containing rotatable bonds marked with Green, Orange, or</span>
+  136 <span class="sd">            Red alerts. Possible values: Red or RedAndOrange.</span>
+  137 
+  138 <span class="sd">            MinAlertsCount: Minimum number of rotatable bond alerts allowed in a</span>
+  139 <span class="sd">            molecule.</span>
+  140 
+  141 <span class="sd">            NitrogenLonePairAllowHydrogenNbrs, NitrogenLonePairPlanarityTolerance:</span>
+  142 <span class="sd">            These parameters are used during the matching of torsion rules containing</span>
+  143 <span class="sd">            &#39;N_lp&#39; in their SMARTS patterns. The &#39;allowHydrogensNbrs&#39; allows the use</span>
+  144 <span class="sd">            hydrogen neighbors attached to nitrogen during the determination of its</span>
+  145 <span class="sd">            planarity. The &#39;planarityTolerance&#39; in degrees represents the tolerance</span>
+  146 <span class="sd">            allowed for nitrogen to be considered coplanar with its three neighbors.</span>
+  147 
+  148 <span class="sd">            The torsion rules containing &#39;N_lp&#39; in their SMARTS patterns are categorized</span>
+  149 <span class="sd">            into the following two types of rules:</span>
+  150 
+  151 <span class="sd">                TypeOne:</span>
+  152 
+  153 <span class="sd">                [CX4:1][CX4H2:2]!@[NX3;&quot;N_lp&quot;:3][CX4:4]</span>
+  154 <span class="sd">                [C:1][CX4H2:2]!@[NX3;&quot;N_lp&quot;:3][C:4]</span>
+  155 <span class="sd">                ... ... ...</span>
+  156 
+  157 <span class="sd">                TypeTwo:</span>
+  158 
+  159 <span class="sd">                [!#1:1][CX4:2]!@[NX3;&quot;N_lp&quot;:3]</span>
+  160 <span class="sd">                [C:1][$(S(=O)=O):2]!@[&quot;N_lp&quot;:3]</span>
+  161 <span class="sd">                ... ... ...</span>
+  162 
+  163 <span class="sd">            The torsions are matched to torsion rules containing &#39;N_lp&#39; using specified</span>
+  164 <span class="sd">            SMARTS patterns without the &#39;N_lp&#39; along with additional constraints using</span>
+  165 <span class="sd">            the following methodology:</span>
+  166 
+  167 <span class="sd">                TypeOne:</span>
+  168 
+  169 <span class="sd">                . SMARTS pattern must contain four mapped atoms and the third</span>
+  170 <span class="sd">                    mapped atom must be a nitrogen matched with &#39;NX3:3&#39;</span>
+  171 <span class="sd">                . Nitrogen atom must have 3 neighbors. The &#39;allowHydrogens&#39;</span>
+  172 <span class="sd">                    parameter controls inclusion of hydrogens as its neighbors.</span>
+  173 <span class="sd">                . Nitrogen atom and its 3 neighbors must be coplanar.</span>
+  174 <span class="sd">                    &#39;planarityTolerance&#39; parameter provides tolerance in degrees</span>
+  175 <span class="sd">                    for nitrogen to be considered coplanar with its 3 neighbors.</span>
+  176 
+  177 <span class="sd">                TypeTwo:</span>
+  178 
+  179 <span class="sd">                . SMARTS pattern must contain three mapped atoms and the third</span>
+  180 <span class="sd">                    mapped atom must be a nitrogen matched with &#39;NX3:3&#39;. The</span>
+  181 <span class="sd">                    third mapped atom may contain only &#39;N_lp:3&#39; The missing &#39;NX3&#39;</span>
+  182 <span class="sd">                    is automatically detected.</span>
+  183 <span class="sd">                . Nitrogen atom must have 3 neighbors. &#39;allowHydrogens&#39;</span>
+  184 <span class="sd">                    parameter controls inclusion of hydrogens as neighbors.</span>
+  185 <span class="sd">                . Nitrogen atom and its 3 neighbors must not be coplanar.</span>
+  186 <span class="sd">                    &#39;planarityTolerance&#39; parameter provides tolerance in degrees</span>
+  187 <span class="sd">                    for nitrogen to be considered coplanar with its 3 neighbors.</span>
+  188 <span class="sd">                . Nitrogen lone pair position equivalent to VSEPR theory is</span>
+  189 <span class="sd">                    determined based on the position of nitrogen and its neighbors.</span>
+  190 <span class="sd">                    A vector normal to 3 nitrogen neighbors is calculated and added</span>
+  191 <span class="sd">                    to the coordinates of nitrogen atom to determine the approximate</span>
+  192 <span class="sd">                    position of the lone pair. It is used as the fourth position to</span>
+  193 <span class="sd">                    calculate the torsion angle.</span>
+  194 
+  195 <span class="sd">            RotBondsSMARTSMode: SMARTS pattern to use for identifying rotatable bonds in</span>
+  196 <span class="sd">            a molecule for matching against torsion rules in the torsion library. Possible</span>
+  197 <span class="sd">            values: NonStrict, SemiStrict, Strict or Specify. The rotatable bond SMARTS</span>
+  198 <span class="sd">            matches are filtered to ensure that each atom in the rotatable bond is attached</span>
+  199 <span class="sd">            to at least two heavy atoms.</span>
+  200 
+  201 <span class="sd">            The following SMARTS patterns are used to identify rotatable bonds for</span>
+  202 <span class="sd">            different modes:</span>
+  203 
+  204 <span class="sd">                NonStrict: [!$(*#*)&amp;!D1]-&amp;!@[!$(*#*)&amp;!D1]</span>
+  205 
+  206 <span class="sd">                SemiStrict:</span>
+  207 <span class="sd">                [!$(*#*)&amp;!D1&amp;!$(C(F)(F)F)&amp;!$(C(Cl)(Cl)Cl)&amp;!$(C(Br)(Br)Br)</span>
+  208 <span class="sd">                &amp;!$(C([CH3])([CH3])[CH3])]-!@[!$(*#*)&amp;!D1&amp;!$(C(F)(F)F)</span>
+  209 <span class="sd">                &amp;!$(C(Cl)(Cl)Cl)&amp;!$(C(Br)(Br)Br)&amp;!$(C([CH3])([CH3])[CH3])]</span>
+  210 
+  211 <span class="sd">                Strict:</span>
+  212 <span class="sd">                [!$(*#*)&amp;!D1&amp;!$(C(F)(F)F)&amp;!$(C(Cl)(Cl)Cl)&amp;!$(C(Br)(Br)Br)</span>
+  213 <span class="sd">                &amp;!$(C([CH3])([CH3])[CH3])&amp;!$([CD3](=[N,O,S])-!@[#7,O,S!D1])</span>
+  214 <span class="sd">                &amp;!$([#7,O,S!D1]-!@[CD3]=[N,O,S])&amp;!$([CD3](=[N+])-!@[#7!D1])</span>
+  215 <span class="sd">                &amp;!$([#7!D1]-!@[CD3]=[N+])]-!@[!$(*#*)&amp;!D1&amp;!$(C(F)(F)F)</span>
+  216 <span class="sd">                &amp;!$(C(Cl)(Cl)Cl)&amp;!$(C(Br)(Br)Br)&amp;!$(C([CH3])([CH3])[CH3])]</span>
+  217 
+  218 <span class="sd">            The &#39;NonStrict&#39; and &#39;Strict&#39; SMARTS patterns are available in RDKit. The</span>
+  219 <span class="sd">            &#39;NonStrict&#39; SMARTS pattern corresponds to original Daylight SMARTS</span>
+  220 <span class="sd">            specification for rotatable bonds. The &#39;SemiStrict&#39; SMARTS pattern is</span>
+  221 <span class="sd">            derived from &#39;Strict&#39; SMARTS pattern.</span>
+  222 
+  223 <span class="sd">            TorsionLibraryFilePath: Specify a XML file name containing data for</span>
+  224 <span class="sd">            torsion library hierarchy or use default file, TorsionLibrary.xml, available in</span>
+  225 <span class="sd">            the directory containing this file.</span>
+  226 
+  227 <span class="sd">        &quot;&quot;&quot;</span>
+  228 
+  229         <span class="bp">self</span><span class="o">.</span><span class="n">_ProcessTorsionLibraryAlertsParameters</span><span class="p">(</span>
+  230             <span class="n">AlertsMode</span><span class="p">,</span>
+  231             <span class="n">MinAlertsCount</span><span class="p">,</span>
+  232             <span class="n">NitrogenLonePairAllowHydrogenNbrs</span><span class="p">,</span>
+  233             <span class="n">NitrogenLonePairPlanarityTolerance</span><span class="p">,</span>
+  234             <span class="n">RotBondsSMARTSMode</span><span class="p">,</span>
+  235             <span class="n">RotBondsSMARTSPattern</span><span class="p">,</span>
+  236             <span class="n">TorsionLibraryFilePath</span><span class="p">,</span>
+  237         <span class="p">)</span>
+  238 
+  239         <span class="bp">self</span><span class="o">.</span><span class="n">_InitializeTorsionLibraryAlerts</span><span class="p">()</span>
+  240 
+  241     <span class="k">def</span> <span class="nf">_ProcessTorsionLibraryAlertsParameters</span><span class="p">(</span>
+  242         <span class="bp">self</span><span class="p">,</span>
+  243         <span class="n">AlertsMode</span><span class="p">,</span>
+  244         <span class="n">MinAlertsCount</span><span class="p">,</span>
+  245         <span class="n">NitrogenLonePairAllowHydrogenNbrs</span><span class="p">,</span>
+  246         <span class="n">NitrogenLonePairPlanarityTolerance</span><span class="p">,</span>
+  247         <span class="n">RotBondsSMARTSMode</span><span class="p">,</span>
+  248         <span class="n">RotBondsSMARTSPattern</span><span class="p">,</span>
+  249         <span class="n">TorsionLibraryFilePath</span><span class="p">,</span>
+  250     <span class="p">):</span>
+  251         <span class="sd">&quot;&quot;&quot;Process torsion library alerts paramaters.&quot;&quot;&quot;</span>
+  252 
+  253         <span class="c1"># Process AltertsMode paramater...</span>
+  254         <span class="bp">self</span><span class="o">.</span><span class="n">_ProcessAlertsModeParameter</span><span class="p">(</span><span class="n">AlertsMode</span><span class="p">)</span>
+  255 
+  256         <span class="c1"># Process MinAlertsCount...</span>
+  257         <span class="k">if</span> <span class="n">MinAlertsCount</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+  258             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+  259                 <span class="s2">&quot;The value, </span><span class="si">%s</span><span class="s2">, specified for AltertsMinCount parameter is not valid. Supported value: &gt;=1&quot;</span>
+  260                 <span class="o">%</span> <span class="n">MinAlertsCount</span>
+  261             <span class="p">)</span>
+  262         <span class="bp">self</span><span class="o">.</span><span class="n">MinAlertsCount</span> <span class="o">=</span> <span class="n">MinAlertsCount</span>
+  263 
+  264         <span class="c1"># Process nitrogen lone pair paramaters...</span>
+  265         <span class="bp">self</span><span class="o">.</span><span class="n">NitrogenLonePairAllowHydrogenNbrs</span> <span class="o">=</span> <span class="n">NitrogenLonePairAllowHydrogenNbrs</span>
+  266         <span class="k">if</span> <span class="n">NitrogenLonePairPlanarityTolerance</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+  267             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+  268                 <span class="s2">&quot;The value, </span><span class="si">%s</span><span class="s2">, specified for NitrogenLonePairPlanarityTolerance parameter is not valid. Supported value: &gt;= 0&quot;</span>
+  269                 <span class="o">%</span> <span class="n">NitrogenLonePairPlanarityTolerance</span>
+  270             <span class="p">)</span>
+  271         <span class="bp">self</span><span class="o">.</span><span class="n">NitrogenLonePairPlanarityTolerance</span> <span class="o">=</span> <span class="n">NitrogenLonePairPlanarityTolerance</span>
+  272 
+  273         <span class="c1"># Process RotBondsSMARTSMode and RotBondsSMARTSPattern parameters...</span>
+  274         <span class="bp">self</span><span class="o">.</span><span class="n">_ProcessRotBondsParameters</span><span class="p">(</span><span class="n">RotBondsSMARTSMode</span><span class="p">,</span> <span class="n">RotBondsSMARTSPattern</span><span class="p">)</span>
+  275 
+  276         <span class="c1"># Process TorsionLibraryFilePath parameter...</span>
+  277         <span class="bp">self</span><span class="o">.</span><span class="n">_ProcessTorsionLibraryFilePathParameter</span><span class="p">(</span><span class="n">TorsionLibraryFilePath</span><span class="p">)</span>
+  278 
+  279     <span class="k">def</span> <span class="nf">_InitializeTorsionLibraryAlerts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  280         <span class="sd">&quot;&quot;&quot;Initialize tosion library alerts.&quot;&quot;&quot;</span>
+  281 
+  282         <span class="c1"># Retrieve and setup torsion library info for matching rotatable bonds...</span>
+  283         <span class="n">TorsionLibraryInfo</span> <span class="o">=</span> <span class="p">{}</span>
+  284 
+  285         <span class="n">TorsionLibElementTree</span> <span class="o">=</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">RetrieveTorsionLibraryInfo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryFilePath</span><span class="p">)</span>
+  286         <span class="n">TorsionLibraryInfo</span><span class="p">[</span><span class="s2">&quot;TorsionLibElementTree&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">TorsionLibElementTree</span>
+  287 
+  288         <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">SetupTorsionLibraryInfoForMatchingRotatableBonds</span><span class="p">(</span><span class="n">TorsionLibraryInfo</span><span class="p">)</span>
+  289 
+  290         <span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryInfo</span> <span class="o">=</span> <span class="n">TorsionLibraryInfo</span>
+  291 
+  292     <span class="k">def</span> <span class="nf">_ProcessAlertsModeParameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">AlertsMode</span><span class="p">):</span>
+  293         <span class="sd">&quot;&quot;&quot;Process AlertsMode parameter.&quot;&quot;&quot;</span>
+  294 
+  295         <span class="n">SpecifiedAlertsModeList</span> <span class="o">=</span> <span class="p">[]</span>
+  296         <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^Red$&quot;</span><span class="p">,</span> <span class="n">AlertsMode</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  297             <span class="n">SpecifiedAlertsModeList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Red&quot;</span><span class="p">)</span>
+  298         <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^RedAndOrange$&quot;</span><span class="p">,</span> <span class="n">AlertsMode</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  299             <span class="n">SpecifiedAlertsModeList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Red&quot;</span><span class="p">)</span>
+  300             <span class="n">SpecifiedAlertsModeList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Orange&quot;</span><span class="p">)</span>
+  301         <span class="k">else</span><span class="p">:</span>
+  302             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+  303                 <span class="s2">&quot;Invalid value, </span><span class="si">%s</span><span class="s2">, specified for AlertsMode parameter. Valid values: Red, or RedAndOrange&quot;</span>
+  304                 <span class="o">%</span> <span class="p">(</span><span class="n">AlertsMode</span><span class="p">)</span>
+  305             <span class="p">)</span>
+  306 
+  307         <span class="bp">self</span><span class="o">.</span><span class="n">AltersMode</span> <span class="o">=</span> <span class="n">AlertsMode</span>
+  308         <span class="bp">self</span><span class="o">.</span><span class="n">SpecifiedAlertsModeList</span> <span class="o">=</span> <span class="n">SpecifiedAlertsModeList</span>
+  309 
+  310     <span class="k">def</span> <span class="nf">_ProcessRotBondsParameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">RotBondsSMARTSMode</span><span class="p">,</span> <span class="n">RotBondsSMARTSPattern</span><span class="p">):</span>
+  311         <span class="sd">&quot;&quot;&quot;Process  RotBondsSMARTSMode and RotBondsSMARTSPattern parameters.&quot;&quot;&quot;</span>
+  312 
+  313         <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^NonStrict$&quot;</span><span class="p">,</span> <span class="n">RotBondsSMARTSMode</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  314             <span class="n">RotBondsSMARTSPattern</span> <span class="o">=</span> <span class="s2">&quot;[!$(*#*)&amp;!D1]-&amp;!@[!$(*#*)&amp;!D1]&quot;</span>
+  315         <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^SemiStrict$&quot;</span><span class="p">,</span> <span class="n">RotBondsSMARTSMode</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  316             <span class="n">RotBondsSMARTSPattern</span> <span class="o">=</span> <span class="s2">&quot;[!$(*#*)&amp;!D1&amp;!$(C(F)(F)F)&amp;!$(C(Cl)(Cl)Cl)&amp;!$(C(Br)(Br)Br)&amp;!$(C([CH3])([CH3])[CH3])]-!@[!$(*#*)&amp;!D1&amp;!$(C(F)(F)F)&amp;!$(C(Cl)(Cl)Cl)&amp;!$(C(Br)(Br)Br)&amp;!$(C([CH3])([CH3])[CH3])]&quot;</span>
+  317         <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^Strict$&quot;</span><span class="p">,</span> <span class="n">RotBondsSMARTSMode</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  318             <span class="n">RotBondsSMARTSPattern</span> <span class="o">=</span> <span class="s2">&quot;[!$(*#*)&amp;!D1&amp;!$(C(F)(F)F)&amp;!$(C(Cl)(Cl)Cl)&amp;!$(C(Br)(Br)Br)&amp;!$(C([CH3])([CH3])[CH3])&amp;!$([CD3](=[N,O,S])-!@[#7,O,S!D1])&amp;!$([#7,O,S!D1]-!@[CD3]=[N,O,S])&amp;!$([CD3](=[N+])-!@[#7!D1])&amp;!$([#7!D1]-!@[CD3]=[N+])]-!@[!$(*#*)&amp;!D1&amp;!$(C(F)(F)F)&amp;!$(C(Cl)(Cl)Cl)&amp;!$(C(Br)(Br)Br)&amp;!$(C([CH3])([CH3])[CH3])]&quot;</span>
+  319         <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^Specify$&quot;</span><span class="p">,</span> <span class="n">RotBondsSMARTSMode</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  320             <span class="k">if</span> <span class="n">RotBondsSMARTSPattern</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  321                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+  322                     <span class="s2">&quot;The RotBondsSMARTSPattern parameter value must be specified during Specify value for RotBondsSMARTSMode parameter.&quot;</span>
+  323                 <span class="p">)</span>
+  324             <span class="n">RotBondsSMARTSPattern</span> <span class="o">=</span> <span class="n">RotBondsSMARTSPattern</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+  325             <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">RotBondsSMARTSPattern</span><span class="p">):</span>
+  326                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Empty value specified for  RotBondsSMARTSPattern parameter.&quot;</span><span class="p">)</span>
+  327         <span class="k">else</span><span class="p">:</span>
+  328             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+  329                 <span class="s2">&quot;Invalid value, </span><span class="si">%s</span><span class="s2">, specified for RotBondsSMARTSMode parameter. Valid values: NonStrict, SemiStrict, Strict or Specify&quot;</span>
+  330                 <span class="o">%</span> <span class="p">(</span><span class="n">RotBondsSMARTSMode</span><span class="p">)</span>
+  331             <span class="p">)</span>
+  332 
+  333         <span class="n">RotBondsPatternMol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmarts</span><span class="p">(</span><span class="n">RotBondsSMARTSPattern</span><span class="p">)</span>
+  334         <span class="k">if</span> <span class="n">RotBondsPatternMol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  335             <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;Specify&quot;</span><span class="p">,</span> <span class="n">RotBondsSMARTSMode</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+  336                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+  337                     <span class="s1">&#39;Failed to create rotatable bonds pattern molecule. The rotatable bonds SMARTS pattern, &quot;</span><span class="si">%s</span><span class="s1">&quot;, specified using RotBondsSMARTSPattern parameter is not valid.&#39;</span>
+  338                     <span class="o">%</span> <span class="p">(</span><span class="n">RotBondsSMARTSPattern</span><span class="p">)</span>
+  339                 <span class="p">)</span>
+  340             <span class="k">else</span><span class="p">:</span>
+  341                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+  342                     <span class="s1">&#39;Failed to create rotatable bonds pattern molecule. The default rotatable bonds SMARTS pattern, &quot;</span><span class="si">%s</span><span class="s1">&quot;, used for </span><span class="si">%s</span><span class="s1"> value of RotBondsSMARTSMode parameter is not valid.&#39;</span>
+  343                     <span class="o">%</span> <span class="p">(</span><span class="n">RotBondsSMARTSPattern</span><span class="p">,</span> <span class="n">RotBondsSMARTSMode</span><span class="p">)</span>
+  344                 <span class="p">)</span>
+  345 
+  346         <span class="bp">self</span><span class="o">.</span><span class="n">RotBondsSMARTSMode</span> <span class="o">=</span> <span class="n">RotBondsSMARTSMode</span>
+  347         <span class="bp">self</span><span class="o">.</span><span class="n">RotBondsSMARTSPattern</span> <span class="o">=</span> <span class="n">RotBondsSMARTSPattern</span>
+  348         <span class="bp">self</span><span class="o">.</span><span class="n">RotBondsPatternMol</span> <span class="o">=</span> <span class="n">RotBondsPatternMol</span>
+  349 
+  350     <span class="k">def</span> <span class="nf">_ProcessTorsionLibraryFilePathParameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">TorsionLibraryFilePath</span><span class="p">):</span>
+  351         <span class="sd">&quot;&quot;&quot;Process torsion library path parameter.&quot;&quot;&quot;</span>
+  352 
+  353         <span class="c1"># TorsionLibraryFilePath parameter...</span>
+  354         <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^auto$&quot;</span><span class="p">,</span> <span class="n">TorsionLibraryFilePath</span><span class="p">):</span>
+  355             <span class="n">TorsionLibraryFile</span> <span class="o">=</span> <span class="s2">&quot;TorsionLibrary.xml&quot;</span>
+  356             <span class="n">TorsionLibraryFilePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span> <span class="n">TorsionLibraryFile</span><span class="p">)</span>
+  357             <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">TorsionLibraryFilePath</span><span class="p">):</span>
+  358                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The default torsion alerts library file </span><span class="si">%s</span><span class="s2"> doesn&#39;t exist.&quot;</span> <span class="o">%</span> <span class="n">TorsionLibraryFilePath</span><span class="p">)</span>
+  359         <span class="k">else</span><span class="p">:</span>
+  360             <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">TorsionLibraryFilePath</span><span class="p">):</span>
+  361                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+  362                     <span class="s2">&quot;The file specified, </span><span class="si">%s</span><span class="s2">, for parameter TorsionLibraryFilePath doesn&#39;t exist.&quot;</span>
+  363                     <span class="o">%</span> <span class="n">TorsionLibraryFilePath</span>
+  364                 <span class="p">)</span>
+  365             <span class="n">TorsionLibraryFilePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">TorsionLibraryFilePath</span><span class="p">)</span>
+  366 
+  367         <span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryFilePath</span> <span class="o">=</span> <span class="n">TorsionLibraryFilePath</span>
+  368 
+  369     <span class="k">def</span> <span class="nf">GetTorsionLibraryFilePath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  370         <span class="sd">&quot;&quot;&quot;Get torsion strain library file path.</span>
+  371 
+  372 <span class="sd">        Arguments:</span>
+  373 <span class="sd">            Nothing.</span>
+  374 
+  375 <span class="sd">        Returns:</span>
+  376 <span class="sd">            FilePath (str): Torsion strain library path.</span>
+  377 
+  378 <span class="sd">        &quot;&quot;&quot;</span>
+  379 
+  380         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryFilePath</span>
+  381 
+  382     <span class="k">def</span> <span class="nf">ListTorsionLibraryInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  383         <span class="sd">&quot;&quot;&quot;List torsion strain library information.</span>
+  384 
+  385 <span class="sd">        Arguments:</span>
+  386 <span class="sd">            Nothing.</span>
+  387 
+  388 <span class="sd">        Returns:</span>
+  389 <span class="sd">            Nothing. The torsion library information is printed.</span>
+  390 
+  391 <span class="sd">        &quot;&quot;&quot;</span>
+  392 
+  393         <span class="k">return</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">ListTorsionLibraryInfo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryInfo</span><span class="p">[</span><span class="s2">&quot;TorsionLibElementTree&quot;</span><span class="p">])</span>
+  394 
+  395     <span class="k">def</span> <span class="nf">IdentifyTorsionLibraryAlertsForRotatableBonds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">):</span>
+  396         <span class="sd">&quot;&quot;&quot;Identify torsion library alerts for a molecule by matching rotatable bonds</span>
+  397 <span class="sd">        against SMARTS patterns specified for torsion rules in torsion energy library</span>
+  398 <span class="sd">        file.</span>
+  399 
+  400 <span class="sd">        Arguments:</span>
+  401 <span class="sd">            Mol (object): RDKit molecule object.</span>
+  402 
+  403 <span class="sd">        Returns:</span>
+  404 <span class="sd">            bool: True - Molecule contains strained torsions; False - Molecule</span>
+  405 <span class="sd">                contains no strained torsions or rotatable bonds.</span>
+  406 <span class="sd">            dict or None: Torsion alerts information regarding matching of</span>
+  407 <span class="sd">                rotatable bonds to torsion strain library.</span>
+  408 
+  409 <span class="sd">        Examples:</span>
+  410 
+  411 <span class="sd">            from TorsionAlerts.TorsionLibraryAlerts import TorsionLibraryAlerts</span>
+  412 
+  413 <span class="sd">            LibraryAlerts = TorsionLibraryAlerts()</span>
+  414 <span class="sd">            AlertsStatus, AlertsInfo = LibraryAlerts.</span>
+  415 <span class="sd">                IdentifyTorsionLibraryAlertsForRotatableBonds(RDKitMol)</span>
+  416 
+  417 <span class="sd">            # List of rotatable bond IDs...</span>
+  418 <span class="sd">            RotatableBondIDs = AlertsInfo[&quot;IDs&quot;]</span>
+  419 
+  420 <span class="sd">            # Dictionaries containing information for rotatable bonds by using</span>
+  421 <span class="sd">            # bond ID as key...</span>
+  422 <span class="sd">            for ID in AlertsInfo[&quot;IDs&quot;]:</span>
+  423 <span class="sd">                MatchStatus = AlertsInfo[&quot;MatchStatus&quot;][ID]</span>
+  424 <span class="sd">                AlertTypes = AlertsInfo[&quot;AlertTypes&quot;][ID]</span>
+  425 <span class="sd">                AtomIndices = AlertsInfo[&quot;AtomIndices&quot;][ID]</span>
+  426 <span class="sd">                TorsionAtomIndices = AlertsInfo[&quot;TorsionAtomIndices&quot;][ID]</span>
+  427 <span class="sd">                TorsionAngles = AlertsInfo[&quot;TorsionAngles&quot;][ID]</span>
+  428 <span class="sd">                TorsionAngleViolations = AlertsInfo[&quot;TorsionAngleViolations&quot;][ID]</span>
+  429 <span class="sd">                HierarchyClassNames = AlertsInfo[&quot;HierarchyClassNames&quot;][ID]</span>
+  430 <span class="sd">                HierarchySubClassNames = AlertsInfo[&quot;HierarchySubClassNames&quot;][ID]</span>
+  431 <span class="sd">                TorsionRuleNodeID = AlertsInfo[&quot;TorsionRuleNodeID&quot;][ID]</span>
+  432 <span class="sd">                TorsionRulePeaks = AlertsInfo[&quot;TorsionRulePeaks&quot;][ID]</span>
+  433 <span class="sd">                TorsionRuleTolerances1 = AlertsInfo[&quot;TorsionRuleTolerances1&quot;][ID]</span>
+  434 <span class="sd">                TorsionRuleTolerances2 = AlertsInfo[&quot;TorsionRuleTolerances2&quot;][ID]</span>
+  435 <span class="sd">                TorsionRuleSMARTS = AlertsInfo[&quot;TorsionRuleSMARTS&quot;][ID]</span>
+  436 
+  437 <span class="sd">        &quot;&quot;&quot;</span>
+  438 
+  439         <span class="c1"># Identify rotatable bonds...</span>
+  440         <span class="n">RotBondsStatus</span><span class="p">,</span> <span class="n">RotBondsInfo</span> <span class="o">=</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">IdentifyRotatableBondsForTorsionLibraryMatch</span><span class="p">(</span>
+  441             <span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryInfo</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">RotBondsPatternMol</span>
+  442         <span class="p">)</span>
+  443         <span class="k">if</span> <span class="ow">not</span> <span class="n">RotBondsStatus</span><span class="p">:</span>
+  444             <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+  445 
+  446         <span class="c1"># Identify alerts for rotatable bonds...</span>
+  447         <span class="n">RotBondsAlertsStatus</span><span class="p">,</span> <span class="n">RotBondsAlertsInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MatchRotatableBondsToTorsionLibrary</span><span class="p">(</span><span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondsInfo</span><span class="p">)</span>
+  448 
+  449         <span class="k">return</span> <span class="p">(</span><span class="n">RotBondsAlertsStatus</span><span class="p">,</span> <span class="n">RotBondsAlertsInfo</span><span class="p">)</span>
+  450 
+  451     <span class="k">def</span> <span class="nf">_MatchRotatableBondsToTorsionLibrary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondsInfo</span><span class="p">):</span>
+  452         <span class="sd">&quot;&quot;&quot;Match rotatable bond to torsion library.&quot;&quot;&quot;</span>
+  453 
+  454         <span class="c1"># Initialize...</span>
+  455         <span class="n">RotBondsAlertsInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_InitializeRotatableBondsAlertsInfo</span><span class="p">()</span>
+  456 
+  457         <span class="c1"># Match rotatable bonds to torsion library...</span>
+  458         <span class="k">for</span> <span class="n">ID</span> <span class="ow">in</span> <span class="n">RotBondsInfo</span><span class="p">[</span><span class="s2">&quot;IDs&quot;</span><span class="p">]:</span>
+  459             <span class="n">AtomIndices</span> <span class="o">=</span> <span class="n">RotBondsInfo</span><span class="p">[</span><span class="s2">&quot;AtomIndices&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span>
+  460             <span class="n">HierarchyClass</span> <span class="o">=</span> <span class="n">RotBondsInfo</span><span class="p">[</span><span class="s2">&quot;HierarchyClass&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span>
+  461 
+  462             <span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MatchRotatableBondToTorsionLibrary</span><span class="p">(</span><span class="n">Mol</span><span class="p">,</span> <span class="n">AtomIndices</span><span class="p">,</span> <span class="n">HierarchyClass</span><span class="p">)</span>
+  463 
+  464             <span class="k">if</span> <span class="n">MatchInfo</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">MatchInfo</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+  465                 <span class="p">(</span>
+  466                     <span class="n">AlertType</span><span class="p">,</span>
+  467                     <span class="n">TorsionAtomIndices</span><span class="p">,</span>
+  468                     <span class="n">TorsionAngle</span><span class="p">,</span>
+  469                     <span class="n">TorsionAngleViolation</span><span class="p">,</span>
+  470                     <span class="n">HierarchyClassName</span><span class="p">,</span>
+  471                     <span class="n">HierarchySubClassName</span><span class="p">,</span>
+  472                     <span class="n">TorsionRuleNodeID</span><span class="p">,</span>
+  473                     <span class="n">TorsionRulePeaks</span><span class="p">,</span>
+  474                     <span class="n">TorsionRuleTolerances1</span><span class="p">,</span>
+  475                     <span class="n">TorsionRuleTolerances2</span><span class="p">,</span>
+  476                     <span class="n">TorsionRuleSMARTS</span><span class="p">,</span>
+  477                 <span class="p">)</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="mi">11</span>
+  478             <span class="k">else</span><span class="p">:</span>
+  479                 <span class="p">(</span>
+  480                     <span class="n">AlertType</span><span class="p">,</span>
+  481                     <span class="n">TorsionAtomIndices</span><span class="p">,</span>
+  482                     <span class="n">TorsionAngle</span><span class="p">,</span>
+  483                     <span class="n">TorsionAngleViolation</span><span class="p">,</span>
+  484                     <span class="n">HierarchyClassName</span><span class="p">,</span>
+  485                     <span class="n">HierarchySubClassName</span><span class="p">,</span>
+  486                     <span class="n">TorsionRuleNodeID</span><span class="p">,</span>
+  487                     <span class="n">TorsionRulePeaks</span><span class="p">,</span>
+  488                     <span class="n">TorsionRuleTolerances1</span><span class="p">,</span>
+  489                     <span class="n">TorsionRuleTolerances2</span><span class="p">,</span>
+  490                     <span class="n">TorsionRuleSMARTS</span><span class="p">,</span>
+  491                 <span class="p">)</span> <span class="o">=</span> <span class="n">MatchInfo</span>
+  492 
+  493             <span class="c1"># Track alerts information...</span>
+  494             <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;IDs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ID</span><span class="p">)</span>
+  495             <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;MatchStatus&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">MatchStatus</span>
+  496             <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;AlertTypes&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">AlertType</span>
+  497             <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;AtomIndices&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">AtomIndices</span>
+  498             <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;TorsionAtomIndices&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">TorsionAtomIndices</span>
+  499             <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;TorsionAngles&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">TorsionAngle</span>
+  500             <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;TorsionAngleViolations&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">TorsionAngleViolation</span>
+  501             <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;HierarchyClassNames&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">HierarchyClassName</span>
+  502             <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;HierarchySubClassNames&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">HierarchySubClassName</span>
+  503             <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;TorsionRuleNodeID&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">TorsionRuleNodeID</span>
+  504             <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;TorsionRulePeaks&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">TorsionRulePeaks</span>
+  505             <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;TorsionRuleTolerances1&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">TorsionRuleTolerances1</span>
+  506             <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;TorsionRuleTolerances2&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">TorsionRuleTolerances2</span>
+  507             <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;TorsionRuleSMARTS&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">TorsionRuleSMARTS</span>
+  508 
+  509             <span class="c1">#  Count alert types...</span>
+  510             <span class="k">if</span> <span class="n">AlertType</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+  511                 <span class="k">if</span> <span class="n">AlertType</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;Count&quot;</span><span class="p">]:</span>
+  512                     <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;Count&quot;</span><span class="p">][</span><span class="n">AlertType</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+  513                 <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;Count&quot;</span><span class="p">][</span><span class="n">AlertType</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+  514 
+  515         <span class="c1"># Setup alert status for rotatable bonds...</span>
+  516         <span class="n">RotBondsAlertsStatus</span> <span class="o">=</span> <span class="kc">False</span>
+  517         <span class="n">AlertsCount</span> <span class="o">=</span> <span class="mi">0</span>
+  518         <span class="k">for</span> <span class="n">ID</span> <span class="ow">in</span> <span class="n">RotBondsInfo</span><span class="p">[</span><span class="s2">&quot;IDs&quot;</span><span class="p">]:</span>
+  519             <span class="k">if</span> <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;AlertTypes&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">SpecifiedAlertsModeList</span><span class="p">:</span>
+  520                 <span class="n">AlertsCount</span> <span class="o">+=</span> <span class="mi">1</span>
+  521                 <span class="k">if</span> <span class="n">AlertsCount</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MinAlertsCount</span><span class="p">:</span>
+  522                     <span class="n">RotBondsAlertsStatus</span> <span class="o">=</span> <span class="kc">True</span>
+  523                     <span class="k">break</span>
+  524 
+  525         <span class="k">return</span> <span class="p">(</span><span class="n">RotBondsAlertsStatus</span><span class="p">,</span> <span class="n">RotBondsAlertsInfo</span><span class="p">)</span>
+  526 
+  527     <span class="k">def</span> <span class="nf">_InitializeRotatableBondsAlertsInfo</span><span class="p">(</span>
+  528         <span class="bp">self</span><span class="p">,</span>
+  529     <span class="p">):</span>
+  530         <span class="sd">&quot;&quot;&quot;Initialize alerts information for rotatable bonds.&quot;&quot;&quot;</span>
+  531 
+  532         <span class="n">RotBondsAlertsInfo</span> <span class="o">=</span> <span class="p">{}</span>
+  533         <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="s2">&quot;IDs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+  534 
+  535         <span class="k">for</span> <span class="n">DataLabel</span> <span class="ow">in</span> <span class="p">[</span>
+  536             <span class="s2">&quot;MatchStatus&quot;</span><span class="p">,</span>
+  537             <span class="s2">&quot;AlertTypes&quot;</span><span class="p">,</span>
+  538             <span class="s2">&quot;AtomIndices&quot;</span><span class="p">,</span>
+  539             <span class="s2">&quot;TorsionAtomIndices&quot;</span><span class="p">,</span>
+  540             <span class="s2">&quot;TorsionAngles&quot;</span><span class="p">,</span>
+  541             <span class="s2">&quot;TorsionAngleViolations&quot;</span><span class="p">,</span>
+  542             <span class="s2">&quot;HierarchyClassNames&quot;</span><span class="p">,</span>
+  543             <span class="s2">&quot;HierarchySubClassNames&quot;</span><span class="p">,</span>
+  544             <span class="s2">&quot;TorsionRuleNodeID&quot;</span><span class="p">,</span>
+  545             <span class="s2">&quot;TorsionRulePeaks&quot;</span><span class="p">,</span>
+  546             <span class="s2">&quot;TorsionRuleTolerances1&quot;</span><span class="p">,</span>
+  547             <span class="s2">&quot;TorsionRuleTolerances2&quot;</span><span class="p">,</span>
+  548             <span class="s2">&quot;TorsionRuleSMARTS&quot;</span><span class="p">,</span>
+  549             <span class="s2">&quot;Count&quot;</span><span class="p">,</span>
+  550         <span class="p">]:</span>
+  551             <span class="n">RotBondsAlertsInfo</span><span class="p">[</span><span class="n">DataLabel</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+  552 
+  553         <span class="k">return</span> <span class="n">RotBondsAlertsInfo</span>
+  554 
+  555     <span class="k">def</span> <span class="nf">_MatchRotatableBondToTorsionLibrary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">RotBondHierarchyClass</span><span class="p">):</span>
+  556         <span class="sd">&quot;&quot;&quot;Match rotatable bond to torsion library.&quot;&quot;&quot;</span>
+  557 
+  558         <span class="k">if</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">IsSpecificHierarchyClass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryInfo</span><span class="p">,</span> <span class="n">RotBondHierarchyClass</span><span class="p">):</span>
+  559             <span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MatchRotatableBondAgainstSpecificHierarchyClass</span><span class="p">(</span>
+  560                 <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">RotBondHierarchyClass</span>
+  561             <span class="p">)</span>
+  562             <span class="k">if</span> <span class="ow">not</span> <span class="n">MatchStatus</span><span class="p">:</span>
+  563                 <span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MatchRotatableBondAgainstGenericHierarchyClass</span><span class="p">(</span>
+  564                     <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">RotBondHierarchyClass</span>
+  565                 <span class="p">)</span>
+  566         <span class="k">else</span><span class="p">:</span>
+  567             <span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MatchRotatableBondAgainstGenericHierarchyClass</span><span class="p">(</span>
+  568                 <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">RotBondHierarchyClass</span>
+  569             <span class="p">)</span>
+  570 
+  571         <span class="k">return</span> <span class="p">(</span><span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span><span class="p">)</span>
+  572 
+  573     <span class="k">def</span> <span class="nf">_MatchRotatableBondAgainstSpecificHierarchyClass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">RotBondHierarchyClass</span><span class="p">):</span>
+  574         <span class="sd">&quot;&quot;&quot;Match rotatable bond against a specific hierarchy class.&quot;&quot;&quot;</span>
+  575 
+  576         <span class="n">TorsionLibraryInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryInfo</span>
+  577 
+  578         <span class="n">HierarchyClassElementNode</span> <span class="o">=</span> <span class="kc">None</span>
+  579         <span class="k">if</span> <span class="n">RotBondHierarchyClass</span> <span class="ow">in</span> <span class="n">TorsionLibraryInfo</span><span class="p">[</span><span class="s2">&quot;SpecificClasses&quot;</span><span class="p">][</span><span class="s2">&quot;ElementNode&quot;</span><span class="p">]:</span>
+  580             <span class="n">HierarchyClassElementNode</span> <span class="o">=</span> <span class="n">TorsionLibraryInfo</span><span class="p">[</span><span class="s2">&quot;SpecificClasses&quot;</span><span class="p">][</span><span class="s2">&quot;ElementNode&quot;</span><span class="p">][</span><span class="n">RotBondHierarchyClass</span><span class="p">]</span>
+  581 
+  582         <span class="k">if</span> <span class="n">HierarchyClassElementNode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  583             <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+  584 
+  585         <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">TrackHierarchyClassElementNode</span><span class="p">(</span><span class="n">TorsionLibraryInfo</span><span class="p">,</span> <span class="n">HierarchyClassElementNode</span><span class="p">)</span>
+  586         <span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ProcessElementForRotatableBondMatch</span><span class="p">(</span>
+  587             <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">HierarchyClassElementNode</span>
+  588         <span class="p">)</span>
+  589         <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">RemoveLastHierarchyClassElementNodeFromTracking</span><span class="p">(</span><span class="n">TorsionLibraryInfo</span><span class="p">)</span>
+  590 
+  591         <span class="k">return</span> <span class="p">(</span><span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span><span class="p">)</span>
+  592 
+  593     <span class="k">def</span> <span class="nf">_MatchRotatableBondAgainstGenericHierarchyClass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">RotBondHierarchyClass</span><span class="p">):</span>
+  594         <span class="sd">&quot;&quot;&quot;Match rotatable bond against a generic hierarchy class.&quot;&quot;&quot;</span>
+  595 
+  596         <span class="n">TorsionLibraryInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryInfo</span>
+  597 
+  598         <span class="n">HierarchyClassElementNode</span> <span class="o">=</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">GetGenericHierarchyClassElementNode</span><span class="p">(</span><span class="n">TorsionLibraryInfo</span><span class="p">)</span>
+  599         <span class="k">if</span> <span class="n">HierarchyClassElementNode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  600             <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+  601 
+  602         <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">TrackHierarchyClassElementNode</span><span class="p">(</span><span class="n">TorsionLibraryInfo</span><span class="p">,</span> <span class="n">HierarchyClassElementNode</span><span class="p">)</span>
+  603 
+  604         <span class="c1">#  Match hierarchy subclasses before matching torsion rules...</span>
+  605         <span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MatchRotatableBondAgainstGenericHierarchySubClasses</span><span class="p">(</span>
+  606             <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">HierarchyClassElementNode</span>
+  607         <span class="p">)</span>
+  608 
+  609         <span class="k">if</span> <span class="ow">not</span> <span class="n">MatchStatus</span><span class="p">:</span>
+  610             <span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MatchRotatableBondAgainstGenericHierarchyTorsionRules</span><span class="p">(</span>
+  611                 <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">HierarchyClassElementNode</span>
+  612             <span class="p">)</span>
+  613 
+  614         <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">RemoveLastHierarchyClassElementNodeFromTracking</span><span class="p">(</span><span class="n">TorsionLibraryInfo</span><span class="p">)</span>
+  615 
+  616         <span class="k">return</span> <span class="p">(</span><span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span><span class="p">)</span>
+  617 
+  618     <span class="k">def</span> <span class="nf">_MatchRotatableBondAgainstGenericHierarchySubClasses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">HierarchyClassElementNode</span><span class="p">):</span>
+  619         <span class="sd">&quot;&quot;&quot;Match rotatable bond againat generic hierarchy subclasses.&quot;&quot;&quot;</span>
+  620 
+  621         <span class="k">for</span> <span class="n">ElementChildNode</span> <span class="ow">in</span> <span class="n">HierarchyClassElementNode</span><span class="p">:</span>
+  622             <span class="k">if</span> <span class="n">ElementChildNode</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="s2">&quot;hierarchySubClass&quot;</span><span class="p">:</span>
+  623                 <span class="k">continue</span>
+  624 
+  625             <span class="n">SubClassMatchStatus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ProcessHierarchySubClassElementForRotatableBondMatch</span><span class="p">(</span>
+  626                 <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">ElementChildNode</span>
+  627             <span class="p">)</span>
+  628 
+  629             <span class="k">if</span> <span class="n">SubClassMatchStatus</span><span class="p">:</span>
+  630                 <span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ProcessElementForRotatableBondMatch</span><span class="p">(</span>
+  631                     <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">ElementChildNode</span>
+  632                 <span class="p">)</span>
+  633 
+  634                 <span class="k">if</span> <span class="n">MatchStatus</span><span class="p">:</span>
+  635                     <span class="k">return</span> <span class="p">(</span><span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span><span class="p">)</span>
+  636 
+  637         <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+  638 
+  639     <span class="k">def</span> <span class="nf">_MatchRotatableBondAgainstGenericHierarchyTorsionRules</span><span class="p">(</span>
+  640         <span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">HierarchyClassElementNode</span>
+  641     <span class="p">):</span>
+  642         <span class="sd">&quot;&quot;&quot;Match rotatable bond againat torsion rules generic hierarchy class.&quot;&quot;&quot;</span>
+  643 
+  644         <span class="k">for</span> <span class="n">ElementChildNode</span> <span class="ow">in</span> <span class="n">HierarchyClassElementNode</span><span class="p">:</span>
+  645             <span class="k">if</span> <span class="n">ElementChildNode</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="s2">&quot;torsionRule&quot;</span><span class="p">:</span>
+  646                 <span class="k">continue</span>
+  647 
+  648             <span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ProcessTorsionRuleElementForRotatableBondMatch</span><span class="p">(</span>
+  649                 <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">ElementChildNode</span>
+  650             <span class="p">)</span>
+  651 
+  652             <span class="k">if</span> <span class="n">MatchStatus</span><span class="p">:</span>
+  653                 <span class="k">return</span> <span class="p">(</span><span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span><span class="p">)</span>
+  654 
+  655         <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+  656 
+  657     <span class="k">def</span> <span class="nf">_ProcessElementForRotatableBondMatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">):</span>
+  658         <span class="sd">&quot;&quot;&quot;Process element node to recursively match rotatable bond against hierarchy</span>
+  659 <span class="sd">        subclasses and torsion rules.&quot;&quot;&quot;</span>
+  660 
+  661         <span class="n">TorsionLibraryInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryInfo</span>
+  662 
+  663         <span class="k">for</span> <span class="n">ElementChildNode</span> <span class="ow">in</span> <span class="n">ElementNode</span><span class="p">:</span>
+  664             <span class="k">if</span> <span class="n">ElementChildNode</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;hierarchySubClass&quot;</span><span class="p">:</span>
+  665                 <span class="n">SubClassMatchStatus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ProcessHierarchySubClassElementForRotatableBondMatch</span><span class="p">(</span>
+  666                     <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">ElementChildNode</span>
+  667                 <span class="p">)</span>
+  668 
+  669                 <span class="k">if</span> <span class="n">SubClassMatchStatus</span><span class="p">:</span>
+  670                     <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">TrackHierarchySubClassElementNode</span><span class="p">(</span><span class="n">TorsionLibraryInfo</span><span class="p">,</span> <span class="n">ElementChildNode</span><span class="p">)</span>
+  671 
+  672                     <span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ProcessElementForRotatableBondMatch</span><span class="p">(</span>
+  673                         <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">ElementChildNode</span>
+  674                     <span class="p">)</span>
+  675                     <span class="k">if</span> <span class="n">MatchStatus</span><span class="p">:</span>
+  676                         <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">RemoveLastHierarchySubClassElementNodeFromTracking</span><span class="p">(</span><span class="n">TorsionLibraryInfo</span><span class="p">)</span>
+  677                         <span class="k">return</span> <span class="p">(</span><span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span><span class="p">)</span>
+  678 
+  679                     <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">RemoveLastHierarchySubClassElementNodeFromTracking</span><span class="p">(</span><span class="n">TorsionLibraryInfo</span><span class="p">)</span>
+  680 
+  681             <span class="k">elif</span> <span class="n">ElementChildNode</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;torsionRule&quot;</span><span class="p">:</span>
+  682                 <span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ProcessTorsionRuleElementForRotatableBondMatch</span><span class="p">(</span>
+  683                     <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">ElementChildNode</span>
+  684                 <span class="p">)</span>
+  685 
+  686                 <span class="k">if</span> <span class="n">MatchStatus</span><span class="p">:</span>
+  687                     <span class="k">return</span> <span class="p">(</span><span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span><span class="p">)</span>
+  688 
+  689         <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+  690 
+  691     <span class="k">def</span> <span class="nf">_ProcessHierarchySubClassElementForRotatableBondMatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">):</span>
+  692         <span class="sd">&quot;&quot;&quot;Process hierarchy subclass element to match rotatable bond.&quot;&quot;&quot;</span>
+  693 
+  694         <span class="c1"># Setup subclass SMARTS pattern mol...</span>
+  695         <span class="n">SubClassPatternMol</span> <span class="o">=</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">SetupHierarchySubClassElementPatternMol</span><span class="p">(</span>
+  696             <span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryInfo</span><span class="p">,</span> <span class="n">ElementNode</span>
+  697         <span class="p">)</span>
+  698         <span class="k">if</span> <span class="n">SubClassPatternMol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  699             <span class="k">return</span> <span class="kc">False</span>
+  700 
+  701         <span class="c1"># Match SMARTS pattern...</span>
+  702         <span class="n">SubClassPatternMatches</span> <span class="o">=</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">FilterSubstructureMatchesByAtomMapNumbers</span><span class="p">(</span>
+  703             <span class="n">Mol</span><span class="p">,</span> <span class="n">SubClassPatternMol</span><span class="p">,</span> <span class="n">Mol</span><span class="o">.</span><span class="n">GetSubstructMatches</span><span class="p">(</span><span class="n">SubClassPatternMol</span><span class="p">,</span> <span class="n">useChirality</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+  704         <span class="p">)</span>
+  705         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">SubClassPatternMatches</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+  706             <span class="k">return</span> <span class="kc">False</span>
+  707 
+  708         <span class="c1"># Match rotatable bond indices...</span>
+  709         <span class="n">RotBondAtomIndex1</span><span class="p">,</span> <span class="n">RotBondAtomIndex2</span> <span class="o">=</span> <span class="n">RotBondAtomIndices</span>
+  710         <span class="n">MatchStatus</span> <span class="o">=</span> <span class="kc">False</span>
+  711         <span class="k">for</span> <span class="n">SubClassPatternMatch</span> <span class="ow">in</span> <span class="n">SubClassPatternMatches</span><span class="p">:</span>
+  712             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">SubClassPatternMatch</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+  713                 <span class="c1"># Matched to pattern containing map atom numbers &quot;:2&quot; and &quot;:3&quot;...</span>
+  714                 <span class="n">CentralAtomsIndex1</span><span class="p">,</span> <span class="n">CentralAtomsIndex2</span> <span class="o">=</span> <span class="n">SubClassPatternMatch</span>
+  715             <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">SubClassPatternMatch</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+  716                 <span class="c1"># Matched to pattern containing map atom numbers &quot;:1&quot;, &quot;:2&quot;, &quot;:3&quot; and &quot;:4&quot;...</span>
+  717                 <span class="n">CentralAtomsIndex1</span> <span class="o">=</span> <span class="n">SubClassPatternMatch</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+  718                 <span class="n">CentralAtomsIndex2</span> <span class="o">=</span> <span class="n">SubClassPatternMatch</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+  719             <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">SubClassPatternMatch</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+  720                 <span class="n">SubClassSMARTSPattern</span> <span class="o">=</span> <span class="n">ElementNode</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;smarts&quot;</span><span class="p">)</span>
+  721                 <span class="k">if</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">DoesSMARTSContainsMappedAtoms</span><span class="p">(</span><span class="n">SubClassSMARTSPattern</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;:2&quot;</span><span class="p">,</span> <span class="s2">&quot;:3&quot;</span><span class="p">,</span> <span class="s2">&quot;:4&quot;</span><span class="p">]):</span>
+  722                     <span class="c1"># Matched to pattern containing map atom numbers &quot;:2&quot;, &quot;:3&quot; and &quot;:4&quot;...</span>
+  723                     <span class="n">CentralAtomsIndex1</span> <span class="o">=</span> <span class="n">SubClassPatternMatch</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+  724                     <span class="n">CentralAtomsIndex2</span> <span class="o">=</span> <span class="n">SubClassPatternMatch</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+  725                 <span class="k">else</span><span class="p">:</span>
+  726                     <span class="c1"># Matched to pattern containing map atom numbers &quot;:1&quot;, &quot;:2&quot; and &quot;:3&quot;...</span>
+  727                     <span class="n">CentralAtomsIndex1</span> <span class="o">=</span> <span class="n">SubClassPatternMatch</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+  728                     <span class="n">CentralAtomsIndex2</span> <span class="o">=</span> <span class="n">SubClassPatternMatch</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+  729             <span class="k">else</span><span class="p">:</span>
+  730                 <span class="k">continue</span>
+  731 
+  732             <span class="k">if</span> <span class="n">CentralAtomsIndex1</span> <span class="o">!=</span> <span class="n">CentralAtomsIndex2</span><span class="p">:</span>
+  733                 <span class="k">if</span> <span class="p">(</span><span class="n">CentralAtomsIndex1</span> <span class="o">==</span> <span class="n">RotBondAtomIndex1</span> <span class="ow">and</span> <span class="n">CentralAtomsIndex2</span> <span class="o">==</span> <span class="n">RotBondAtomIndex2</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+  734                     <span class="n">CentralAtomsIndex1</span> <span class="o">==</span> <span class="n">RotBondAtomIndex2</span> <span class="ow">and</span> <span class="n">CentralAtomsIndex2</span> <span class="o">==</span> <span class="n">RotBondAtomIndex1</span>
+  735                 <span class="p">):</span>
+  736                     <span class="n">MatchStatus</span> <span class="o">=</span> <span class="kc">True</span>
+  737                     <span class="k">break</span>
+  738 
+  739         <span class="k">return</span> <span class="n">MatchStatus</span>
+  740 
+  741     <span class="k">def</span> <span class="nf">_ProcessTorsionRuleElementForRotatableBondMatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">):</span>
+  742         <span class="sd">&quot;&quot;&quot;Process torsion rule element to match rotatable bond.&quot;&quot;&quot;</span>
+  743 
+  744         <span class="n">TorsionLibraryInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryInfo</span>
+  745 
+  746         <span class="c1">#  Retrieve torsion matched to rotatable bond...</span>
+  747         <span class="n">TorsionAtomIndices</span><span class="p">,</span> <span class="n">TorsionAngle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MatchTorsionRuleToRotatableBond</span><span class="p">(</span><span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">)</span>
+  748         <span class="k">if</span> <span class="n">TorsionAtomIndices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  749             <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+  750 
+  751         <span class="c1"># Setup torsion angles info for matched torsion rule...</span>
+  752         <span class="n">TorsionAnglesInfo</span> <span class="o">=</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">SetupTorsionRuleAnglesInfo</span><span class="p">(</span><span class="n">TorsionLibraryInfo</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">)</span>
+  753         <span class="k">if</span> <span class="n">TorsionAnglesInfo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  754             <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+  755 
+  756         <span class="c1">#   Setup torsion alert type and angle violation...</span>
+  757         <span class="n">AlertType</span><span class="p">,</span> <span class="n">TorsionAngleViolation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_SetupTorsionAlertTypeForRotatableBond</span><span class="p">(</span><span class="n">TorsionAnglesInfo</span><span class="p">,</span> <span class="n">TorsionAngle</span><span class="p">)</span>
+  758 
+  759         <span class="c1"># Setup hierarchy class and subclass names...</span>
+  760         <span class="n">HierarchyClassName</span><span class="p">,</span> <span class="n">HierarchySubClassName</span> <span class="o">=</span> <span class="p">(</span>
+  761             <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">SetupHierarchyClassAndSubClassNamesForRotatableBond</span><span class="p">(</span><span class="n">TorsionLibraryInfo</span><span class="p">)</span>
+  762         <span class="p">)</span>
+  763 
+  764         <span class="c1"># Setup rule node ID...</span>
+  765         <span class="n">TorsionRuleNodeID</span> <span class="o">=</span> <span class="n">ElementNode</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;NodeID&quot;</span><span class="p">)</span>
+  766 
+  767         <span class="c1"># Setup SMARTS...</span>
+  768         <span class="n">TorsionRuleSMARTS</span> <span class="o">=</span> <span class="n">ElementNode</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;smarts&quot;</span><span class="p">)</span>
+  769         <span class="k">if</span> <span class="s2">&quot; &quot;</span> <span class="ow">in</span> <span class="n">TorsionRuleSMARTS</span><span class="p">:</span>
+  770             <span class="n">TorsionRuleSMARTS</span> <span class="o">=</span> <span class="n">TorsionRuleSMARTS</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+  771 
+  772         <span class="c1"># Setup torsion peaks and tolerances...</span>
+  773         <span class="n">TorsionRulePeaks</span> <span class="o">=</span> <span class="n">TorsionAnglesInfo</span><span class="p">[</span><span class="s2">&quot;ValuesList&quot;</span><span class="p">]</span>
+  774         <span class="n">TorsionRuleTolerances1</span> <span class="o">=</span> <span class="n">TorsionAnglesInfo</span><span class="p">[</span><span class="s2">&quot;Tolerances1List&quot;</span><span class="p">]</span>
+  775         <span class="n">TorsionRuleTolerances2</span> <span class="o">=</span> <span class="n">TorsionAnglesInfo</span><span class="p">[</span><span class="s2">&quot;Tolerances2List&quot;</span><span class="p">]</span>
+  776 
+  777         <span class="n">MatchInfo</span> <span class="o">=</span> <span class="p">[</span>
+  778             <span class="n">AlertType</span><span class="p">,</span>
+  779             <span class="n">TorsionAtomIndices</span><span class="p">,</span>
+  780             <span class="n">TorsionAngle</span><span class="p">,</span>
+  781             <span class="n">TorsionAngleViolation</span><span class="p">,</span>
+  782             <span class="n">HierarchyClassName</span><span class="p">,</span>
+  783             <span class="n">HierarchySubClassName</span><span class="p">,</span>
+  784             <span class="n">TorsionRuleNodeID</span><span class="p">,</span>
+  785             <span class="n">TorsionRulePeaks</span><span class="p">,</span>
+  786             <span class="n">TorsionRuleTolerances1</span><span class="p">,</span>
+  787             <span class="n">TorsionRuleTolerances2</span><span class="p">,</span>
+  788             <span class="n">TorsionRuleSMARTS</span><span class="p">,</span>
+  789         <span class="p">]</span>
+  790 
+  791         <span class="c1"># Setup match status...</span>
+  792         <span class="n">MatchStatus</span> <span class="o">=</span> <span class="kc">True</span>
+  793 
+  794         <span class="k">return</span> <span class="p">(</span><span class="n">MatchStatus</span><span class="p">,</span> <span class="n">MatchInfo</span><span class="p">)</span>
+  795 
+  796     <span class="k">def</span> <span class="nf">_MatchTorsionRuleToRotatableBond</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">RotBondAtomIndices</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">):</span>
+  797         <span class="sd">&quot;&quot;&quot;Retrieve matched torsion for torsion rule matched to rotatable bond.&quot;&quot;&quot;</span>
+  798 
+  799         <span class="c1"># Get torsion matches...</span>
+  800         <span class="n">TorsionMatches</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_GetMatchesForTorsionRule</span><span class="p">(</span><span class="n">Mol</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">)</span>
+  801         <span class="k">if</span> <span class="n">TorsionMatches</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">TorsionMatches</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+  802             <span class="k">return</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+  803 
+  804         <span class="c1"># Identify the first torsion match corresponding to central atoms in RotBondAtomIndices...</span>
+  805         <span class="n">RotBondAtomIndex1</span><span class="p">,</span> <span class="n">RotBondAtomIndex2</span> <span class="o">=</span> <span class="n">RotBondAtomIndices</span>
+  806         <span class="k">for</span> <span class="n">TorsionMatch</span> <span class="ow">in</span> <span class="n">TorsionMatches</span><span class="p">:</span>
+  807             <span class="n">CentralAtomIndex1</span> <span class="o">=</span> <span class="n">TorsionMatch</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+  808             <span class="n">CentralAtomIndex2</span> <span class="o">=</span> <span class="n">TorsionMatch</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+  809 
+  810             <span class="k">if</span> <span class="p">(</span><span class="n">CentralAtomIndex1</span> <span class="o">==</span> <span class="n">RotBondAtomIndex1</span> <span class="ow">and</span> <span class="n">CentralAtomIndex2</span> <span class="o">==</span> <span class="n">RotBondAtomIndex2</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+  811                 <span class="n">CentralAtomIndex1</span> <span class="o">==</span> <span class="n">RotBondAtomIndex2</span> <span class="ow">and</span> <span class="n">CentralAtomIndex2</span> <span class="o">==</span> <span class="n">RotBondAtomIndex1</span>
+  812             <span class="p">):</span>
+  813                 <span class="n">TorsionAngle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_CalculateTorsionAngle</span><span class="p">(</span><span class="n">Mol</span><span class="p">,</span> <span class="n">TorsionMatch</span><span class="p">)</span>
+  814 
+  815                 <span class="k">return</span> <span class="p">(</span><span class="n">TorsionMatch</span><span class="p">,</span> <span class="n">TorsionAngle</span><span class="p">)</span>
+  816 
+  817         <span class="k">return</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+  818 
+  819     <span class="k">def</span> <span class="nf">_CalculateTorsionAngle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">TorsionMatch</span><span class="p">):</span>
+  820         <span class="sd">&quot;&quot;&quot;Calculate torsion angle.&quot;&quot;&quot;</span>
+  821 
+  822         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">TorsionMatch</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+  823             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_CalculateTorsionAngleUsingNitrogenLonePairPosition</span><span class="p">(</span><span class="n">Mol</span><span class="p">,</span> <span class="n">TorsionMatch</span><span class="p">)</span>
+  824 
+  825         <span class="c1"># Calculate torsion angle using torsion atom indices..</span>
+  826         <span class="n">MolConf</span> <span class="o">=</span> <span class="n">Mol</span><span class="o">.</span><span class="n">GetConformer</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+  827         <span class="n">TorsionAngle</span> <span class="o">=</span> <span class="n">rdMolTransforms</span><span class="o">.</span><span class="n">GetDihedralDeg</span><span class="p">(</span>
+  828             <span class="n">MolConf</span><span class="p">,</span> <span class="n">TorsionMatch</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">TorsionMatch</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">TorsionMatch</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">TorsionMatch</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+  829         <span class="p">)</span>
+  830         <span class="n">TorsionAngle</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">TorsionAngle</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+  831 
+  832         <span class="k">return</span> <span class="n">TorsionAngle</span>
+  833 
+  834     <span class="k">def</span> <span class="nf">_CalculateTorsionAngleUsingNitrogenLonePairPosition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">TorsionMatch</span><span class="p">):</span>
+  835         <span class="sd">&quot;&quot;&quot;Calculate torsion angle using nitrogen lone pair positon.&quot;&quot;&quot;</span>
+  836 
+  837         <span class="c1"># Setup a carbon atom as position holder for lone pair position...</span>
+  838         <span class="n">TmpMol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">RWMol</span><span class="p">(</span><span class="n">Mol</span><span class="p">)</span>
+  839         <span class="n">LonePairAtomIndex</span> <span class="o">=</span> <span class="n">TmpMol</span><span class="o">.</span><span class="n">AddAtom</span><span class="p">(</span><span class="n">Chem</span><span class="o">.</span><span class="n">Atom</span><span class="p">(</span><span class="mi">6</span><span class="p">))</span>
+  840 
+  841         <span class="n">TmpMolConf</span> <span class="o">=</span> <span class="n">TmpMol</span><span class="o">.</span><span class="n">GetConformer</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+  842         <span class="n">TmpMolConf</span><span class="o">.</span><span class="n">SetAtomPosition</span><span class="p">(</span><span class="n">LonePairAtomIndex</span><span class="p">,</span> <span class="n">TorsionMatch</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+  843 
+  844         <span class="n">TorsionAngle</span> <span class="o">=</span> <span class="n">rdMolTransforms</span><span class="o">.</span><span class="n">GetDihedralDeg</span><span class="p">(</span>
+  845             <span class="n">TmpMolConf</span><span class="p">,</span> <span class="n">TorsionMatch</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">TorsionMatch</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">TorsionMatch</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">LonePairAtomIndex</span>
+  846         <span class="p">)</span>
+  847         <span class="n">TorsionAngle</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">TorsionAngle</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+  848 
+  849         <span class="k">return</span> <span class="n">TorsionAngle</span>
+  850 
+  851     <span class="k">def</span> <span class="nf">_GetMatchesForTorsionRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">):</span>
+  852         <span class="sd">&quot;&quot;&quot;Get matches for torsion rule.&quot;&quot;&quot;</span>
+  853 
+  854         <span class="c1"># Match torsions...</span>
+  855         <span class="n">TorsionMatches</span> <span class="o">=</span> <span class="kc">None</span>
+  856         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_IsNitogenLonePairTorsionRule</span><span class="p">(</span><span class="n">ElementNode</span><span class="p">):</span>
+  857             <span class="n">TorsionMatches</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_GetSubstructureMatchesForNitrogenLonePairTorsionRule</span><span class="p">(</span><span class="n">Mol</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">)</span>
+  858         <span class="k">else</span><span class="p">:</span>
+  859             <span class="n">TorsionMatches</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_GetSubstructureMatchesForTorsionRule</span><span class="p">(</span><span class="n">Mol</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">)</span>
+  860 
+  861         <span class="k">if</span> <span class="n">TorsionMatches</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">TorsionMatches</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+  862             <span class="k">return</span> <span class="n">TorsionMatches</span>
+  863 
+  864         <span class="c1"># Filter torsion matches...</span>
+  865         <span class="n">FiltertedTorsionMatches</span> <span class="o">=</span> <span class="p">[]</span>
+  866         <span class="k">for</span> <span class="n">TorsionMatch</span> <span class="ow">in</span> <span class="n">TorsionMatches</span><span class="p">:</span>
+  867             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">TorsionMatch</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
+  868                 <span class="k">continue</span>
+  869 
+  870             <span class="c1"># Ignore matches containing hydrogen atoms as first or last atom...</span>
+  871             <span class="k">if</span> <span class="n">Mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="n">TorsionMatch</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">GetAtomicNum</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+  872                 <span class="k">continue</span>
+  873             <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">TorsionMatch</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+  874                 <span class="c1"># May contains a list for type two nitrogen lone pair match...</span>
+  875                 <span class="k">if</span> <span class="n">Mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="n">TorsionMatch</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">.</span><span class="n">GetAtomicNum</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+  876                     <span class="k">continue</span>
+  877             <span class="n">FiltertedTorsionMatches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TorsionMatch</span><span class="p">)</span>
+  878 
+  879         <span class="k">return</span> <span class="n">FiltertedTorsionMatches</span>
+  880 
+  881     <span class="k">def</span> <span class="nf">_GetSubstructureMatchesForTorsionRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">):</span>
+  882         <span class="sd">&quot;&quot;&quot;Get substructure matches for a torsion rule.&quot;&quot;&quot;</span>
+  883 
+  884         <span class="c1"># Setup torsion rule SMARTS pattern mol....</span>
+  885         <span class="n">TorsionRuleNodeID</span> <span class="o">=</span> <span class="n">ElementNode</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;NodeID&quot;</span><span class="p">)</span>
+  886         <span class="n">TorsionSMARTSPattern</span> <span class="o">=</span> <span class="n">ElementNode</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;smarts&quot;</span><span class="p">)</span>
+  887         <span class="n">TorsionPatternMol</span> <span class="o">=</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">SetupTorsionRuleElementPatternMol</span><span class="p">(</span>
+  888             <span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryInfo</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">,</span> <span class="n">TorsionRuleNodeID</span><span class="p">,</span> <span class="n">TorsionSMARTSPattern</span>
+  889         <span class="p">)</span>
+  890         <span class="k">if</span> <span class="n">TorsionPatternMol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  891             <span class="k">return</span> <span class="kc">None</span>
+  892 
+  893         <span class="c1"># Match torsions...</span>
+  894         <span class="n">TorsionMatches</span> <span class="o">=</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">FilterSubstructureMatchesByAtomMapNumbers</span><span class="p">(</span>
+  895             <span class="n">Mol</span><span class="p">,</span> <span class="n">TorsionPatternMol</span><span class="p">,</span> <span class="n">Mol</span><span class="o">.</span><span class="n">GetSubstructMatches</span><span class="p">(</span><span class="n">TorsionPatternMol</span><span class="p">,</span> <span class="n">useChirality</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+  896         <span class="p">)</span>
+  897 
+  898         <span class="k">return</span> <span class="n">TorsionMatches</span>
+  899 
+  900     <span class="k">def</span> <span class="nf">_GetSubstructureMatchesForNitrogenLonePairTorsionRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">):</span>
+  901         <span class="sd">&quot;&quot;&quot;Get substructure matches for a torsion rule containing N_lp.&quot;&quot;&quot;</span>
+  902 
+  903         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_IsTypeOneNitogenLonePairTorsionRule</span><span class="p">(</span><span class="n">ElementNode</span><span class="p">):</span>
+  904             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_GetSubstructureMatchesForTypeOneNitrogenLonePairTorsionRule</span><span class="p">(</span><span class="n">Mol</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">)</span>
+  905         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_IsTypeTwoNitogenLonePairTorsionRule</span><span class="p">(</span><span class="n">ElementNode</span><span class="p">):</span>
+  906             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_GetSubstructureMatchesForTypeTwoNitrogenLonePairTorsionRule</span><span class="p">(</span><span class="n">Mol</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">)</span>
+  907 
+  908         <span class="k">return</span> <span class="kc">None</span>
+  909 
+  910     <span class="k">def</span> <span class="nf">_GetSubstructureMatchesForTypeOneNitrogenLonePairTorsionRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">):</span>
+  911         <span class="sd">&quot;&quot;&quot;Get substructure matches for a torsion rule containing N_lp and four mapped atoms.&quot;&quot;&quot;</span>
+  912 
+  913         <span class="c1"># For example:</span>
+  914         <span class="c1">#    [CX4:1][CX4H2:2]!@[NX3;&quot;N_lp&quot;:3][CX4:4]</span>
+  915         <span class="c1">#    [C:1][CX4H2:2]!@[NX3;&quot;N_lp&quot;:3][C:4]</span>
+  916         <span class="c1">#    ... ... ...</span>
+  917 
+  918         <span class="n">TorsionRuleNodeID</span> <span class="o">=</span> <span class="n">ElementNode</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;NodeID&quot;</span><span class="p">)</span>
+  919         <span class="n">TorsionPatternMol</span><span class="p">,</span> <span class="n">LonePairMapNumber</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_SetupNitrogenLonePairTorsionRuleElementInfo</span><span class="p">(</span>
+  920             <span class="n">ElementNode</span><span class="p">,</span> <span class="n">TorsionRuleNodeID</span>
+  921         <span class="p">)</span>
+  922 
+  923         <span class="k">if</span> <span class="n">TorsionPatternMol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  924             <span class="k">return</span> <span class="kc">None</span>
+  925 
+  926         <span class="k">if</span> <span class="n">LonePairMapNumber</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  927             <span class="k">return</span> <span class="kc">None</span>
+  928 
+  929         <span class="c1"># Match torsions...</span>
+  930         <span class="n">TorsionMatches</span> <span class="o">=</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">FilterSubstructureMatchesByAtomMapNumbers</span><span class="p">(</span>
+  931             <span class="n">Mol</span><span class="p">,</span> <span class="n">TorsionPatternMol</span><span class="p">,</span> <span class="n">Mol</span><span class="o">.</span><span class="n">GetSubstructMatches</span><span class="p">(</span><span class="n">TorsionPatternMol</span><span class="p">,</span> <span class="n">useChirality</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+  932         <span class="p">)</span>
+  933 
+  934         <span class="c1"># Filter matches...</span>
+  935         <span class="n">FiltertedTorsionMatches</span> <span class="o">=</span> <span class="p">[]</span>
+  936         <span class="k">for</span> <span class="n">TorsionMatch</span> <span class="ow">in</span> <span class="n">TorsionMatches</span><span class="p">:</span>
+  937             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">TorsionMatch</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
+  938                 <span class="k">continue</span>
+  939 
+  940             <span class="c1"># Check for Nitogen atom at LonePairMapNumber...</span>
+  941             <span class="n">LonePairNitrogenAtom</span> <span class="o">=</span> <span class="n">Mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="n">TorsionMatch</span><span class="p">[</span><span class="n">LonePairMapNumber</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+  942             <span class="k">if</span> <span class="n">LonePairNitrogenAtom</span><span class="o">.</span><span class="n">GetSymbol</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;N&quot;</span><span class="p">:</span>
+  943                 <span class="k">continue</span>
+  944 
+  945             <span class="c1"># Make sure LonePairNitrogenAtom is planar...</span>
+  946             <span class="c1">#  test</span>
+  947             <span class="n">PlanarityStatus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_IsLonePairNitrogenAtomPlanar</span><span class="p">(</span><span class="n">Mol</span><span class="p">,</span> <span class="n">LonePairNitrogenAtom</span><span class="p">)</span>
+  948             <span class="k">if</span> <span class="n">PlanarityStatus</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  949                 <span class="k">continue</span>
+  950 
+  951             <span class="k">if</span> <span class="ow">not</span> <span class="n">PlanarityStatus</span><span class="p">:</span>
+  952                 <span class="k">continue</span>
+  953 
+  954             <span class="n">FiltertedTorsionMatches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TorsionMatch</span><span class="p">)</span>
+  955 
+  956         <span class="k">return</span> <span class="n">FiltertedTorsionMatches</span>
+  957 
+  958     <span class="k">def</span> <span class="nf">_GetSubstructureMatchesForTypeTwoNitrogenLonePairTorsionRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">):</span>
+  959         <span class="sd">&quot;&quot;&quot;Get substructure matches for a torsion rule containing N_lp and three mapped atoms.&quot;&quot;&quot;</span>
+  960 
+  961         <span class="c1"># For example:</span>
+  962         <span class="c1"># [!#1:1][CX4:2]!@[NX3;&quot;N_lp&quot;:3]</span>
+  963         <span class="c1"># [!#1:1][$(S(=O)=O):2]!@[&quot;N_lp&quot;:3]@[Cr3]</span>
+  964         <span class="c1"># [C:1][$(S(=O)=O):2]!@[&quot;N_lp&quot;:3]</span>
+  965         <span class="c1"># [c:1][$(S(=O)=O):2]!@[&quot;N_lp&quot;:3]</span>
+  966         <span class="c1"># [!#1:1][$(S(=O)=O):2]!@[&quot;N_lp&quot;:3]</span>
+  967         <span class="c1">#    ... ... ...</span>
+  968 
+  969         <span class="n">TorsionRuleNodeID</span> <span class="o">=</span> <span class="n">ElementNode</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;NodeID&quot;</span><span class="p">)</span>
+  970         <span class="n">TorsionPatternMol</span><span class="p">,</span> <span class="n">LonePairMapNumber</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_SetupNitrogenLonePairTorsionRuleElementInfo</span><span class="p">(</span>
+  971             <span class="n">ElementNode</span><span class="p">,</span> <span class="n">TorsionRuleNodeID</span>
+  972         <span class="p">)</span>
+  973 
+  974         <span class="k">if</span> <span class="n">TorsionPatternMol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+  975             <span class="k">return</span> <span class="kc">None</span>
+  976 
+  977         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_IsValidTypeTwoNitrogenLonePairMapNumber</span><span class="p">(</span><span class="n">LonePairMapNumber</span><span class="p">):</span>
+  978             <span class="k">return</span> <span class="kc">None</span>
+  979 
+  980         <span class="c1"># Match torsions...</span>
+  981         <span class="n">TorsionMatches</span> <span class="o">=</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">FilterSubstructureMatchesByAtomMapNumbers</span><span class="p">(</span>
+  982             <span class="n">Mol</span><span class="p">,</span> <span class="n">TorsionPatternMol</span><span class="p">,</span> <span class="n">Mol</span><span class="o">.</span><span class="n">GetSubstructMatches</span><span class="p">(</span><span class="n">TorsionPatternMol</span><span class="p">,</span> <span class="n">useChirality</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+  983         <span class="p">)</span>
+  984 
+  985         <span class="c1"># Filter matches...</span>
+  986         <span class="n">FiltertedTorsionMatches</span> <span class="o">=</span> <span class="p">[]</span>
+  987         <span class="k">for</span> <span class="n">TorsionMatch</span> <span class="ow">in</span> <span class="n">TorsionMatches</span><span class="p">:</span>
+  988             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">TorsionMatch</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+  989                 <span class="k">continue</span>
+  990 
+  991             <span class="c1"># Check for Nitogen atom at LonePairMapNumber...</span>
+  992             <span class="n">LonePairNitrogenAtom</span> <span class="o">=</span> <span class="n">Mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="n">TorsionMatch</span><span class="p">[</span><span class="n">LonePairMapNumber</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+  993             <span class="k">if</span> <span class="n">LonePairNitrogenAtom</span><span class="o">.</span><span class="n">GetSymbol</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;N&quot;</span><span class="p">:</span>
+  994                 <span class="k">continue</span>
+  995 
+  996             <span class="c1"># Make sure LonePairNitrogenAtom is not planar...</span>
+  997             <span class="n">PlanarityStatus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_IsLonePairNitrogenAtomPlanar</span><span class="p">(</span><span class="n">Mol</span><span class="p">,</span> <span class="n">LonePairNitrogenAtom</span><span class="p">)</span>
+  998 
+  999             <span class="k">if</span> <span class="n">PlanarityStatus</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+ 1000                 <span class="k">continue</span>
+ 1001 
+ 1002             <span class="k">if</span> <span class="n">PlanarityStatus</span><span class="p">:</span>
+ 1003                 <span class="k">continue</span>
+ 1004 
+ 1005             <span class="c1"># Calculate lone pair coordinates for a non-planar nitrogen...</span>
+ 1006             <span class="n">LonePairPosition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_CalculateLonePairCoordinatesForNitrogenAtom</span><span class="p">(</span><span class="n">Mol</span><span class="p">,</span> <span class="n">LonePairNitrogenAtom</span><span class="p">)</span>
+ 1007             <span class="k">if</span> <span class="n">LonePairPosition</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+ 1008                 <span class="k">continue</span>
+ 1009 
+ 1010             <span class="c1"># Append lone pair coodinate list to list of torsion match containing atom indices...</span>
+ 1011             <span class="n">TorsionMatch</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">LonePairPosition</span><span class="p">)</span>
+ 1012 
+ 1013             <span class="c1"># Track torsion matches...</span>
+ 1014             <span class="n">FiltertedTorsionMatches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TorsionMatch</span><span class="p">)</span>
+ 1015 
+ 1016         <span class="k">return</span> <span class="n">FiltertedTorsionMatches</span>
+ 1017 
+ 1018     <span class="k">def</span> <span class="nf">_SetupNitrogenLonePairTorsionRuleElementInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">,</span> <span class="n">TorsionRuleNodeID</span><span class="p">):</span>
+ 1019         <span class="sd">&quot;&quot;&quot;Setup pattern molecule and lone pair map number for type one and type</span>
+ 1020 <span class="sd">        two nitrogen lone pair rules.&quot;&quot;&quot;</span>
+ 1021 
+ 1022         <span class="n">TorsionLibraryInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TorsionLibraryInfo</span>
+ 1023         <span class="n">TorsionPatternMol</span><span class="p">,</span> <span class="n">LonePairMapNumber</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span>
+ 1024 
+ 1025         <span class="k">if</span> <span class="n">TorsionRuleNodeID</span> <span class="ow">in</span> <span class="n">TorsionLibraryInfo</span><span class="p">[</span><span class="s2">&quot;DataCache&quot;</span><span class="p">][</span><span class="s2">&quot;TorsionRulePatternMol&quot;</span><span class="p">]:</span>
+ 1026             <span class="n">TorsionPatternMol</span> <span class="o">=</span> <span class="n">TorsionLibraryInfo</span><span class="p">[</span><span class="s2">&quot;DataCache&quot;</span><span class="p">][</span><span class="s2">&quot;TorsionRulePatternMol&quot;</span><span class="p">][</span><span class="n">TorsionRuleNodeID</span><span class="p">]</span>
+ 1027             <span class="n">LonePairMapNumber</span> <span class="o">=</span> <span class="n">TorsionLibraryInfo</span><span class="p">[</span><span class="s2">&quot;DataCache&quot;</span><span class="p">][</span><span class="s2">&quot;TorsionRuleLonePairMapNumber&quot;</span><span class="p">][</span><span class="n">TorsionRuleNodeID</span><span class="p">]</span>
+ 1028         <span class="k">else</span><span class="p">:</span>
+ 1029             <span class="c1"># Setup torsion pattern...</span>
+ 1030             <span class="n">TorsionSMARTSPattern</span> <span class="o">=</span> <span class="n">ElementNode</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;smarts&quot;</span><span class="p">)</span>
+ 1031             <span class="n">TorsionSMARTSPattern</span><span class="p">,</span> <span class="n">LonePairMapNumber</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ProcessSMARTSForNitrogenLonePairTorsionRule</span><span class="p">(</span>
+ 1032                 <span class="n">TorsionSMARTSPattern</span>
+ 1033             <span class="p">)</span>
+ 1034 
+ 1035             <span class="c1"># Setup torsion pattern mol...</span>
+ 1036             <span class="n">TorsionPatternMol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmarts</span><span class="p">(</span><span class="n">TorsionSMARTSPattern</span><span class="p">)</span>
+ 1037             <span class="k">if</span> <span class="n">TorsionPatternMol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+ 1038                 <span class="nb">print</span><span class="p">(</span>
+ 1039                     <span class="s2">&quot;Warning: Ignoring torsion rule element containing invalid map atoms numbers in SMARTS pattern </span><span class="si">%s</span><span class="s2">&quot;</span>
+ 1040                     <span class="o">%</span> <span class="n">TorsionSMARTSPattern</span>
+ 1041                 <span class="p">)</span>
+ 1042 
+ 1043             <span class="c1"># Cache data...</span>
+ 1044             <span class="n">TorsionLibraryInfo</span><span class="p">[</span><span class="s2">&quot;DataCache&quot;</span><span class="p">][</span><span class="s2">&quot;TorsionRulePatternMol&quot;</span><span class="p">][</span><span class="n">TorsionRuleNodeID</span><span class="p">]</span> <span class="o">=</span> <span class="n">TorsionPatternMol</span>
+ 1045             <span class="n">TorsionLibraryInfo</span><span class="p">[</span><span class="s2">&quot;DataCache&quot;</span><span class="p">][</span><span class="s2">&quot;TorsionRuleLonePairMapNumber&quot;</span><span class="p">][</span><span class="n">TorsionRuleNodeID</span><span class="p">]</span> <span class="o">=</span> <span class="n">LonePairMapNumber</span>
+ 1046 
+ 1047         <span class="k">return</span> <span class="p">(</span><span class="n">TorsionPatternMol</span><span class="p">,</span> <span class="n">LonePairMapNumber</span><span class="p">)</span>
+ 1048 
+ 1049     <span class="k">def</span> <span class="nf">_IsLonePairNitrogenAtomPlanar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">NitrogenAtom</span><span class="p">):</span>
+ 1050         <span class="sd">&quot;&quot;&quot;Check for the planarity of nitrogen atom and its three neighbors.&quot;&quot;&quot;</span>
+ 1051 
+ 1052         <span class="n">AllowHydrogenNbrs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">NitrogenLonePairAllowHydrogenNbrs</span>
+ 1053         <span class="n">Tolerance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">NitrogenLonePairPlanarityTolerance</span>
+ 1054 
+ 1055         <span class="c1"># Get neighbors...</span>
+ 1056         <span class="k">if</span> <span class="n">AllowHydrogenNbrs</span><span class="p">:</span>
+ 1057             <span class="n">AtomNeighbors</span> <span class="o">=</span> <span class="n">NitrogenAtom</span><span class="o">.</span><span class="n">GetNeighbors</span><span class="p">()</span>
+ 1058         <span class="k">else</span><span class="p">:</span>
+ 1059             <span class="n">AtomNeighbors</span> <span class="o">=</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">GetHeavyAtomNeighbors</span><span class="p">(</span><span class="n">NitrogenAtom</span><span class="p">)</span>
+ 1060 
+ 1061         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">AtomNeighbors</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+ 1062             <span class="k">return</span> <span class="kc">None</span>
+ 1063 
+ 1064         <span class="c1"># Setup atom positions...</span>
+ 1065         <span class="n">AtomPositions</span> <span class="o">=</span> <span class="p">[]</span>
+ 1066         <span class="n">MolAtomsPositions</span> <span class="o">=</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">GetAtomPositions</span><span class="p">(</span><span class="n">Mol</span><span class="p">)</span>
+ 1067 
+ 1068         <span class="c1"># Neighbor positions...</span>
+ 1069         <span class="k">for</span> <span class="n">AtomNbr</span> <span class="ow">in</span> <span class="n">AtomNeighbors</span><span class="p">:</span>
+ 1070             <span class="n">AtomNbrIndex</span> <span class="o">=</span> <span class="n">AtomNbr</span><span class="o">.</span><span class="n">GetIdx</span><span class="p">()</span>
+ 1071             <span class="n">AtomPositions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MolAtomsPositions</span><span class="p">[</span><span class="n">AtomNbrIndex</span><span class="p">])</span>
+ 1072 
+ 1073         <span class="c1"># Nitrogen position...</span>
+ 1074         <span class="n">NitrogenAtomIndex</span> <span class="o">=</span> <span class="n">NitrogenAtom</span><span class="o">.</span><span class="n">GetIdx</span><span class="p">()</span>
+ 1075         <span class="n">AtomPositions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MolAtomsPositions</span><span class="p">[</span><span class="n">NitrogenAtomIndex</span><span class="p">])</span>
+ 1076 
+ 1077         <span class="n">Status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_AreFourPointsCoplanar</span><span class="p">(</span>
+ 1078             <span class="n">AtomPositions</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">AtomPositions</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">AtomPositions</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">AtomPositions</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">Tolerance</span>
+ 1079         <span class="p">)</span>
+ 1080 
+ 1081         <span class="k">return</span> <span class="n">Status</span>
+ 1082 
+ 1083     <span class="k">def</span> <span class="nf">_AreFourPointsCoplanar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Point1</span><span class="p">,</span> <span class="n">Point2</span><span class="p">,</span> <span class="n">Point3</span><span class="p">,</span> <span class="n">Point4</span><span class="p">,</span> <span class="n">Tolerance</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+ 1084         <span class="sd">&quot;&quot;&quot;Check whether four points are coplanar with in the threshold of 1 degree.&quot;&quot;&quot;</span>
+ 1085 
+ 1086         <span class="c1"># Setup  normalized direction vectors...</span>
+ 1087         <span class="n">VectorP2P1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_NormalizeVector</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">Point2</span><span class="p">,</span> <span class="n">Point1</span><span class="p">))</span>
+ 1088         <span class="n">VectorP3P1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_NormalizeVector</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">Point3</span><span class="p">,</span> <span class="n">Point1</span><span class="p">))</span>
+ 1089         <span class="n">VectorP1P4</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_NormalizeVector</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">Point1</span><span class="p">,</span> <span class="n">Point4</span><span class="p">))</span>
+ 1090 
+ 1091         <span class="c1"># Calculate angle between VectorP1P4 and normal to vectors VectorP2P1 and VectorP3P1...</span>
+ 1092         <span class="n">PlaneP1P2P3Normal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_NormalizeVector</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">VectorP2P1</span><span class="p">,</span> <span class="n">VectorP3P1</span><span class="p">))</span>
+ 1093         <span class="n">PlanarityAngle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">PlaneP1P2P3Normal</span><span class="p">,</span> <span class="n">VectorP1P4</span><span class="p">),</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+ 1094 
+ 1095         <span class="n">Status</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">PlanarityAngle</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mi">90</span><span class="p">),</span> <span class="n">abs_tol</span><span class="o">=</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">Tolerance</span><span class="p">))</span>
+ 1096 
+ 1097         <span class="k">return</span> <span class="n">Status</span>
+ 1098 
+ 1099     <span class="k">def</span> <span class="nf">_NormalizeVector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Vector</span><span class="p">):</span>
+ 1100         <span class="sd">&quot;&quot;&quot;Normalize vector.&quot;&quot;&quot;</span>
+ 1101 
+ 1102         <span class="n">Norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">Vector</span><span class="p">)</span>
+ 1103 
+ 1104         <span class="k">return</span> <span class="n">Vector</span> <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">Norm</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">1e-08</span><span class="p">)</span> <span class="k">else</span> <span class="n">Vector</span> <span class="o">/</span> <span class="n">Norm</span>
+ 1105 
+ 1106     <span class="k">def</span> <span class="nf">_CalculateLonePairCoordinatesForNitrogenAtom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">NitrogenAtom</span><span class="p">):</span>
+ 1107         <span class="sd">&quot;&quot;&quot;Calculate approximate lone pair coordinates for non-plannar nitrogen atom.&quot;&quot;&quot;</span>
+ 1108 
+ 1109         <span class="n">AllowHydrogenNbrs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">NitrogenLonePairAllowHydrogenNbrs</span>
+ 1110 
+ 1111         <span class="c1"># Get neighbors...</span>
+ 1112         <span class="k">if</span> <span class="n">AllowHydrogenNbrs</span><span class="p">:</span>
+ 1113             <span class="n">AtomNeighbors</span> <span class="o">=</span> <span class="n">NitrogenAtom</span><span class="o">.</span><span class="n">GetNeighbors</span><span class="p">()</span>
+ 1114         <span class="k">else</span><span class="p">:</span>
+ 1115             <span class="n">AtomNeighbors</span> <span class="o">=</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">GetHeavyAtomNeighbors</span><span class="p">(</span><span class="n">NitrogenAtom</span><span class="p">)</span>
+ 1116 
+ 1117         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">AtomNeighbors</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+ 1118             <span class="k">return</span> <span class="kc">None</span>
+ 1119 
+ 1120         <span class="c1"># Setup positions for nitrogen and its neghbors...</span>
+ 1121         <span class="n">MolAtomsPositions</span> <span class="o">=</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">GetAtomPositions</span><span class="p">(</span><span class="n">Mol</span><span class="p">)</span>
+ 1122 
+ 1123         <span class="n">NitrogenPosition</span> <span class="o">=</span> <span class="n">MolAtomsPositions</span><span class="p">[</span><span class="n">NitrogenAtom</span><span class="o">.</span><span class="n">GetIdx</span><span class="p">()]</span>
+ 1124         <span class="n">NbrPositions</span> <span class="o">=</span> <span class="p">[]</span>
+ 1125         <span class="k">for</span> <span class="n">AtomNbr</span> <span class="ow">in</span> <span class="n">AtomNeighbors</span><span class="p">:</span>
+ 1126             <span class="n">NbrPositions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MolAtomsPositions</span><span class="p">[</span><span class="n">AtomNbr</span><span class="o">.</span><span class="n">GetIdx</span><span class="p">()])</span>
+ 1127         <span class="n">Nbr1Position</span><span class="p">,</span> <span class="n">Nbr2Position</span><span class="p">,</span> <span class="n">Nbr3Position</span> <span class="o">=</span> <span class="n">NbrPositions</span>
+ 1128 
+ 1129         <span class="c1"># Setup  normalized direction vectors...</span>
+ 1130         <span class="n">VectorP2P1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_NormalizeVector</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">Nbr2Position</span><span class="p">,</span> <span class="n">Nbr1Position</span><span class="p">))</span>
+ 1131         <span class="n">VectorP3P1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_NormalizeVector</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">Nbr3Position</span><span class="p">,</span> <span class="n">Nbr1Position</span><span class="p">))</span>
+ 1132         <span class="n">VectorP1P4</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_NormalizeVector</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">Nbr1Position</span><span class="p">,</span> <span class="n">NitrogenPosition</span><span class="p">))</span>
+ 1133 
+ 1134         <span class="c1"># Calculate angle between VectorP1P4 and normal to vectors VectorP2P1 and VectorP3P1...</span>
+ 1135         <span class="n">PlaneP1P2P3Normal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_NormalizeVector</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">VectorP2P1</span><span class="p">,</span> <span class="n">VectorP3P1</span><span class="p">))</span>
+ 1136         <span class="n">PlanarityAngle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">PlaneP1P2P3Normal</span><span class="p">,</span> <span class="n">VectorP1P4</span><span class="p">),</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+ 1137 
+ 1138         <span class="c1"># Check for reversing the direction of the normal...</span>
+ 1139         <span class="k">if</span> <span class="n">PlanarityAngle</span> <span class="o">&lt;</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mi">90</span><span class="p">):</span>
+ 1140             <span class="n">PlaneP1P2P3Normal</span> <span class="o">=</span> <span class="n">PlaneP1P2P3Normal</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span>
+ 1141 
+ 1142         <span class="c1"># Add normal to nitrogen cooridnates for the approximate coordinates of the</span>
+ 1143         <span class="c1"># one pair. The exact VSEPR coordinates of the lone pair are not necessary to</span>
+ 1144         <span class="c1"># calculate the torsion angle...</span>
+ 1145         <span class="n">LonePairPosition</span> <span class="o">=</span> <span class="n">NitrogenPosition</span> <span class="o">+</span> <span class="n">PlaneP1P2P3Normal</span>
+ 1146 
+ 1147         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">LonePairPosition</span><span class="p">)</span>
+ 1148 
+ 1149     <span class="k">def</span> <span class="nf">_ProcessSMARTSForNitrogenLonePairTorsionRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">SMARTSPattern</span><span class="p">):</span>
+ 1150         <span class="sd">&quot;&quot;&quot;Process SMARTS pattern for a torion rule containing N_lp.&quot;&quot;&quot;</span>
+ 1151 
+ 1152         <span class="n">LonePairMapNumber</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_GetNitrogenLonePairMapNumber</span><span class="p">(</span><span class="n">SMARTSPattern</span><span class="p">)</span>
+ 1153 
+ 1154         <span class="c1"># Remove double quotes around N_lp..</span>
+ 1155         <span class="n">SMARTSPattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;&quot;N_lp&quot;&#39;</span><span class="p">,</span> <span class="s2">&quot;N_lp&quot;</span><span class="p">,</span> <span class="n">SMARTSPattern</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+ 1156 
+ 1157         <span class="c1"># Remove N_lp specification from SMARTS pattern for torsion rule...</span>
+ 1158         <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\[N_lp&quot;</span><span class="p">,</span> <span class="n">SMARTSPattern</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+ 1159             <span class="c1"># Handle missing NX3...</span>
+ 1160             <span class="n">SMARTSPattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\[N_lp&quot;</span><span class="p">,</span> <span class="s2">&quot;[NX3&quot;</span><span class="p">,</span> <span class="n">SMARTSPattern</span><span class="p">)</span>
+ 1161         <span class="k">else</span><span class="p">:</span>
+ 1162             <span class="n">SMARTSPattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;;N_lp&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">SMARTSPattern</span><span class="p">)</span>
+ 1163 
+ 1164         <span class="k">return</span> <span class="p">(</span><span class="n">SMARTSPattern</span><span class="p">,</span> <span class="n">LonePairMapNumber</span><span class="p">)</span>
+ 1165 
+ 1166     <span class="k">def</span> <span class="nf">_GetNitrogenLonePairMapNumber</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">SMARTSPattern</span><span class="p">):</span>
+ 1167         <span class="sd">&quot;&quot;&quot;Get atom map number for nitrogen involved in N_lp.&quot;&quot;&quot;</span>
+ 1168 
+ 1169         <span class="n">LonePairMapNumber</span> <span class="o">=</span> <span class="kc">None</span>
+ 1170 
+ 1171         <span class="n">SMARTSPattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;&quot;N_lp&quot;&#39;</span><span class="p">,</span> <span class="s2">&quot;N_lp&quot;</span><span class="p">,</span> <span class="n">SMARTSPattern</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+ 1172         <span class="n">MatchedMappedAtoms</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;N_lp:[0-9]&quot;</span><span class="p">,</span> <span class="n">SMARTSPattern</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+ 1173 
+ 1174         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">MatchedMappedAtoms</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+ 1175             <span class="n">LonePairMapNumber</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;N_lp:&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">MatchedMappedAtoms</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+ 1176 
+ 1177         <span class="k">return</span> <span class="n">LonePairMapNumber</span>
+ 1178 
+ 1179     <span class="k">def</span> <span class="nf">_IsNitogenLonePairTorsionRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">):</span>
+ 1180         <span class="sd">&quot;&quot;&quot;Check for the presence of N_lp in SMARTS pattern for a torsion rule.&quot;&quot;&quot;</span>
+ 1181 
+ 1182         <span class="k">if</span> <span class="s2">&quot;N_lp&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ElementNode</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;smarts&quot;</span><span class="p">):</span>
+ 1183             <span class="k">return</span> <span class="kc">False</span>
+ 1184 
+ 1185         <span class="n">LonePairMatches</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;N_lp&quot;</span><span class="p">,</span> <span class="n">ElementNode</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;smarts&quot;</span><span class="p">),</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+ 1186 
+ 1187         <span class="k">return</span> <span class="kc">True</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">LonePairMatches</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">False</span>
+ 1188 
+ 1189     <span class="k">def</span> <span class="nf">_IsTypeOneNitogenLonePairTorsionRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">):</span>
+ 1190         <span class="sd">&quot;&quot;&quot;Check for the presence four mapped atoms in a SMARTS pattern containing</span>
+ 1191 <span class="sd">        N_lp for a torsion rule.&quot;&quot;&quot;</span>
+ 1192 
+ 1193         <span class="c1"># For example:</span>
+ 1194         <span class="c1">#    [CX4:1][CX4H2:2]!@[NX3;&quot;N_lp&quot;:3][CX4:4]</span>
+ 1195         <span class="c1">#    [C:1][CX4H2:2]!@[NX3;&quot;N_lp&quot;:3][C:4]</span>
+ 1196         <span class="c1">#    ... ... ...</span>
+ 1197 
+ 1198         <span class="n">MatchedMappedAtoms</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;:[0-9]&quot;</span><span class="p">,</span> <span class="n">ElementNode</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;smarts&quot;</span><span class="p">),</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+ 1199 
+ 1200         <span class="k">return</span> <span class="kc">True</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">MatchedMappedAtoms</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span> <span class="k">else</span> <span class="kc">False</span>
+ 1201 
+ 1202     <span class="k">def</span> <span class="nf">_IsTypeTwoNitogenLonePairTorsionRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">):</span>
+ 1203         <span class="sd">&quot;&quot;&quot;Check for the presence three mapped atoms in a SMARTS pattern containing</span>
+ 1204 <span class="sd">        N_lp for a torsion rule.&quot;&quot;&quot;</span>
+ 1205 
+ 1206         <span class="c1"># For example:</span>
+ 1207         <span class="c1"># [!#1:1][CX4:2]!@[NX3;&quot;N_lp&quot;:3]</span>
+ 1208         <span class="c1"># [!#1:1][$(S(=O)=O):2]!@[&quot;N_lp&quot;:3]@[Cr3]</span>
+ 1209         <span class="c1"># [C:1][$(S(=O)=O):2]!@[&quot;N_lp&quot;:3]</span>
+ 1210         <span class="c1"># [c:1][$(S(=O)=O):2]!@[&quot;N_lp&quot;:3]</span>
+ 1211         <span class="c1"># [!#1:1][$(S(=O)=O):2]!@[&quot;N_lp&quot;:3]</span>
+ 1212         <span class="c1">#</span>
+ 1213 
+ 1214         <span class="n">MatchedMappedAtoms</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;:[0-9]&quot;</span><span class="p">,</span> <span class="n">ElementNode</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;smarts&quot;</span><span class="p">),</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+ 1215 
+ 1216         <span class="k">return</span> <span class="kc">True</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">MatchedMappedAtoms</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="k">else</span> <span class="kc">False</span>
+ 1217 
+ 1218     <span class="k">def</span> <span class="nf">_IsValidTypeTwoNitogenLonePairTorsionRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ElementNode</span><span class="p">):</span>
+ 1219         <span class="sd">&quot;&quot;&quot;Validate atom map number for nitrogen involved in N_lp for type two nitrogen</span>
+ 1220 <span class="sd">        lone pair torsion rule.&quot;&quot;&quot;</span>
+ 1221 
+ 1222         <span class="n">LonePairMapNumber</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_GetNitrogenLonePairMapNumber</span><span class="p">(</span><span class="n">ElementNode</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;smarts&quot;</span><span class="p">))</span>
+ 1223 
+ 1224         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_IsValidTypeTwoNitrogenLonePairMapNumber</span><span class="p">(</span><span class="n">LonePairMapNumber</span><span class="p">)</span>
+ 1225 
+ 1226     <span class="k">def</span> <span class="nf">_IsValidTypeTwoNitrogenLonePairMapNumber</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">LonePairMapNumber</span><span class="p">):</span>
+ 1227         <span class="sd">&quot;&quot;&quot;Check that  the atom map number is 3.&quot;&quot;&quot;</span>
+ 1228 
+ 1229         <span class="k">return</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">LonePairMapNumber</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">LonePairMapNumber</span> <span class="o">==</span> <span class="mi">3</span> <span class="k">else</span> <span class="kc">False</span>
+ 1230 
+ 1231     <span class="k">def</span> <span class="nf">_SetupTorsionAlertTypeForRotatableBond</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">TorsionAnglesInfo</span><span class="p">,</span> <span class="n">TorsionAngle</span><span class="p">):</span>
+ 1232         <span class="sd">&quot;&quot;&quot;Setup torsion alert type and angle violation for a rotatable bond.&quot;&quot;&quot;</span>
+ 1233 
+ 1234         <span class="n">TorsionCategory</span><span class="p">,</span> <span class="n">TorsionAngleViolation</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+ 1235 
+ 1236         <span class="k">for</span> <span class="n">ID</span> <span class="ow">in</span> <span class="n">TorsionAnglesInfo</span><span class="p">[</span><span class="s2">&quot;IDs&quot;</span><span class="p">]:</span>
+ 1237             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_IsTorsionAngleInWithinTolerance</span><span class="p">(</span>
+ 1238                 <span class="n">TorsionAngle</span><span class="p">,</span> <span class="n">TorsionAnglesInfo</span><span class="p">[</span><span class="s2">&quot;Value&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">],</span> <span class="n">TorsionAnglesInfo</span><span class="p">[</span><span class="s2">&quot;Tolerance1&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span>
+ 1239             <span class="p">):</span>
+ 1240                 <span class="n">TorsionCategory</span> <span class="o">=</span> <span class="s2">&quot;Green&quot;</span>
+ 1241                 <span class="n">TorsionAngleViolation</span> <span class="o">=</span> <span class="mf">0.0</span>
+ 1242                 <span class="k">break</span>
+ 1243 
+ 1244             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_IsTorsionAngleInWithinTolerance</span><span class="p">(</span>
+ 1245                 <span class="n">TorsionAngle</span><span class="p">,</span> <span class="n">TorsionAnglesInfo</span><span class="p">[</span><span class="s2">&quot;Value&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">],</span> <span class="n">TorsionAnglesInfo</span><span class="p">[</span><span class="s2">&quot;Tolerance2&quot;</span><span class="p">][</span><span class="n">ID</span><span class="p">]</span>
+ 1246             <span class="p">):</span>
+ 1247                 <span class="n">TorsionCategory</span> <span class="o">=</span> <span class="s2">&quot;Orange&quot;</span>
+ 1248                 <span class="n">TorsionAngleViolation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_CalculateTorsionAngleViolation</span><span class="p">(</span>
+ 1249                     <span class="n">TorsionAngle</span><span class="p">,</span> <span class="n">TorsionAnglesInfo</span><span class="p">[</span><span class="s2">&quot;ValuesIn360RangeList&quot;</span><span class="p">],</span> <span class="n">TorsionAnglesInfo</span><span class="p">[</span><span class="s2">&quot;Tolerances1List&quot;</span><span class="p">]</span>
+ 1250                 <span class="p">)</span>
+ 1251                 <span class="k">break</span>
+ 1252 
+ 1253         <span class="k">if</span> <span class="n">TorsionCategory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+ 1254             <span class="n">TorsionCategory</span> <span class="o">=</span> <span class="s2">&quot;Red&quot;</span>
+ 1255             <span class="n">TorsionAngleViolation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_CalculateTorsionAngleViolation</span><span class="p">(</span>
+ 1256                 <span class="n">TorsionAngle</span><span class="p">,</span> <span class="n">TorsionAnglesInfo</span><span class="p">[</span><span class="s2">&quot;ValuesIn360RangeList&quot;</span><span class="p">],</span> <span class="n">TorsionAnglesInfo</span><span class="p">[</span><span class="s2">&quot;Tolerances2List&quot;</span><span class="p">]</span>
+ 1257             <span class="p">)</span>
+ 1258 
+ 1259         <span class="k">return</span> <span class="p">(</span><span class="n">TorsionCategory</span><span class="p">,</span> <span class="n">TorsionAngleViolation</span><span class="p">)</span>
+ 1260 
+ 1261     <span class="k">def</span> <span class="nf">_IsTorsionAngleInWithinTolerance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">TorsionAngle</span><span class="p">,</span> <span class="n">TorsionPeak</span><span class="p">,</span> <span class="n">TorsionTolerance</span><span class="p">):</span>
+ 1262         <span class="sd">&quot;&quot;&quot;Check torsion angle against torsion tolerance.&quot;&quot;&quot;</span>
+ 1263 
+ 1264         <span class="n">TorsionAngleDiff</span> <span class="o">=</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">CalculateTorsionAngleDifference</span><span class="p">(</span><span class="n">TorsionPeak</span><span class="p">,</span> <span class="n">TorsionAngle</span><span class="p">)</span>
+ 1265 
+ 1266         <span class="k">return</span> <span class="kc">True</span> <span class="k">if</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">TorsionAngleDiff</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">TorsionTolerance</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+ 1267 
+ 1268     <span class="k">def</span> <span class="nf">_CalculateTorsionAngleViolation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">TorsionAngle</span><span class="p">,</span> <span class="n">TorsionPeaks</span><span class="p">,</span> <span class="n">TorsionTolerances</span><span class="p">):</span>
+ 1269         <span class="sd">&quot;&quot;&quot;Calculate torsion angle violation.&quot;&quot;&quot;</span>
+ 1270 
+ 1271         <span class="n">TorsionAngleViolation</span> <span class="o">=</span> <span class="kc">None</span>
+ 1272 
+ 1273         <span class="c1"># Map angle to 0 to 360 range. TorsionPeaks values must be in this range...</span>
+ 1274         <span class="k">if</span> <span class="n">TorsionAngle</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+ 1275             <span class="n">TorsionAngle</span> <span class="o">=</span> <span class="n">TorsionAngle</span> <span class="o">+</span> <span class="mi">360</span>
+ 1276 
+ 1277         <span class="c1"># Identify the closest torsion peak index...</span>
+ 1278         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">TorsionPeaks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+ 1279             <span class="n">NearestPeakIndex</span> <span class="o">=</span> <span class="mi">0</span>
+ 1280         <span class="k">else</span><span class="p">:</span>
+ 1281             <span class="n">NearestPeakIndex</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">TorsionPeaks</span><span class="p">)),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">Index</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">TorsionPeaks</span><span class="p">[</span><span class="n">Index</span><span class="p">]</span> <span class="o">-</span> <span class="n">TorsionAngle</span><span class="p">))</span>
+ 1282 
+ 1283         <span class="c1"># Calculate torsion angle violation from the nearest peak and its tolerance value...</span>
+ 1284         <span class="n">TorsionAngleDiff</span> <span class="o">=</span> <span class="n">TorsionAlertsUtil</span><span class="o">.</span><span class="n">CalculateTorsionAngleDifference</span><span class="p">(</span>
+ 1285             <span class="n">TorsionPeaks</span><span class="p">[</span><span class="n">NearestPeakIndex</span><span class="p">],</span> <span class="n">TorsionAngle</span>
+ 1286         <span class="p">)</span>
+ 1287         <span class="n">TorsionAngleViolation</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">TorsionAngleDiff</span><span class="p">)</span> <span class="o">-</span> <span class="n">TorsionTolerances</span><span class="p">[</span><span class="n">NearestPeakIndex</span><span class="p">])</span>
+ 1288 
+ 1289         <span class="k">return</span> <span class="n">TorsionAngleViolation</span>
+</pre>
+<br />
+<center>
+<img src="../../../images/h2o2.png">
+</center>
+</body>
+</html>

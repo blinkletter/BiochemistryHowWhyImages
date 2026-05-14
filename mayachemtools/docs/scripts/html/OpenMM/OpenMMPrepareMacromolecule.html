@@ -1,0 +1,214 @@
+<html>
+<head>
+<title>MayaChemTools:Documentation:OpenMMPrepareMacromolecule.py</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../../css/MayaChemTools.css">
+</head>
+<body leftmargin="20" rightmargin="20" topmargin="10" bottommargin="10">
+<br/>
+<center>
+<a href="http://www.mayachemtools.org" title="MayaChemTools Home"><img src="../../../images/MayaChemToolsLogo.gif" border="0" alt="MayaChemTools"></a>
+</center>
+<br/>
+<div class="TopSubNav">
+  <ul style="padding-left: 50px;">
+    <li><a href="../../../scripts/html/index.html" title="MayaChemTools Scripts Documentation">All</a></li>
+    <li><a href="../../../scripts/html/Standalone/index.html" title="MayaChemTools Standalone Scripts Documentation">Standalone</a></li>
+    <li><a href="../../../scripts/html/RDKit/index.html" title="MayaChemTools RDKit Scripts Documentation">RDKit</a></li>
+    <li><a href="../../../scripts/html/PyMOL/index.html" title="MayaChemTools PyMOL Scripts Documentation">PyMOL</a></li>
+    <li id="current"><a href="../../../scripts/html/OpenMM/index.html" title="MayaChemTools OpenMM Scripts Documentation">OpenMM</a></li>
+    <li><a href="../../../scripts/html/OpenFE/index.html" title="MayaChemTools OpenFE Scripts Documentation">OpenFE</a></li>
+    <li><a href="../../../scripts/html/Psi4/index.html" title="MayaChemTools Psi4 Scripts Documentation">Psi4</a></li>
+    <li><a href="../../../scripts/html/Misc/index.html" title="MayaChemTools Misc Scripts Documentation">Misc</a></li>
+</ul>
+</div>
+<div class="DocNav">
+<table width="100%" border=0 cellpadding=0 cellspacing=2>
+<tr align="left" valign="top"><td width="33%" align="left"><a href="./OpenMMPerformSimulatedAnnealing.html" title="OpenMMPerformSimulatedAnnealing.html">Previous</a>&nbsp;&nbsp;<a href="./index.html" title="Table of Contents">TOC</a>&nbsp;&nbsp;</td><td width="34%" align="middle"><strong>OpenMMPrepareMacromolecule.py</strong></td><td width="33%" align="right"><a href="./../code/OpenMMPrepareMacromolecule.html" title="View source code">Code</a>&nbsp;|&nbsp;<a href="./../../pdf/OpenMMPrepareMacromolecule.pdf" title="PDF US Letter Size">PDF</a>&nbsp;|&nbsp;<a href="./../../pdfa4/OpenMMPrepareMacromolecule.pdf" title="PDF A4 Size">PDFA4</a></td></tr>
+</table>
+</div>
+<h1 id="NAME">NAME</h2>
+<p>OpenMMPrepareMacromolecule.py - Prepare a macromolecule for simulation</p>
+<h1 id="SYNOPSIS">SYNOPSIS</h2>
+<p>OpenMMPrepareMacromolecule.py [<b>--addHeavyAtoms</b> &lt;yes or no&gt;] [<b>--addHydrogens</b> &lt;yes or no&gt;] [<b>--addHydrogensAtpH</b> &lt;number&gt;] [<b>--addResidues</b> &lt;yes or no&gt;] [<b>--deleteHeterogens</b> &lt;All, AllExceptWater, WaterOnly, None&gt;] [<b>--ionPositive</b> &lt;text&gt;] [<b>--ionNegative</b> &lt;text&gt;] [<b>--ionicStrength</b> &lt;number&gt;] [<b><b>--list</b>Details</b> &lt;yes or no&gt; ] [<b>--membrane</b> &lt;yes or no&gt;] [<b>--membraneParams</b> &lt;Name,Value,..&gt;] [<b>--overwrite</b>] [<b>--replaceNonStandardResidues</b> &lt;yes or no&gt;] [<b>--waterBox</b> &lt;yes or no&gt;] [<b>--waterBoxParams</b> &lt;Name,Value,..&gt;] [<b>-w</b> &lt;dir&gt;] <b>-i</b> &lt;infile&gt; <b>-o</b> &lt;outfile&gt;</p>
+<p>OpenMMPrepareMacromolecule.py <b>-h</b> | <b>--help</b> | <b>-e</b> | <b>--examples</b></p>
+<h1 id="DESCRIPTION">DESCRIPTION</h2>
+<p>Prepare a macromolecute in an input file for molecular simulation and and write it out to an output file. The macromolecule is prepared by automatically performing the following actions:</p>
+    <div class="OptionsBox">. Identify and replace non-standard residues
+<br/>    . Add missing residues
+<br/>    . Add missing heavy atoms
+<br/>    . Add missing hydrogens</div>
+<p>You may optionally remove heterogens, add a water box, and add a lipid membrane.</p>
+<p>The supported input file format are: PDB (.pdb) and CIF (.cif)</p>
+<p>The supported output file formats are: PDB (.pdb) and CIF (.cif)</p>
+<h1 id="OPTIONS">OPTIONS</h2>
+<dl>
+<dt id="addHeavyAtoms-yes-or-no-default:-yes"><b>--addHeavyAtoms</b> &lt;yes or no&gt; [default: yes]</dt>
+<dd>
+<p>Add missing non-hydrogen atoms based on the templates. The terminal atoms are also added.</p>
+</dd>
+<dt id="addHydrogens-yes-or-no-default:-yes"><b>--addHydrogens</b> &lt;yes or no&gt; [default: yes]</dt>
+<dd>
+<p>Add missing hydrogens at pH value specified using &#39;-addHydrogensAtpH&#39; option. The missing hydrogens are added based on the templates and pKa calculations are performed.</p>
+</dd>
+<dt id="addHydrogensAtpH-number-default:-7.0"><b>--addHydrogensAtpH</b> &lt;number&gt; [default: 7.0]</dt>
+<dd>
+<p>pH value to use for adding missing hydrogens.</p>
+</dd>
+<dt id="addResidues-yes-or-no-default:-yes"><b>--addResidues</b> &lt;yes or no&gt; [default: yes]</dt>
+<dd>
+<p>Add missing residues unidentified based on the PDB records.</p>
+</dd>
+<dt id="deleteHeterogens-All-AllExceptWater-WaterOnly-None-default:-auto"><b>--deleteHeterogens</b> &lt;All, AllExceptWater, WaterOnly, None&gt; [default: auto]</dt>
+<dd>
+<p>Delete heterogens corresponding to non-standard names of amino acids, dna, and rna along with any ligand names. &#39;N&#39; and &#39;UNK&#39; also consider standard residues. Default value: WaterOnly during addition of WaterBox or Membrane; Otherwise, None.</p>
+<p>The &#39;AllExceptWater&#39; or &#39;None&#39; values are not allowed during the addition of a water box or membrane. The waters must be deleted as they are explicitly added during the construction of a water box and membrane.</p>
+</dd>
+<dt id="e---examples"><b>-e, --examples</b></dt>
+<dd>
+<p>Print examples.</p>
+</dd>
+<dt id="h---help"><b>-h, --help</b></dt>
+<dd>
+<p>Print this help message.</p>
+</dd>
+<dt id="i---infile-infile"><b>-i, --infile</b> &lt;infile&gt;</dt>
+<dd>
+<p>Input file name.</p>
+</dd>
+<dt id="ionPositive-text-default:-Na"><b>--ionPositive</b> &lt;text&gt; [default: Na+]</dt>
+<dd>
+<p>Type of positive ion to add during the addition of a water box or membrane. Possible values: Li+, Na+, K+, Rb+, or Cs+.</p>
+</dd>
+<dt id="ionNegative-text-default:-Cl"><b>--ionNegative</b> &lt;text&gt; [default: Cl-]</dt>
+<dd>
+<p>Type of negative ion to add during the addition of a water box or membrane. Possible values: Cl-, Br-, F-, or I-.</p>
+</dd>
+<dt id="ionicStrength-number-default:-0.0"><b>--ionicStrength</b> &lt;number&gt; [default: 0.0]</dt>
+<dd>
+<p>Total concentration of both positive and negative ions to add excluding the ions added to neutralize the system during the addition of a water box or a membrane.</p>
+</dd>
+<dt id="l---listDetails-yes-or-no-default:-no"><b>-l, --listDetails</b> &lt;yes or no&gt; [default: no]</dt>
+<dd>
+<p>List details about missing and non-standard residues along with residues containing missing atoms.</p>
+</dd>
+<dt id="membrane-yes-or-no-default:-no"><b>--membrane</b> &lt;yes or no&gt; [default: no]</dt>
+<dd>
+<p>Add lipid membrane along with a water box. The script replies on OpenMM method modeller.addMebrane() to perform the task. The membrane is added in the XY plane. The existing macromolecule must be oriented and positioned correctly.</p>
+<p>A word to the wise: You may want to start with a model from the Orientations of Proteins in Membranes (OPM) database at http://opm.phar.umich.edu.</p>
+<p>The size of the membrane and water box are determined by the value of &#39;padding&#39; parameter specified using &#39;--membraneParams&#39; option. All atoms in macromolecule are guaranteed to be at least this far from any edge of the periodic box.</p>
+</dd>
+<dt id="membraneParams-Name-Value-..-default:-auto"><b>--membraneParams</b> &lt;Name,Value,..&gt; [default: auto]</dt>
+<dd>
+<p>A comma delimited list of parameter name and value pairs for adding a lipid membrane and water.</p>
+<p>The supported parameter names along with their default values are are shown below:</p>
+    <div class="OptionsBox"> lipidType, POPC  [ Possible values: POPC, POPE, DLPC, DLPE,  DMPC, 
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        DOPC or DPPC ]
+<br/>    membraneCenterZ, 0.0
+<br/>    padding, 1.0
+<br/>    </div>
+<p>A brief description of parameters is provided below:</p>
+    <div class="OptionsBox"> lipidType: Type of lipid to use for constructing the membrane.
+<br/>    membraneCenterZ: Position along the Z axis of the center of
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        the membrane in nanomertes.
+<br/>    padding: Minimum padding distance to use in nanomertes. It&#39;s used
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        to determine the size of the membrane and water box. All atoms
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        in the macromolecule are guaranteed to be at least this far from
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        any edge of the periodic box.
+<br/>    </div>
+</dd>
+<dt id="o---outfile-outfile"><b>-o, --outfile</b> &lt;outfile&gt;</dt>
+<dd>
+<p>Output file name.</p>
+</dd>
+<dt id="overwrite"><b>--overwrite</b></dt>
+<dd>
+<p>Overwrite existing files.</p>
+</dd>
+<dt id="replaceNonStandardResidues-yes-or-no-default:-yes"><b>--replaceNonStandardResidues</b> &lt;yes or no&gt; [default: yes]</dt>
+<dd>
+<p>Replace non-standard residue names by standard residue names based on the list of non-standard residues available in pdbfixer.</p>
+</dd>
+<dt id="waterBox-yes-or-no-default:-no"><b>--waterBox</b> &lt;yes or no&gt; [default: no]</dt>
+<dd>
+<p>Add water box.</p>
+</dd>
+<dt id="waterBoxParams-Name-Value-..-default:-auto"><b>--waterBoxParams</b> &lt;Name,Value,..&gt; [default: auto]</dt>
+<dd>
+<p>A comma delimited list of parameter name and value pairs for adding a water box.</p>
+<p>The supported parameter names along with their default values are are shown below:</p>
+    <div class="OptionsBox"> mode, Padding  [ Possible values: Size or Padding ]
+<br/>    size, None  [ Possible value: xsize ysize zsize ]
+<br/>    padding, 1.0
+<br/>    shape, cube  [ Possible values: cube, dodecahedron, or octahedron ]
+<br/>    </div>
+<p>A brief description of parameters is provided below:</p>
+    <div class="OptionsBox"> mode: Specify the size of the waterbox explicitly or calculate it
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        automatically for a macromolecule along with adding padding
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        around ther macromolecule.
+<br/>    size: A space delimited triplet of values corresponding to water
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        size in nanometers. It must be specified during &#39;Size&#39; value of
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &#39;mode&#39; parameter.
+<br/>    padding: Padding around a macromolecule in nanometers for filling
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        box with water. It must be specified during &#39;Padding&#39; value of
+<br/>&nbsp;&nbsp;&nbsp;&nbsp;        &#39;mode&#39; parameter.
+<br/>    </div>
+</dd>
+<dt id="w---workingdir-dir"><b>-w, --workingdir</b> &lt;dir&gt;</dt>
+<dd>
+<p>Location of working directory which defaults to the current directory.</p>
+</dd>
+</dl>
+<h1 id="EXAMPLES">EXAMPLES</h2>
+<p>To prepare a macromolecule in a PDB file by replacing non-standard residues, adding missing residues, adding missing heavy atoms and missing hydrogens, and generate a PDB file, type:</p>
+<div class="ExampleBox">% OpenMMPrepareMacromolecule.py -i Sample11.pdb -o Sample11Out.pdb</div>
+<p>To run the first example for listing additional details about missing atoms and residues, and generate a PDB file, type:</p>
+<div class="ExampleBox">% OpenMMPrepareMacromolecule.py --listDetails yes -i Sample11.pdb
+  -o Sample11Out.pdb</div>
+<p>To run the first example for deleting all heterogens including water along with performing all default actions, and generate a PDB file, type:</p>
+<div class="ExampleBox">% OpenMMPrepareMacromolecule.py --deleteHeterogens All -i Sample11.pdb
+  -o Sample11Out.pdb</div>
+<p>To run the first example for deleting water only heterogens along with performing all default actions, and generate a PDB file, type:</p>
+<div class="ExampleBox">% OpenMMPrepareMacromolecule.py --deleteHeterogens WaterOnly
+  -i Sample11.pdb -o Sample11Out.pdb --ov</div>
+<p>To run the first example for adding a water box by automatically calculating its size, along with performing all default actions, and generate a PDB file, type:</p>
+<div class="ExampleBox">% OpenMMPrepareMacromolecule.py --waterBox yes -i Sample11.pdb
+  -o Sample11Out.pdb</div>
+<p>To run the previous example by explcitly specifying various water box parameters, and generate a PDB file, type:</p>
+<div class="ExampleBox">% OpenMMPrepareMacromolecule.py --waterBox yes
+  --waterBoxParams &quot;mode,Padding, padding, 1.0, shape, cube&quot;
+  -i Sample11.pdb -o Sample11Out.pdb</div>
+<p>To run the first example for adding a water box of a specific size along with performing all default actions, and generate a PDB file, type:</p>
+<div class="ExampleBox">% OpenMMPrepareMacromolecule.py --waterBox yes
+  --waterBoxParams &quot;mode,Size, size, 7.635 7.077 7.447&quot;
+  -i Sample11.pdb -o Sample11Out.pdb</div>
+<p>To add a lipid membrane around a correctly oriented and positioned macromolecule, along with performing all default actions, and generate a PDB file, type:</p>
+<div class="ExampleBox">% OpenMMPrepareMacromolecule.py --membrane yes
+  -i Sample12.pdb -o Sample12Out.pdb</div>
+<p>To add a lipid membrane around a correctly oriented and positioned macromolecule, deleting all heterogens along with performing all default actions, and generate a PDB file, type:</p>
+<div class="ExampleBox">% OpenMMPrepareMacromolecule.py --membrane yes --deleteHeterogens All 
+  -i Sample12.pdb -o Sample12Out.pdb</div>
+<p>To run the previous example by explcitly specifying various membrane parameters, and generate a PDB file, type:</p>
+<div class="ExampleBox">% OpenMMPrepareMacromolecule.py --membrane yes
+  --membraneParams &quot;lipidType, POPC, membraneCenterZ, 0.0, padding, 1.0&quot;
+  -i Sample12.pdb -o Sample12Out.pdb</div>
+<h1 id="AUTHOR">AUTHOR</h2>
+<p><a href="mailto:msud@san.rr.com">Manish Sud</a></p>
+<h1 id="SEE-ALSO">SEE ALSO</h2>
+<p><a href="./InfoPDBFiles.html">InfoPDBFiles.pl</a>, <a href="./ExtractFromPDBFiles.html">ExtractFromPDBFiles.pl</a>, <a href="./PyMOLExtractSelection.html">PyMOLExtractSelection.py</a>, <a href="./PyMOLInfoMacromolecules.html">PyMOLInfoMacromolecules.py</a>, <a href="./PyMOLSplitChainsAndLigands.html">PyMOLSplitChainsAndLigands.py</a></p>
+<h1 id="COPYRIGHT">COPYRIGHT</h2>
+<p>Copyright (C) 2026 Manish Sud. All rights reserved.</p>
+<p>The functionality available in this script is implemented using OpenMM, an open source molecuar simulation package.</p>
+<p>This file is part of MayaChemTools.</p>
+<p>MayaChemTools is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.</p>
+<p>&nbsp</p><p>&nbsp</p><div class="DocNav">
+<table width="100%" border=0 cellpadding=0 cellspacing=2>
+<tr align="left" valign="top"><td width="33%" align="left"><a href="./OpenMMPerformSimulatedAnnealing.html" title="OpenMMPerformSimulatedAnnealing.html">Previous</a>&nbsp;&nbsp;<a href="./index.html" title="Table of Contents">TOC</a>&nbsp;&nbsp;</td><td width="34%" align="middle"><strong>February 8, 2026</strong></td><td width="33%" align="right"><strong>OpenMMPrepareMacromolecule.py</strong></td></tr>
+</table>
+</div>
+<br />
+<center>
+<img src="../../../images/h2o2.png">
+</center>
+</body>
+</html>

@@ -1,0 +1,252 @@
+NAME
+    OpenMMPrepareMacromolecule.py - Prepare a macromolecule for simulation
+
+SYNOPSIS
+    OpenMMPrepareMacromolecule.py [--addHeavyAtoms <yes or no>]
+    [--addHydrogens <yes or no>] [--addHydrogensAtpH <number>]
+    [--addResidues <yes or no>] [--deleteHeterogens <All, AllExceptWater,
+    WaterOnly, None>] [--ionPositive <text>] [--ionNegative <text>]
+    [--ionicStrength <number>] [--listDetails <yes or no> ] [--membrane <yes
+    or no>] [--membraneParams <Name,Value,..>] [--overwrite]
+    [--replaceNonStandardResidues <yes or no>] [--waterBox <yes or no>]
+    [--waterBoxParams <Name,Value,..>] [-w <dir>] -i <infile> -o <outfile>
+
+    OpenMMPrepareMacromolecule.py -h | --help | -e | --examples
+
+DESCRIPTION
+    Prepare a macromolecute in an input file for molecular simulation and
+    and write it out to an output file. The macromolecule is prepared by
+    automatically performing the following actions:
+
+        . Identify and replace non-standard residues
+        . Add missing residues
+        . Add missing heavy atoms
+        . Add missing hydrogens
+
+    You may optionally remove heterogens, add a water box, and add a lipid
+    membrane.
+
+    The supported input file format are: PDB (.pdb) and CIF (.cif)
+
+    The supported output file formats are: PDB (.pdb) and CIF (.cif)
+
+OPTIONS
+    --addHeavyAtoms <yes or no> [default: yes]
+        Add missing non-hydrogen atoms based on the templates. The terminal
+        atoms are also added.
+
+    --addHydrogens <yes or no> [default: yes]
+        Add missing hydrogens at pH value specified using
+        '-addHydrogensAtpH' option. The missing hydrogens are added based on
+        the templates and pKa calculations are performed.
+
+    --addHydrogensAtpH <number> [default: 7.0]
+        pH value to use for adding missing hydrogens.
+
+    --addResidues <yes or no> [default: yes]
+        Add missing residues unidentified based on the PDB records.
+
+    --deleteHeterogens <All, AllExceptWater, WaterOnly, None> [default:
+    auto]
+        Delete heterogens corresponding to non-standard names of amino
+        acids, dna, and rna along with any ligand names. 'N' and 'UNK' also
+        consider standard residues. Default value: WaterOnly during addition
+        of WaterBox or Membrane; Otherwise, None.
+
+        The 'AllExceptWater' or 'None' values are not allowed during the
+        addition of a water box or membrane. The waters must be deleted as
+        they are explicitly added during the construction of a water box and
+        membrane.
+
+    -e, --examples
+        Print examples.
+
+    -h, --help
+        Print this help message.
+
+    -i, --infile <infile>
+        Input file name.
+
+    --ionPositive <text> [default: Na+]
+        Type of positive ion to add during the addition of a water box or
+        membrane. Possible values: Li+, Na+, K+, Rb+, or Cs+.
+
+    --ionNegative <text> [default: Cl-]
+        Type of negative ion to add during the addition of a water box or
+        membrane. Possible values: Cl-, Br-, F-, or I-.
+
+    --ionicStrength <number> [default: 0.0]
+        Total concentration of both positive and negative ions to add
+        excluding the ions added to neutralize the system during the
+        addition of a water box or a membrane.
+
+    -l, --listDetails <yes or no> [default: no]
+        List details about missing and non-standard residues along with
+        residues containing missing atoms.
+
+    --membrane <yes or no> [default: no]
+        Add lipid membrane along with a water box. The script replies on
+        OpenMM method modeller.addMebrane() to perform the task. The
+        membrane is added in the XY plane. The existing macromolecule must
+        be oriented and positioned correctly.
+
+        A word to the wise: You may want to start with a model from the
+        Orientations of Proteins in Membranes (OPM) database at
+        http://opm.phar.umich.edu.
+
+        The size of the membrane and water box are determined by the value
+        of 'padding' parameter specified using '--membraneParams' option.
+        All atoms in macromolecule are guaranteed to be at least this far
+        from any edge of the periodic box.
+
+    --membraneParams <Name,Value,..> [default: auto]
+        A comma delimited list of parameter name and value pairs for adding
+        a lipid membrane and water.
+
+        The supported parameter names along with their default values are
+        are shown below:
+
+            lipidType, POPC  [ Possible values: POPC, POPE, DLPC, DLPE,  DMPC, 
+                DOPC or DPPC ]
+            membraneCenterZ, 0.0
+            padding, 1.0
+
+        A brief description of parameters is provided below:
+
+            lipidType: Type of lipid to use for constructing the membrane.
+            membraneCenterZ: Position along the Z axis of the center of
+                the membrane in nanomertes.
+            padding: Minimum padding distance to use in nanomertes. It's used
+                to determine the size of the membrane and water box. All atoms
+                in the macromolecule are guaranteed to be at least this far from
+                any edge of the periodic box.
+
+    -o, --outfile <outfile>
+        Output file name.
+
+    --overwrite
+        Overwrite existing files.
+
+    --replaceNonStandardResidues <yes or no> [default: yes]
+        Replace non-standard residue names by standard residue names based
+        on the list of non-standard residues available in pdbfixer.
+
+    --waterBox <yes or no> [default: no]
+        Add water box.
+
+    --waterBoxParams <Name,Value,..> [default: auto]
+        A comma delimited list of parameter name and value pairs for adding
+        a water box.
+
+        The supported parameter names along with their default values are
+        are shown below:
+
+            mode, Padding  [ Possible values: Size or Padding ]
+            size, None  [ Possible value: xsize ysize zsize ]
+            padding, 1.0
+            shape, cube  [ Possible values: cube, dodecahedron, or octahedron ]
+
+        A brief description of parameters is provided below:
+
+            mode: Specify the size of the waterbox explicitly or calculate it
+                automatically for a macromolecule along with adding padding
+                around ther macromolecule.
+            size: A space delimited triplet of values corresponding to water
+                size in nanometers. It must be specified during 'Size' value of
+                'mode' parameter.
+            padding: Padding around a macromolecule in nanometers for filling
+                box with water. It must be specified during 'Padding' value of
+                'mode' parameter.
+
+    -w, --workingdir <dir>
+        Location of working directory which defaults to the current
+        directory.
+
+EXAMPLES
+    To prepare a macromolecule in a PDB file by replacing non-standard
+    residues, adding missing residues, adding missing heavy atoms and
+    missing hydrogens, and generate a PDB file, type:
+
+        % OpenMMPrepareMacromolecule.py -i Sample11.pdb -o Sample11Out.pdb
+
+    To run the first example for listing additional details about missing
+    atoms and residues, and generate a PDB file, type:
+
+        % OpenMMPrepareMacromolecule.py --listDetails yes -i Sample11.pdb
+          -o Sample11Out.pdb
+
+    To run the first example for deleting all heterogens including water
+    along with performing all default actions, and generate a PDB file,
+    type:
+
+        % OpenMMPrepareMacromolecule.py --deleteHeterogens All -i Sample11.pdb
+          -o Sample11Out.pdb
+
+    To run the first example for deleting water only heterogens along with
+    performing all default actions, and generate a PDB file, type:
+
+        % OpenMMPrepareMacromolecule.py --deleteHeterogens WaterOnly
+          -i Sample11.pdb -o Sample11Out.pdb --ov
+
+    To run the first example for adding a water box by automatically
+    calculating its size, along with performing all default actions, and
+    generate a PDB file, type:
+
+        % OpenMMPrepareMacromolecule.py --waterBox yes -i Sample11.pdb
+          -o Sample11Out.pdb
+
+    To run the previous example by explcitly specifying various water box
+    parameters, and generate a PDB file, type:
+
+        % OpenMMPrepareMacromolecule.py --waterBox yes
+          --waterBoxParams "mode,Padding, padding, 1.0, shape, cube"
+          -i Sample11.pdb -o Sample11Out.pdb
+
+    To run the first example for adding a water box of a specific size along
+    with performing all default actions, and generate a PDB file, type:
+
+        % OpenMMPrepareMacromolecule.py --waterBox yes
+          --waterBoxParams "mode,Size, size, 7.635 7.077 7.447"
+          -i Sample11.pdb -o Sample11Out.pdb
+
+    To add a lipid membrane around a correctly oriented and positioned
+    macromolecule, along with performing all default actions, and generate a
+    PDB file, type:
+
+        % OpenMMPrepareMacromolecule.py --membrane yes
+          -i Sample12.pdb -o Sample12Out.pdb
+
+    To add a lipid membrane around a correctly oriented and positioned
+    macromolecule, deleting all heterogens along with performing all default
+    actions, and generate a PDB file, type:
+
+        % OpenMMPrepareMacromolecule.py --membrane yes --deleteHeterogens All 
+          -i Sample12.pdb -o Sample12Out.pdb
+
+    To run the previous example by explcitly specifying various membrane
+    parameters, and generate a PDB file, type:
+
+        % OpenMMPrepareMacromolecule.py --membrane yes
+          --membraneParams "lipidType, POPC, membraneCenterZ, 0.0, padding, 1.0"
+          -i Sample12.pdb -o Sample12Out.pdb
+
+AUTHOR
+    Manish Sud(msud@san.rr.com)
+
+SEE ALSO
+    InfoPDBFiles.pl, ExtractFromPDBFiles.pl, PyMOLExtractSelection.py,
+    PyMOLInfoMacromolecules.py, PyMOLSplitChainsAndLigands.py
+
+COPYRIGHT
+    Copyright (C) 2026 Manish Sud. All rights reserved.
+
+    The functionality available in this script is implemented using OpenMM,
+    an open source molecuar simulation package.
+
+    This file is part of MayaChemTools.
+
+    MayaChemTools is free software; you can redistribute it and/or modify it
+    under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or (at
+    your option) any later version.
+
