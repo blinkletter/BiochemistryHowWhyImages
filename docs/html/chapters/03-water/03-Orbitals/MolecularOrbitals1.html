@@ -1,0 +1,1631 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Notes &#8212; Biochemistry - How and Why</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=9b88075f" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/tufte.css?v=34b51f63" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'chapters/03-water/03-Orbitals/MolecularOrbitals1';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../start.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/water2.png" class="logo__image only-light" alt="Biochemistry - How and Why - Home"/>
+    <img src="../../../_static/water2.png" class="logo__image only-dark pst-js-only" alt="Biochemistry - How and Why - Home"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../start.html">
+                    Biochemistry: How & Why – Images
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">This Website</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../website/siteinstructions.html">Why this Website?</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../website/webbook.html">Website Images</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../website/waterbox/waterbox.html">Water Box Banner</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Chapters</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../01-intro/intro.html">Introduction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../01-intro/00-HistoryEarth/earthhistory.html">Earth History</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../01-intro/01-trypsin-geis/trypsin-geis.html">Trypsin by Irving Geis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../01-intro/02-trypsin-chimera/trypsin-chimera.html">Trypsin Visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../01-intro/03-Trypsin-ramachandran/Ramachandran.html">Ramachandran Plot</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../water.html">Atoms to Water</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../01-ElementsOnEarth/ElementsEarth.html">Plot of Elemental Abundance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01-ElementsOnEarth/ElementsBiosphere.html">Elements in the Biosphere</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-Electronegativity/Electronegativity.html">Plot of Electronegativity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-PESScan/PES_Scan_Butane.html">Conjugation: Bond Rotation in Butane</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-PESScan/Processing_Butane.html">Visualizing the Rotational Profile of Butane</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-PESScan/PES_Scan_Butadiene.html">Conjugation: Bond Rotation in Butadiene</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-PESScan/Processing_Butadiene.html">Visualizing the Rotational Profile of Butadiene</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Other</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../other/other.html">Other</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-launch-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Launch interactive content">
+    <i class="fas fa-rocket"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://colab.research.google.com/github/blinkletter/BiochemistryHowWhy/blob/main/webbook/chapters/03-water/03-Orbitals/MolecularOrbitals1.ipynb" target="_blank"
+   class="btn btn-sm dropdown-item"
+   title="Launch on Colab"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  
+    <img alt="Colab logo" src="../../../_static/images/logo_colab.png">
+  </span>
+<span class="btn__text-container">Colab</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+<a href="https://github.com/blinkletter/BiochemistryHowWhy" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../_sources/chapters/03-water/03-Orbitals/MolecularOrbitals1.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Notes</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visualize">Visualize</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#water-dimer">Water Dimer</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#d-plots">3D Plots</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="notes">
+<h1>Notes<a class="headerlink" href="#notes" title="Link to this heading">#</a></h1>
+<p>Course
+https://molssi.org/learn-quantum-chemistry-simulation-with-molssis-new-credentialed-online-course/</p>
+<p>Tutorials
+https://education.molssi.org/resources.html#molecular-modeling</p>
+<p>https://github.com/DocMinus/psi4_rdkit</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">### Use PSI4</span>
+<span class="c1"># from https://education.molssi.org/qm-tools/aio.html</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">psi4</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># import the python modules that we will use</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">psi4</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="c1">#%matplotlib inline</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "2af0381f109f46c18a1daf790c4aa39e", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># function to find the bond distance for two specific atoms in the optimization file</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_R</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to measure the distance between two atoms in a psi4 geometry optimization output file</span>
+
+<span class="sd">    Usage: plot_R(filename, a, b)</span>
+
+<span class="sd">    Inputs:</span>
+<span class="sd">    filename: name of psi4 output file from geometry optimization calclaultion</span>
+<span class="sd">    a and b: atom numbers for two atoms you want to measure the distance between</span>
+
+<span class="sd">    Output: list of bond distance at for each optimization step</span>
+<span class="sd">    &quot;&quot;&quot;</span>    
+<span class="c1"># OLD CODE: NEEDED EDITING. HAD MANY ERRORS. HAS THE OUTPUT FILE FORMAT CHANGED?</span>
+<span class="c1">#    with open(filename) as f:</span>
+<span class="c1">#        pair_notation = &#39;R(&#39; + str(a) + &#39;,&#39; + str(b) + &#39;)&#39;</span>
+<span class="c1">#        print(pair_notation)</span>
+<span class="c1">#        rows_with_R_pairs = [line.split() for line in f if line.find(pair_notation) &gt; 1 and</span>
+<span class="c1">#                             line.strip().split()[1].startswith(pair_notation)]</span>
+<span class="c1">#        print(rows_with_R_pairs)</span>
+<span class="c1">#        bond_distances = []</span>
+<span class="c1">#        bond_distances.append(float(rows_with_R_pairs[0][3]))</span>
+<span class="c1">#        for item in rows_with_R_pairs:</span>
+<span class="c1">#            bond_distances.append(float(item[6]))</span>
+<span class="c1">#        return bond_distances</span>
+    
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">pair_notation</span> <span class="o">=</span> <span class="s1">&#39;R(&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;,&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span>
+        <span class="n">rows_with_R_pairs</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span> <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">pair_notation</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span>
+                             <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">pair_notation</span><span class="p">)</span> <span class="ow">and</span>
+                             <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;=&#39;</span><span class="p">]</span>
+        
+        <span class="n">bond_distances</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">rows_with_R_pairs</span><span class="p">:</span>
+<span class="c1">#            print(item)</span>
+            <span class="n">bond_distances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">bond_distances</span>
+
+
+<span class="c1"># function to find the energy in the optimization file</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_energy</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to find the energy in a psi4 optimization file.</span>
+
+<span class="sd">    Usage: plot_energy(filename)</span>
+
+<span class="sd">    Inputs: name of psi4 output file from geometry optimization calclaultion</span>
+<span class="sd">    filename: name</span>
+
+<span class="sd">    Output: list of energy values from each optimization step</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">energy_string</span> <span class="o">=</span> <span class="s1">&#39;Final Energy&#39;</span>
+<span class="c1">#        energy_values = [ float(line.split()[3]) for line in f if line.strip().startswith(energy_string) ]</span>
+        <span class="n">energy_values</span> <span class="o">=</span> <span class="p">[</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">3</span><span class="p">])</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span> <span class="k">if</span> <span class="n">energy_string</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="n">energy_values</span>
+    
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># set the amount of memory that you will need</span>
+<span class="n">psi4</span><span class="o">.</span><span class="n">set_memory</span><span class="p">(</span><span class="s1">&#39;2 GB&#39;</span><span class="p">)</span>
+
+<span class="c1"># set the number of threads (processes) for Psi4 to use</span>
+<span class="c1"># (~all modern computers can handle 2 threads)</span>
+<span class="n">psi4</span><span class="o">.</span><span class="n">set_num_threads</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># set the molecule name for your files and plots</span>
+<span class="n">molecule_name</span> <span class="o">=</span> <span class="s2">&quot;benzene&quot;</span>
+
+<span class="c1"># enter the charge, multiplicity, and starting coordinates of the atoms in your molecule</span>
+<span class="n">benzene</span> <span class="o">=</span> <span class="n">psi4</span><span class="o">.</span><span class="n">geometry</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">0 1</span>
+<span class="s2">   C       -3.98116        3.81771        0.00000</span>
+<span class="s2">   C       -2.63351        3.75967        0.10838</span>
+<span class="s2">   C       -2.11978        2.80187       -0.29323</span>
+<span class="s2">   C       -2.68901        1.83558       -0.80805</span>
+<span class="s2">   C       -3.92704        1.83138       -0.93484</span>
+<span class="s2">   C       -4.58021        2.71451       -0.58263</span>
+<span class="s2">   H       -4.52562        4.63006        0.32966</span>
+<span class="s2">   H       -2.09025        4.53029        0.52795</span>
+<span class="s2">   H       -1.09209        2.75239       -0.21305</span>
+<span class="s2">   H       -2.13621        1.02769       -1.13476</span>
+<span class="s2">   H       -4.38300        1.01321       -1.36811</span>
+<span class="s2">   H       -5.60487        2.68217       -0.70124</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+
+<span class="c1"># Set the name of the output file for the initial energy calculation</span>
+<span class="c1"># Calculate the initial energy of the molecule using the Hartree-Fock method</span>
+<span class="c1"># and the cc-pVDZ basis set and print the output to a file</span>
+<span class="n">psi4</span><span class="o">.</span><span class="n">set_output_file</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">molecule_name</span><span class="si">}</span><span class="s1">_energy_initial.dat&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">psi4</span><span class="o">.</span><span class="n">energy</span><span class="p">(</span><span class="s1">&#39;scf/cc-pVDZ&#39;</span><span class="p">)</span>
+
+<span class="c1"># Set the name of the output file to write the geometry information</span>
+<span class="c1"># Print atomic coordinates and interatomic distances to this file</span>
+<span class="n">psi4</span><span class="o">.</span><span class="n">set_output_file</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">molecule_name</span><span class="si">}</span><span class="s1">_geometry_initial.dat&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">benzene</span><span class="o">.</span><span class="n">print_out_in_angstrom</span><span class="p">()</span>
+<span class="n">benzene</span><span class="o">.</span><span class="n">print_distances</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># psi4.set_module_options(&#39;scf&#39;, {&#39;maxiter&#39;: 500})</span>
+<span class="c1"># psi4.set_options({&#39;geom_maxiter&#39;: 100})</span>
+
+<span class="c1"># optimize the molecular geometry</span>
+<span class="n">psi4</span><span class="o">.</span><span class="n">set_output_file</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">molecule_name</span><span class="si">}</span><span class="s1">_geometry_optimization.dat&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">psi4</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="s1">&#39;scf/cc-pVDZ&#39;</span><span class="p">,</span> <span class="n">molecule</span><span class="o">=</span><span class="n">benzene</span><span class="p">)</span>
+
+<span class="c1"># print the optimized atomic coordinates and interatomic distances</span>
+<span class="n">psi4</span><span class="o">.</span><span class="n">set_output_file</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">molecule_name</span><span class="si">}</span><span class="s1">_geometry_final.dat&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">benzene</span><span class="o">.</span><span class="n">print_out_in_angstrom</span><span class="p">()</span>
+<span class="n">benzene</span><span class="o">.</span><span class="n">print_distances</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Optimizer: Optimization complete!
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_R</span><span class="p">(</span><span class="s1">&#39;benzene_geometry_optimization.dat&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[1.353246,
+ 1.3869,
+ 1.387652,
+ 1.387151,
+ 1.387738,
+ 1.38795,
+ 1.388175,
+ 1.388323,
+ 1.388392]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># find the bond distance for atoms C1 and C2</span>
+<span class="n">bond_distances</span> <span class="o">=</span> <span class="n">plot_R</span><span class="p">(</span><span class="s1">&#39;benzene_geometry_optimization.dat&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># plot the bond distances at each iteration of geometry optimization</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">bond_distances</span><span class="p">,</span><span class="s1">&#39;o-&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;iteration&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;distance (angstroms)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">molecule_name</span> <span class="o">+</span> <span class="s1">&#39; C-C bond distance&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../../_images/3be88fad3020920a51bce3cca3a411cf8aed4761f7b0df6d97b0171b0fa70806.png" src="../../../_images/3be88fad3020920a51bce3cca3a411cf8aed4761f7b0df6d97b0171b0fa70806.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_energy</span><span class="p">(</span><span class="s1">&#39;benzene_geometry_optimization.dat&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[-230.47781611773024,
+ -230.6950542938673,
+ -230.71763013180896,
+ -230.72108252286387,
+ -230.72173925789497,
+ -230.72188283722775,
+ -230.72192241239617,
+ -230.72192541256942,
+ -230.72192577420492]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># find the energies from this optimization file</span>
+<span class="n">energy_values</span> <span class="o">=</span> <span class="n">plot_energy</span><span class="p">(</span><span class="s1">&#39;benzene_geometry_optimization.dat&#39;</span><span class="p">)</span>
+
+<span class="c1"># plot the energies at each iteration</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energy_values</span><span class="p">,</span><span class="s1">&#39;o-&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;iteration&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;energy (Hartrees)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">molecule_name</span><span class="si">}</span><span class="s1"> energy&#39;</span><span class="p">)</span>
+
+<span class="c1">#plt.ylim(min(energy_values), energy_values[0])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../../_images/402bf1398e56607a8778224f08930b23f779bacf8793daebc928dc1ea0e1cba5.png" src="../../../_images/402bf1398e56607a8778224f08930b23f779bacf8793daebc928dc1ea0e1cba5.png" />
+</div>
+</div>
+<section id="visualize">
+<h2>Visualize<a class="headerlink" href="#visualize" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># set the amount of memory that you will need</span>
+<span class="n">psi4</span><span class="o">.</span><span class="n">set_memory</span><span class="p">(</span><span class="s1">&#39;2 GB&#39;</span><span class="p">)</span>
+
+<span class="c1"># set the number of threads (processes) for Psi4 to use</span>
+<span class="c1"># (~all modern computers can handle 2 threads)</span>
+<span class="n">psi4</span><span class="o">.</span><span class="n">set_num_threads</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># set the molecule name for your files and plots</span>
+<span class="n">molecule_name</span> <span class="o">=</span> <span class="s2">&quot;benzene&quot;</span>
+
+<span class="c1"># enter the charge, multiplicity, and starting coordinates of the atoms in your molecule</span>
+<span class="n">xyz</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">0 1</span>
+<span class="s2">   C       -3.98116        3.81771        0.00000</span>
+<span class="s2">   C       -2.63351        3.75967        0.10838</span>
+<span class="s2">   C       -2.11978        2.80187       -0.29323</span>
+<span class="s2">   C       -2.68901        1.83558       -0.80805</span>
+<span class="s2">   C       -3.92704        1.83138       -0.93484</span>
+<span class="s2">   C       -4.58021        2.71451       -0.58263</span>
+<span class="s2">   H       -4.52562        4.63006        0.32966</span>
+<span class="s2">   H       -2.09025        4.53029        0.52795</span>
+<span class="s2">   H       -1.09209        2.75239       -0.21305</span>
+<span class="s2">   H       -2.13621        1.02769       -1.13476</span>
+<span class="s2">   H       -4.38300        1.01321       -1.36811</span>
+<span class="s2">   H       -5.60487        2.68217       -0.70124</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+                        
+                        
+<span class="n">psi4</span><span class="o">.</span><span class="n">set_output_file</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">molecule_name</span><span class="si">}</span><span class="s1">_trial_wfn.dat&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+<span class="n">benzene</span> <span class="o">=</span> <span class="n">psi4</span><span class="o">.</span><span class="n">geometry</span><span class="p">(</span><span class="n">xyz</span><span class="p">)</span>
+<span class="n">benzene</span><span class="o">.</span><span class="n">update_geometry</span><span class="p">()</span>
+<span class="n">benzene</span><span class="o">.</span><span class="n">print_out</span><span class="p">()</span>  <span class="c1"># print the geometry to the output file with atomic masses</span>
+
+<span class="n">energy</span><span class="p">,</span> <span class="n">wave_function</span> <span class="o">=</span> <span class="n">psi4</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span>
+  <span class="s1">&#39;hf/6-31g*&#39;</span><span class="p">,</span>
+   <span class="n">return_wfn</span> <span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+  <span class="n">molecule</span><span class="o">=</span><span class="n">benzene</span>
+<span class="p">)</span>
+
+<span class="n">benzene</span><span class="o">.</span><span class="n">print_out_in_angstrom</span><span class="p">()</span> <span class="c1"># print the geometry to the output file in angstroms</span>
+<span class="n">benzene</span><span class="o">.</span><span class="n">print_distances</span><span class="p">()</span> <span class="c1"># print the interatomic distances to the output file</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Optimizer: Optimization complete!
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">py3Dmol</span>
+
+<span class="n">options</span><span class="o">=</span><span class="p">{</span>
+        <span class="s1">&#39;backgroundColor&#39;</span><span class="p">:</span> <span class="s1">&#39;lightgray&#39;</span><span class="p">,</span>
+        <span class="c1"># Global lighting</span>
+        <span class="s1">&#39;light&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s1">&#39;ambient&#39;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
+        <span class="s1">&#39;diffuse&#39;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
+        <span class="s1">&#39;specular&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="s1">&#39;shininess&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+
+
+<span class="n">xyz_string</span> <span class="o">=</span> <span class="n">benzene</span><span class="o">.</span><span class="n">save_string_xyz_file</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">xyz_string</span><span class="p">)</span>
+
+<span class="c1"># 3. Visualize with py3Dmol</span>
+<span class="n">view</span> <span class="o">=</span> <span class="n">py3Dmol</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+<span class="n">view</span><span class="o">.</span><span class="n">addModel</span><span class="p">(</span><span class="n">xyz_string</span><span class="p">,</span> <span class="s1">&#39;xyz&#39;</span><span class="p">)</span>
+<span class="n">view</span><span class="o">.</span><span class="n">setStyle</span><span class="p">({</span><span class="s1">&#39;stick&#39;</span><span class="p">:</span> <span class="p">{},</span> <span class="s1">&#39;sphere&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;scale&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">}})</span>
+<span class="n">view</span><span class="o">.</span><span class="n">setBackgroundColor</span> <span class="p">(</span><span class="s1">&#39;#f9f9f9&#39;</span><span class="p">)</span>
+
+<span class="n">view</span><span class="o">.</span><span class="n">zoomTo</span><span class="p">()</span>
+<span class="n">view</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>12
+
+ C   -0.725665779400    1.094104944476    0.444785861040
+ C    0.653958297995    1.077941886639    0.576203946468
+ C    1.379885491074   -0.016436602458    0.131324184477
+ C    0.725844693086   -1.094026003476   -0.444710495110
+ C   -0.654237972579   -1.077689492024   -0.576120216942
+ C   -1.379776434577    0.016106941775   -0.131477627257
+ H   -1.288936057873    1.942953373226    0.789818637506
+ H    1.161594948975    1.914192542216    1.023234324087
+ H    2.450540587260   -0.028935799731    0.233338938461
+ H    1.288824303494   -1.943014068049   -0.789859403026
+ H   -1.161683443381   -1.914045356979   -1.023204319705
+ H   -2.450439112758    0.028829366187   -0.233395482774
+</pre></div>
+</div>
+<div class="output text_html"><div id="3dmolviewer_1778689448458716"  style="position: relative; width: 400px; height: 400px;">
+        <p id="3dmolwarning_1778689448458716" style="background-color:#ffcccc;color:black">3Dmol.js failed to load for some reason.  Please check your browser console for error messages.<br></p>
+        </div>
+<script>
+
+var loadScriptAsync = function(uri){
+  return new Promise((resolve, reject) => {
+    //this is to ignore the existence of requirejs amd
+    var savedexports, savedmodule;
+    if (typeof exports !== 'undefined') savedexports = exports;
+    else exports = {}
+    if (typeof module !== 'undefined') savedmodule = module;
+    else module = {}
+
+    var tag = document.createElement('script');
+    tag.src = uri;
+    tag.async = true;
+    tag.onload = () => {
+        exports = savedexports;
+        module = savedmodule;
+        resolve();
+    };
+  var firstScriptTag = document.getElementsByTagName('script')[0];
+  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+});
+};
+
+if(typeof $3Dmolpromise === 'undefined') {
+$3Dmolpromise = null;
+  $3Dmolpromise = loadScriptAsync('https://cdn.jsdelivr.net/npm/3dmol@2.5.4/build/3Dmol-min.js');
+}
+
+var viewer_1778689448458716 = null;
+var warn = document.getElementById("3dmolwarning_1778689448458716");
+if(warn) {
+    warn.parentNode.removeChild(warn);
+}
+$3Dmolpromise.then(function() {
+viewer_1778689448458716 = $3Dmol.createViewer(document.getElementById("3dmolviewer_1778689448458716"),{backgroundColor:"white"});
+viewer_1778689448458716.zoomTo();
+	viewer_1778689448458716.addModel("12\n\n C   -0.725665779400    1.094104944476    0.444785861040\n C    0.653958297995    1.077941886639    0.576203946468\n C    1.379885491074   -0.016436602458    0.131324184477\n C    0.725844693086   -1.094026003476   -0.444710495110\n C   -0.654237972579   -1.077689492024   -0.576120216942\n C   -1.379776434577    0.016106941775   -0.131477627257\n H   -1.288936057873    1.942953373226    0.789818637506\n H    1.161594948975    1.914192542216    1.023234324087\n H    2.450540587260   -0.028935799731    0.233338938461\n H    1.288824303494   -1.943014068049   -0.789859403026\n H   -1.161683443381   -1.914045356979   -1.023204319705\n H   -2.450439112758    0.028829366187   -0.233395482774\n","xyz");
+	viewer_1778689448458716.setStyle({"stick": {}, "sphere": {"scale": 0.3}});
+	viewer_1778689448458716.setBackgroundColor("#f9f9f9");
+	viewer_1778689448458716.zoomTo();
+viewer_1778689448458716.render();
+});
+</script></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">q</span> <span class="o">=</span> <span class="n">benzene</span><span class="o">.</span><span class="n">save_string_xyz_file</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">dir</span><span class="p">(</span><span class="n">benzene</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&#39;B787&#39;,
+ &#39;BFS&#39;,
+ &#39;Z&#39;,
+ &#39;__class__&#39;,
+ &#39;__delattr__&#39;,
+ &#39;__dict__&#39;,
+ &#39;__dir__&#39;,
+ &#39;__doc__&#39;,
+ &#39;__eq__&#39;,
+ &#39;__format__&#39;,
+ &#39;__ge__&#39;,
+ &#39;__getattr__&#39;,
+ &#39;__getattribute__&#39;,
+ &#39;__gt__&#39;,
+ &#39;__hash__&#39;,
+ &#39;__init__&#39;,
+ &#39;__init_subclass__&#39;,
+ &#39;__le__&#39;,
+ &#39;__lt__&#39;,
+ &#39;__module__&#39;,
+ &#39;__ne__&#39;,
+ &#39;__new__&#39;,
+ &#39;__reduce__&#39;,
+ &#39;__reduce_ex__&#39;,
+ &#39;__repr__&#39;,
+ &#39;__setattr__&#39;,
+ &#39;__sizeof__&#39;,
+ &#39;__str__&#39;,
+ &#39;__subclasshook__&#39;,
+ &#39;_initial_cartesian&#39;,
+ &#39;_pybind11_conduit_v1_&#39;,
+ &#39;activate_all_fragments&#39;,
+ &#39;add_atom&#39;,
+ &#39;atom_at_position&#39;,
+ &#39;basis_on_atom&#39;,
+ &#39;center_of_mass&#39;,
+ &#39;charge&#39;,
+ &#39;clone&#39;,
+ &#39;com_fixed&#39;,
+ &#39;comment&#39;,
+ &#39;connectivity&#39;,
+ &#39;create_psi4_string_from_molecule&#39;,
+ &#39;deactivate_all_fragments&#39;,
+ &#39;distance_matrix&#39;,
+ &#39;extract_subsets&#39;,
+ &#39;fZ&#39;,
+ &#39;fcharge&#39;,
+ &#39;find_highest_point_group&#39;,
+ &#39;find_point_group&#39;,
+ &#39;fix_com&#39;,
+ &#39;fix_orientation&#39;,
+ &#39;flabel&#39;,
+ &#39;fmass&#39;,
+ &#39;form_symmetry_information&#39;,
+ &#39;format_molecule_for_mol&#39;,
+ &#39;from_arrays&#39;,
+ &#39;from_dict&#39;,
+ &#39;from_schema&#39;,
+ &#39;from_string&#39;,
+ &#39;fsymbol&#39;,
+ &#39;ftrue_atomic_number&#39;,
+ &#39;full_geometry&#39;,
+ &#39;full_pg_n&#39;,
+ &#39;fx&#39;,
+ &#39;fy&#39;,
+ &#39;fz&#39;,
+ &#39;geometry&#39;,
+ &#39;get_fragment_charges&#39;,
+ &#39;get_fragment_multiplicities&#39;,
+ &#39;get_fragment_types&#39;,
+ &#39;get_fragments&#39;,
+ &#39;get_full_point_group&#39;,
+ &#39;get_full_point_group_with_n&#39;,
+ &#39;get_variable&#39;,
+ &#39;has_zmatrix&#39;,
+ &#39;inertia_tensor&#39;,
+ &#39;input_units_to_au&#39;,
+ &#39;irrep_labels&#39;,
+ &#39;is_variable&#39;,
+ &#39;label&#39;,
+ &#39;mass&#39;,
+ &#39;mass_number&#39;,
+ &#39;molecular_charge&#39;,
+ &#39;move_to_com&#39;,
+ &#39;multiplicity&#39;,
+ &#39;nallatom&#39;,
+ &#39;name&#39;,
+ &#39;natom&#39;,
+ &#39;nfragments&#39;,
+ &#39;nuclear_dipole&#39;,
+ &#39;nuclear_repulsion_energy&#39;,
+ &#39;nuclear_repulsion_energy_deriv1&#39;,
+ &#39;nuclear_repulsion_energy_deriv2&#39;,
+ &#39;orientation_fixed&#39;,
+ &#39;point_group&#39;,
+ &#39;print_bond_angles&#39;,
+ &#39;print_cluster&#39;,
+ &#39;print_distances&#39;,
+ &#39;print_in_input_format&#39;,
+ &#39;print_out&#39;,
+ &#39;print_out_in_angstrom&#39;,
+ &#39;print_out_in_bohr&#39;,
+ &#39;print_out_of_planes&#39;,
+ &#39;print_rotational_constants&#39;,
+ &#39;provenance&#39;,
+ &#39;reinterpret_coordentry&#39;,
+ &#39;reset_point_group&#39;,
+ &#39;rotational_constants&#39;,
+ &#39;rotational_symmetry_number&#39;,
+ &#39;rotor_type&#39;,
+ &#39;run_dftd3&#39;,
+ &#39;run_dftd4&#39;,
+ &#39;run_gcp&#39;,
+ &#39;run_sdftd3&#39;,
+ &#39;save_string_xyz&#39;,
+ &#39;save_string_xyz_file&#39;,
+ &#39;save_xyz_file&#39;,
+ &#39;schoenflies_symbol&#39;,
+ &#39;scramble&#39;,
+ &#39;set_active_fragment&#39;,
+ &#39;set_active_fragments&#39;,
+ &#39;set_basis_all_atoms&#39;,
+ &#39;set_basis_by_label&#39;,
+ &#39;set_basis_by_number&#39;,
+ &#39;set_basis_by_symbol&#39;,
+ &#39;set_comment&#39;,
+ &#39;set_connectivity&#39;,
+ &#39;set_full_geometry&#39;,
+ &#39;set_geometry&#39;,
+ &#39;set_ghost_fragment&#39;,
+ &#39;set_ghost_fragments&#39;,
+ &#39;set_input_units_to_au&#39;,
+ &#39;set_mass&#39;,
+ &#39;set_molecular_charge&#39;,
+ &#39;set_multiplicity&#39;,
+ &#39;set_name&#39;,
+ &#39;set_nuclear_charge&#39;,
+ &#39;set_point_group&#39;,
+ &#39;set_provenance&#39;,
+ &#39;set_units&#39;,
+ &#39;set_variable&#39;,
+ &#39;symbol&#39;,
+ &#39;symmetrize&#39;,
+ &#39;symmetry_from_input&#39;,
+ &#39;to_arrays&#39;,
+ &#39;to_dict&#39;,
+ &#39;to_schema&#39;,
+ &#39;to_string&#39;,
+ &#39;translate&#39;,
+ &#39;true_atomic_number&#39;,
+ &#39;units&#39;,
+ &#39;update_geometry&#39;,
+ &#39;x&#39;,
+ &#39;xyz&#39;,
+ &#39;y&#39;,
+ &#39;z&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">help</span><span class="p">(</span><span class="n">benzene</span><span class="o">.</span><span class="n">to_string</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">benzene</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;xyz+&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Help on method to_string in module psi4.driver.qcdb.molecule:
+
+to_string(dtype, units=None, atom_format=None, ghost_format=None, width=17, prec=12) method of psi4.core.Molecule instance
+    Format a string representation of QM molecule.
+
+12
+0 1 C6H6
+C                    -0.725665779400     1.094104944476     0.444785861040
+C                     0.653958297995     1.077941886639     0.576203946468
+C                     1.379885491074    -0.016436602458     0.131324184477
+C                     0.725844693086    -1.094026003476    -0.444710495110
+C                    -0.654237972579    -1.077689492024    -0.576120216942
+C                    -1.379776434577     0.016106941775    -0.131477627257
+H                    -1.288936057873     1.942953373226     0.789818637506
+H                     1.161594948975     1.914192542216     1.023234324087
+H                     2.450540587260    -0.028935799731     0.233338938461
+H                     1.288824303494    -1.943014068049    -0.789859403026
+H                    -1.161683443381    -1.914045356979    -1.023204319705
+H                    -2.450439112758     0.028829366187    -0.233395482774
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">py3Dmol</span>
+
+<span class="n">xyz</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;3</span>
+<span class="s2">water</span>
+<span class="s2">O 0 0 0</span>
+<span class="s2">H 0 1 0</span>
+<span class="s2">H 1 0 0</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">view</span> <span class="o">=</span> <span class="n">py3Dmol</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
+<span class="n">view</span><span class="o">.</span><span class="n">addModel</span><span class="p">(</span><span class="n">xyz</span><span class="p">,</span> <span class="s1">&#39;xyz&#39;</span><span class="p">)</span>
+<span class="n">view</span><span class="o">.</span><span class="n">setStyle</span><span class="p">({</span><span class="s1">&#39;stick&#39;</span><span class="p">:</span> <span class="p">{}})</span>
+<span class="n">view</span><span class="o">.</span><span class="n">zoomTo</span><span class="p">()</span>
+<span class="n">view</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div id="3dmolviewer_1778678303243934"  style="position: relative; width: 400px; height: 400px;">
+        <p id="3dmolwarning_1778678303243934" style="background-color:#ffcccc;color:black">3Dmol.js failed to load for some reason.  Please check your browser console for error messages.<br></p>
+        </div>
+<script>
+
+var loadScriptAsync = function(uri){
+  return new Promise((resolve, reject) => {
+    //this is to ignore the existence of requirejs amd
+    var savedexports, savedmodule;
+    if (typeof exports !== 'undefined') savedexports = exports;
+    else exports = {}
+    if (typeof module !== 'undefined') savedmodule = module;
+    else module = {}
+
+    var tag = document.createElement('script');
+    tag.src = uri;
+    tag.async = true;
+    tag.onload = () => {
+        exports = savedexports;
+        module = savedmodule;
+        resolve();
+    };
+  var firstScriptTag = document.getElementsByTagName('script')[0];
+  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+});
+};
+
+if(typeof $3Dmolpromise === 'undefined') {
+$3Dmolpromise = null;
+  $3Dmolpromise = loadScriptAsync('https://cdn.jsdelivr.net/npm/3dmol@2.5.4/build/3Dmol-min.js');
+}
+
+var viewer_1778678303243934 = null;
+var warn = document.getElementById("3dmolwarning_1778678303243934");
+if(warn) {
+    warn.parentNode.removeChild(warn);
+}
+$3Dmolpromise.then(function() {
+viewer_1778678303243934 = $3Dmol.createViewer(document.getElementById("3dmolviewer_1778678303243934"),{backgroundColor:"white"});
+viewer_1778678303243934.zoomTo();
+	viewer_1778678303243934.addModel("3\nwater\nO 0 0 0\nH 0 1 0\nH 1 0 0\n","xyz");
+	viewer_1778678303243934.setStyle({"stick": {}});
+	viewer_1778678303243934.zoomTo();
+viewer_1778678303243934.render();
+});
+</script></div></div>
+</div>
+</section>
+<section id="water-dimer">
+<h2>Water Dimer<a class="headerlink" href="#water-dimer" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># set the amount of memory that you will need</span>
+<span class="n">psi4</span><span class="o">.</span><span class="n">set_memory</span><span class="p">(</span><span class="s1">&#39;500 MB&#39;</span><span class="p">)</span>
+
+<span class="c1"># set the molecule name for your files and plots</span>
+<span class="n">molecule_name</span> <span class="o">=</span> <span class="s2">&quot;h2o-dimer&quot;</span>
+<span class="n">psi4</span><span class="o">.</span><span class="n">set_output_file</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">molecule_name</span><span class="si">}</span><span class="s1">_distancePES.dat&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+
+<span class="c1"># Define water dimer</span>
+<span class="n">water_dimer</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">O1</span>
+<span class="s2">H2 1 1.0</span>
+<span class="s2">H3 1 1.0 2 104.52</span>
+<span class="s2">x4 2 1.0 1 90.0 3 180.0</span>
+<span class="s2">--</span>
+<span class="s2">O5 2 **R** 4 90.0 1 180.0</span>
+<span class="s2">H6 5 1.0 2 120.0 4 90.0</span>
+<span class="s2">H7 5 1.0 2 120.0 4 -90.0</span>
+<span class="s2">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rvals</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.4</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.6</span><span class="p">,</span> <span class="mf">1.7</span><span class="p">,</span> <span class="mf">1.8</span><span class="p">,</span> <span class="mf">1.9</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.1</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">,</span> <span class="mf">2.3</span><span class="p">,</span> <span class="mf">2.4</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">]</span>
+<span class="n">energies</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c1"># make a directory names &#39;molecule_name&#39; to store the output files</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">molecule_name</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">molecule_name</span><span class="p">)</span>
+
+
+
+<span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rvals</span><span class="p">:</span>
+    <span class="c1"># Build a new molecule at each separation</span>
+    <span class="n">mol</span> <span class="o">=</span> <span class="n">psi4</span><span class="o">.</span><span class="n">geometry</span><span class="p">(</span><span class="n">water_dimer</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;**R**&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">r</span><span class="p">)))</span>
+
+    <span class="c1"># Compute the interaction energy</span>
+    <span class="n">psi4</span><span class="o">.</span><span class="n">set_output_file</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">molecule_name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">molecule_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">r</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1">_energy.dat&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">E</span> <span class="o">=</span> <span class="n">psi4</span><span class="o">.</span><span class="n">energy</span><span class="p">(</span><span class="s1">&#39;scf/aug-cc-pVDZ&#39;</span><span class="p">,</span> <span class="n">molecule</span><span class="o">=</span><span class="n">mol</span><span class="p">,</span> <span class="n">bsse_type</span><span class="o">=</span><span class="s1">&#39;cp&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Place in a reasonable unit, kcal/mole in this case</span>
+    <span class="n">E</span> <span class="o">=</span> <span class="n">E</span><span class="o">*</span><span class="mf">627.509</span>
+
+    <span class="c1"># Append the value to our list</span>
+    <span class="n">energies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Finished computing the potential energy surface!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Finished computing the potential energy surface!
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rvals</span><span class="p">,</span><span class="n">energies</span><span class="p">,</span><span class="s2">&quot;.-&quot;</span><span class="p">);</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;distance (angstrom)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;energy (kcal/mol)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">molecule_name</span> <span class="o">+</span> <span class="s2">&quot; interaction energy&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../../_images/fb651569a5b8423414d4afe82dc2cd408e4473660bdd6f4f3f98f6e24f02dde0.png" src="../../../_images/fb651569a5b8423414d4afe82dc2cd408e4473660bdd6f4f3f98f6e24f02dde0.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># set the molecule name for your files and plots</span>
+<span class="n">molecule_name</span> <span class="o">=</span> <span class="s2">&quot;h2o-dimer&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">molecule_name</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">molecule_name</span><span class="p">)</span>
+
+<span class="n">psi4</span><span class="o">.</span><span class="n">set_output_file</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">molecule_name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">molecule_name</span><span class="si">}</span><span class="s1">_rotationPES.dat&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Define water dimer</span>
+<span class="n">water_dimer2</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">O1</span>
+<span class="s2">H2 1 1.0</span>
+<span class="s2">H3 1 1.0 2 104.52</span>
+<span class="s2">x4 2 1.0 1 90.0 3 180.0</span>
+<span class="s2">--</span>
+<span class="s2">O5 2 **R** 4 90.0 1 180.0</span>
+<span class="s2">H6 5 1.0 2 120.0 4 **A**</span>
+<span class="s2">H7 5 1.0 2 120.0 4 **B**</span>
+<span class="s2">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">R</span> <span class="o">=</span> <span class="mf">1.8</span>
+<span class="n">Avals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="o">=-</span><span class="mi">180</span><span class="p">,</span><span class="n">stop</span><span class="o">=</span><span class="mi">180</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+
+<span class="n">energies_R</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">A</span> <span class="ow">in</span> <span class="n">Avals</span><span class="p">:</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;Computing dimer at </span><span class="si">{</span><span class="n">R</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> angstroms and </span><span class="si">{</span><span class="n">A</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> degrees&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Build a new molecule at each separation</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">A</span><span class="o">-</span><span class="mi">180</span>
+    <span class="n">molR</span> <span class="o">=</span> <span class="n">water_dimer2</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;**R**&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">R</span><span class="p">))</span>
+    <span class="n">molA</span> <span class="o">=</span> <span class="n">molR</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;**A**&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+    <span class="n">molB</span> <span class="o">=</span> <span class="n">molA</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;**B**&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">B</span><span class="p">))</span>
+    <span class="n">mol</span> <span class="o">=</span> <span class="n">psi4</span><span class="o">.</span><span class="n">geometry</span><span class="p">(</span><span class="n">molB</span><span class="p">)</span>
+
+    <span class="c1"># calculate energy</span>
+    <span class="n">psi4</span><span class="o">.</span><span class="n">set_output_file</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">molecule_name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">molecule_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">R</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">A</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">_energy.dat&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">E</span> <span class="o">=</span> <span class="n">psi4</span><span class="o">.</span><span class="n">energy</span><span class="p">(</span><span class="s1">&#39;scf/aug-cc-pVDZ&#39;</span><span class="p">,</span> <span class="n">molecule</span><span class="o">=</span><span class="n">mol</span><span class="p">,</span> <span class="n">bsse_type</span><span class="o">=</span><span class="s1">&#39;cp&#39;</span><span class="p">)</span>       
+    <span class="n">E</span> <span class="o">=</span> <span class="n">E</span><span class="o">*</span><span class="mf">627.509</span>
+    <span class="n">energies_R</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Computing dimer at 1.8 angstroms and -180.00 degrees
+Computing dimer at 1.8 angstroms and -165.00 degrees
+Computing dimer at 1.8 angstroms and -150.00 degrees
+Computing dimer at 1.8 angstroms and -135.00 degrees
+Computing dimer at 1.8 angstroms and -120.00 degrees
+Computing dimer at 1.8 angstroms and -105.00 degrees
+Computing dimer at 1.8 angstroms and -90.00 degrees
+Computing dimer at 1.8 angstroms and -75.00 degrees
+Computing dimer at 1.8 angstroms and -60.00 degrees
+Computing dimer at 1.8 angstroms and -45.00 degrees
+Computing dimer at 1.8 angstroms and -30.00 degrees
+Computing dimer at 1.8 angstroms and -15.00 degrees
+Computing dimer at 1.8 angstroms and 0.00 degrees
+Computing dimer at 1.8 angstroms and 15.00 degrees
+Computing dimer at 1.8 angstroms and 30.00 degrees
+Computing dimer at 1.8 angstroms and 45.00 degrees
+Computing dimer at 1.8 angstroms and 60.00 degrees
+Computing dimer at 1.8 angstroms and 75.00 degrees
+Computing dimer at 1.8 angstroms and 90.00 degrees
+Computing dimer at 1.8 angstroms and 105.00 degrees
+Computing dimer at 1.8 angstroms and 120.00 degrees
+Computing dimer at 1.8 angstroms and 135.00 degrees
+Computing dimer at 1.8 angstroms and 150.00 degrees
+Computing dimer at 1.8 angstroms and 165.00 degrees
+Computing dimer at 1.8 angstroms and 180.00 degrees
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Avals</span><span class="p">,</span> <span class="n">energies_R</span><span class="p">,</span> <span class="s1">&#39;r-o&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Dihedral angle (degrees)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Interaction Energy (kcal/mole)&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Text(0, 0.5, &#39;Interaction Energy (kcal/mole)&#39;)
+</pre></div>
+</div>
+<img alt="../../../_images/ea58cc6f086decd59089fe8f7ad38c652465a8477965bbb221f6c28969df97a3.png" src="../../../_images/ea58cc6f086decd59089fe8f7ad38c652465a8477965bbb221f6c28969df97a3.png" />
+</div>
+</div>
+</section>
+<section id="d-plots">
+<h2>3D Plots<a class="headerlink" href="#d-plots" title="Link to this heading">#</a></h2>
+<p>from
+https://education.molssi.org/qm-tools/03-inter-pes/index.html</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">Rvals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">1.8</span><span class="p">,</span><span class="n">stop</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">Avals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="o">=-</span><span class="mi">180</span><span class="p">,</span><span class="n">stop</span><span class="o">=</span><span class="mi">180</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+
+<span class="n">energy_2D</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">R</span> <span class="ow">in</span> <span class="n">Rvals</span><span class="p">:</span>
+    <span class="n">energies_R</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">A</span> <span class="ow">in</span> <span class="n">Avals</span><span class="p">:</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;Computing dimer at </span><span class="si">{</span><span class="n">R</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> angstroms and </span><span class="si">{</span><span class="n">A</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> degrees&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Build a new molecule at each separation</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="n">A</span><span class="o">-</span><span class="mi">180</span>
+        <span class="n">molR</span> <span class="o">=</span> <span class="n">water_dimer2</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;**R**&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">R</span><span class="p">))</span>
+        <span class="n">molA</span> <span class="o">=</span> <span class="n">molR</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;**A**&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+        <span class="n">molB</span> <span class="o">=</span> <span class="n">molA</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;**B**&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">B</span><span class="p">))</span>
+        <span class="n">mol</span> <span class="o">=</span> <span class="n">psi4</span><span class="o">.</span><span class="n">geometry</span><span class="p">(</span><span class="n">molB</span><span class="p">)</span>
+
+        <span class="c1"># calculate energy</span>
+        <span class="n">psi4</span><span class="o">.</span><span class="n">set_output_file</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">molecule_name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">molecule_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">R</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">A</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">_energy.dat&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">E</span> <span class="o">=</span> <span class="n">psi4</span><span class="o">.</span><span class="n">energy</span><span class="p">(</span><span class="s1">&#39;scf/aug-cc-pVDZ&#39;</span><span class="p">,</span> <span class="n">molecule</span><span class="o">=</span><span class="n">mol</span><span class="p">,</span> <span class="n">bsse_type</span><span class="o">=</span><span class="s1">&#39;cp&#39;</span><span class="p">)</span>       
+        <span class="n">E</span> <span class="o">=</span> <span class="n">E</span><span class="o">*</span><span class="mf">627.509</span>
+        <span class="n">energies_R</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
+
+    <span class="n">energy_2D</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">energies_R</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;All calculations are complete!&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Computing dimer at 1.8 angstroms and -180.00 degrees
+Computing dimer at 1.8 angstroms and -165.00 degrees
+Computing dimer at 1.8 angstroms and -150.00 degrees
+Computing dimer at 1.8 angstroms and -135.00 degrees
+Computing dimer at 1.8 angstroms and -120.00 degrees
+Computing dimer at 1.8 angstroms and -105.00 degrees
+Computing dimer at 1.8 angstroms and -90.00 degrees
+Computing dimer at 1.8 angstroms and -75.00 degrees
+Computing dimer at 1.8 angstroms and -60.00 degrees
+Computing dimer at 1.8 angstroms and -45.00 degrees
+Computing dimer at 1.8 angstroms and -30.00 degrees
+Computing dimer at 1.8 angstroms and -15.00 degrees
+Computing dimer at 1.8 angstroms and 0.00 degrees
+Computing dimer at 1.8 angstroms and 15.00 degrees
+Computing dimer at 1.8 angstroms and 30.00 degrees
+Computing dimer at 1.8 angstroms and 45.00 degrees
+Computing dimer at 1.8 angstroms and 60.00 degrees
+Computing dimer at 1.8 angstroms and 75.00 degrees
+Computing dimer at 1.8 angstroms and 90.00 degrees
+Computing dimer at 1.8 angstroms and 105.00 degrees
+Computing dimer at 1.8 angstroms and 120.00 degrees
+Computing dimer at 1.8 angstroms and 135.00 degrees
+Computing dimer at 1.8 angstroms and 150.00 degrees
+Computing dimer at 1.8 angstroms and 165.00 degrees
+Computing dimer at 1.8 angstroms and 180.00 degrees
+Computing dimer at 1.9 angstroms and -180.00 degrees
+Computing dimer at 1.9 angstroms and -165.00 degrees
+Computing dimer at 1.9 angstroms and -150.00 degrees
+Computing dimer at 1.9 angstroms and -135.00 degrees
+Computing dimer at 1.9 angstroms and -120.00 degrees
+Computing dimer at 1.9 angstroms and -105.00 degrees
+Computing dimer at 1.9 angstroms and -90.00 degrees
+Computing dimer at 1.9 angstroms and -75.00 degrees
+Computing dimer at 1.9 angstroms and -60.00 degrees
+Computing dimer at 1.9 angstroms and -45.00 degrees
+Computing dimer at 1.9 angstroms and -30.00 degrees
+Computing dimer at 1.9 angstroms and -15.00 degrees
+Computing dimer at 1.9 angstroms and 0.00 degrees
+Computing dimer at 1.9 angstroms and 15.00 degrees
+Computing dimer at 1.9 angstroms and 30.00 degrees
+Computing dimer at 1.9 angstroms and 45.00 degrees
+Computing dimer at 1.9 angstroms and 60.00 degrees
+Computing dimer at 1.9 angstroms and 75.00 degrees
+Computing dimer at 1.9 angstroms and 90.00 degrees
+Computing dimer at 1.9 angstroms and 105.00 degrees
+Computing dimer at 1.9 angstroms and 120.00 degrees
+Computing dimer at 1.9 angstroms and 135.00 degrees
+Computing dimer at 1.9 angstroms and 150.00 degrees
+Computing dimer at 1.9 angstroms and 165.00 degrees
+Computing dimer at 1.9 angstroms and 180.00 degrees
+Computing dimer at 2.0 angstroms and -180.00 degrees
+Computing dimer at 2.0 angstroms and -165.00 degrees
+Computing dimer at 2.0 angstroms and -150.00 degrees
+Computing dimer at 2.0 angstroms and -135.00 degrees
+Computing dimer at 2.0 angstroms and -120.00 degrees
+Computing dimer at 2.0 angstroms and -105.00 degrees
+Computing dimer at 2.0 angstroms and -90.00 degrees
+Computing dimer at 2.0 angstroms and -75.00 degrees
+Computing dimer at 2.0 angstroms and -60.00 degrees
+Computing dimer at 2.0 angstroms and -45.00 degrees
+Computing dimer at 2.0 angstroms and -30.00 degrees
+Computing dimer at 2.0 angstroms and -15.00 degrees
+Computing dimer at 2.0 angstroms and 0.00 degrees
+Computing dimer at 2.0 angstroms and 15.00 degrees
+Computing dimer at 2.0 angstroms and 30.00 degrees
+Computing dimer at 2.0 angstroms and 45.00 degrees
+Computing dimer at 2.0 angstroms and 60.00 degrees
+Computing dimer at 2.0 angstroms and 75.00 degrees
+Computing dimer at 2.0 angstroms and 90.00 degrees
+Computing dimer at 2.0 angstroms and 105.00 degrees
+Computing dimer at 2.0 angstroms and 120.00 degrees
+Computing dimer at 2.0 angstroms and 135.00 degrees
+Computing dimer at 2.0 angstroms and 150.00 degrees
+Computing dimer at 2.0 angstroms and 165.00 degrees
+Computing dimer at 2.0 angstroms and 180.00 degrees
+Computing dimer at 2.1 angstroms and -180.00 degrees
+Computing dimer at 2.1 angstroms and -165.00 degrees
+Computing dimer at 2.1 angstroms and -150.00 degrees
+Computing dimer at 2.1 angstroms and -135.00 degrees
+Computing dimer at 2.1 angstroms and -120.00 degrees
+Computing dimer at 2.1 angstroms and -105.00 degrees
+Computing dimer at 2.1 angstroms and -90.00 degrees
+Computing dimer at 2.1 angstroms and -75.00 degrees
+Computing dimer at 2.1 angstroms and -60.00 degrees
+Computing dimer at 2.1 angstroms and -45.00 degrees
+Computing dimer at 2.1 angstroms and -30.00 degrees
+Computing dimer at 2.1 angstroms and -15.00 degrees
+Computing dimer at 2.1 angstroms and 0.00 degrees
+Computing dimer at 2.1 angstroms and 15.00 degrees
+Computing dimer at 2.1 angstroms and 30.00 degrees
+Computing dimer at 2.1 angstroms and 45.00 degrees
+Computing dimer at 2.1 angstroms and 60.00 degrees
+Computing dimer at 2.1 angstroms and 75.00 degrees
+Computing dimer at 2.1 angstroms and 90.00 degrees
+Computing dimer at 2.1 angstroms and 105.00 degrees
+Computing dimer at 2.1 angstroms and 120.00 degrees
+Computing dimer at 2.1 angstroms and 135.00 degrees
+Computing dimer at 2.1 angstroms and 150.00 degrees
+Computing dimer at 2.1 angstroms and 165.00 degrees
+Computing dimer at 2.1 angstroms and 180.00 degrees
+Computing dimer at 2.2 angstroms and -180.00 degrees
+Computing dimer at 2.2 angstroms and -165.00 degrees
+Computing dimer at 2.2 angstroms and -150.00 degrees
+Computing dimer at 2.2 angstroms and -135.00 degrees
+Computing dimer at 2.2 angstroms and -120.00 degrees
+Computing dimer at 2.2 angstroms and -105.00 degrees
+Computing dimer at 2.2 angstroms and -90.00 degrees
+Computing dimer at 2.2 angstroms and -75.00 degrees
+Computing dimer at 2.2 angstroms and -60.00 degrees
+Computing dimer at 2.2 angstroms and -45.00 degrees
+Computing dimer at 2.2 angstroms and -30.00 degrees
+Computing dimer at 2.2 angstroms and -15.00 degrees
+Computing dimer at 2.2 angstroms and 0.00 degrees
+Computing dimer at 2.2 angstroms and 15.00 degrees
+Computing dimer at 2.2 angstroms and 30.00 degrees
+Computing dimer at 2.2 angstroms and 45.00 degrees
+Computing dimer at 2.2 angstroms and 60.00 degrees
+Computing dimer at 2.2 angstroms and 75.00 degrees
+Computing dimer at 2.2 angstroms and 90.00 degrees
+Computing dimer at 2.2 angstroms and 105.00 degrees
+Computing dimer at 2.2 angstroms and 120.00 degrees
+Computing dimer at 2.2 angstroms and 135.00 degrees
+Computing dimer at 2.2 angstroms and 150.00 degrees
+Computing dimer at 2.2 angstroms and 165.00 degrees
+Computing dimer at 2.2 angstroms and 180.00 degrees
+Computing dimer at 2.3 angstroms and -180.00 degrees
+Computing dimer at 2.3 angstroms and -165.00 degrees
+Computing dimer at 2.3 angstroms and -150.00 degrees
+Computing dimer at 2.3 angstroms and -135.00 degrees
+Computing dimer at 2.3 angstroms and -120.00 degrees
+Computing dimer at 2.3 angstroms and -105.00 degrees
+Computing dimer at 2.3 angstroms and -90.00 degrees
+Computing dimer at 2.3 angstroms and -75.00 degrees
+Computing dimer at 2.3 angstroms and -60.00 degrees
+Computing dimer at 2.3 angstroms and -45.00 degrees
+Computing dimer at 2.3 angstroms and -30.00 degrees
+Computing dimer at 2.3 angstroms and -15.00 degrees
+Computing dimer at 2.3 angstroms and 0.00 degrees
+Computing dimer at 2.3 angstroms and 15.00 degrees
+Computing dimer at 2.3 angstroms and 30.00 degrees
+Computing dimer at 2.3 angstroms and 45.00 degrees
+Computing dimer at 2.3 angstroms and 60.00 degrees
+Computing dimer at 2.3 angstroms and 75.00 degrees
+Computing dimer at 2.3 angstroms and 90.00 degrees
+Computing dimer at 2.3 angstroms and 105.00 degrees
+Computing dimer at 2.3 angstroms and 120.00 degrees
+Computing dimer at 2.3 angstroms and 135.00 degrees
+Computing dimer at 2.3 angstroms and 150.00 degrees
+Computing dimer at 2.3 angstroms and 165.00 degrees
+Computing dimer at 2.3 angstroms and 180.00 degrees
+Computing dimer at 2.4 angstroms and -180.00 degrees
+Computing dimer at 2.4 angstroms and -165.00 degrees
+Computing dimer at 2.4 angstroms and -150.00 degrees
+Computing dimer at 2.4 angstroms and -135.00 degrees
+Computing dimer at 2.4 angstroms and -120.00 degrees
+Computing dimer at 2.4 angstroms and -105.00 degrees
+Computing dimer at 2.4 angstroms and -90.00 degrees
+Computing dimer at 2.4 angstroms and -75.00 degrees
+Computing dimer at 2.4 angstroms and -60.00 degrees
+Computing dimer at 2.4 angstroms and -45.00 degrees
+Computing dimer at 2.4 angstroms and -30.00 degrees
+Computing dimer at 2.4 angstroms and -15.00 degrees
+Computing dimer at 2.4 angstroms and 0.00 degrees
+Computing dimer at 2.4 angstroms and 15.00 degrees
+Computing dimer at 2.4 angstroms and 30.00 degrees
+Computing dimer at 2.4 angstroms and 45.00 degrees
+Computing dimer at 2.4 angstroms and 60.00 degrees
+Computing dimer at 2.4 angstroms and 75.00 degrees
+Computing dimer at 2.4 angstroms and 90.00 degrees
+Computing dimer at 2.4 angstroms and 105.00 degrees
+Computing dimer at 2.4 angstroms and 120.00 degrees
+Computing dimer at 2.4 angstroms and 135.00 degrees
+Computing dimer at 2.4 angstroms and 150.00 degrees
+Computing dimer at 2.4 angstroms and 165.00 degrees
+Computing dimer at 2.4 angstroms and 180.00 degrees
+Computing dimer at 2.5 angstroms and -180.00 degrees
+Computing dimer at 2.5 angstroms and -165.00 degrees
+Computing dimer at 2.5 angstroms and -150.00 degrees
+Computing dimer at 2.5 angstroms and -135.00 degrees
+Computing dimer at 2.5 angstroms and -120.00 degrees
+Computing dimer at 2.5 angstroms and -105.00 degrees
+Computing dimer at 2.5 angstroms and -90.00 degrees
+Computing dimer at 2.5 angstroms and -75.00 degrees
+Computing dimer at 2.5 angstroms and -60.00 degrees
+Computing dimer at 2.5 angstroms and -45.00 degrees
+Computing dimer at 2.5 angstroms and -30.00 degrees
+Computing dimer at 2.5 angstroms and -15.00 degrees
+Computing dimer at 2.5 angstroms and 0.00 degrees
+Computing dimer at 2.5 angstroms and 15.00 degrees
+Computing dimer at 2.5 angstroms and 30.00 degrees
+Computing dimer at 2.5 angstroms and 45.00 degrees
+Computing dimer at 2.5 angstroms and 60.00 degrees
+Computing dimer at 2.5 angstroms and 75.00 degrees
+Computing dimer at 2.5 angstroms and 90.00 degrees
+Computing dimer at 2.5 angstroms and 105.00 degrees
+Computing dimer at 2.5 angstroms and 120.00 degrees
+Computing dimer at 2.5 angstroms and 135.00 degrees
+Computing dimer at 2.5 angstroms and 150.00 degrees
+Computing dimer at 2.5 angstroms and 165.00 degrees
+Computing dimer at 2.5 angstroms and 180.00 degrees
+All calculations are complete!
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mpl_toolkits</span><span class="w"> </span><span class="kn">import</span> <span class="n">mplot3d</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+
+<span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">Avals</span><span class="p">,</span> <span class="n">Rvals</span><span class="p">)</span>
+
+<span class="n">mycmap1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s1">&#39;gist_earth&#39;</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax</span><span class="p">,</span><span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+
+<span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
+<span class="n">cf</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">contour3D</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">energy_2D</span><span class="p">),</span> <span class="mi">300</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">mycmap1</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot_surface</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">energy_2D</span><span class="p">),</span> <span class="n">rstride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cstride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;viridis&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;angle (degrees)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;R (Bohr)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_zlabel</span><span class="p">(</span><span class="s1">&#39;energy (kcal/mol)&#39;</span><span class="p">)</span>
+<span class="c1">#ax.set_zlim3d(-4,-2)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">view_init</span><span class="p">(</span><span class="mi">45</span><span class="p">,</span> <span class="mi">35</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../../_images/8460691d18b339b8f6d8cbe17dcf101e2325def0e42ea17f611ca004646250f5.png" src="../../../_images/8460691d18b339b8f6d8cbe17dcf101e2325def0e42ea17f611ca004646250f5.png" />
+</div>
+</div>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./chapters/03-water/03-Orbitals"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visualize">Visualize</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#water-dimer">Water Dimer</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#d-plots">3D Plots</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Barry Linkletter
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

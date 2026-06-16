@@ -1,0 +1,1451 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Plot of Elemental Abundance &#8212; Biochemistry - How and Why</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=9b88075f" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/tufte.css?v=34b51f63" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'chapters/03-water/01-ElementsOnEarth/ElementsEarth2';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../start.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/water2.png" class="logo__image only-light" alt="Biochemistry - How and Why - Home"/>
+    <img src="../../../_static/water2.png" class="logo__image only-dark pst-js-only" alt="Biochemistry - How and Why - Home"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../start.html">
+                    Biochemistry: How & Why – Images
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">This Website</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../website/siteinstructions.html">Why this Website?</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../website/webbook.html">Website Images</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../website/waterbox/waterbox.html">Water Box Banner</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Chapters</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../01-intro/intro.html">Introduction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../01-intro/00-HistoryEarth/earthhistory.html">Earth History</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../01-intro/01-trypsin-geis/trypsin-geis.html">Trypsin by Irving Geis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../01-intro/02-trypsin-chimera/trypsin-chimera.html">Trypsin Visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../01-intro/03-Trypsin-ramachandran/Ramachandran.html">Ramachandran Plot</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../water.html">Atoms to Water</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="ElementsEarth.html">Plot of Elemental Abundance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ElementsBiosphere.html">Elements in the Biosphere</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-Electronegativity/Electronegativity.html">Plot of Electronegativity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-PESScan/PES_Scan_Butane.html">Conjugation: Bond Rotation in Butane</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-PESScan/Processing_Butane.html">Visualizing the Rotational Profile of Butane</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-PESScan/PES_Scan_Butadiene.html">Conjugation: Bond Rotation in Butadiene</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04-PESScan/Processing_Butadiene.html">Visualizing the Rotational Profile of Butadiene</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Other</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../other/other.html">Other</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-launch-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Launch interactive content">
+    <i class="fas fa-rocket"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://colab.research.google.com/github/blinkletter/BiochemistryHowWhy/blob/main/webbook/chapters/03-water/01-ElementsOnEarth/ElementsEarth2.ipynb" target="_blank"
+   class="btn btn-sm dropdown-item"
+   title="Launch on Colab"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  
+    <img alt="Colab logo" src="../../../_static/images/logo_colab.png">
+  </span>
+<span class="btn__text-container">Colab</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+<a href="https://github.com/blinkletter/BiochemistryHowWhy" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../_sources/chapters/03-water/01-ElementsOnEarth/ElementsEarth2.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Plot of Elemental Abundance</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#an-plot-of-elements-in-the-earth-s-crust">An Plot of Elements in the Earth’s Crust</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-did-that-data-come-from">Where Did That Data Come From</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-second-data-set">A Second Data Set</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#combining-the-two-data-sets">Combining the Two Data Sets</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#are-they-the-same">Are They the Same?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#a-visual-check">A Visual Check</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#a-log-log-plot">A Log-Log Plot</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reproducing-the-elemental-abundance-plot">Reproducing the Elemental Abundance Plot</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#remove-noble-gasses-and-short-lived-elements">remove Noble Gasses and Short-Lived Elements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#a-close-copy-of-the-wikipedia-plot">A Close Copy of the Wikipedia Plot</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#a-confession">A Confession</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-plot-for-the-textbook">The Plot for the Textbook</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-final-plot">the Final Plot</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#more">More</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="plot-of-elemental-abundance">
+<h1>Plot of Elemental Abundance<a class="headerlink" href="#plot-of-elemental-abundance" title="Link to this heading">#</a></h1>
+<p>Let us explore data analysis as we consider the selctivity of living chemistry for the elements. We have a plot of the relative abundance of elements in the Earth’s crust presented by Remick, 2023. Can we reproduce that plot? perhaps we should compare different data sets? Could we compare the abundance of elements in the universe, the planet earth, the crust, the sea and living things? First we will find data and then we will play with it.</p>
+<section id="an-plot-of-elements-in-the-earth-s-crust">
+<h2>An Plot of Elements in the Earth’s Crust<a class="headerlink" href="#an-plot-of-elements-in-the-earth-s-crust" title="Link to this heading">#</a></h2>
+<p>In the paper referenced in the textbook is a plot of the abundance of elements in the earth’s crust.</p>
+<blockquote>
+<div><p>Remick, K; Helmann, J.D., ``The Elements of Life: A Biocentric Tour of the Periodic Table.’’ <em>Adv. Microb. Physiol.</em>, <strong>2023</strong>, <em>82</em>, 1–127. <a class="reference external" href="https://doi.org/10.1016/bs.ampbs.2022.11.001">https://doi.org/10.1016/bs.ampbs.2022.11.001</a>. Subscription access. Open access available at <a class="reference external" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10727122/">https://pmc.ncbi.nlm.nih.gov/articles/PMC10727122/</a>.</p>
+</div></blockquote>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="../../../_images/Elemental_abundances.svg.png"><img alt="Elemental abundance on Earth (wikipedia)" src="../../../_images/Elemental_abundances.svg.png" style="width: 250px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">The plot presented in the Remick, 2023 paper and on WikiPedia.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>That plot was not made by the authors but was an openly available image from the Wikimedia Commons.  The authors did reference the wikipedia page for that the image but gave the wrong link (a typographical error). Here is the correct link and the link to the image: <a class="reference external" href="https://en.wikipedia.org/wiki/Abundance_of_elements_in_Earth%27s_crust">https://en.wikipedia.org/wiki/Abundance_of_elements_in_Earth%27s_crust</a>. The image itself can be found on the Wikipedia commans at <a class="reference external" href="https://commons.wikimedia.org/wiki/File:Elemental_abundances.svg">https://commons.wikimedia.org/wiki/File:Elemental_abundances.svg</a>.</p>
+</section>
+<section id="where-did-that-data-come-from">
+<h2>Where Did That Data Come From<a class="headerlink" href="#where-did-that-data-come-from" title="Link to this heading">#</a></h2>
+<p>Remick et al. state that the data for the plot came from the CRC handbook. At our university we have access to the latest version via the library’s subscriptions.</p>
+<blockquote>
+<div><p>“Abundance of Elements in the Earth’s Crust and in the Sea,” in <em>CRC Handbook of Chemistry and Physics, 106th Edition</em>, <strong>2025</strong>, John R. Rumble, ed., CRC Press/Taylor &amp; Francis, Boca Raton, FL.</p>
+</div></blockquote>
+<p>The web version only served up the data in short blocks, and I had to copy and paste the data into excel and then export as CSV and edit it into a propper format.</p>
+<p>I saved this data set as <a class="reference internal" href="#data/FromCRC.csv"><span class="xref myst">FromCRC.csv</span></a>. We can peek at its contents using the <em>Python</em> code below.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="c1"># load the data</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;data/ElementsInCrust-CRC.csv&quot;</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="n">skipinitialspace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># clean the data</span>
+<span class="c1">#df.drop(columns=[&quot;Goldschmidt&quot;], inplace=True) # Drop the &quot;Goldschmidt&quot; column, which is not needed.</span>
+<span class="c1">#df.drop(columns=[&quot;extraction (tonnes/yr)&quot;], inplace=True) # This column is not needed for our analysis.</span>
+
+<span class="c1">#df.sort_values(by=&quot;number&quot;, inplace=True, ascending=True)  # Sort the DataFrame by the atomic number column in ascending order.</span>
+
+<span class="c1"># print all rows in dataframe</span>
+<span class="c1"># pd.set_option(&#39;display.max_rows&#39;, None)  # Set the option to display all rows in the DataFrame.</span>
+
+<span class="n">display</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+
+<span class="c1"># df.dtypes # Check the data types of each column in the DataFrame. This will help us understand if any number columns were imported as strings.</span>
+</pre></div>
+</div>
+</div>
+</details>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>number</th>
+      <th>name</th>
+      <th>symbol</th>
+      <th>Goldschmidt</th>
+      <th>Abundance (ppm)</th>
+      <th>percent</th>
+      <th>extraction (tonnes/yr)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>8</td>
+      <td>oxygen</td>
+      <td>O</td>
+      <td>Lithophile</td>
+      <td>461000.0</td>
+      <td>46.10</td>
+      <td>10335000.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>14</td>
+      <td>silicon</td>
+      <td>Si</td>
+      <td>Lithophile</td>
+      <td>282000.0</td>
+      <td>28.20</td>
+      <td>7200000.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>13</td>
+      <td>aluminium</td>
+      <td>Al</td>
+      <td>Lithophile</td>
+      <td>82300.0</td>
+      <td>8.23</td>
+      <td>57600000.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="a-second-data-set">
+<h2>A Second Data Set<a class="headerlink" href="#a-second-data-set" title="Link to this heading">#</a></h2>
+<p>I found the same data reported on Wikipedia (the contributors referenced the CRC). One quick scheck of the datasets would be to see if they have the saem numbers. I Cut and pasted the wikipedia data table, editted it for formatting and had to replace the non-standard hyphen used throughout with a regular ASCII hyphen character (cutting and pasting from web pages can pull in some wierd unicode characters).</p>
+<p>I saved this data as <a class="reference download internal" download="" href="../../../_downloads/e1012df4a9078ff64d655b386ba7ad8c/ElementsInCrust-Wikipedia-CRC.csv"><span class="xref download myst">ElementsInCrust-Wikipedia-CRC.csv</span></a> and it is loaded with the <em>Python</em> code below.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="c1"># load the data</span>
+<span class="n">df2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;data/ElementsInCrust-Wikipedia-CRC.csv&quot;</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="n">skipinitialspace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">display</span><span class="p">(</span><span class="n">df2</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</details>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>record</th>
+      <th>name</th>
+      <th>symbol</th>
+      <th>number</th>
+      <th>CAS Reg. No.</th>
+      <th>crust mg kg-1</th>
+      <th>sea mg kg-1</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Actinium</td>
+      <td>Ac</td>
+      <td>89</td>
+      <td>7440-34-8</td>
+      <td>5.500000e-10</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Aluminum</td>
+      <td>Al</td>
+      <td>13</td>
+      <td>7429-90-5</td>
+      <td>8.230000e+04</td>
+      <td>0.00200</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>Antimony</td>
+      <td>Sb</td>
+      <td>51</td>
+      <td>7440-36-0</td>
+      <td>2.000000e-01</td>
+      <td>0.00024</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>The first thing that I note is that the percentage column makes no sense. The “talk” page associated with the wikipedia page was discussing this obvious erroneous calculation back in 2023. I can’t say why they have not corrected this. We don’t need it, so I won’t bother fixing it. The extraction column is derived from many sources: some are ores, some are refined metals, some are oxides of elements. In the end it is meaningless data as it uses many non-comparable sourtces. The Goldscmidt classification is something for geologists, I guess.</p>
+<p>The abundance in ppm would be the same using as mg/kg used in the CRC data. So the numbers shoulkd be the same if I copied/editted everything correctly. Since the two data sets went through different processing, I hope that any errors that were created will be unique to just one of the sets and stand out when they are compared.</p>
+</section>
+<section id="combining-the-two-data-sets">
+<h2>Combining the Two Data Sets<a class="headerlink" href="#combining-the-two-data-sets" title="Link to this heading">#</a></h2>
+<p>The <em>Pandas</em> library provides many tools for manipulating data.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Change the column names of both DataFrames to avoid conflicts when merging. </span>
+<span class="c1"># We will add a suffix to each column name to indicate which DataFrame it came from.</span>
+<span class="n">df3</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">add_suffix</span><span class="p">(</span><span class="s2">&quot;CRC&quot;</span><span class="p">)</span>
+<span class="n">df4</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">add_suffix</span><span class="p">(</span><span class="s2">&quot;Wiki&quot;</span><span class="p">)</span>
+
+<span class="c1"># Merge the two DataFrames on the &quot;number&quot; column, which is common to both DataFrames. </span>
+<span class="c1"># We will use an inner join to keep only the rows that have matching elements in both DataFrames.</span>
+<span class="n">merged_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df3</span><span class="p">,</span> <span class="n">df4</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s2">&quot;numberWiki&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">)</span>
+
+<span class="n">display</span><span class="p">(</span><span class="n">merged_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+
+<span class="c1"># make a new data fraem using only the number, name, symbol, and abundance columns from the merged DataFrame.</span>
+<span class="n">final_df</span> <span class="o">=</span> <span class="n">merged_df</span><span class="p">[[</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">,</span> <span class="s2">&quot;nameCRC&quot;</span><span class="p">,</span> <span class="s2">&quot;symbolCRC&quot;</span><span class="p">,</span> <span class="s2">&quot;Abundance (ppm)CRC&quot;</span><span class="p">,</span> <span class="s2">&quot;crust mg kg-1Wiki&quot;</span><span class="p">]]</span>
+
+<span class="n">display</span><span class="p">(</span><span class="n">final_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</details>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>numberCRC</th>
+      <th>nameCRC</th>
+      <th>symbolCRC</th>
+      <th>GoldschmidtCRC</th>
+      <th>Abundance (ppm)CRC</th>
+      <th>percentCRC</th>
+      <th>extraction (tonnes/yr)CRC</th>
+      <th>recordWiki</th>
+      <th>nameWiki</th>
+      <th>symbolWiki</th>
+      <th>numberWiki</th>
+      <th>CAS Reg. No.Wiki</th>
+      <th>crust mg kg-1Wiki</th>
+      <th>sea mg kg-1Wiki</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>8</td>
+      <td>oxygen</td>
+      <td>O</td>
+      <td>Lithophile</td>
+      <td>461000.0</td>
+      <td>46.10</td>
+      <td>10335000.0</td>
+      <td>51</td>
+      <td>Oxygen</td>
+      <td>O</td>
+      <td>8</td>
+      <td>7782-44-7</td>
+      <td>461000.0</td>
+      <td>857000.000</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>14</td>
+      <td>silicon</td>
+      <td>Si</td>
+      <td>Lithophile</td>
+      <td>282000.0</td>
+      <td>28.20</td>
+      <td>7200000.0</td>
+      <td>68</td>
+      <td>Silicon</td>
+      <td>Si</td>
+      <td>14</td>
+      <td>7440-21-3</td>
+      <td>282000.0</td>
+      <td>2.200</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>13</td>
+      <td>aluminium</td>
+      <td>Al</td>
+      <td>Lithophile</td>
+      <td>82300.0</td>
+      <td>8.23</td>
+      <td>57600000.0</td>
+      <td>2</td>
+      <td>Aluminum</td>
+      <td>Al</td>
+      <td>13</td>
+      <td>7429-90-5</td>
+      <td>82300.0</td>
+      <td>0.002</td>
+    </tr>
+  </tbody>
+</table>
+</div></div><div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>numberCRC</th>
+      <th>nameCRC</th>
+      <th>symbolCRC</th>
+      <th>Abundance (ppm)CRC</th>
+      <th>crust mg kg-1Wiki</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>8</td>
+      <td>oxygen</td>
+      <td>O</td>
+      <td>461000.0</td>
+      <td>461000.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>14</td>
+      <td>silicon</td>
+      <td>Si</td>
+      <td>282000.0</td>
+      <td>282000.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>13</td>
+      <td>aluminium</td>
+      <td>Al</td>
+      <td>82300.0</td>
+      <td>82300.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<section id="are-they-the-same">
+<h3>Are They the Same?<a class="headerlink" href="#are-they-the-same" title="Link to this heading">#</a></h3>
+<p>It looks good over the three rows shown. We can perform a test to check is the two columns of numbers representing elemental abundance from each data set are identical.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Compare the abundance values from both DataFrames to see if they are the same. </span>
+<span class="c1"># We will use the &quot;crust mg kg-1CRC&quot; column from the CRC DataFrame and the &quot;Abundance (ppm)Wiki&quot; </span>
+<span class="c1"># column from the Wikipedia DataFrame. We will check if all values in these two columns are equal.</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">final_df</span><span class="p">[</span><span class="s2">&quot;crust mg kg-1Wiki&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">final_df</span><span class="p">[</span><span class="s2">&quot;Abundance (ppm)CRC&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The abundance values in both DataFrames are exactly the same.&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No.&quot;</span><span class="p">)</span>
+
+<span class="c1"># If the abundance values are not exactly the same, we can check if they are </span>
+<span class="c1"># approximately the same using the np.isclose() function from the NumPy library.</span>
+<span class="c1"># This is useful after floating point calculations, which can lead to small differences in the values.</span>
+<span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">final_df</span><span class="p">[</span><span class="s2">&quot;crust mg kg-1Wiki&quot;</span><span class="p">],</span> <span class="n">final_df</span><span class="p">[</span><span class="s2">&quot;Abundance (ppm)CRC&quot;</span><span class="p">],</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The abundance values in both DataFrames are approximately the same.&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</details>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The abundance values in both DataFrames are exactly the same.
+The abundance values in both DataFrames are approximately the same.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="a-visual-check">
+<h3>A Visual Check<a class="headerlink" href="#a-visual-check" title="Link to this heading">#</a></h3>
+<p>A quick and easy way to see how two data sets compare is to graph one against the other. Here we will plot the two sets of abundance values. If they are both the same for each element we shpuld get a stricght line.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="c1"># Create a scatter plot to visualize the relationship between the abundance values from both DataFrames.</span>
+<span class="c1"># and set size of plot to 4x4 inches.</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">final_df</span><span class="p">[</span><span class="s2">&quot;crust mg kg-1Wiki&quot;</span><span class="p">],</span> <span class="n">final_df</span><span class="p">[</span><span class="s2">&quot;Abundance (ppm)CRC&quot;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Abundance (mg/kg) from Wikipedia&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Abundance (ppm) from CRC&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Comparison of Abundance Values from Wikipedia and CRC&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</details>
+<div class="cell_output docutils container">
+<img alt="../../../_images/a40facb76193a73bf3d9fbd523bb7352523639d44ac0ad2e894f0001a42b9074.png" src="../../../_images/a40facb76193a73bf3d9fbd523bb7352523639d44ac0ad2e894f0001a42b9074.png" />
+</div>
+</div>
+</section>
+<section id="a-log-log-plot">
+<h3>A Log-Log Plot<a class="headerlink" href="#a-log-log-plot" title="Link to this heading">#</a></h3>
+<p>the plot above reveals that most of the data is for very small relative abundances. ten elements make up 99% of the crust. the other seventy or more in the data set are present in small amounts. To see all the data better let us use a log scale.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Make a log-log plot to better visualize the relationship between the abundance values from both DataFrames, especially for elements with low abundance.</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">final_df</span><span class="p">[</span><span class="s2">&quot;crust mg kg-1Wiki&quot;</span><span class="p">],</span> <span class="n">final_df</span><span class="p">[</span><span class="s2">&quot;Abundance (ppm)CRC&quot;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Abundance (mg/kg) from Wikipedia (log scale)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Abundance (ppm) from CRC (log scale)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Comparison of Abundance Values from Wikipedia and CRC (Log-Log Scale)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</details>
+<div class="cell_output docutils container">
+<img alt="../../../_images/fe98dbc4e967f32b9d63a90fc185ae8dfa25ebf48e4b0d98b08e184d80b19f03.png" src="../../../_images/fe98dbc4e967f32b9d63a90fc185ae8dfa25ebf48e4b0d98b08e184d80b19f03.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="reproducing-the-elemental-abundance-plot">
+<h2>Reproducing the Elemental Abundance Plot<a class="headerlink" href="#reproducing-the-elemental-abundance-plot" title="Link to this heading">#</a></h2>
+<p>We can sue either data set, now that we know they are identical. I will plot abundance vs atomic number. Will we get something similar to the plot from wikipedia?</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># plot abundance vs number to see if there is any relationship between the abundance of an element </span>
+<span class="c1"># and its atomic number.</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">final_df</span><span class="p">[</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">],</span> <span class="n">final_df</span><span class="p">[</span><span class="s2">&quot;crust mg kg-1Wiki&quot;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xscale</span><span class="p">(</span><span class="s2">&quot;linear&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Atomic Number&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Abundance (mg/kg) from CRC (log scale)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Abundance of Elements vs Atomic Number&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</details>
+<div class="cell_output docutils container">
+<img alt="../../../_images/8811291fc49965d258be766d74469271563997191c3983000b279683d06e16e9.png" src="../../../_images/8811291fc49965d258be766d74469271563997191c3983000b279683d06e16e9.png" />
+</div>
+</div>
+<p>The above plot does not resemble the Wikipedia plot. It includes more elements. I could have the plot tool display the atomic symbols as labels but they would all be on top of each other. So I will make an interactive plot using a different plotting tool. Mouseover the plot below to interogate each point.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># make the plot again but make it interactive using plotly express so that mouseover reveals elemnt symbol</span>
+<span class="c1"># set size of plot to 4x4 inches and use log scale for y-axis to better visualize the relationship between abundance and atomic number, especially for elements with low abundance.</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">plotly.express</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">px</span>
+
+<span class="n">final_df</span> <span class="o">=</span> <span class="n">final_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">)</span> <span class="c1"># Sort the DataFrame by the atomic number column in ascending order to ensure that the lines in the plot connect the points in the correct order.</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">final_df</span><span class="p">,</span> 
+                <span class="n">x</span><span class="o">=</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">,</span> 
+                <span class="n">y</span><span class="o">=</span><span class="s2">&quot;crust mg kg-1Wiki&quot;</span><span class="p">,</span>
+                <span class="n">width</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> 
+                <span class="n">height</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> 
+                <span class="n">hover_data</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;nameCRC&quot;</span><span class="p">],</span> 
+                <span class="n">log_y</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+                <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Abundance of Elements vs Atomic Number&quot;</span><span class="p">,</span> 
+                <span class="n">labels</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">:</span> <span class="s2">&quot;Atomic Number&quot;</span><span class="p">,</span> <span class="s2">&quot;crust mg kg-1CRC&quot;</span><span class="p">:</span> <span class="s2">&quot;Abundance (mg/kg) from CRC (log scale)&quot;</span><span class="p">})</span>
+
+
+<span class="n">fig</span><span class="o">.</span><span class="n">update_traces</span><span class="p">(</span>
+    <span class="n">customdata</span><span class="o">=</span><span class="n">final_df</span><span class="p">[[</span><span class="s2">&quot;nameCRC&quot;</span><span class="p">]],</span>
+    <span class="n">hovertemplate</span><span class="o">=</span>
+    <span class="s2">&quot;Atomic #: %</span><span class="si">{x}</span><span class="s2">&lt;br&gt;&quot;</span> <span class="o">+</span>
+    <span class="s2">&quot;Abundance: %</span><span class="si">{y}</span><span class="s2">&lt;br&gt;&quot;</span> <span class="o">+</span>
+    <span class="s2">&quot;Sample: %</span><span class="si">{customdata[0]}</span><span class="s2">&lt;extra&gt;&lt;/extra&gt;&quot;</span>
+<span class="p">)</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">update_traces</span><span class="p">(</span>
+    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;lines+markers&quot;</span><span class="p">,</span>
+    <span class="n">marker</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">opacity</span><span class="o">=</span><span class="mi">1</span><span class="p">,),</span>
+    <span class="n">line</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">2</span>
+    <span class="p">),</span>
+    <span class="n">selector</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;markers&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">write_html</span><span class="p">(</span><span class="s2">&quot;plot_abundance.html&quot;</span><span class="p">,</span> <span class="n">include_plotlyjs</span><span class="o">=</span><span class="s2">&quot;cdn&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>  
+
+ 
+</pre></div>
+</div>
+</div>
+</details>
+<div class="cell_output docutils container">
+</div>
+</div>
+<html>
+<head><meta charset="utf-8" /></head>
+<body>
+    <div>                        <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.4.0.min.js" integrity="sha256-KEmPoupLpFyGMyGAiOsiNDbKDKAvxXAn/W+oQa0ZAfk=" crossorigin="anonymous"></script>                <div id="cc16a69d-c96e-4756-99ac-acf317623d3f" class="plotly-graph-div" style="height:500px; width:500px;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("cc16a69d-c96e-4756-99ac-acf317623d3f")) {                    Plotly.newPlot(                        "cc16a69d-c96e-4756-99ac-acf317623d3f",                        [{"customdata":[["hydrogen"],["helium"],["lithium"],["beryllium"],["boron"],["carbon"],["nitrogen"],["oxygen"],["fluorine"],["neon"],["sodium"],["magnesium"],["aluminium"],["silicon"],["phosphorus"],["sulfur"],["chlorine"],["argon"],["potassium"],["calcium"],["scandium"],["titanium"],["vanadium"],["chromium"],["manganese"],["iron"],["cobalt"],["nickel"],["copper"],["zinc"],["gallium"],["germanium"],["arsenic"],["selenium"],["bromine"],["krypton"],["rubidium"],["strontium"],["yttrium"],["zirconium"],["niobium"],["molybdenum"],["ruthenium"],["rhodium"],["palladium"],["silver"],["cadmium"],["indium"],["tin"],["antimony"],["tellurium"],["iodine"],["xenon"],["caesium"],["barium"],["lanthanum"],["cerium"],["praseodymium"],["neodymium"],["samarium"],["europium"],["gadolinium"],["terbium"],["dysprosium"],["holmium"],["erbium"],["thulium"],["ytterbium"],["lutetium"],["hafnium"],["tantalum"],["tungsten"],["rhenium"],["osmium"],["iridium"],["platinum"],["gold"],["mercury"],["thallium"],["lead"],["bismuth"],["polonium"],["radon"],["radium"],["actinium"],["thorium"],["protactinium"],["uranium"]],"hovertemplate":"Atomic #: %{x}\u003cbr\u003eAbundance: %{y}\u003cbr\u003eSample: %{customdata[0]}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"black","symbol":"circle","opacity":1,"size":5},"mode":"lines+markers","name":"","orientation":"v","showlegend":false,"x":{"dtype":"i1","bdata":"AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqLC0uLzAxMjM0NTY3ODk6Ozw+P0BBQkNERUZHSElKS0xNTk9QUVJTVFZYWVpbXA=="},"xaxis":"x","y":{"dtype":"f8","bdata":"AAAAAADglUD8qfHSTWKAPwAAAAAAADRAZmZmZmZmBkAAAAAAAAAkQAAAAAAAAGlAAAAAAAAAM0AAAAAAICMcQQAAAAAASIJAexSuR+F6dD8AAAAAAAzXQAAAAAAAwdZAAAAAAMAX9EAAAAAAQDYRQQAAAAAAaJBAAAAAAADgdUAAAAAAACBiQAAAAAAAAAxAAAAAAABp1EAAAAAAgEPkQAAAAAAAADZAAAAAAAAStkAAAAAAAABeQAAAAAAAgFlAAAAAAACwjUAAAAAAgH3rQAAAAAAAADlAAAAAAAAAVUAAAAAAAABOQAAAAAAAgFFAAAAAAAAAM0AAAAAAAAD4P83MzMzMzPw\u002fmpmZmZmZqT8zMzMzMzMDQC1DHOviNho\u002fAAAAAACAVkAAAAAAACB3QAAAAAAAgEBAAAAAAACgZEAAAAAAAAA0QDMzMzMzM\u002fM\u002f\u002fKnx0k1iUD\u002f8qfHSTWJQP7gehetRuI4\u002fMzMzMzMzsz8zMzMzMzPDPwAAAAAAANA\u002fZmZmZmZmAkCamZmZmZnJP\u002fyp8dJNYlA\u002fzczMzMzM3D9pHVVNEHX\u002fPgAAAAAAAAhAAAAAAACQekAAAAAAAIBDQAAAAAAAoFBAZmZmZmZmIkAAAAAAAMBEQDMzMzMzMxxAAAAAAAAAAEDNzMzMzMwYQDMzMzMzM\u002fM\u002fzczMzMzMFEDNzMzMzMz0PwAAAAAAAAxApHA9Ctej4D+amZmZmZkJQJqZmZmZmek\u002fAAAAAAAACEAAAAAAAAAAQAAAAAAAAPQ\u002fx7q4jQbwRj\u002f6fmq8dJNYP\u002fyp8dJNYlA\u002fexSuR+F6dD\u002f8qfHSTWJwP8P1KFyPwrU\u002fMzMzMzMz6z8AAAAAAAAsQJzEILByaIE\u002fu73X2d986z2CdklowiVcPTFFFO7wMq4+cFLE5dnlAj4zMzMzMzMjQF8ZZUf0fLc+mpmZmZmZBUA="},"yaxis":"y","type":"scatter","line":{"color":"black","width":2}}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"Atomic Number"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"crust mg kg-1Wiki"},"type":"log"},"legend":{"tracegroupgap":0},"title":{"text":"Abundance of Elements vs Atomic Number"},"height":500,"width":500},                        {"responsive": true}                    )                };            </script>        </div>
+</body>
+</html><p><a class="reference download internal" download="" href="../../../_downloads/d0f3daf20d7c67ca77ceed7840ee1e44/plot_abundance.html"><span class="xref download myst">Click here to See Interactive Plot</span></a> (just in case it doesn’t appear on this page).</p>
+<p>We see that our plot includes the noble gasses, which are very rare on Earth and some of the higher mass highly radiactive elements that are also very rare (they have decayed away).</p>
+<section id="remove-noble-gasses-and-short-lived-elements">
+<h3>remove Noble Gasses and Short-Lived Elements<a class="headerlink" href="#remove-noble-gasses-and-short-lived-elements" title="Link to this heading">#</a></h3>
+<p>I will repeat the interactive plot above but will remove the extremely rare elements form the data set.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">noble_gasses</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;He&quot;</span><span class="p">,</span> <span class="s2">&quot;Ne&quot;</span><span class="p">,</span> <span class="s2">&quot;Ar&quot;</span><span class="p">,</span> <span class="s2">&quot;Kr&quot;</span><span class="p">,</span> <span class="s2">&quot;Xe&quot;</span><span class="p">,</span> <span class="s2">&quot;Rn&quot;</span><span class="p">]</span>
+<span class="n">rare_redioactives</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Tc&quot;</span><span class="p">,</span> <span class="s2">&quot;Pm&quot;</span><span class="p">,</span> <span class="s2">&quot;Po&quot;</span><span class="p">,</span> <span class="s2">&quot;At&quot;</span><span class="p">,</span> <span class="s2">&quot;Fr&quot;</span><span class="p">,</span> <span class="s2">&quot;Ra&quot;</span><span class="p">,</span> <span class="s2">&quot;Ac&quot;</span><span class="p">,</span> <span class="s2">&quot;Th&quot;</span><span class="p">,</span> <span class="s2">&quot;Pa&quot;</span><span class="p">,</span> <span class="s2">&quot;U&quot;</span><span class="p">,</span> <span class="s2">&quot;Np&quot;</span><span class="p">,</span> <span class="s2">&quot;Pu&quot;</span><span class="p">,</span> <span class="s2">&quot;Am&quot;</span><span class="p">,</span> <span class="s2">&quot;Cm&quot;</span><span class="p">,</span> <span class="s2">&quot;Bk&quot;</span><span class="p">,</span> <span class="s2">&quot;Cf&quot;</span><span class="p">,</span> <span class="s2">&quot;Es&quot;</span><span class="p">,</span> <span class="s2">&quot;Fm&quot;</span><span class="p">,</span> <span class="s2">&quot;Md&quot;</span><span class="p">,</span> <span class="s2">&quot;No&quot;</span><span class="p">,</span> <span class="s2">&quot;Lr&quot;</span><span class="p">]</span>
+
+<span class="c1"># remove noble gasses and rare radioactives from the final DataFrame to focus on the more common elements that are relevant for biochemistry.</span>
+<span class="n">final_df_filtered</span> <span class="o">=</span> <span class="n">final_df</span><span class="p">[</span><span class="o">~</span><span class="n">final_df</span><span class="p">[</span><span class="s2">&quot;symbolCRC&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">noble_gasses</span> <span class="o">+</span> <span class="n">rare_redioactives</span><span class="p">)]</span>
+
+<span class="c1"># make the plot again</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">plotly.express</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">px</span>
+
+<span class="n">final_df_filtered</span> <span class="o">=</span> <span class="n">final_df_filtered</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">)</span> <span class="c1"># Sort the DataFrame by the atomic number column in ascending order to ensure that the lines in the plot connect the points in the correct order.</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">final_df_filtered</span><span class="p">,</span> 
+                <span class="n">x</span><span class="o">=</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">,</span> 
+                <span class="n">y</span><span class="o">=</span><span class="s2">&quot;crust mg kg-1Wiki&quot;</span><span class="p">,</span>
+                <span class="n">width</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> 
+                <span class="n">height</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> 
+                <span class="n">hover_data</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;nameCRC&quot;</span><span class="p">],</span> 
+                <span class="n">log_y</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+                <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Abundance of Elements vs Atomic Number&quot;</span><span class="p">,</span> 
+                <span class="n">labels</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">:</span> <span class="s2">&quot;Atomic Number&quot;</span><span class="p">,</span> <span class="s2">&quot;crust mg kg-1CRC&quot;</span><span class="p">:</span> <span class="s2">&quot;Abundance (mg/kg) from CRC (log scale)&quot;</span><span class="p">})</span>
+
+
+<span class="n">fig</span><span class="o">.</span><span class="n">update_traces</span><span class="p">(</span>
+    <span class="n">customdata</span><span class="o">=</span><span class="n">final_df_filtered</span><span class="p">[[</span><span class="s2">&quot;nameCRC&quot;</span><span class="p">]],</span>
+    <span class="n">hovertemplate</span><span class="o">=</span>
+    <span class="s2">&quot;Atomic #: %</span><span class="si">{x}</span><span class="s2">&lt;br&gt;&quot;</span> <span class="o">+</span>
+    <span class="s2">&quot;Abundance: %</span><span class="si">{y}</span><span class="s2">&lt;br&gt;&quot;</span> <span class="o">+</span>
+    <span class="s2">&quot;Sample: %</span><span class="si">{customdata[0]}</span><span class="s2">&lt;extra&gt;&lt;/extra&gt;&quot;</span>
+<span class="p">)</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">update_traces</span><span class="p">(</span>
+    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;lines+markers&quot;</span><span class="p">,</span>
+    <span class="n">marker</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">opacity</span><span class="o">=</span><span class="mi">1</span><span class="p">,),</span>
+    <span class="n">line</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">2</span>
+    <span class="p">),</span>
+    <span class="n">selector</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;markers&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">write_html</span><span class="p">(</span><span class="s2">&quot;plot_abundance_filtered.html&quot;</span><span class="p">,</span> <span class="n">include_plotlyjs</span><span class="o">=</span><span class="s2">&quot;cdn&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>  
+</pre></div>
+</div>
+</div>
+</details>
+<div class="cell_output docutils container">
+</div>
+</div>
+<html>
+<head><meta charset="utf-8" /></head>
+<body>
+    <div>                        <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.4.0.min.js" integrity="sha256-KEmPoupLpFyGMyGAiOsiNDbKDKAvxXAn/W+oQa0ZAfk=" crossorigin="anonymous"></script>                <div id="7fb52e38-caa1-4873-875f-11ffd4ef47a6" class="plotly-graph-div" style="height:500px; width:500px;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("7fb52e38-caa1-4873-875f-11ffd4ef47a6")) {                    Plotly.newPlot(                        "7fb52e38-caa1-4873-875f-11ffd4ef47a6",                        [{"customdata":[["hydrogen"],["lithium"],["beryllium"],["boron"],["carbon"],["nitrogen"],["oxygen"],["fluorine"],["sodium"],["magnesium"],["aluminium"],["silicon"],["phosphorus"],["sulfur"],["chlorine"],["potassium"],["calcium"],["scandium"],["titanium"],["vanadium"],["chromium"],["manganese"],["iron"],["cobalt"],["nickel"],["copper"],["zinc"],["gallium"],["germanium"],["arsenic"],["selenium"],["bromine"],["rubidium"],["strontium"],["yttrium"],["zirconium"],["niobium"],["molybdenum"],["ruthenium"],["rhodium"],["palladium"],["silver"],["cadmium"],["indium"],["tin"],["antimony"],["tellurium"],["iodine"],["caesium"],["barium"],["lanthanum"],["cerium"],["praseodymium"],["neodymium"],["samarium"],["europium"],["gadolinium"],["terbium"],["dysprosium"],["holmium"],["erbium"],["thulium"],["ytterbium"],["lutetium"],["hafnium"],["tantalum"],["tungsten"],["rhenium"],["osmium"],["iridium"],["platinum"],["gold"],["mercury"],["thallium"],["lead"],["bismuth"]],"hovertemplate":"Atomic #: %{x}\u003cbr\u003eAbundance: %{y}\u003cbr\u003eSample: %{customdata[0]}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"black","symbol":"circle","opacity":1,"size":5},"mode":"lines+markers","name":"","orientation":"v","showlegend":false,"x":{"dtype":"i1","bdata":"AQMEBQYHCAkLDA0ODxARExQVFhcYGRobHB0eHyAhIiMlJicoKSosLS4vMDEyMzQ1Nzg5Ojs8Pj9AQUJDREVGR0hJSktMTU5PUFFSUw=="},"xaxis":"x","y":{"dtype":"f8","bdata":"AAAAAADglUAAAAAAAAA0QGZmZmZmZgZAAAAAAAAAJEAAAAAAAABpQAAAAAAAADNAAAAAACAjHEEAAAAAAEiCQAAAAAAADNdAAAAAAADB1kAAAAAAwBf0QAAAAABANhFBAAAAAABokEAAAAAAAOB1QAAAAAAAIGJAAAAAAABp1EAAAAAAgEPkQAAAAAAAADZAAAAAAAAStkAAAAAAAABeQAAAAAAAgFlAAAAAAACwjUAAAAAAgH3rQAAAAAAAADlAAAAAAAAAVUAAAAAAAABOQAAAAAAAgFFAAAAAAAAAM0AAAAAAAAD4P83MzMzMzPw\u002fmpmZmZmZqT8zMzMzMzMDQAAAAAAAgFZAAAAAAAAgd0AAAAAAAIBAQAAAAAAAoGRAAAAAAAAANEAzMzMzMzPzP\u002fyp8dJNYlA\u002f\u002fKnx0k1iUD+4HoXrUbiOPzMzMzMzM7M\u002fMzMzMzMzwz8AAAAAAADQP2ZmZmZmZgJAmpmZmZmZyT\u002f8qfHSTWJQP83MzMzMzNw\u002fAAAAAAAACEAAAAAAAJB6QAAAAAAAgENAAAAAAACgUEBmZmZmZmYiQAAAAAAAwERAMzMzMzMzHEAAAAAAAAAAQM3MzMzMzBhAMzMzMzMz8z\u002fNzMzMzMwUQM3MzMzMzPQ\u002fAAAAAAAADECkcD0K16PgP5qZmZmZmQlAmpmZmZmZ6T8AAAAAAAAIQAAAAAAAAABAAAAAAAAA9D\u002fHuriNBvBGP\u002fp+arx0k1g\u002f\u002fKnx0k1iUD97FK5H4Xp0P\u002fyp8dJNYnA\u002fw\u002fUoXI\u002fCtT8zMzMzMzPrPwAAAAAAACxAnMQgsHJogT8="},"yaxis":"y","type":"scatter","line":{"color":"black","width":2}}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"Atomic Number"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"crust mg kg-1Wiki"},"type":"log"},"legend":{"tracegroupgap":0},"title":{"text":"Abundance of Elements vs Atomic Number"},"height":500,"width":500},                        {"responsive": true}                    )                };            </script>        </div>
+</body>
+</html><p><a class="reference download internal" download="" href="../../../_downloads/4f208b9016aeebdc282b75c154789159/plot_abundance_filtered.html"><span class="xref download myst">Click here to See Interactive Plot</span></a> (just in case it doesn’t appear on this page).</p>
+<p>This plot looks more like the Wikipedia plot. It’s interactive too. Mouseover to query each point.</p>
+</section>
+<section id="a-close-copy-of-the-wikipedia-plot">
+<h3>A Close Copy of the Wikipedia Plot<a class="headerlink" href="#a-close-copy-of-the-wikipedia-plot" title="Link to this heading">#</a></h3>
+<p>By editing the data set to remove elements that were not included in the wikipedia plot and plotting the data in groups I can make a plot that will be as similar as possible to the plot presented on Wikipedia. The code below may look busy, but it just a series of commands give in order. Its not a real program. Also it was written by MS Copilot. I don’t know how to program, but I am willing to monkey around.</p>
+<p>Compare my plot with the literture version, which I will reproduce just below asa well.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">size</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;black&#39;</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+<span class="c1"># List of elements to plot. excludes noble gases and unstable radioactive elements.</span>
+<span class="n">group_list</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">9</span><span class="p">],</span> <span class="p">[</span><span class="mi">11</span><span class="p">,</span><span class="mi">17</span><span class="p">],</span> <span class="p">[</span><span class="mi">19</span><span class="p">,</span><span class="mi">35</span><span class="p">],</span> <span class="p">[</span><span class="mi">37</span><span class="p">,</span><span class="mi">42</span><span class="p">],</span> <span class="p">[</span><span class="mi">44</span><span class="p">,</span><span class="mi">53</span><span class="p">],</span> <span class="p">[</span><span class="mi">55</span><span class="p">,</span><span class="mi">60</span><span class="p">],</span> <span class="p">[</span><span class="mi">62</span><span class="p">,</span><span class="mi">83</span><span class="p">],</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span><span class="mi">90</span><span class="p">],</span> <span class="p">[</span><span class="mi">92</span><span class="p">,</span><span class="mi">92</span><span class="p">],]</span> 
+<span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">group_list</span><span class="p">:</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">group</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="c1"># Create a list of atomic numbers from bounds (inclusive) </span>
+    <span class="c1"># choose x values where atomic number is in group list and y values where atomic number is in group list</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">final_df</span><span class="p">[</span><span class="n">final_df</span><span class="p">[</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">group</span><span class="p">)][</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">final_df</span><span class="p">[</span><span class="n">final_df</span><span class="p">[</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">group</span><span class="p">)][</span><span class="s2">&quot;crust mg kg-1Wiki&quot;</span><span class="p">]</span> 
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">size</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># Add a line connecting the points in the scatter plot to better visualize the trend in the data.</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">xscale</span><span class="p">(</span><span class="s2">&quot;linear&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Atomic Number&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Abundance (mg/kg) from CRC (log scale)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Abundance of Elements vs Atomic Number&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</details>
+<div class="cell_output docutils container">
+<img alt="../../../_images/884d118c2978f3106353d8dd4fe5fa3a8abb6698ca1a465478ea1d1e0212849f.png" src="../../../_images/884d118c2978f3106353d8dd4fe5fa3a8abb6698ca1a465478ea1d1e0212849f.png" />
+</div>
+</div>
+<p>Here is the <a class="reference external" href="https://en.wikipedia.org/wiki/Abundance_of_elements_in_Earth%27s_crust">plot from Wikipedia</a>, again.</p>
+<figure class="align-default" id="id2">
+<a class="align-left reference internal image-reference" href="../../../_images/Elemental_abundances.svg.png"><img alt="Elemental abundance on Earth (wikipedia)" class="align-left" src="../../../_images/Elemental_abundances.svg.png" style="width: 500px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">The plot presented in the Remick, 2023 paper and on WikiPedia.</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="a-confession">
+<h3>A Confession<a class="headerlink" href="#a-confession" title="Link to this heading">#</a></h3>
+<p>The plot above is very similar to the wikipedia plot, but has some significant differences. Observe elements 44, 45 and 46 (ruthenium, rhodium and palladium) in both plots and you will see what I mean. Remek et al. present a plot sourced from Wikipedia but state that they are using data from the CRC handbook. We see here that the data set used for the wikipedia plot is not the same as the data set in the CRC handbook. The data used in the Wikipedia plot is from the paper below. The wikipedia plot is presented there and we have found its original source. However, no data tables are presented.</p>
+<blockquote>
+<div><p>Haxel, G.B.; Hedrick, J.B.; Orris, G.J., “Rare Earth Elements—Critical Resources for High Technology: USGS Fact Sheet 087-02”. <a class="reference external" href="https://pubs.usgs.gov/fs/2002/fs087-02/">https://pubs.usgs.gov/fs/2002/fs087-02/</a>. Accessed April 30, 2026.</p>
+</div></blockquote>
+<p>Remek et al. state that they will use the CRC data in their analysis and discussion. I misinterpretted that as them saying that that data was used to make the plot. I went through this whole rabbit hole trying to confirm if the CRC data set would give the plot (close, but not exact) and could have saved myself some work if I had read the figure legend more carefully.</p>
+</section>
+</section>
+<section id="the-plot-for-the-textbook">
+<h2>The Plot for the Textbook<a class="headerlink" href="#the-plot-for-the-textbook" title="Link to this heading">#</a></h2>
+<p>Now that I have decided to use the data set of the CRC handbook (the data used by Haxel et al. was not made available) and reproduced the plot with that data, I will make the plot in the style that I use in the textbook.</p>
+<p>The code below will make the above plot using the Tufte style for MatPlotLib. the code below uses the <em>Plotly</em> library and produces an interactive plot.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#import kaleido</span>
+
+<span class="c1"># Make the plot above again using tufte style</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>
+    <span class="n">template</span><span class="o">=</span><span class="s2">&quot;simple_white&quot;</span><span class="p">,</span>
+    <span class="n">font</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+        <span class="n">family</span><span class="o">=</span><span class="s2">&quot;Palatino, Garamond, Computer Modern, Times New Roman&quot;</span><span class="p">,</span>     <span class="c1"># e.g. &quot;Times New Roman&quot;, &quot;Helvetica&quot;, &quot;Computer Modern&quot;</span>
+        <span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span>
+    <span class="p">),</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">title_font_size</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span>
+    <span class="n">xaxis_title</span><span class="o">=</span><span class="s2">&quot;Atomic Number&quot;</span><span class="p">,</span>
+    <span class="n">yaxis_title</span><span class="o">=</span><span class="s2">&quot;Abundance (mg/kg)&quot;</span><span class="p">,</span>
+    <span class="n">xaxis_title_font_size</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+    <span class="n">yaxis_title_font_size</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+    <span class="n">xaxis</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+        <span class="n">showline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">linecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span>
+        <span class="n">ticks</span><span class="o">=</span><span class="s1">&#39;outside&#39;</span><span class="p">,</span>
+        <span class="n">tickwidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">tickcolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span>
+        <span class="n">ticklen</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">90</span><span class="p">]</span>
+    <span class="p">),</span>
+    <span class="n">yaxis</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+        <span class="n">showline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">linecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span>
+        <span class="n">ticks</span><span class="o">=</span><span class="s1">&#39;outside&#39;</span><span class="p">,</span>
+        <span class="n">tickwidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">tickcolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span>
+        <span class="n">ticklen</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+
+<span class="n">fig</span><span class="o">.</span><span class="n">write_html</span><span class="p">(</span><span class="s2">&quot;plot_abundance_plotly_tufte.html&quot;</span><span class="p">,</span> <span class="n">include_plotlyjs</span><span class="o">=</span><span class="s2">&quot;cdn&quot;</span><span class="p">)</span>
+<span class="c1">#fig.write_image(&quot;plot_abundance_plotly_tufte.pdf&quot;) # requires kaleido package to be installed</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</details>
+<div class="cell_output docutils container">
+</div>
+</div>
+<html>
+<head><meta charset="utf-8" /></head>
+<body>
+    <div>                        <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.4.0.min.js" integrity="sha256-KEmPoupLpFyGMyGAiOsiNDbKDKAvxXAn/W+oQa0ZAfk=" crossorigin="anonymous"></script>                <div id="51d49244-6394-4ab4-90a6-97248121d1ea" class="plotly-graph-div" style="height:500px; width:500px;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("51d49244-6394-4ab4-90a6-97248121d1ea")) {                    Plotly.newPlot(                        "51d49244-6394-4ab4-90a6-97248121d1ea",                        [{"customdata":[["hydrogen"],["lithium"],["beryllium"],["boron"],["carbon"],["nitrogen"],["oxygen"],["fluorine"],["sodium"],["magnesium"],["aluminium"],["silicon"],["phosphorus"],["sulfur"],["chlorine"],["potassium"],["calcium"],["scandium"],["titanium"],["vanadium"],["chromium"],["manganese"],["iron"],["cobalt"],["nickel"],["copper"],["zinc"],["gallium"],["germanium"],["arsenic"],["selenium"],["bromine"],["rubidium"],["strontium"],["yttrium"],["zirconium"],["niobium"],["molybdenum"],["ruthenium"],["rhodium"],["palladium"],["silver"],["cadmium"],["indium"],["tin"],["antimony"],["tellurium"],["iodine"],["caesium"],["barium"],["lanthanum"],["cerium"],["praseodymium"],["neodymium"],["samarium"],["europium"],["gadolinium"],["terbium"],["dysprosium"],["holmium"],["erbium"],["thulium"],["ytterbium"],["lutetium"],["hafnium"],["tantalum"],["tungsten"],["rhenium"],["osmium"],["iridium"],["platinum"],["gold"],["mercury"],["thallium"],["lead"],["bismuth"]],"hovertemplate":"Atomic #: %{x}\u003cbr\u003eAbundance: %{y}\u003cbr\u003eSample: %{customdata[0]}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"black","symbol":"circle","opacity":1,"size":5},"mode":"lines+markers","name":"","orientation":"v","showlegend":false,"x":{"dtype":"i1","bdata":"AQMEBQYHCAkLDA0ODxARExQVFhcYGRobHB0eHyAhIiMlJicoKSosLS4vMDEyMzQ1Nzg5Ojs8Pj9AQUJDREVGR0hJSktMTU5PUFFSUw=="},"xaxis":"x","y":{"dtype":"f8","bdata":"AAAAAADglUAAAAAAAAA0QGZmZmZmZgZAAAAAAAAAJEAAAAAAAABpQAAAAAAAADNAAAAAACAjHEEAAAAAAEiCQAAAAAAADNdAAAAAAADB1kAAAAAAwBf0QAAAAABANhFBAAAAAABokEAAAAAAAOB1QAAAAAAAIGJAAAAAAABp1EAAAAAAgEPkQAAAAAAAADZAAAAAAAAStkAAAAAAAABeQAAAAAAAgFlAAAAAAACwjUAAAAAAgH3rQAAAAAAAADlAAAAAAAAAVUAAAAAAAABOQAAAAAAAgFFAAAAAAAAAM0AAAAAAAAD4P83MzMzMzPw\u002fmpmZmZmZqT8zMzMzMzMDQAAAAAAAgFZAAAAAAAAgd0AAAAAAAIBAQAAAAAAAoGRAAAAAAAAANEAzMzMzMzPzP\u002fyp8dJNYlA\u002f\u002fKnx0k1iUD+4HoXrUbiOPzMzMzMzM7M\u002fMzMzMzMzwz8AAAAAAADQP2ZmZmZmZgJAmpmZmZmZyT\u002f8qfHSTWJQP83MzMzMzNw\u002fAAAAAAAACEAAAAAAAJB6QAAAAAAAgENAAAAAAACgUEBmZmZmZmYiQAAAAAAAwERAMzMzMzMzHEAAAAAAAAAAQM3MzMzMzBhAMzMzMzMz8z\u002fNzMzMzMwUQM3MzMzMzPQ\u002fAAAAAAAADECkcD0K16PgP5qZmZmZmQlAmpmZmZmZ6T8AAAAAAAAIQAAAAAAAAABAAAAAAAAA9D\u002fHuriNBvBGP\u002fp+arx0k1g\u002f\u002fKnx0k1iUD97FK5H4Xp0P\u002fyp8dJNYnA\u002fw\u002fUoXI\u002fCtT8zMzMzMzPrPwAAAAAAACxAnMQgsHJogT8="},"yaxis":"y","type":"scatter","line":{"color":"black","width":2}}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"rgb(36,36,36)"},"error_y":{"color":"rgb(36,36,36)"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"rgb(36,36,36)","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"rgb(36,36,36)"},"baxis":{"endlinecolor":"rgb(36,36,36)","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"rgb(36,36,36)"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":1,"tickcolor":"rgb(36,36,36)","ticks":"outside"},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":1,"tickcolor":"rgb(36,36,36)","ticks":"outside"},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":1,"tickcolor":"rgb(36,36,36)","ticks":"outside"},"colorscale":[[0.0,"#440154"],[0.1111111111111111,"#482878"],[0.2222222222222222,"#3e4989"],[0.3333333333333333,"#31688e"],[0.4444444444444444,"#26828e"],[0.5555555555555556,"#1f9e89"],[0.6666666666666666,"#35b779"],[0.7777777777777778,"#6ece58"],[0.8888888888888888,"#b5de2b"],[1.0,"#fde725"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":1,"tickcolor":"rgb(36,36,36)","ticks":"outside"},"colorscale":[[0.0,"#440154"],[0.1111111111111111,"#482878"],[0.2222222222222222,"#3e4989"],[0.3333333333333333,"#31688e"],[0.4444444444444444,"#26828e"],[0.5555555555555556,"#1f9e89"],[0.6666666666666666,"#35b779"],[0.7777777777777778,"#6ece58"],[0.8888888888888888,"#b5de2b"],[1.0,"#fde725"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":1,"tickcolor":"rgb(36,36,36)","ticks":"outside"},"colorscale":[[0.0,"#440154"],[0.1111111111111111,"#482878"],[0.2222222222222222,"#3e4989"],[0.3333333333333333,"#31688e"],[0.4444444444444444,"#26828e"],[0.5555555555555556,"#1f9e89"],[0.6666666666666666,"#35b779"],[0.7777777777777778,"#6ece58"],[0.8888888888888888,"#b5de2b"],[1.0,"#fde725"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":1,"tickcolor":"rgb(36,36,36)","ticks":"outside"},"colorscale":[[0.0,"#440154"],[0.1111111111111111,"#482878"],[0.2222222222222222,"#3e4989"],[0.3333333333333333,"#31688e"],[0.4444444444444444,"#26828e"],[0.5555555555555556,"#1f9e89"],[0.6666666666666666,"#35b779"],[0.7777777777777778,"#6ece58"],[0.8888888888888888,"#b5de2b"],[1.0,"#fde725"]],"type":"histogram2d"}],"histogram":[{"marker":{"line":{"color":"white","width":0.6}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":1,"tickcolor":"rgb(36,36,36)","ticks":"outside"},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":1,"tickcolor":"rgb(36,36,36)","ticks":"outside"}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":1,"tickcolor":"rgb(36,36,36)","ticks":"outside"}},"marker":{"colorbar":{"outlinewidth":1,"tickcolor":"rgb(36,36,36)","ticks":"outside"}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":1,"tickcolor":"rgb(36,36,36)","ticks":"outside"}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":1,"tickcolor":"rgb(36,36,36)","ticks":"outside"}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":1,"tickcolor":"rgb(36,36,36)","ticks":"outside"}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":1,"tickcolor":"rgb(36,36,36)","ticks":"outside"}},"type":"scattermapbox"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":1,"tickcolor":"rgb(36,36,36)","ticks":"outside"}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":1,"tickcolor":"rgb(36,36,36)","ticks":"outside"}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":1,"tickcolor":"rgb(36,36,36)","ticks":"outside"}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":1,"tickcolor":"rgb(36,36,36)","ticks":"outside"}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":1,"tickcolor":"rgb(36,36,36)","ticks":"outside"},"colorscale":[[0.0,"#440154"],[0.1111111111111111,"#482878"],[0.2222222222222222,"#3e4989"],[0.3333333333333333,"#31688e"],[0.4444444444444444,"#26828e"],[0.5555555555555556,"#1f9e89"],[0.6666666666666666,"#35b779"],[0.7777777777777778,"#6ece58"],[0.8888888888888888,"#b5de2b"],[1.0,"#fde725"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"rgb(237,237,237)"},"line":{"color":"white"}},"header":{"fill":{"color":"rgb(217,217,217)"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":1,"tickcolor":"rgb(36,36,36)","ticks":"outside"}},"colorscale":{"diverging":[[0.0,"rgb(103,0,31)"],[0.1,"rgb(178,24,43)"],[0.2,"rgb(214,96,77)"],[0.3,"rgb(244,165,130)"],[0.4,"rgb(253,219,199)"],[0.5,"rgb(247,247,247)"],[0.6,"rgb(209,229,240)"],[0.7,"rgb(146,197,222)"],[0.8,"rgb(67,147,195)"],[0.9,"rgb(33,102,172)"],[1.0,"rgb(5,48,97)"]],"sequential":[[0.0,"#440154"],[0.1111111111111111,"#482878"],[0.2222222222222222,"#3e4989"],[0.3333333333333333,"#31688e"],[0.4444444444444444,"#26828e"],[0.5555555555555556,"#1f9e89"],[0.6666666666666666,"#35b779"],[0.7777777777777778,"#6ece58"],[0.8888888888888888,"#b5de2b"],[1.0,"#fde725"]],"sequentialminus":[[0.0,"#440154"],[0.1111111111111111,"#482878"],[0.2222222222222222,"#3e4989"],[0.3333333333333333,"#31688e"],[0.4444444444444444,"#26828e"],[0.5555555555555556,"#1f9e89"],[0.6666666666666666,"#35b779"],[0.7777777777777778,"#6ece58"],[0.8888888888888888,"#b5de2b"],[1.0,"#fde725"]]},"colorway":["#1F77B4","#FF7F0E","#2CA02C","#D62728","#9467BD","#8C564B","#E377C2","#7F7F7F","#BCBD22","#17BECF"],"font":{"color":"rgb(36,36,36)"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"white"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"rgb(232,232,232)","linecolor":"rgb(36,36,36)","showgrid":false,"showline":true,"ticks":"outside"},"bgcolor":"white","radialaxis":{"gridcolor":"rgb(232,232,232)","linecolor":"rgb(36,36,36)","showgrid":false,"showline":true,"ticks":"outside"}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"rgb(232,232,232)","gridwidth":2,"linecolor":"rgb(36,36,36)","showbackground":true,"showgrid":false,"showline":true,"ticks":"outside","zeroline":false,"zerolinecolor":"rgb(36,36,36)"},"yaxis":{"backgroundcolor":"white","gridcolor":"rgb(232,232,232)","gridwidth":2,"linecolor":"rgb(36,36,36)","showbackground":true,"showgrid":false,"showline":true,"ticks":"outside","zeroline":false,"zerolinecolor":"rgb(36,36,36)"},"zaxis":{"backgroundcolor":"white","gridcolor":"rgb(232,232,232)","gridwidth":2,"linecolor":"rgb(36,36,36)","showbackground":true,"showgrid":false,"showline":true,"ticks":"outside","zeroline":false,"zerolinecolor":"rgb(36,36,36)"}},"shapedefaults":{"fillcolor":"black","line":{"width":0},"opacity":0.3},"ternary":{"aaxis":{"gridcolor":"rgb(232,232,232)","linecolor":"rgb(36,36,36)","showgrid":false,"showline":true,"ticks":"outside"},"baxis":{"gridcolor":"rgb(232,232,232)","linecolor":"rgb(36,36,36)","showgrid":false,"showline":true,"ticks":"outside"},"bgcolor":"white","caxis":{"gridcolor":"rgb(232,232,232)","linecolor":"rgb(36,36,36)","showgrid":false,"showline":true,"ticks":"outside"}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"rgb(232,232,232)","linecolor":"rgb(36,36,36)","showgrid":false,"showline":true,"ticks":"outside","title":{"standoff":15},"zeroline":false,"zerolinecolor":"rgb(36,36,36)"},"yaxis":{"automargin":true,"gridcolor":"rgb(232,232,232)","linecolor":"rgb(36,36,36)","showgrid":false,"showline":true,"ticks":"outside","title":{"standoff":15},"zeroline":false,"zerolinecolor":"rgb(36,36,36)"}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"Atomic Number","font":{"size":16}},"showline":false,"linewidth":1,"linecolor":"black","ticks":"outside","tickwidth":1,"tickcolor":"black","ticklen":5,"range":[-3,90]},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"Abundance (mg\u002fkg)","font":{"size":16}},"type":"log","showline":false,"linewidth":1,"linecolor":"black","ticks":"outside","tickwidth":1,"tickcolor":"black","ticklen":5,"range":[-4,6]},"legend":{"tracegroupgap":0},"title":{"font":{"size":14}},"height":500,"width":500,"font":{"family":"Palatino, Garamond, Computer Modern, Times New Roman","size":16,"color":"black"}},                        {"responsive": true}                    )                };            </script>        </div>
+</body>
+</html><p><a class="reference download internal" download="" href="../../../_downloads/5bab3c0c2392a6b0a7a7e803c7bf06f2/plot_abundance_plotly_tufte.html"><span class="xref download myst">Click here to See Interactive Plot</span></a> (just in case it doesn’t appear on this page).</p>
+<p>This plot has the crisp and uncluttered style that I prefer. It’s interactive too. Mouseover to query each point.</p>
+<section id="the-final-plot">
+<h3>the Final Plot<a class="headerlink" href="#the-final-plot" title="Link to this heading">#</a></h3>
+<p>I am more experienced with <em>MatPlotLib</em> than <em>Plotly</em> and will make my final plot using that library.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">styles_location</span> <span class="o">=</span> <span class="s2">&quot;../../../styles/&quot;</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParamsDefault</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="n">styles_location</span> <span class="o">+</span> <span class="s2">&quot;tufte.mplstyle&quot;</span><span class="p">)</span>        
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>  
+
+<span class="n">size</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;black&#39;</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+<span class="c1"># List of elements to plot. excludes noble gases and unstable radioactive elements.</span>
+<span class="n">group_list</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">9</span><span class="p">],</span> <span class="p">[</span><span class="mi">11</span><span class="p">,</span><span class="mi">17</span><span class="p">],</span> <span class="p">[</span><span class="mi">19</span><span class="p">,</span><span class="mi">35</span><span class="p">],</span> <span class="p">[</span><span class="mi">37</span><span class="p">,</span><span class="mi">42</span><span class="p">],</span> <span class="p">[</span><span class="mi">44</span><span class="p">,</span><span class="mi">53</span><span class="p">],</span> <span class="p">[</span><span class="mi">55</span><span class="p">,</span><span class="mi">60</span><span class="p">],</span> <span class="p">[</span><span class="mi">62</span><span class="p">,</span><span class="mi">83</span><span class="p">],</span> <span class="p">]</span> 
+<span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">group_list</span><span class="p">:</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">group</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="c1"># Create a list of atomic numbers from bounds (inclusive) </span>
+    <span class="c1"># choose x values where atomic number is in group list and y values where atomic number is in group list</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">final_df</span><span class="p">[</span><span class="n">final_df</span><span class="p">[</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">group</span><span class="p">)][</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">final_df</span><span class="p">[</span><span class="n">final_df</span><span class="p">[</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">group</span><span class="p">)][</span><span class="s2">&quot;crust mg kg-1Wiki&quot;</span><span class="p">]</span> 
+    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> 
+           <span class="n">marker</span> <span class="o">=</span> <span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> 
+           <span class="n">color</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">edgecolor</span> <span class="o">=</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span>
+           <span class="n">linewidth</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> 
+           <span class="n">marker</span> <span class="o">=</span> <span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">size</span><span class="o">+</span><span class="mi">20</span><span class="p">,</span> 
+           <span class="n">color</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">edgecolor</span> <span class="o">=</span> <span class="s2">&quot;white&quot;</span><span class="p">,</span>
+           <span class="n">linewidth</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># Add a line connecting the points in the scatter plot to better visualize the trend in the data.</span>
+
+<span class="n">highlightsize</span> <span class="o">=</span> <span class="mi">32</span>
+<span class="n">group</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">16</span><span class="p">]</span> <span class="c1"># Create a list of atomic numbers from bounds (inclusive) </span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">final_df</span><span class="p">[</span><span class="n">final_df</span><span class="p">[</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">group</span><span class="p">)][</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">]</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">final_df</span><span class="p">[</span><span class="n">final_df</span><span class="p">[</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">group</span><span class="p">)][</span><span class="s2">&quot;crust mg kg-1Wiki&quot;</span><span class="p">]</span> 
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> 
+       <span class="n">marker</span> <span class="o">=</span> <span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">highlightsize</span><span class="o">+</span><span class="mi">40</span><span class="p">,</span> 
+       <span class="n">color</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">edgecolor</span> <span class="o">=</span> <span class="s2">&quot;white&quot;</span><span class="p">,</span>
+       <span class="n">linewidth</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> 
+       <span class="n">marker</span> <span class="o">=</span> <span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">highlightsize</span><span class="p">,</span> 
+       <span class="n">color</span><span class="o">=</span><span class="s2">&quot;lightgreen&quot;</span><span class="p">,</span> <span class="n">edgecolor</span> <span class="o">=</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span>
+       <span class="n">linewidth</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="n">group</span> <span class="o">=</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">29</span> <span class="p">,</span><span class="mi">30</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="p">]</span> <span class="c1"># Create a list of atomic numbers from bounds (inclusive) </span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">final_df</span><span class="p">[</span><span class="n">final_df</span><span class="p">[</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">group</span><span class="p">)][</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">]</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">final_df</span><span class="p">[</span><span class="n">final_df</span><span class="p">[</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">group</span><span class="p">)][</span><span class="s2">&quot;crust mg kg-1Wiki&quot;</span><span class="p">]</span> 
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> 
+       <span class="n">marker</span> <span class="o">=</span> <span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">highlightsize</span><span class="o">+</span><span class="mi">40</span><span class="p">,</span> 
+       <span class="n">color</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">edgecolor</span> <span class="o">=</span> <span class="s2">&quot;white&quot;</span><span class="p">,</span>
+       <span class="n">linewidth</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> 
+       <span class="n">marker</span> <span class="o">=</span> <span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">highlightsize</span><span class="p">,</span> 
+       <span class="n">color</span><span class="o">=</span><span class="s2">&quot;pink&quot;</span><span class="p">,</span> <span class="n">edgecolor</span> <span class="o">=</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span>
+       <span class="n">linewidth</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="n">group</span> <span class="o">=</span> <span class="p">[</span><span class="mi">11</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">19</span><span class="p">,</span><span class="mi">17</span><span class="p">]</span> <span class="c1"># Create a list of atomic numbers from bounds (inclusive) </span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">final_df</span><span class="p">[</span><span class="n">final_df</span><span class="p">[</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">group</span><span class="p">)][</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">]</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">final_df</span><span class="p">[</span><span class="n">final_df</span><span class="p">[</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">group</span><span class="p">)][</span><span class="s2">&quot;crust mg kg-1Wiki&quot;</span><span class="p">]</span> 
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> 
+       <span class="n">marker</span> <span class="o">=</span> <span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">highlightsize</span><span class="o">+</span><span class="mi">40</span><span class="p">,</span> 
+       <span class="n">color</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">edgecolor</span> <span class="o">=</span> <span class="s2">&quot;white&quot;</span><span class="p">,</span>
+       <span class="n">linewidth</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> 
+       <span class="n">marker</span> <span class="o">=</span> <span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">highlightsize</span><span class="p">,</span> 
+       <span class="n">color</span><span class="o">=</span><span class="s2">&quot;lightblue&quot;</span><span class="p">,</span> <span class="n">edgecolor</span> <span class="o">=</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span>
+       <span class="n">linewidth</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="n">group</span> <span class="o">=</span> <span class="p">[</span><span class="mi">44</span><span class="p">,</span><span class="mi">45</span><span class="p">,</span><span class="mi">46</span><span class="p">,</span><span class="mi">76</span><span class="p">,</span><span class="mi">78</span><span class="p">]</span> <span class="c1"># Create a list of atomic numbers from bounds (inclusive) </span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">final_df</span><span class="p">[</span><span class="n">final_df</span><span class="p">[</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">group</span><span class="p">)][</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">]</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">final_df</span><span class="p">[</span><span class="n">final_df</span><span class="p">[</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">group</span><span class="p">)][</span><span class="s2">&quot;crust mg kg-1Wiki&quot;</span><span class="p">]</span> 
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> 
+       <span class="n">marker</span> <span class="o">=</span> <span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">highlightsize</span><span class="o">+</span><span class="mi">40</span><span class="p">,</span> 
+       <span class="n">color</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">edgecolor</span> <span class="o">=</span> <span class="s2">&quot;white&quot;</span><span class="p">,</span>
+       <span class="n">linewidth</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> 
+       <span class="n">marker</span> <span class="o">=</span> <span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">highlightsize</span><span class="p">,</span> 
+       <span class="n">color</span><span class="o">=</span><span class="s2">&quot;orange&quot;</span><span class="p">,</span> <span class="n">edgecolor</span> <span class="o">=</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span>
+       <span class="n">linewidth</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="n">group</span> <span class="o">=</span> <span class="p">[</span><span class="mi">47</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">79</span><span class="p">,</span><span class="mi">80</span><span class="p">,</span><span class="mi">82</span><span class="p">]</span> <span class="c1"># Create a list of atomic numbers from bounds (inclusive) </span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">final_df</span><span class="p">[</span><span class="n">final_df</span><span class="p">[</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">group</span><span class="p">)][</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">]</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">final_df</span><span class="p">[</span><span class="n">final_df</span><span class="p">[</span><span class="s2">&quot;numberCRC&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">group</span><span class="p">)][</span><span class="s2">&quot;crust mg kg-1Wiki&quot;</span><span class="p">]</span> 
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> 
+       <span class="n">marker</span> <span class="o">=</span> <span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">highlightsize</span><span class="o">+</span><span class="mi">40</span><span class="p">,</span> 
+       <span class="n">color</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">edgecolor</span> <span class="o">=</span> <span class="s2">&quot;white&quot;</span><span class="p">,</span>
+       <span class="n">linewidth</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> 
+       <span class="n">marker</span> <span class="o">=</span> <span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">highlightsize</span><span class="p">,</span> 
+       <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span> <span class="n">edgecolor</span> <span class="o">=</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span>
+       <span class="n">linewidth</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;Abundance $\rm /(mg\ kg^{-1})$&quot;</span><span class="p">,</span> 
+       <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Atomic Number&quot;</span><span class="p">,</span>
+       <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+       <span class="n">yticks</span><span class="o">=</span><span class="p">[</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1e0</span><span class="p">,</span> <span class="mf">1e3</span><span class="p">,</span> <span class="mf">1e6</span><span class="p">],</span>
+       <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+       <span class="n">xlim</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span><span class="mi">90</span><span class="p">],</span>                  
+       <span class="n">ylim</span><span class="o">=</span><span class="p">[</span><span class="mf">1e-4</span><span class="p">,</span><span class="mf">1e6</span><span class="p">],</span>     
+      <span class="p">)</span>
+<span class="c1">#ax.margins(x=.07, y=.07, tight=True)      # add 7% empty space around outside of plot area   </span>
+<span class="n">ax</span><span class="o">.</span><span class="n">minorticks_off</span><span class="p">()</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;plot.pdf&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</details>
+<div class="cell_output docutils container">
+<img alt="../../../_images/15b71ddb1c40af4ec867cd0cc616f0b1036725c58411a556ae006b979086611f.png" src="../../../_images/15b71ddb1c40af4ec867cd0cc616f0b1036725c58411a556ae006b979086611f.png" />
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 500x400 with 0 Axes&gt;
+</pre></div>
+</div>
+</div>
+</div>
+<p>This image was exporetd as a PDF and edited using Affinity Publisher to add element labels.</p>
+</section>
+</section>
+<section id="more">
+<h2>More<a class="headerlink" href="#more" title="Link to this heading">#</a></h2>
+<p><a class="reference external" href="https://web.archive.org/web/20190518224615/">https://web.archive.org/web/20190518224615/</a></p>
+<p><a class="reference external" href="http://www.kayelaby.npl.co.uk/chemistry/3_1/3_1_3.html">http://www.kayelaby.npl.co.uk/chemistry/3_1/3_1_3.html</a></p>
+<p><a class="reference external" href="https://web.archive.org/web/20190506031327/http://www.kayelaby.npl.co.uk/">https://web.archive.org/web/20190506031327/http://www.kayelaby.npl.co.uk/</a></p>
+<p>https://web.archive.org/web/20190518224615/http://www.kayelaby.npl.co.uk/chemistry/3_1/3_1_3.html</p>
+<p>Hamilton, E.I., “Geobiocoenosis: The chemical elements and relative abundance in biotic and abiotic systems.” Sci. Total Environ., 1988, 71, 253–267. <a class="reference external" href="https://doi.org/10.1016/0048-9697(88)90197-0">https://doi.org/10.1016/0048-9697(88)90197-0</a></p>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Composition_of_the_human_body">https://en.wikipedia.org/wiki/Composition_of_the_human_body</a></p>
+<p><a class="reference external" href="https://bionumbers.hms.harvard.edu/search.aspx?task=searchbytrmorg&amp;amp;log=y&amp;amp;trm=Biosphere">https://bionumbers.hms.harvard.edu/search.aspx?task=searchbytrmorg&amp;log=y&amp;trm=Biosphere</a>
+These numbers alegedly from John Harte, Consider a Spherical Cow: A Course in Environmental Problem Solving, Berkeley. 1988. University Science Books p.243 VIII. The Elements table 1 978-0935702583
+Borrow it from <a class="reference external" href="https://archive.org/details/considerspherica00hart">https://archive.org/details/considerspherica00hart</a>
+In UPEI Library at QH541.15.M34 H37 1985</p>
+<p>Fun fact - Human moeclulat formula
+<a class="reference external" href="https://bionumbers.hms.harvard.edu/bionumber.aspx?id=111244&amp;amp;ver=4&amp;amp;trm=elemental+abundance&amp;amp;org=">https://bionumbers.hms.harvard.edu/bionumber.aspx?id=111244&amp;ver=4&amp;trm=elemental+abundance&amp;org=</a></p>
+<p>DiGiacomo J, Rose GD, Williams LD. The master molecule that built biology: How water shaped the chemistry of life. Protein Science. 2026;35(5):e70532. https://doi.org/10.1002/pro.70532</p>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./chapters/03-water/01-ElementsOnEarth"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#an-plot-of-elements-in-the-earth-s-crust">An Plot of Elements in the Earth’s Crust</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-did-that-data-come-from">Where Did That Data Come From</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-second-data-set">A Second Data Set</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#combining-the-two-data-sets">Combining the Two Data Sets</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#are-they-the-same">Are They the Same?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#a-visual-check">A Visual Check</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#a-log-log-plot">A Log-Log Plot</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reproducing-the-elemental-abundance-plot">Reproducing the Elemental Abundance Plot</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#remove-noble-gasses-and-short-lived-elements">remove Noble Gasses and Short-Lived Elements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#a-close-copy-of-the-wikipedia-plot">A Close Copy of the Wikipedia Plot</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#a-confession">A Confession</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-plot-for-the-textbook">The Plot for the Textbook</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-final-plot">the Final Plot</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#more">More</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Barry Linkletter
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

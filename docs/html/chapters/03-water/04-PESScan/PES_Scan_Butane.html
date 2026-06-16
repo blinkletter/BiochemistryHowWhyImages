@@ -1,0 +1,927 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Conjugation: Bond Rotation in Butane &#8212; Biochemistry - How and Why</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css?v=8cd3d715" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=9b88075f" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/tufte.css?v=34b51f63" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'chapters/03-water/04-PESScan/PES_Scan_Butane';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Visualizing the Rotational Profile of Butane" href="Processing_Butane.html" />
+    <link rel="prev" title="Plot of Electronegativity" href="../02-Electronegativity/Electronegativity.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../start.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/water2.png" class="logo__image only-light" alt="Biochemistry - How and Why - Home"/>
+    <img src="../../../_static/water2.png" class="logo__image only-dark pst-js-only" alt="Biochemistry - How and Why - Home"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../start.html">
+                    Biochemistry: How & Why – Images
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">This Website</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../website/siteinstructions.html">Why this Website?</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../website/webbook.html">Website Images</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../website/waterbox/waterbox.html">Water Box Banner</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Chapters</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../01-intro/intro.html">Introduction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../01-intro/00-HistoryEarth/earthhistory.html">Earth History</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../01-intro/01-trypsin-geis/trypsin-geis.html">Trypsin by Irving Geis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../01-intro/02-trypsin-chimera/trypsin-chimera.html">Trypsin Visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../01-intro/03-Trypsin-ramachandran/Ramachandran.html">Ramachandran Plot</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../water.html">Atoms to Water</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../01-ElementsOnEarth/ElementsEarth.html">Plot of Elemental Abundance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01-ElementsOnEarth/ElementsBiosphere.html">Elements in the Biosphere</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02-Electronegativity/Electronegativity.html">Plot of Electronegativity</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Conjugation: Bond Rotation in Butane</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Processing_Butane.html">Visualizing the Rotational Profile of Butane</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PES_Scan_Butadiene.html">Conjugation: Bond Rotation in Butadiene</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Processing_Butadiene.html">Visualizing the Rotational Profile of Butadiene</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Other</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../other/other.html">Other</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-launch-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Launch interactive content">
+    <i class="fas fa-rocket"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://colab.research.google.com/github/blinkletter/BiochemistryHowWhy/blob/main/webbook/chapters/03-water/04-PESScan/PES_Scan_Butane.ipynb" target="_blank"
+   class="btn btn-sm dropdown-item"
+   title="Launch on Colab"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  
+    <img alt="Colab logo" src="../../../_static/images/logo_colab.png">
+  </span>
+<span class="btn__text-container">Colab</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+<a href="https://github.com/blinkletter/BiochemistryHowWhy" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../_sources/chapters/03-water/04-PESScan/PES_Scan_Butane.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Conjugation: Bond Rotation in Butane</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up">Setting Up</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-psi4">Running <em>Psi4</em></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#store-the-data">Store the Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plot-the-data">Plot the Data</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="conjugation-bond-rotation-in-butane">
+<h1>Conjugation: Bond Rotation in Butane<a class="headerlink" href="#conjugation-bond-rotation-in-butane" title="Link to this heading">#</a></h1>
+<p>To understand the effect of conjugation it is useful to explore the conformational energy profile for rotating the central C-C bond in butane and butadiene. this notebook will present the profile for <strong>butane</strong>.</p>
+<p>We can calculate the energy for different conformations of butane using programs that perform quantum mechanical calculations. I have no idea what is happening under the hood, but this python notebook will document my methods and then others can correct my errors easily while judging me harshly. I will be using the <em><strong>Psi4</strong></em> computational chemistry package. It is freely available as a <em>Python</em> module and so it is very convenient to use in a notebook like this one.</p>
+<section id="setting-up">
+<h2>Setting Up<a class="headerlink" href="#setting-up" title="Link to this heading">#</a></h2>
+<div class="dropdown admonition note">
+<p class="admonition-title">Note</p>
+<p>This notebook contains the instructions and code to optimize the structure and calculate the energy for a set of butane molecules with fixed torsional angles at the central C-C bond. the data is saved in csv and binary files for use in the next notebook that will use the data for extracting useful information. I am doing this so that the two operations: data creation and data analuysis are separated. The calculation here took ten minutes on my computer. So you can start with the data rather than repeating the expensive calculation if you wish</p>
+</div>
+<p>First I am going to set up the calculation by setting the variables in the code block below. You will see that I choose the name of the job (<code class="docutils literal notranslate"><span class="pre">basename</span></code>: this will be used to name the log and result files) and an extra name to add to that name as I try multiple runs (<code class="docutils literal notranslate"><span class="pre">runname</span></code>). I also set up information for what angles to set for the bond rotation(<code class="docutils literal notranslate"><span class="pre">start_angle</span></code>, <code class="docutils literal notranslate"><span class="pre">end_angle</span></code>, and <code class="docutils literal notranslate"><span class="pre">step_size</span></code>). the most important data is the structural data. I must describe the positions of atoms for the calculation. I set a text block in a variable called <code class="docutils literal notranslate"><span class="pre">butane_template</span></code> to hold the structural info. The format does not matter, just know that the data describes the initial structure.  the <code class="docutils literal notranslate"><span class="pre">{phi}</span></code> placeholder will be replaced with the chosen bond angle in the calculations that follow.</p>
+<p>If your interested, the structural data is presented as a z-matrix. this is a format that describes the positions of atoms relative to each other. the firest line states the charge and electronic state as 0 charge and a singlet electronic state (singlet means all electrons are paired). the following lines describe the atoms. the Z-matric copuld be describes as follows…</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Atom</span> <span class="c1">#1 is carbon;</span>
+<span class="n">Atom</span> <span class="c1">#2 is carbon and it is 1.54 Angstroms from atom #1.</span>
+<span class="n">Atom</span> <span class="c1">#3 is carbon and it is 1.54 Angstroms from atom #2 and at an angle of 112 degrees from the 1,2 bond </span>
+<span class="n">Atom</span> <span class="c1">#4 is carbon and it is 1.54 Angstroms from atom #3 and at an angle of 112 degrees from the 2,3 bond and at a torsional angle of {phi} from the plane defined by atoms 1,2 and 3.</span>
+<span class="n">Atom</span> <span class="mi">5</span><span class="n">h</span> <span class="ow">is</span> <span class="n">hydrogen</span> <span class="ow">and</span> <span class="n">it</span> <span class="ow">is</span> <span class="mf">1.09</span> <span class="n">Angstroms</span> <span class="kn">from</span><span class="w"> </span><span class="nn">atom</span> <span class="c1">#1 and at an angle of 109.5 degrees from the 1,2 bond and at a torsional angle of 181 degrees from the plane defined by atoms 1,2 and 3.</span>
+<span class="n">etc</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>We now have everything set up. We will need only to change this setup infromation when we switch to butadiene in the next notebook.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">basename</span> <span class="o">=</span> <span class="s2">&quot;butane_scan&quot;</span> <span class="c1"># Base name for log files and output CSV file. This will be combined with the &#39;runname&#39; variable to create unique file names for each run.</span>
+<span class="n">runname</span> <span class="o">=</span> <span class="s2">&quot;hf-631G-X&quot;</span> <span class="c1"># You can change this to keep track of different runs with different settings. This will be used in the log file names and the output CSV file name.</span>
+
+<span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;hf/6-31G*&quot;</span> <span class="c1"># You can change this to use a different level of theory and basis set. For example, &quot;mp2/6-31G*&quot;, &quot;b3lyp/6-31G*&quot;, etc.</span>
+
+<span class="n">start_angle</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># Starting dihedral angle in degrees</span>
+<span class="n">end_angle</span> <span class="o">=</span> <span class="mi">180</span> <span class="c1"># Ending dihedral angle in degrees</span>
+<span class="n">step_size</span> <span class="o">=</span> <span class="mi">5</span> <span class="c1"># Step size for dihedral angle in degrees</span>
+
+
+<span class="c1"># Define base butane geometry (Z-matrix for easy dihedral manipulation)</span>
+<span class="n">template</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">0 1</span>
+<span class="s2">C</span>
+<span class="s2">C 1 1.54</span>
+<span class="s2">C 2 1.54 1 112.0</span>
+<span class="s2">C 3 1.54 2 112.0 1 </span><span class="si">{phi}</span>
+<span class="s2">H 1 1.09 2 109.5 3 181.0</span>
+<span class="s2">H 1 1.09 2 109.5 3 61.0</span>
+<span class="s2">H 1 1.09 2 109.5 3 -61.0</span>
+<span class="s2">H 2 1.09 3 109.5 1 181.0</span>
+<span class="s2">H 2 1.09 3 109.5 1 61.0</span>
+<span class="s2">H 3 1.09 4 109.5 2 181.0</span>
+<span class="s2">H 3 1.09 4 109.5 2 61.0</span>
+<span class="s2">H 4 1.09 3 109.5 2 -61.0</span>
+<span class="s2">H 4 1.09 3 109.5 2 61.0</span>
+<span class="s2">H 4 1.09 3 109.5 2 181.0</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="c1"># I added 1 to all torsion angles to avoid symmetry locks in the structure. This is a common trick to break </span>
+<span class="c1">#    symmetry and allow the optimization to proceed without getting stuck in a high-symmetry point.</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+</section>
+<section id="running-psi4">
+<h2>Running <em>Psi4</em><a class="headerlink" href="#running-psi4" title="Link to this heading">#</a></h2>
+<p>The code below will run the job. It will use the structure data in <code class="docutils literal notranslate"><span class="pre">template</span></code> and substitute the <code class="docutils literal notranslate"><span class="pre">{psi}</span></code> with the value for the torsion angle. The code establishes the settings for the calculation, inputs the molecular geometry and then runs a structural optimization job to find the lowest energy structure for the given tortional angle. the torsion angle for the central C-C bond is locked but all other bond distances, bond angles and torsion angles can change until the lowest energy structure is found.</p>
+<div class="dropdown admonition note">
+<p class="admonition-title">Note</p>
+<p>This job will take more than 10 minutes to run. There is data from a previous run available. There are 37 structures to optimize and each takes 20 seconds or more. Because butane is so flexible the optimization routine failed with some structures as it took to many iterations to converge (so many small tweaks were possible and the software kept making small adjustments until the limit was reached). There are a number of ways to addrss this. I could increase the value of <code class="docutils literal notranslate"><span class="pre">geom_maxiter</span></code> (default is 50) or I could use both Z-matrix internal coordinates (what I used to input the struycture) and cartessian coordinates (more robust) by setting <code class="docutils literal notranslate"><span class="pre">opt_coordinates</span></code> to “both”. Other options are shown in the code.</p>
+</div>
+<div class="cell tag_hide-input tag_hide-output docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input above-output-prompt docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">psi4</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">redirect_stdout</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">redirect_stderr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="c1"># Set Psi4 options</span>
+<span class="n">psi4</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">set_output_file</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">runname</span><span class="si">}</span><span class="s2">.log&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="c1"># True: append logs; False: overwrite logs</span>
+<span class="n">psi4</span><span class="o">.</span><span class="n">set_memory</span><span class="p">(</span><span class="s1">&#39;2 GB&#39;</span><span class="p">)</span>
+<span class="n">psi4</span><span class="o">.</span><span class="n">set_num_threads</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="c1"># Adjust based on your CPU cores; 1 for single-threaded, more for parallel</span>
+<span class="n">psi4</span><span class="o">.</span><span class="n">set_options</span><span class="p">({</span>
+    <span class="s1">&#39;print&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>         <span class="c1"># 0 for no output, 1 for minimal output, 2 for detailed output. Needs to be set to 1 or greater for optking to work properly.</span>
+    <span class="s1">&#39;reference&#39;</span><span class="p">:</span> <span class="s1">&#39;rhf&#39;</span><span class="p">,</span> <span class="c1"># &#39;uhf&#39;, &#39;rhf&#39;, &#39;rohf&#39;</span>
+    <span class="s1">&#39;scf_type&#39;</span><span class="p">:</span> <span class="s1">&#39;df&#39;</span><span class="p">,</span>   <span class="c1"># density fitting for faster SCF. Other options are &#39;pk&#39; (default), &#39;direct&#39;, &#39;outofcore&#39; and more</span>
+    <span class="s1">&#39;optking__frozen_dihedral&#39;</span><span class="p">:</span> <span class="s1">&#39;1 2 3 4&#39;</span><span class="p">,</span>
+<span class="c1"># efforts to solve convergence problems. Try some of these if the calculations fail.</span>
+<span class="c1">#    &#39;optking__g_convergence&#39;: &#39;gau_tight&#39;,  # Use tight convergence for better accuracy in geometry optimization. This is optional but can help ensure that the optimized geometries are well-converged, especially when scanning over a range of dihedral angles where the energy landscape can be complex.</span>
+<span class="c1">#    &#39;geom_maxiter&#39;: 200, # Increase maximum iterations for geometry optimization to ensure convergence, especially for challenging angles. This is optional but can help prevent premature termination of the optimization.})</span>
+<span class="c1">#    &#39;optking__max_force_g_convergence&#39;: 0.1, # Increase maximum force threshold for geometry optimization to allow for more flexibility in the optimization process, especially when scanning over a range of dihedral angles where the energy landscape can be complex. This is optional but can help ensure that the optimization can proceed even if the forces are relatively large at certain angles.})</span>
+<span class="c1">#    &#39;full_hess_every&#39;: 5, # Perform a full Hessian calculation every 5 steps to improve convergence, especially for challenging angles. This is optional but can help ensure that the optimization has accurate curvature information to guide the optimization process.})</span>
+    <span class="s1">&#39;opt_coordinates&#39;</span><span class="p">:</span> <span class="s1">&#39;both&#39;</span> <span class="c1"># Optimize in both Cartesian and internal coordinates to improve convergence, especially for challenging angles. This is optional but can help ensure that the optimization can find the optimal geometry more effectively.</span>
+    <span class="p">})</span>
+
+<span class="c1"># define message for header of each optimization run in the loop. This will be printed to the stderr file for each angle, so we can easily see where each optimization starts in the log.</span>
+<span class="n">dihedral_print_message</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+
+<span class="s2">--------------------------------------------------</span>
+<span class="s2">Starting optimization for dihedral angle: </span><span class="si">{phi:.1f}</span><span class="s2"> degrees</span>
+<span class="s2">--------------------------------------------------</span>
+
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="c1"># Define scan range (0 to 360 degrees)</span>
+<span class="n">angles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">start_angle</span><span class="p">,</span> <span class="n">end_angle</span> <span class="o">+</span> <span class="n">step_size</span><span class="p">,</span> <span class="n">step_size</span><span class="p">)</span> <span class="c1"># Generate array of dihedral angles from start to end with the specified step size</span>
+<span class="n">energies</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">molecules</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">wavefunctions</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">globalstart</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">_stderr_</span><span class="si">{</span><span class="n">runname</span><span class="si">}</span><span class="s2">.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span> <span class="c1"># These with statements redirect the standard error output (which is where Psi4 writes its logs) to a file called &quot;stderr.txt&quot;. This allows us to capture the verbose output from Psi4 without cluttering the console.</span>
+    <span class="k">with</span> <span class="n">redirect_stderr</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+
+        <span class="c1"># Loop over angles and perform calculations for butane at each angle</span>
+        <span class="k">for</span> <span class="n">phi</span> <span class="ow">in</span> <span class="n">angles</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dihedral_print_message</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">phi</span><span class="o">=</span><span class="n">phi</span><span class="p">))</span> <span class="c1"># Print to a file for stderr. verbose output from Psi4 will be written to this file.</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Calculating for dihedral = </span><span class="si">{</span><span class="n">phi</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> deg&quot;</span><span class="p">)</span>
+        
+            <span class="c1"># Create molecule with current dihedral</span>
+            <span class="n">mol</span> <span class="o">=</span> <span class="n">psi4</span><span class="o">.</span><span class="n">geometry</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">phi</span><span class="o">=</span><span class="n">phi</span><span class="p">))</span>
+
+<span class="c1">#           dihedral_string = f&quot;1 2 3 4 {phi}.0 {phi+0.05}&quot;</span>
+<span class="c1">#           psi4.set_options({&quot;optking__ranged_dihedral&quot;: f&quot;{dihedral_string}&quot;,</span>
+<span class="c1">#                             &quot;optking__g_convergence&quot;: &quot;gau_tight&quot;, # Use tight convergence for better accuracy in geometry optimization. This is optional but can help ensure that the optimized geometries are well-converged, especially when scanning over a range of dihedral angles where the energy landscape can be complex.})</span>
+<span class="c1">#                               })</span>
+            <span class="c1"># Compute energy (with structural optimization)</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+            <span class="c1">###############################</span>
+            <span class="c1"># This is where Psi4 is used. This will use the structure established from &#39;butane_template&#39; with the </span>
+            <span class="c1">#     angle &#39;phi&#39; set to a value from the list &#39;angles&#39;. The &#39;optimize&#39; function will perform a geometry </span>
+            <span class="c1">#     optimization at the specified level of theory (SCF in this case) while keeping the specified </span>
+            <span class="c1">#     dihedral angle frozen. &#39;hf&#39; is the level of theory (Hartree-Fock). You can change this to &#39;mp2&#39;, </span>
+            <span class="c1">#     &#39;ccsd&#39;, &#39;b3lyp&#39;, etc. for more accurate calculations, but it will take longer.</span>
+            <span class="c1">###############################</span>
+            <span class="n">energy</span> <span class="o">=</span> <span class="n">psi4</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">molecule</span><span class="o">=</span><span class="n">mol</span><span class="p">,</span> <span class="n">return_wfn</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="c1">###############################</span>
+            <span class="c1"># End of Psi4 calculation. Everything else is just setup and timing.</span>
+            <span class="c1">###############################</span>
+
+            <span class="n">energies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span> <span class="c1"># The final optimized energy from the calculation is stored in the &#39;energies&#39; list.</span>
+            <span class="n">wavefunctions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wfn</span><span class="p">)</span> <span class="c1"># The wavefunction from the calculation is stored in the &#39;wavefunctions&#39; list.</span>
+
+            <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Time for dihedral optimization </span><span class="si">{</span><span class="n">phi</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> deg: </span><span class="si">{</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+
+            <span class="n">mol</span> <span class="o">=</span> <span class="n">psi4</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">get_active_molecule</span><span class="p">()</span> <span class="c1"># After the optimization, we retrieve the optimized molecule using &#39;get_active_molecule()&#39;. This allows us to store the optimized geometry for each angle in the &#39;molecules&#39; list. We do this after the optimization so that we have the final optimized structure for each dihedral angle, rather than just the initial structure that we started with for each angle.            </span>
+            <span class="n">molecules</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+
+
+<span class="n">globalend</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total time for scan: </span><span class="si">{</span><span class="n">globalend</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">globalstart</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+
+<span class="c1"># Get relative energies (kJ/mol)</span>
+<span class="n">energies_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">energies</span><span class="p">)</span>                    <span class="c1"># Convert list to numpy array for easier manipulation</span>
+<span class="n">energies_array</span> <span class="o">=</span> <span class="n">energies_array</span> <span class="o">-</span> <span class="n">energies_array</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="c1"># Set minimum energy to zero</span>
+<span class="n">energies_array</span> <span class="o">=</span> <span class="n">energies_array</span> <span class="o">*</span> <span class="mf">627.509</span> <span class="o">*</span> <span class="mf">4.184</span>      <span class="c1"># ConvertHartree to kJ/mol</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Scan complete.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</details>
+<details class="admonition hide below-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell output</p>
+<p class="expanded admonition-title">Hide code cell output</p>
+</summary>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Calculating for dihedral = 0.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 0.0 deg: 31.79 seconds
+Calculating for dihedral = 5.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 5.0 deg: 31.54 seconds
+Calculating for dihedral = 10.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 10.0 deg: 32.12 seconds
+Calculating for dihedral = 15.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 15.0 deg: 30.76 seconds
+Calculating for dihedral = 20.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 20.0 deg: 31.32 seconds
+Calculating for dihedral = 25.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 25.0 deg: 32.68 seconds
+Calculating for dihedral = 30.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 30.0 deg: 31.62 seconds
+Calculating for dihedral = 35.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 35.0 deg: 32.38 seconds
+Calculating for dihedral = 40.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 40.0 deg: 33.10 seconds
+Calculating for dihedral = 45.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 45.0 deg: 32.78 seconds
+Calculating for dihedral = 50.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 50.0 deg: 30.87 seconds
+Calculating for dihedral = 55.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 55.0 deg: 30.75 seconds
+Calculating for dihedral = 60.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 60.0 deg: 28.39 seconds
+Calculating for dihedral = 65.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 65.0 deg: 28.35 seconds
+Calculating for dihedral = 70.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 70.0 deg: 29.20 seconds
+Calculating for dihedral = 75.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 75.0 deg: 28.59 seconds
+Calculating for dihedral = 80.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 80.0 deg: 28.77 seconds
+Calculating for dihedral = 85.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 85.0 deg: 28.64 seconds
+Calculating for dihedral = 90.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 90.0 deg: 28.71 seconds
+Calculating for dihedral = 95.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 95.0 deg: 29.74 seconds
+Calculating for dihedral = 100.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 100.0 deg: 31.08 seconds
+Calculating for dihedral = 105.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 105.0 deg: 31.47 seconds
+Calculating for dihedral = 110.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 110.0 deg: 32.82 seconds
+Calculating for dihedral = 115.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 115.0 deg: 32.19 seconds
+Calculating for dihedral = 120.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 120.0 deg: 33.28 seconds
+Calculating for dihedral = 125.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 125.0 deg: 32.75 seconds
+Calculating for dihedral = 130.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 130.0 deg: 32.59 seconds
+Calculating for dihedral = 135.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 135.0 deg: 35.48 seconds
+Calculating for dihedral = 140.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 140.0 deg: 33.55 seconds
+Calculating for dihedral = 145.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 145.0 deg: 35.63 seconds
+Calculating for dihedral = 150.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 150.0 deg: 37.78 seconds
+Calculating for dihedral = 155.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 155.0 deg: 36.23 seconds
+Calculating for dihedral = 160.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 160.0 deg: 33.62 seconds
+Calculating for dihedral = 165.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 165.0 deg: 33.73 seconds
+Calculating for dihedral = 170.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 170.0 deg: 35.08 seconds
+Calculating for dihedral = 175.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 175.0 deg: 35.00 seconds
+Calculating for dihedral = 180.0 deg
+Optimizer: Optimization complete!
+Time for dihedral optimization 180.0 deg: 35.17 seconds
+Total time for scan: 1189.60 seconds
+
+Scan complete.
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+</section>
+<section id="store-the-data">
+<h2>Store the Data<a class="headerlink" href="#store-the-data" title="Link to this heading">#</a></h2>
+<p>the code below will take the vaiable that contain the following information and store it so that we can retrieve the data later from files rather than repeat a lengthy calculation.</p>
+<p>The angle, relative energy (kJ/mole) and calculated HF energy (Hartrees) will be strored in a csv file.</p>
+<p>The list of optimized molecular structures will be converted to strings of Z-matrix internal coordinates and xyz cartessian coordinates and these will also be included in the csv file above.</p>
+<p>The list of wavefunction data for each structure (Psi4 objects) can be stored as separate files of numpy arrays using the <code class="docutils literal notranslate"><span class="pre">.to_file()</span></code> method available to Psi4 wavefunction objects.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">##################################################</span>
+<span class="c1"># SAVE DATA</span>
+<span class="c1">##################################################</span>
+
+<span class="c1"># Save binary objects as pickle files</span>
+
+<span class="n">num</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">zmat</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">xyz</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">items</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">molecules</span><span class="p">,</span> <span class="n">wavefunctions</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">molecules</span><span class="p">)))</span>
+<span class="k">for</span> <span class="n">m</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+    <span class="n">num</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">zmat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">create_psi4_string_from_molecule</span><span class="p">())</span>
+    <span class="n">xyz</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">save_string_xyz</span><span class="p">())</span>
+<span class="c1">#    w.to_file(f&quot;wfn_data/{basename}_{runname}_wavefunction_{n}.wfn&quot;)</span>
+
+<span class="c1"># make dataframe from angles and energies</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;Number&#39;</span><span class="p">:</span> <span class="n">num</span><span class="p">,</span>
+    <span class="s1">&#39;Dihedral Angle (deg)&#39;</span><span class="p">:</span> <span class="n">angles</span><span class="p">,</span>
+    <span class="s1">&#39;Energy (kJ/mol)&#39;</span><span class="p">:</span> <span class="n">energies_array</span><span class="p">,</span>
+    <span class="s1">&#39;Energy (Ha)&#39;</span><span class="p">:</span> <span class="n">energies</span><span class="p">,</span>
+    <span class="s1">&#39;zmatrix&#39;</span><span class="p">:</span> <span class="n">zmat</span><span class="p">,</span>
+    <span class="s1">&#39;xyz&#39;</span><span class="p">:</span> <span class="n">xyz</span><span class="p">,</span>
+    <span class="p">})</span>
+
+<span class="c1"># Save angles and data to CSV</span>
+<span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">runname</span><span class="si">}</span><span class="s2">.csv&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+</section>
+<section id="plot-the-data">
+<h2>Plot the Data<a class="headerlink" href="#plot-the-data" title="Link to this heading">#</a></h2>
+<p>This plot is also made in the data processing notebook that follows this one. It is here as a quick check that the calculation produced sensible results.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="n">basename</span> <span class="o">=</span> <span class="s2">&quot;butane_scan&quot;</span> <span class="c1"># Base name for log files and output CSV file. This will be combined with the &#39;runname&#39; variable to create unique file names for each run.</span>
+<span class="n">runname</span> <span class="o">=</span> <span class="s2">&quot;hf-631G-previous&quot;</span> <span class="c1"># You can change this to keep track of different runs with different settings. This will be used in the log file names and the output CSV file name.</span>
+
+
+<span class="n">styles_location</span> <span class="o">=</span> <span class="s2">&quot;../../../styles/&quot;</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParamsDefault</span>
+<span class="c1">#plt.style.use(styles_location + &quot;tufte.mplstyle&quot;)        </span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>  
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">runname</span><span class="si">}</span><span class="s2">.csv&quot;</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Dihedral Angle (deg)&quot;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Energy (kJ/mol)&quot;</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span>
+        <span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Dihedral Angle (deg)&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Energy $/\,kJ\; mol^{-1}$&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">185</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xticks</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">180</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+<span class="c1">#ax.set_title(&quot;Butane Rotation Profile&quot;)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="c1">#plt.savefig(f&quot;{basename}_{runname}.pdf&quot;, bbox_inches=&#39;tight&#39;)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</details>
+<div class="cell_output docutils container">
+<img alt="../../../_images/7753114f3d29768c877233e3099ae5888099fefa57bb6c951c0d7e63c6143dd0.png" src="../../../_images/7753114f3d29768c877233e3099ae5888099fefa57bb6c951c0d7e63c6143dd0.png" />
+</div>
+</div>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./chapters/03-water/04-PESScan"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../02-Electronegativity/Electronegativity.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Plot of Electronegativity</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="Processing_Butane.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Visualizing the Rotational Profile of Butane</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up">Setting Up</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-psi4">Running <em>Psi4</em></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#store-the-data">Store the Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plot-the-data">Plot the Data</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Barry Linkletter
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
