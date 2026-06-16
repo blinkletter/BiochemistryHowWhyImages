@@ -18,11 +18,15 @@ parts:
           - file: chapters/01-intro/01-trypsin-geis/trypsin-geis.md
           - file: chapters/01-intro/02-trypsin-chimera/trypsin-chimera.ipynb     
           - file: chapters/01-intro/03-Trypsin-ramachandran/Ramachandran.ipynb     
-        - file: chapters/03-water/water.md        
-          sections:
-          - file: chapters/03-water/01-ElementsOnEarth/ElementsEarth.ipynb
-          - file: chapters/03-water/01-ElementsOnEarth/ElementsBiosphere.ipynb
-          - file: chapters/03-water/02-Electronegativity/Electronegativity.ipynb
+#        - file: chapters/03-water/water.md        
+#          sections:
+#          - file: chapters/03-water/01-ElementsOnEarth/ElementsEarth.ipynb
+#          - file: chapters/03-water/01-ElementsOnEarth/ElementsBiosphere.ipynb
+#          - file: chapters/03-water/02-Electronegativity/Electronegativity.ipynb
+#          - file: chapters/03-water/04-PESScan/PES_Scan_Butane.ipynb
+#          - file: chapters/03-water/04-PESScan/Processing_Butane.ipynb
+#          - file: chapters/03-water/04-PESScan/PES_Scan_Butadiene.ipynb
+#          - file: chapters/03-water/04-PESScan/Processing_Butadiene.ipynb
     - caption: Other
       chapters:
         - file: other/other.md
