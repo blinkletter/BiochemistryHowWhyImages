@@ -27,6 +27,7 @@ parts:
           - file: chapters/03-water/04-PESScan/Processing_Butane.ipynb
           - file: chapters/03-water/04-PESScan/PES_Scan_Butadiene.ipynb
           - file: chapters/03-water/04-PESScan/Processing_Butadiene.ipynb
+          - file: chapters/03-water/05-HULIS/HULIS-ethylene-butadiene.md
     - caption: Other
       chapters:
         - file: other/other.md
