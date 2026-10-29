@@ -14,6 +14,8 @@ project:
         - University of Prince Edward Island
   github: https://github.com/blinkletter/netbook/
   # To autogenerate a Table of Contents, run "myst init --write-toc"
+  bibliography:
+    - refs.bib
   toc:
   - file: index.md
   - title: Website
