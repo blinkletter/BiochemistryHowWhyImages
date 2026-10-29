@@ -1,5 +1,6 @@
-![water](images/waterbox.png)
 # Biochemistry: How \& Why -- Images
+![water](images/waterbox.png)
+
 Welcome to the course information for **Chemistry 4410**, Physical Organic Chemistry. In this book you will find the **syllabus** and outline, followed by a detailed description of class activities for **each lesson** in the course.
 
 ## How the Images were Made
