@@ -7,7 +7,7 @@ Hückel molecular orbital theory is a quick and dirty method to use an empirical
 
 A group at Aix Marseilles Université in France has published a *Java* application that will perform these calculations for us. We can use the app to build a conjugated $\pi$ system and then calculate the energy levels of the molecular orbitals as well as the magnitude of contribution from each atomic $p$ orbital to each of the molecular orbitals (the "shape" of each MO).
 
-You can obtain the app at [http://m.hulis.free.fr/hulis.html](http://m.hulis.free.fr/hulis.html) for a version that works on phones (html) or [https://ctom-ism2.github.io/hulis/index.shtml](https://ctom-ism2.github.io/hulis/index.shtml) for the full *Java* vesrion that will run on your own computer.
+You can obtain the app at [http://m.hulis.free.fr/hulis.html](http://m.hulis.free.fr/hulis.html) for a version that works on phones (html) or [https://ctom-ism2.github.io/hulis/index.shtml](https://ctom-ism2.github.io/hulis/index.shtml) for the full *Java* vesrion that will run on your own computer {cite:p}`Hulis`.
 
 ## Ethylene MOs
 
