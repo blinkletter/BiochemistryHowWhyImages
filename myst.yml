@@ -18,21 +18,23 @@ project:
     - refs.bib
   toc:
   - file: index.md
-  - title: Website
-    children:
-      - file: website/siteinstructions.md
+  - file: website/siteinstructions.md
+    title: Website
+    children:    
       - file: website/webbook.md
         children:
         - file: website/waterbox/waterbox.md
   - title: Chapters
     children:
-      - file: chapters/01-intro/intro.md        
+      - file: chapters/01-intro/intro.md  
+        title: Introduction      
         children:
         - file: chapters/01-intro/00-HistoryEarth/earthhistory.md
         - file: chapters/01-intro/01-trypsin-geis/trypsin-geis.md
         - file: chapters/01-intro/02-trypsin-chimera/trypsin-chimera.ipynb     
         - file: chapters/01-intro/03-Trypsin-ramachandran/Ramachandran.ipynb     
-      - file: chapters/03-water/water.md        
+      - file: chapters/03-water/molecules.md
+        title: Atoms to Molecules     
         children:
         - file: chapters/03-water/01-ElementsOnEarth/ElementsEarth.ipynb
         - file: chapters/03-water/01-ElementsOnEarth/ElementsBiosphere.ipynb
