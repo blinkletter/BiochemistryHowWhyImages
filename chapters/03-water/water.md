@@ -26,3 +26,27 @@ Note that I will not be referring to figures by number. The positions of figures
 :width: 150px
 :align: center
 ```
+
+- [Conjugation: Bond Rotation in Butane](04-PESScan/PES_Scan_Butane.ipynb) and [Visualizing the Rotational Profile of Butane
+](04-PESScan/Processing_Butane.ipynb) Calculating and plotting the potential energy profile for bond rotation in butane.
+```{image} 04-PESScan/images/butane_scan_hf-631G-previous.png
+:alt: PES Butane
+:width: 150px
+:align: center
+```
+
+- [Conjugation: Bond Rotation in Butadiene](04-PESScan/PES_Scan_Butadiene.ipynb) and [Visualizing the Rotational Profile of Butadiene
+](04-PESScan/Processing_Butadiene.ipynb) Calculating and plotting the potential energy profile for bond rotation in Butadiene.
+```{image} 04-PESScan/images/butadiene_scan_hf-6-31G-previous.png
+:alt: PES Butadiene
+:width: 150px
+:align: center
+```
+
+- [The HULIS app and Huckel MO Theory](05-HULIS/HULIS-ethylene-butadiene.md) Instructions for using the HULIS web app to interpret conjugated $\pi$-molecular orbital systems.
+```{image} 05-HULIS/images/Screenshot2026-06-23at9.53.26AM.png
+:alt: HULIS app
+:width: 150px
+:align: center
+```
+
