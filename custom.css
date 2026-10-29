@@ -1,0 +1,32 @@
+/* Palatino for all body text. The theme applies Tailwind's font-sans class to
+   some containers, so override that too. Code blocks keep their monospace font. */
+body,
+.font-sans,
+article {
+  font-family: "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+}
+
+
+#/* Replace the theme's "Source" label on hide-input code cells */
+#details.myst-dropdown:has(.myst-code) > summary .myst-dropdown-header-title {
+#  font-size: 0;                 /* hides the built-in "Source" text */
+#}
+#details.myst-dropdown:has(.myst-code) > summary .myst-dropdown-header-title::after {
+#  content: "Click to show source code";
+#  font-size: 0.8rem;          /* the theme's normal header size */
+#}
+#details[open].myst-dropdown:has(.myst-code) > summary .myst-dropdown-header-title::after {
+#  content: "Click to hide source code";
+#}
+
+/* Open in Colab badge: left-aligned, inline, no extra space */
+.colab-badge,
+.colab-badge p {
+  margin: 0 !important;
+  padding: 0 !important;
+  text-align: left !important;
+}
+.colab-badge img {
+  display: inline-block !important;
+  margin: 0 !important;
+}
