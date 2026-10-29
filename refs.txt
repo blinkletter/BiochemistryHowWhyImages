@@ -1,0 +1,12 @@
+refs.txt
+
+Walton, C. R.; et. al., “Evolution of the
+Crustal Phosphorus Reservoir.” *Sci. Adv.*,
+**2023**, *9*, eade6923. [https://doi.org/10.1126/sciadv.ade6923](https://doi.org/10.1126/sciadv.ade6923). Open access.
+
+
+
+    - E.S. Radisky, J.M. Lee, C.K. Lu,  & D.E. Koshland,   "Insights into the serine protease mechanism from atomic resolution structures of trypsin reaction   intermediates", *Proc. Natl. Acad. Sci. U.S.A.*, **2006**, *103*, 6835-6840, [https://doi.org/10.1073/pnas.0601910103](https://doi.org/10.1073/pnas.0601910103).
+    - F. Hofer, J. Kraml, U. Kahler, A.S. Kamenik, and K.R. Liedl.
+    "Catalytic Site pKa Values of Aspartic, Cysteine, and Serine Proteases: Constant pH MD Simulations." *Journal of Chemical Information and Modeling*, **2020**, *60*,    3030-3042. [https://doi.org/10.1021/acs.jcim.0c00190](https://doi.org/10.1021/acs.jcim.0c00190)
+

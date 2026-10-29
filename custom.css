@@ -18,15 +18,3 @@ article {
 #details[open].myst-dropdown:has(.myst-code) > summary .myst-dropdown-header-title::after {
 #  content: "Click to hide source code";
 #}
-
-/* Open in Colab badge: left-aligned, inline, no extra space */
-.colab-badge,
-.colab-badge p {
-  margin: 0 !important;
-  padding: 0 !important;
-  text-align: left !important;
-}
-.colab-badge img {
-  display: inline-block !important;
-  margin: 0 !important;
-}

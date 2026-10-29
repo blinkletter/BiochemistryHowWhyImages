@@ -1,0 +1,15 @@
+# See docs at: https://mystmd.org/guide/frontmatter
+version: 1
+project:
+  id: e01b753f-9189-458a-9ece-3ac6dced3652
+  # title:
+  # description:
+  # keywords: []
+  # authors: []
+  github: https://github.com/blinkletter/netbook
+  # To autogenerate a Table of Contents, run "myst init --write-toc"
+site:
+  template: book-theme
+  # options:
+  #   favicon: favicon.ico
+  #   logo: site_logo.png
